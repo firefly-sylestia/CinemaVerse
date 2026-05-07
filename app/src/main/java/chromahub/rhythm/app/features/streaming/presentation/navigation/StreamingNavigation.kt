@@ -94,7 +94,7 @@ import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingHom
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingLibraryScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingSearchScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingServiceSetupScreen
-import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingSettingsScreen
+import chromahub.rhythm.app.features.streaming.presentation.screens.GoSettingsScreen
 import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
 import chromahub.rhythm.app.shared.data.model.Album
 import chromahub.rhythm.app.shared.data.model.AppSettings
@@ -125,6 +125,7 @@ private sealed class StreamingScreen(val route: String, val titleRes: Int? = nul
     data object ServiceSetup : StreamingScreen("streaming_service_setup/{serviceId}") {
         fun createRoute(serviceId: String): String = "streaming_service_setup/$serviceId"
     }
+    data object GoSettings : StreamingScreen("streaming_go_settings")
 }
 
 @Composable
@@ -184,8 +185,8 @@ fun StreamingNavigation(
     val requiresConnectedService =
         currentRoute == StreamingScreen.Home.route ||
             currentRoute == StreamingScreen.Library.route ||
-            currentRoute == StreamingScreen.Search.route ||
-            currentRoute == StreamingScreen.Settings.route
+            currentRoute == StreamingScreen.Search.route
+    var hasPendingStartupRoute by remember { mutableStateOf(false) }
 
     val navigateToTopLevel: (String) -> Unit = { route ->
         navController.navigate(route) {
@@ -197,11 +198,54 @@ fun StreamingNavigation(
         }
     }
 
+    LaunchedEffect(navController) {
+        val pendingRoute = appSettings.consumeInitialStreamingRoute()
+        if (!pendingRoute.isNullOrBlank()) {
+            // Validate that the pending route exists in the NavHost
+            val isValidRoute = listOf(
+                StreamingScreen.Integration.route,
+                StreamingScreen.Home.route,
+                StreamingScreen.Library.route,
+                StreamingScreen.Search.route,
+                StreamingScreen.GoSettings.route,
+                StreamingScreen.ServiceSetup.route
+            ).any { validRoute ->
+                pendingRoute == validRoute || pendingRoute.startsWith(validRoute.substringBefore("{"))
+            }
+
+            if (isValidRoute) {
+                hasPendingStartupRoute = true
+                navController.navigate(pendingRoute) {
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(currentRoute, hasPendingStartupRoute) {
+        if (hasPendingStartupRoute && currentRoute != StreamingScreen.Integration.route) {
+            hasPendingStartupRoute = false
+        }
+    }
+
     LaunchedEffect(streamingMusicViewModel, localMusicViewModel, navController) {
         streamingMusicViewModel.setPlaybackHandler { streamingQueue, startIndex ->
             val mappedQueue = streamingQueue.mapNotNull { it.toLocalSong() }
             if (mappedQueue.isEmpty()) {
+                // Error: Unable to map streaming songs to local songs
+                // This can happen if song metadata is invalid or missing
+                streamingMusicViewModel.reportError(
+                    "Playback failed: Unable to convert streaming songs for playback. " +
+                    "Try reconnecting to your service."
+                )
                 return@setPlaybackHandler
+            }
+
+            if (streamingQueue.size != mappedQueue.size) {
+                // Warning: Some songs couldn't be converted
+                streamingMusicViewModel.reportWarning(
+                    "Some songs in queue couldn't be loaded for playback."
+                )
             }
 
             val safeIndex = startIndex.coerceIn(0, mappedQueue.lastIndex)
@@ -228,7 +272,15 @@ fun StreamingNavigation(
                     launchSingleTop = true
                 }
             }
-            hasConnectedService && currentRoute == StreamingScreen.Integration.route -> {
+            // Detail screens also require connected service - redirect if disconnected
+            !hasConnectedService && (currentRoute.startsWith("streaming_artist") || currentRoute.startsWith("streaming_playlist")) && !isServiceSetupRoute -> {
+                navController.navigate(StreamingScreen.Integration.route) {
+                    popUpTo(navController.graph.findStartDestination().id)
+                    launchSingleTop = true
+                }
+            }
+            // Only auto-navigate to Home if user is explicitly on Integration screen (not manually staying there)
+            hasConnectedService && currentRoute == StreamingScreen.Integration.route && !hasPendingStartupRoute && !isServiceSetupRoute -> {
                 navController.navigate(StreamingScreen.Home.route) {
                     popUpTo(StreamingScreen.Integration.route) { inclusive = true }
                     launchSingleTop = true
@@ -283,23 +335,26 @@ fun StreamingNavigation(
                     )
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        MiniPlayer(
-                            song = currentSong,
-                            isPlaying = isPlaying,
-                            progress = progress,
-                            onPlayPause = { localMusicViewModel.togglePlayPause() },
-                            onPlayerClick = {
-                                onNavigateToPlayer()
-                                navController.navigate(StreamingScreen.Player.route) {
-                                    launchSingleTop = true
-                                }
-                            },
-                            onSkipNext = { localMusicViewModel.skipToNext() },
-                            onSkipPrevious = { localMusicViewModel.skipToPrevious() },
-                            onDismiss = { localMusicViewModel.clearCurrentSong() },
-                            isMediaLoading = isMediaLoading,
-                            modifier = Modifier.align(Alignment.BottomEnd)
-                        )
+                        // Only render MiniPlayer if currentSong is not null
+                        currentSong?.let { song ->
+                            MiniPlayer(
+                                song = song,
+                                isPlaying = isPlaying,
+                                progress = progress,
+                                onPlayPause = { localMusicViewModel.togglePlayPause() },
+                                onPlayerClick = {
+                                    onNavigateToPlayer()
+                                    navController.navigate(StreamingScreen.Player.route) {
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onSkipNext = { localMusicViewModel.skipToNext() },
+                                onSkipPrevious = { localMusicViewModel.skipToPrevious() },
+                                onDismiss = { localMusicViewModel.clearCurrentSong() },
+                                isMediaLoading = isMediaLoading,
+                                modifier = Modifier.align(Alignment.BottomEnd)
+                            )
+                        }
                     }
                 }
 
@@ -421,7 +476,7 @@ fun StreamingNavigation(
                     playbackStatsSummary = playbackStatsSummary,
                     listeningTimeMs = listeningTime,
                     onNavigateToSettings = {
-                        navigateToTopLevel(StreamingScreen.Settings.route)
+                        onNavigateToSettings()
                     },
                     onNavigateToSearch = {
                         navigateToTopLevel(StreamingScreen.Search.route)
@@ -575,15 +630,40 @@ fun StreamingNavigation(
                         )
                 }
             ) {
-                StreamingSettingsScreen(
-                    viewModel = streamingMusicViewModel,
-                    onOpenGlobalSettings = onNavigateToSettings,
-                    onConfigureService = { serviceId ->
+                // This route is replaced by local settings; should not be reached
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
+            }
+
+            composable(
+                route = StreamingScreen.GoSettings.route,
+                enterTransition = {
+                    fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(300))
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(300)) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                }
+            ) {
+                GoSettingsScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onConfigureCurrentProvider = { serviceId ->
                         navController.navigate(StreamingScreen.ServiceSetup.createRoute(serviceId)) {
                             launchSingleTop = true
                         }
                     },
-                    onSwitchToLocalMode = onSwitchToLocalMode
+                    viewModel = streamingMusicViewModel
                 )
             }
 
@@ -1139,11 +1219,49 @@ fun StreamingNavigation(
                 )
             }
 
-            composable(route = Screen.TunerQueuePlayback.route) {
+            composable(
+                route = Screen.TunerQueuePlayback.route,
+                enterTransition = {
+                    fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(300))
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(300)) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                }
+            ) {
                 QueuePlaybackSettingsScreen(onBackClick = { navController.popBackStack() })
             }
 
-            composable(route = Screen.Equalizer.route) {
+            composable(
+                route = Screen.Equalizer.route,
+                enterTransition = {
+                    fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(300))
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(300)) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                }
+            ) {
                 EqualizerScreen(
                     navController = navController,
                     viewModel = localMusicViewModel

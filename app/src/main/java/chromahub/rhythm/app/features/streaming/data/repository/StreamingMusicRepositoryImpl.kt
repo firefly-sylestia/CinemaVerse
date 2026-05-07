@@ -1,11 +1,13 @@
 package chromahub.rhythm.app.features.streaming.data.repository
 
 import android.content.Context
+import android.util.Log
 import chromahub.rhythm.app.core.domain.model.AlbumItem
 import chromahub.rhythm.app.core.domain.model.ArtistItem
 import chromahub.rhythm.app.core.domain.model.PlayableItem
 import chromahub.rhythm.app.core.domain.model.PlaylistItem
 import chromahub.rhythm.app.core.domain.model.SourceType
+import chromahub.rhythm.app.core.utils.NetworkUtils
 import chromahub.rhythm.app.features.streaming.data.provider.JellyfinApiClient
 import chromahub.rhythm.app.features.streaming.data.provider.ProviderConnectionResult
 import chromahub.rhythm.app.features.streaming.data.provider.ProviderSong
@@ -18,16 +20,21 @@ import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceId
 import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
 import chromahub.rhythm.app.features.streaming.domain.repository.StreamingMusicRepository
 import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.network.NetworkClient
+import chromahub.rhythm.app.network.DeezerApiService
+import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Provider-backed implementation used by Rhythm GO mode.
  */
 class StreamingMusicRepositoryImpl(
-    context: Context
+    private val context: Context
 ) : StreamingMusicRepository {
 
     data class ServiceConnectionInfo(
@@ -214,6 +221,25 @@ class StreamingMusicRepositoryImpl(
 
     override suspend fun getStreamingUrl(songId: String): String? {
         val (serviceId, providerId) = decodeSongId(songId) ?: return null
+        
+        // Check if streaming is allowed by network settings
+        val allowCellular = appSettings.allowCellularStreaming.value
+        if (!NetworkUtils.canStream(context, allowCellular)) {
+            return null // Network conditions don't allow streaming
+        }
+        
+        // Check if service is connected
+        if (!isServiceConnected(serviceId)) {
+            return null // Provider is not connected
+        }
+        
+        // Check if offline mode is enabled - fallback to cache or return null
+        if (appSettings.offlineMode.value) {
+            // In offline mode, only allow cached URLs
+            val cached = songCache[songId]
+            return cached?.streamingUrl // May be null if not previously cached
+        }
+        
         val bitrate = desiredBitrateKbps()
 
         val resolved = when (serviceId) {
@@ -273,7 +299,7 @@ class StreamingMusicRepositoryImpl(
         val mappedSongs = providerResult.getOrElse { emptyList() }
             .map { mapProviderSong(serviceId, it) }
 
-        refreshCatalog(mappedSongs)
+        mergeCatalog(mappedSongs)
         return mappedSongs
     }
 
@@ -299,6 +325,24 @@ class StreamingMusicRepositoryImpl(
 
     override suspend fun getSongById(id: String): PlayableItem? = songCache[id]
 
+    suspend fun syncCatalog(limit: Int = 5_000): List<StreamingSong> {
+        val serviceId = activeServiceId()
+        if (!isServiceConnected(serviceId)) {
+            clearInMemoryCatalog()
+            return emptyList()
+        }
+
+        val providerSongs = when (serviceId) {
+            StreamingServiceId.SUBSONIC -> subsonicClient.fetchLibrarySongs(limit)
+            StreamingServiceId.JELLYFIN -> jellyfinClient.fetchLibrarySongs(limit)
+            else -> Result.success(emptyList())
+        }.getOrElse { emptyList() }
+
+        val mappedSongs = providerSongs.map { mapProviderSong(serviceId, it) }
+        replaceCatalog(mappedSongs)
+        return mappedSongs
+    }
+
     override suspend fun getAlbumById(id: String): AlbumItem? {
         return albumsFlow.value.firstOrNull { it.id == id }
     }
@@ -317,13 +361,13 @@ class StreamingMusicRepositoryImpl(
             .filter { buildAlbumId(activeServiceId(), it.artist, it.album) == albumId }
     }
 
-    private fun refreshCatalog(songs: List<StreamingSong>) {
+    private fun replaceCatalog(songs: List<StreamingSong>) {
         val serviceId = activeServiceId()
 
+        songCache.clear()
         songs.forEach { song ->
             songCache[song.id] = song
         }
-        trimSongCache()
 
         songsFlow.value = songs
         albumsFlow.value = buildAlbumItems(serviceId, songs)
@@ -335,7 +379,32 @@ class StreamingMusicRepositoryImpl(
         updateFollowedArtistsFlow()
     }
 
+    private fun mergeCatalog(songs: List<StreamingSong>) {
+        if (songs.isEmpty()) {
+            return
+        }
+
+        val serviceId = activeServiceId()
+        songs.forEach { song ->
+            songCache[song.id] = song
+        }
+        trimSongCache()
+
+        val mergedSongs = (songsFlow.value.filterIsInstance<StreamingSong>() + songs)
+            .distinctBy { it.id }
+
+        songsFlow.value = mergedSongs
+        albumsFlow.value = buildAlbumItems(serviceId, mergedSongs)
+        artistsFlow.value = buildArtistItems(serviceId, mergedSongs)
+        playlistsFlow.value = emptyList()
+
+        updateLikedSongsFlow()
+        updateSavedAlbumsFlow()
+        updateFollowedArtistsFlow()
+    }
+
     private fun clearInMemoryCatalog() {
+        songCache.clear()
         songsFlow.value = emptyList()
         albumsFlow.value = emptyList()
         artistsFlow.value = emptyList()
@@ -408,7 +477,7 @@ class StreamingMusicRepositoryImpl(
                 StreamingArtist(
                     id = buildArtistId(serviceId, artistName),
                     name = artistName,
-                    artworkUri = tracks.firstOrNull()?.artworkUri,
+                    artworkUri = null,
                     songCount = tracks.size,
                     albumCount = albumCount,
                     sourceType = serviceToSourceType(serviceId)
@@ -477,8 +546,24 @@ class StreamingMusicRepositoryImpl(
             else -> 320
         }
     }
-
-
+    
+    /**
+     * Validate if the requested quality is supported by the provider.
+     * Some providers may not support all quality levels.
+     */
+    private fun isSupportedQuality(quality: String): Boolean {
+        // All major providers (Subsonic/Navidrome, Jellyfin) support these quality levels
+        return quality.uppercase() in listOf("LOW", "NORMAL", "HIGH", "LOSSLESS")
+    }
+    
+    /**
+     * Get the fallback quality if the requested one is not supported.
+     */
+    private fun getFallbackQuality(unsupportedQuality: String): String {
+        return when (unsupportedQuality.uppercase()) {
+            else -> "HIGH" // Default fallback
+        }
+    }
     private fun resolveCookieInput(username: String, password: String): String {
         return when {
             looksLikeCookieBlob(password) -> password
@@ -506,6 +591,73 @@ class StreamingMusicRepositoryImpl(
             normalized
         } else {
             StreamingServiceId.SUBSONIC
+        }
+    }
+
+    /**
+     * Enrich streaming artists with artwork from Deezer API
+     * Call this when loading artists to fill in missing artwork
+     */
+    suspend fun enrichArtistsWithDeezerImages(artists: List<StreamingArtist>): List<StreamingArtist> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Check if Deezer API is available
+                val deezerService = NetworkClient.deezerApiService
+                if (!NetworkClient.isDeezerApiEnabled() || deezerService == null) {
+                    return@withContext artists // Return unchanged if API not available
+                }
+
+                val enriched = mutableListOf<StreamingArtist>()
+
+                for (artist in artists) {
+                    // Skip if artist already has artwork
+                    if (!artist.artworkUri.isNullOrEmpty()) {
+                        enriched.add(artist)
+                        continue
+                    }
+
+                    try {
+                        // Skip unknown/blank artists
+                        if (artist.name.isBlank() || artist.name.equals("Unknown", ignoreCase = true)) {
+                            enriched.add(artist)
+                            continue
+                        }
+
+                        // Search for artist on Deezer
+                        val searchResponse = deezerService.searchArtists(artist.name, limit = 5)
+                        val deezerArtist = searchResponse.data.firstOrNull { 
+                            it.name.equals(artist.name, ignoreCase = true)
+                        } ?: searchResponse.data.firstOrNull() // Fallback to best match
+
+                        if (deezerArtist != null) {
+                            // Choose best quality image available
+                            val imageUrl = when {
+                                !deezerArtist.pictureXl.isNullOrEmpty() -> deezerArtist.pictureXl
+                                !deezerArtist.pictureBig.isNullOrEmpty() -> deezerArtist.pictureBig
+                                !deezerArtist.pictureMedium.isNullOrEmpty() -> deezerArtist.pictureMedium
+                                !deezerArtist.picture.isNullOrEmpty() -> deezerArtist.picture
+                                else -> null
+                            }
+
+                            if (!imageUrl.isNullOrEmpty()) {
+                                Log.d("StreamingMusicRepo", "Found Deezer image for ${artist.name}")
+                                enriched.add(artist.copy(artworkUri = imageUrl))
+                                continue
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w("StreamingMusicRepo", "Failed to fetch Deezer image for ${artist.name}: ${e.message}")
+                    }
+
+                    // If no Deezer image found, keep original
+                    enriched.add(artist)
+                }
+
+                enriched
+            } catch (e: Exception) {
+                Log.e("StreamingMusicRepo", "Error enriching artists with Deezer images", e)
+                artists // Return unchanged on error
+            }
         }
     }
 

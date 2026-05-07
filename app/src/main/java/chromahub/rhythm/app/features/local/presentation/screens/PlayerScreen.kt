@@ -356,6 +356,7 @@ fun PlayerScreen(
     // Enhanced seeking state - shows preview during scrubbing
     var isScrubbing by remember { mutableStateOf(false) }
     var scrubProgress by remember { mutableFloatStateOf(0f) }
+    val resolvedDurationMs by musicViewModel.duration.collectAsState()
     
     // Gesture settings
     val gesturePlayerSwipeDismiss by appSettingsInstance.gesturePlayerSwipeDismiss.collectAsState()
@@ -568,6 +569,16 @@ fun PlayerScreen(
         }
     }
 
+    // Allow lyrics files that may be exposed with generic or custom document MIME types.
+    val lyricsOpenMimeTypes = arrayOf(
+        "text/plain",
+        "text/*",
+        "text/x-lrc",
+        "application/x-lrc",
+        "application/octet-stream",
+        "*/*"
+    )
+
     // Dynamic sizing based on screen dimensions - used for artwork responsiveness
     val albumArtFraction = when {
         isExtraSmallWidth -> {
@@ -712,12 +723,12 @@ fun PlayerScreen(
     val isPastThreshold by remember { derivedStateOf { swipeOffsetY > swipeDismissThreshold } }
 
     // Calculate current and total time
-    val currentTimeMs = ((song?.duration ?: 0) * progress).toLong()
-    val totalTimeMs = song?.duration ?: 0
+    val totalTimeMs = song?.duration?.takeIf { it > 0 } ?: resolvedDurationMs.takeIf { it > 0 } ?: 0L
+    val currentTimeMs = (totalTimeMs * progress).toLong()
     val canSeek = totalTimeMs > 0
     
     // Calculate scrub preview time when enhanced seeking is active
-    val scrubTimeMs = ((song?.duration ?: 0) * scrubProgress).toLong()
+    val scrubTimeMs = (totalTimeMs * scrubProgress).toLong()
 
     // Format current and total time
     val currentTimeFormatted = formatDuration(currentTimeMs, useHoursFormat)
@@ -2017,7 +2028,7 @@ fun PlayerScreen(
                                                                         isEnd = false
                                                                     ) {
                                                                         Icon(
-                                                                            imageVector = Icons.Rounded.Edit,
+                                                                            imageVector = Icons.Rounded.Lyrics,
                                                                             contentDescription = null,
                                                                             modifier = Modifier.size(18.dp)
                                                                         )
@@ -2037,7 +2048,10 @@ fun PlayerScreen(
                                                                                 arrayOf(
                                                                                     "text/plain",
                                                                                     "text/*",
-                                                                                    "application/octet-stream"
+                                                                                    "text/x-lrc",
+                                                                                    "application/x-lrc",
+                                                                                    "application/octet-stream",
+                                                                                    "*/*"
                                                                                 )
                                                                             )
                                                                         },
@@ -2292,150 +2306,66 @@ fun PlayerScreen(
                                 translationY = swipeProgress * 50f
                             }
                     ) {
-                        // Add spacing above progress bar on tablet
-                        if (isTablet) {
-                            Spacer(modifier = Modifier.height(28.dp))
-                        }
-                        
-                        // Progress bar and time indicators - combined into a single row with pill-shaped time indicators
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = when {
-                                        isExtraSmallWidth -> 8.dp
-                                        isCompactWidth -> 12.dp
-                                        isTablet -> 20.dp
-                                        else -> 16.dp
-                                    }
-                                ),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            // Current time pill (shows scrub preview when enhanced seeking)
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (isScrubbing && enhancedSeekingEnabled)
-                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
-                                else
-                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-                                modifier = Modifier.padding(horizontal = 2.dp, vertical = 1.dp)
-                            ) {
-                                Text(
-                                    text = if (isScrubbing && enhancedSeekingEnabled) scrubTimeFormatted else currentTimeFormatted,
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = if (isScrubbing && enhancedSeekingEnabled) FontWeight.Bold else FontWeight.Medium,
-                                        fontSize = if (isExtraSmallWidth) 10.sp else 12.sp
-                                    ),
-                                    color = if (isScrubbing && enhancedSeekingEnabled)
-                                        MaterialTheme.colorScheme.onSecondary
-                                    else
-                                        MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.padding(
-                                        horizontal = if (isExtraSmallWidth) 6.dp else 8.dp, 
-                                        vertical = if (isExtraSmallWidth) 2.dp else 4.dp
-                                    )
-                                )
+                        // Show progress bar section only if song has duration
+                        if (totalTimeMs > 0) {
+                            // Add spacing above progress bar on tablet
+                            if (isTablet) {
+                                Spacer(modifier = Modifier.height(28.dp))
                             }
-
-                            // Customizable progress slider based on user setting
-                            if (showLoaderInPlayPauseButton) {
-                                M3LinearLoader(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(horizontal = 8.dp)
-                                        .height(8.dp),
-                                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f)
-                                )
-                            } else if (playerProgressStyle == "WAVY") {
-                                // WaveSlider: proper animated waves + morphing thumb + play/pause reaction
-                                WaveSlider(
-                                    value = if (isScrubbing && enhancedSeekingEnabled) scrubProgress else progress,
-                                    onValueChange = { newValue ->
-                                        if (canSeek && enhancedSeekingEnabled) {
-                                            isScrubbing = true
-                                            scrubProgress = newValue
-                                        } else if (canSeek) {
-                                            onSeek(newValue)
+                            
+                            // Progress bar and time indicators - combined into a single row with pill-shaped time indicators
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = when {
+                                            isExtraSmallWidth -> 8.dp
+                                            isCompactWidth -> 12.dp
+                                            isTablet -> 20.dp
+                                            else -> 16.dp
                                         }
-                                    },
-                                    onValueChangeFinished = {
-                                        if (canSeek && enhancedSeekingEnabled && isScrubbing) {
-                                            onSeek(scrubProgress)
-                                            isScrubbing = false
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(horizontal = 8.dp),
-                                    enabled = canSeek,
-                                    isPlaying = isPlaying,
-                                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                                    inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                )
-                            } else {
-                                // Other styled progress bars
-                                val progressStyle = try {
-                                    ProgressStyle.valueOf(playerProgressStyle)
-                                } catch (e: IllegalArgumentException) {
-                                    ProgressStyle.NORMAL
-                                }
-                                
-                                val thumbStyle = try {
-                                    ThumbStyle.valueOf(playerProgressThumbStyle)
-                                } catch (e: IllegalArgumentException) {
-                                    ThumbStyle.CIRCLE
-                                }
-                                
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(horizontal = 8.dp)
-                                        .height(56.dp),
-                                    contentAlignment = Alignment.Center
+                                    ),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                // Current time pill (shows scrub preview when enhanced seeking)
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (isScrubbing && enhancedSeekingEnabled)
+                                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
+                                    else
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                    modifier = Modifier.padding(horizontal = 2.dp, vertical = 1.dp)
                                 ) {
-                                    // Use a clickable slider overlay for seeking
-                                    StyledProgressBar(
-                                        progress = progress,
-                                        style = progressStyle,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        progressColor = MaterialTheme.colorScheme.primary,
-                                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                        height = when (progressStyle) {
-                                            ProgressStyle.THIN -> 2.dp
-                                            ProgressStyle.THICK -> 12.dp
-                                            else -> 8.dp
-                                        },
-                                        isPlaying = isPlaying,
-                                        showThumb = thumbStyle != ThumbStyle.NONE,
-                                        thumbStyle = thumbStyle,
-                                        thumbSize = 14.dp,
-                                        waveAmplitudeWhenPlaying = 3.dp,
-                                        waveLength = 60.dp // Longer wavelength = fewer waves for Player screen
-                                    )
-                                    
-                                    // Enhanced seeking preview indicator
-                                    if (isScrubbing && enhancedSeekingEnabled) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth(fraction = scrubProgress)
-                                                .height(
-                                                    when (progressStyle) {
-                                                        ProgressStyle.THIN -> 4.dp
-                                                        ProgressStyle.THICK -> 14.dp
-                                                        else -> 10.dp
-                                                    }
-                                                )
-                                                .background(
-                                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
-                                                    RoundedCornerShape(8.dp)
-                                                )
-                                                .align(Alignment.CenterStart)
+                                    Text(
+                                        text = if (isScrubbing && enhancedSeekingEnabled) scrubTimeFormatted else currentTimeFormatted,
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = if (isScrubbing && enhancedSeekingEnabled) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = if (isExtraSmallWidth) 10.sp else 12.sp
+                                        ),
+                                        color = if (isScrubbing && enhancedSeekingEnabled)
+                                            MaterialTheme.colorScheme.onSecondary
+                                        else
+                                            MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.padding(
+                                            horizontal = if (isExtraSmallWidth) 6.dp else 8.dp, 
+                                            vertical = if (isExtraSmallWidth) 2.dp else 4.dp
                                         )
-                                    }
-                                    
-                                    // Invisible slider for seeking - overlays the progress bar
-                                    androidx.compose.material3.Slider(
+                                    )
+                                }
+
+                                // Customizable progress slider based on user setting
+                                if (showLoaderInPlayPauseButton) {
+                                    M3LinearLoader(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 8.dp)
+                                            .height(8.dp),
+                                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f)
+                                    )
+                                } else if (playerProgressStyle == "WAVY") {
+                                    // WaveSlider: proper animated waves + morphing thumb + play/pause reaction
+                                    WaveSlider(
                                         value = if (isScrubbing && enhancedSeekingEnabled) scrubProgress else progress,
                                         onValueChange = { newValue ->
                                             if (canSeek && enhancedSeekingEnabled) {
@@ -2451,42 +2381,129 @@ fun PlayerScreen(
                                                 isScrubbing = false
                                             }
                                         },
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 8.dp),
                                         enabled = canSeek,
-                                        colors = SliderDefaults.colors(
-                                            thumbColor = Color.Transparent,
-                                            activeTrackColor = Color.Transparent,
-                                            inactiveTrackColor = Color.Transparent
+                                        isPlaying = isPlaying,
+                                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                                        inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                    )
+                                } else {
+                                    // Other styled progress bars
+                                    val progressStyle = try {
+                                        ProgressStyle.valueOf(playerProgressStyle)
+                                    } catch (e: IllegalArgumentException) {
+                                        ProgressStyle.NORMAL
+                                    }
+                                    
+                                    val thumbStyle = try {
+                                        ThumbStyle.valueOf(playerProgressThumbStyle)
+                                    } catch (e: IllegalArgumentException) {
+                                        ThumbStyle.CIRCLE
+                                    }
+                                    
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 8.dp)
+                                            .height(56.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        // Use a clickable slider overlay for seeking
+                                        StyledProgressBar(
+                                            progress = progress,
+                                            style = progressStyle,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            progressColor = MaterialTheme.colorScheme.primary,
+                                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                            height = when (progressStyle) {
+                                                ProgressStyle.THIN -> 2.dp
+                                                ProgressStyle.THICK -> 12.dp
+                                                else -> 8.dp
+                                            },
+                                            isPlaying = isPlaying,
+                                            showThumb = thumbStyle != ThumbStyle.NONE,
+                                            thumbStyle = thumbStyle,
+                                            thumbSize = 14.dp,
+                                            waveAmplitudeWhenPlaying = 3.dp,
+                                            waveLength = 60.dp // Longer wavelength = fewer waves for Player screen
+                                        )
+                                        
+                                        // Enhanced seeking preview indicator
+                                        if (isScrubbing && enhancedSeekingEnabled) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth(fraction = scrubProgress)
+                                                    .height(
+                                                        when (progressStyle) {
+                                                            ProgressStyle.THIN -> 4.dp
+                                                            ProgressStyle.THICK -> 14.dp
+                                                            else -> 10.dp
+                                                        }
+                                                    )
+                                                    .background(
+                                                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
+                                                        RoundedCornerShape(8.dp)
+                                                    )
+                                                    .align(Alignment.CenterStart)
+                                            )
+                                        }
+                                        
+                                        // Invisible slider for seeking - overlays the progress bar
+                                        androidx.compose.material3.Slider(
+                                            value = if (isScrubbing && enhancedSeekingEnabled) scrubProgress else progress,
+                                            onValueChange = { newValue ->
+                                                if (canSeek && enhancedSeekingEnabled) {
+                                                    isScrubbing = true
+                                                    scrubProgress = newValue
+                                                } else if (canSeek) {
+                                                    onSeek(newValue)
+                                                }
+                                            },
+                                            onValueChangeFinished = {
+                                                if (canSeek && enhancedSeekingEnabled && isScrubbing) {
+                                                    onSeek(scrubProgress)
+                                                    isScrubbing = false
+                                                }
+                                            },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            enabled = canSeek,
+                                            colors = SliderDefaults.colors(
+                                                thumbColor = Color.Transparent,
+                                                activeTrackColor = Color.Transparent,
+                                                inactiveTrackColor = Color.Transparent
+                                            )
+                                        )
+                                    }
+                                }
+
+                                // Total time pill
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                    modifier = Modifier.padding(horizontal = 2.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = totalTimeFormatted,
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = if (isExtraSmallWidth) 10.sp else 12.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.padding(
+                                            horizontal = if (isExtraSmallWidth) 6.dp else 8.dp, 
+                                            vertical = if (isExtraSmallWidth) 2.dp else 4.dp
                                         )
                                     )
                                 }
                             }
 
-                            // Total time pill
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-                                modifier = Modifier.padding(horizontal = 2.dp, vertical = 1.dp)
-                            ) {
-                                Text(
-                                    text = totalTimeFormatted,
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = if (isExtraSmallWidth) 10.sp else 12.sp
-                                    ),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.padding(
-                                        horizontal = if (isExtraSmallWidth) 6.dp else 8.dp, 
-                                        vertical = if (isExtraSmallWidth) 2.dp else 4.dp
-                                    )
-                                )
-                            }
+                            Spacer(modifier = Modifier.height(if (isTablet) 20.dp else if (isCompactHeight) 6.dp else 12.dp))
+                            
+                            // Add spacing below progress bar on both views
+                            Spacer(modifier = Modifier.height(if (isTablet) 12.dp else if (isCompactHeight) 4.dp else 8.dp))
                         }
-
-                        Spacer(modifier = Modifier.height(if (isTablet) 20.dp else if (isCompactHeight) 6.dp else 12.dp))
-                        
-                        // Add spacing below progress bar on both views
-                        Spacer(modifier = Modifier.height(if (isTablet) 12.dp else if (isCompactHeight) 4.dp else 8.dp))
 
                         // Main player controls with Expressive Material 3 button group
                         // Full width container with same padding as toggle buttons

@@ -1286,8 +1286,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                             
                             // Update progress immediately to reflect restored position
                             controller.seekTo(savedPosition)
-                            if (controller.duration > 0) {
-                                _progress.value = savedPosition.toFloat() / controller.duration.toFloat()
+                            val playbackDuration = resolvePlaybackDuration(controller)
+                            if (playbackDuration > 0) {
+                                _progress.value = savedPosition.toFloat() / playbackDuration.toFloat()
                             }
                             
                             Log.d(TAG, "Queue restored successfully, ready to continue playback from ${savedPosition}ms")
@@ -3313,7 +3314,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
                             // Update duration and start progress updates if playing
                             if (isActuallyPlaying) {
-                                _duration.value = controller.duration
+                                val controllerDuration = controller.duration.takeIf { it > 0 }
+                                if (controllerDuration != null) {
+                                    _duration.value = controllerDuration
+                                } else {
+                                    _duration.value = resolvePlaybackDuration(controller)
+                                }
                                 startProgressUpdates()
                             }
                         }
@@ -3405,13 +3411,22 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 
                 if (playbackState == Player.STATE_READY) {
-                    _duration.value = controller.duration
-                    Log.d(TAG, "Duration updated: ${controller.duration}")
-                    
-                    // Update progress immediately for better UI responsiveness
-                    if (controller.duration > 0) {
-                        val currentProgress = controller.currentPosition.toFloat() / controller.duration.toFloat()
+                    // Always prefer controller.duration; only fallback if unset (for UI robustness)
+                    val controllerDuration = controller.duration.takeIf { it > 0 }
+                    if (controllerDuration != null) {
+                        _duration.value = controllerDuration
+                        Log.d(TAG, "Duration updated from controller: $controllerDuration")
+                        
+                        // Update progress immediately for better UI responsiveness
+                        val currentProgress = controller.currentPosition.toFloat() / controllerDuration.toFloat()
                         _progress.value = currentProgress.coerceIn(0f, 1f)
+                    } else {
+                        // Only use fallback if controller duration is not yet available
+                        val fallbackDuration = resolvePlaybackDuration(controller)
+                        if (fallbackDuration > 0) {
+                            _duration.value = fallbackDuration
+                            Log.d(TAG, "Duration fallback: $fallbackDuration (controller duration not ready)")
+                        }
                     }
                 } else if (playbackState == Player.STATE_ENDED) {
                     // Handle playback completion - ensure progress is updated to the end
@@ -3511,9 +3526,15 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     // Extract colors from album art if enabled
                     extractColorsFromAlbumArt(song)
                     
-                    // Force a duration update
+                    // Force a duration update - prefer controller.duration
                     mediaController?.let { controller ->
-                        _duration.value = controller.duration
+                        val controllerDuration = controller.duration.takeIf { it > 0 }
+                        if (controllerDuration != null) {
+                            _duration.value = controllerDuration
+                        } else {
+                            // Fallback if controller duration not yet available
+                            _duration.value = resolvePlaybackDuration(controller)
+                        }
                     }
                 }
             }
@@ -3599,13 +3620,28 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     
     private fun updateProgress() {
         mediaController?.let { controller ->
-            if (controller.duration > 0) {
-                val currentProgress = controller.currentPosition.toFloat() / controller.duration.toFloat()
+            val playbackDuration = resolvePlaybackDuration(controller)
+            if (playbackDuration > 0) {
+                val currentProgress = controller.currentPosition.toFloat() / playbackDuration.toFloat()
                 _progress.value = currentProgress.coerceIn(0f, 1f)
             }
 
             maybeBroadcastBluetoothLyricsLine(controller)
         }
+    }
+
+    private fun resolvePlaybackDuration(controller: MediaController): Long {
+        val controllerDuration = controller.duration.takeIf { it > 0 }
+        if (controllerDuration != null) {
+            return controllerDuration
+        }
+
+        val metadataDuration = controller.currentMediaItem?.mediaMetadata?.durationMs?.takeIf { it > 0 }
+        if (metadataDuration != null) {
+            return metadataDuration
+        }
+
+        return _currentSong.value?.duration?.takeIf { it > 0 } ?: 0L
     }
 
     private fun maybeBroadcastBluetoothLyricsLine(controller: MediaController) {
@@ -3804,7 +3840,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 
                 if (song != null) {
-                    song = enrichSongDuration(song, controller.duration)
+                    song = enrichSongDuration(song, resolvePlaybackDuration(controller))
                     val previousSongId = _currentSong.value?.id
                     if (previousSongId != song.id) {
                         resetBluetoothLyricsBroadcastState(clearLastBroadcast = true)
@@ -3838,11 +3874,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     
                     // Update duration and progress for the current song
-                    _duration.value = controller.duration
-                    if (controller.duration > 0) {
-                        val currentProgress = controller.currentPosition.toFloat() / controller.duration.toFloat()
+                    val playbackDuration = resolvePlaybackDuration(controller)
+                    _duration.value = playbackDuration
+                    if (playbackDuration > 0) {
+                        val currentProgress = controller.currentPosition.toFloat() / playbackDuration.toFloat()
                         _progress.value = currentProgress.coerceIn(0f, 1f)
-                        Log.d(TAG, "Updated progress on song restore: ${_progress.value}, position: ${controller.currentPosition}, duration: ${controller.duration}")
+                        Log.d(TAG, "Updated progress on song restore: ${_progress.value}, position: ${controller.currentPosition}, duration: $playbackDuration")
                     }
                     
                     // Fetch lyrics for the current song
@@ -3872,6 +3909,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     .setTitle(this.title)
                     .setArtist(this.artist)
                     .setAlbumTitle(this.album)
+                    .setDurationMs(this.duration)
                     .setArtworkUri(this.artworkUri)
                     .build()
             )
@@ -5118,7 +5156,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun seekTo(progress: Float) {
         mediaController?.let { controller ->
-            val positionMs = (progress * controller.duration).toLong()
+            val playbackDuration = resolvePlaybackDuration(controller)
+            val positionMs = (progress * playbackDuration).toLong()
             Log.d(TAG, "Seek to progress: $progress (${positionMs}ms)")
             _isSeeking.value = true
             controller.seekTo(positionMs)
@@ -5150,7 +5189,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun skipForward() {
         mediaController?.let { controller ->
-            val newPosition = (controller.currentPosition + 30_000).coerceAtMost(controller.duration)
+            val playbackDuration = resolvePlaybackDuration(controller)
+            val newPosition = (controller.currentPosition + 30_000).coerceAtMost(playbackDuration)
             Log.d(TAG, "Skip forward 30s to ${newPosition}ms")
             _isSeeking.value = true
             controller.seekTo(newPosition)
@@ -6866,10 +6906,17 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     // Determine if lyrics are synced (contains timestamps)
                     val isSynced = sanitizedLyrics.contains(Regex("\\[\\d{2}:\\d{2}\\.\\d{2}]"))
                     
-                    val lyricsData = if (isSynced) {
-                        LyricsData(plainLyrics = null, syncedLyrics = sanitizedLyrics)
+                    // Normalize fragmented words in LRC format if synced
+                    val normalizedLyrics = if (isSynced) {
+                        normalizePlainLRC(sanitizedLyrics)
                     } else {
-                        LyricsData(plainLyrics = sanitizedLyrics, syncedLyrics = null)
+                        sanitizedLyrics
+                    }
+                    
+                    val lyricsData = if (isSynced) {
+                        LyricsData(plainLyrics = null, syncedLyrics = normalizedLyrics)
+                    } else {
+                        LyricsData(plainLyrics = normalizedLyrics, syncedLyrics = null)
                     }
                     
                     // Save to cache (internal storage)
@@ -6893,6 +6940,25 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 Log.e(TAG, "Error saving edited lyrics", e)
             }
         }
+    }
+
+    /**
+     * Normalize plain LRC text by fixing fragmented words (e.g., "some thing" -> "something")
+     * This handles LRC files where words have been split with spaces.
+     */
+    private fun normalizePlainLRC(lrcContent: String): String {
+        val lrcRegex = Regex("""^\[(\d{1,2}):(\d{2}(?:\.\d{2,3})?)\](.*)$""", RegexOption.MULTILINE)
+        return lrcContent.lines().map { line ->
+            val matchResult = lrcRegex.matchEntire(line.trim())
+            if (matchResult != null) {
+                val timestamp = matchResult.groupValues[0].substring(0, matchResult.groupValues[0].indexOf(']') + 1)
+                val text = matchResult.groupValues[3]
+                val normalizedText = chromahub.rhythm.app.util.LyricsParser.normalizeWordFlowText(text)
+                "$timestamp$normalizedText"
+            } else {
+                line
+            }
+        }.joinToString("\n")
     }
 
     fun setVolume(newVolume: Float) {

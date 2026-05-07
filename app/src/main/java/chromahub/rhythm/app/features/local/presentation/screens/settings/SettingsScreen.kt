@@ -180,6 +180,7 @@ object SettingsRoutes {
     const val RHYTHM_GUARD = "rhythm_guard_settings"
     @Deprecated("Use RHYTHM_GUARD")
     const val RHYTHM_AURA = RHYTHM_GUARD
+    const val GO_SETTINGS = "go_settings"
 }
 
 data class SettingItem(
@@ -320,9 +321,8 @@ fun SettingsScreen(
                 title = context.getString(R.string.settings_section_queue_playback),
                 items = buildList {
                     add(SettingItem(Icons.Default.QueueMusic, context.getString(R.string.settings_queue_playback_title), context.getString(R.string.settings_queue_playback_desc), onClick = { onNavigateTo(SettingsRoutes.QUEUE_PLAYBACK) }))
-                    if (appMode == "LOCAL") {
-                        add(SettingItem(Icons.Default.AccessTime, context.getString(R.string.sleep_timer), context.getString(R.string.sleep_timer_set_control), onClick = { onNavigateTo(SettingsRoutes.SLEEP_TIMER) }))
-                    }
+                    // Sleep Timer is available in both LOCAL and STREAMING modes
+                    add(SettingItem(Icons.Default.AccessTime, context.getString(R.string.sleep_timer), context.getString(R.string.sleep_timer_set_control), onClick = { onNavigateTo(SettingsRoutes.SLEEP_TIMER) }))
                 }
             ),
             // 5. Audio & Lyrics
@@ -345,9 +345,8 @@ fun SettingsScreen(
                     ))
                     //add(SettingItem(Icons.Default.GraphicEq, context.getString(R.string.audio_normalization), context.getString(R.string.audio_normalization_desc), toggleState = audioNormalization, onToggleChange = { appSettings.setAudioNormalization(it) }))
                     //add(SettingItem(Icons.Default.GraphicEq, context.getString(R.string.replay_gain), context.getString(R.string.replay_gain_desc), toggleState = replayGain, onToggleChange = { appSettings.setReplayGain(it) }))
-                    if (appMode == "LOCAL") {
-                        add(SettingItem(Icons.Default.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
-                    }
+                    // Equalizer is available in both LOCAL and STREAMING modes
+                    add(SettingItem(Icons.Default.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
                 }
             ),
             // 6. Library & Media - only show in LOCAL mode
@@ -365,21 +364,24 @@ fun SettingsScreen(
                 title = context.getString(R.string.settings_section_notifications_services),
                 items = buildList {
                     add(SettingItem(Icons.Default.Notifications, context.getString(R.string.settings_notifications), context.getString(R.string.settings_notifications_desc), onClick = { onNavigateTo(SettingsRoutes.NOTIFICATIONS) }))
+                    // API Management/Integrations is available in both LOCAL and STREAMING modes
+                    add(SettingItem(Icons.Default.Api, context.getString(R.string.settings_api_management), context.getString(R.string.settings_api_management_desc), onClick = { onNavigateTo(SettingsRoutes.API_MANAGEMENT) }))
+                }
+            ),
+            // 7. Data & Storage - split into shared and local-only items
+            SettingGroup(
+                title = context.getString(R.string.settings_section_storage_data),
+                items = buildList {
+                    // Listening Stats and Rhythm Guard are shared across LOCAL and STREAMING modes
+                    add(SettingItem(Icons.Default.AutoGraph, context.getString(R.string.settings_rhythm_stats), context.getString(R.string.settings_rhythm_stats_desc), onClick = { onNavigateTo(SettingsRoutes.LISTENING_STATS) }))
+                    add(SettingItem(Icons.Default.Security, context.getString(R.string.settings_rhythm_guard), context.getString(R.string.settings_rhythm_guard_list_desc), onClick = { onNavigateTo(SettingsRoutes.RHYTHM_GUARD) }))
+                    // Cache and Backup are LOCAL-only
                     if (appMode == "LOCAL") {
-                        add(SettingItem(Icons.Default.Api, context.getString(R.string.settings_api_management), context.getString(R.string.settings_api_management_desc), onClick = { onNavigateTo(SettingsRoutes.API_MANAGEMENT) }))
+                        add(SettingItem(Icons.Default.Storage, context.getString(R.string.settings_cache_management_title), context.getString(R.string.settings_cache_management_desc), onClick = { onNavigateTo(SettingsRoutes.CACHE_MANAGEMENT) }))
+                        add(SettingItem(Icons.Default.Backup, context.getString(R.string.settings_backup_restore_title), context.getString(R.string.settings_backup_restore_desc), onClick = { onNavigateTo(SettingsRoutes.BACKUP_RESTORE) }))
                     }
                 }
             ),
-            // 7. Data & Storage - only show in LOCAL mode
-            if (appMode == "LOCAL") SettingGroup(
-                title = context.getString(R.string.settings_section_storage_data),
-                items = listOf(
-                    SettingItem(Icons.Default.Storage, context.getString(R.string.settings_cache_management_title), context.getString(R.string.settings_cache_management_desc), onClick = { onNavigateTo(SettingsRoutes.CACHE_MANAGEMENT) }),
-                    SettingItem(Icons.Default.Backup, context.getString(R.string.settings_backup_restore_title), context.getString(R.string.settings_backup_restore_desc), onClick = { onNavigateTo(SettingsRoutes.BACKUP_RESTORE) }),
-                    SettingItem(Icons.Default.AutoGraph, context.getString(R.string.settings_rhythm_stats), context.getString(R.string.settings_rhythm_stats_desc), onClick = { onNavigateTo(SettingsRoutes.LISTENING_STATS) }),
-                    SettingItem(Icons.Default.Security, context.getString(R.string.settings_rhythm_guard), context.getString(R.string.settings_rhythm_guard_list_desc), onClick = { onNavigateTo(SettingsRoutes.RHYTHM_GUARD) })
-                )
-            ) else null,
             // 8. Updates & Info
             SettingGroup(
                 title = context.getString(R.string.settings_section_updates_info),
@@ -974,6 +976,14 @@ fun SettingsScreenWrapper(
         }
     }
 
+    // Consume any initial subroute requested by external callers (e.g., open settings -> specific pane)
+    LaunchedEffect(Unit) {
+        val pending = appSettings.consumeInitialSettingsSubroute()
+        if (!pending.isNullOrBlank()) {
+            currentRoute = pending
+        }
+    }
+
     // Handle system back gestures when in subsettings
     BackHandler(enabled = currentRoute != null) {
         handleBack()
@@ -1082,7 +1092,7 @@ fun SettingsScreenWrapper(
                             onNavigateToUpdates = { currentRoute = SettingsRoutes.UPDATES }
                         )
                         SettingsRoutes.UPDATES -> UpdatesSettingsScreen(onBackClick = { currentRoute = null })
-                        SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null })
+                        SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null }, onNavigateToGoSettings = { currentRoute = SettingsRoutes.GO_SETTINGS })
                         SettingsRoutes.API_MANAGEMENT -> ApiManagementSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.CACHE_MANAGEMENT -> CacheManagementSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.BACKUP_RESTORE -> BackupRestoreSettingsScreen(onBackClick = { currentRoute = null })
@@ -1194,7 +1204,17 @@ fun SettingsScreenWrapper(
                     onNavigateToUpdates = { currentRoute = SettingsRoutes.UPDATES }
                 )
                 SettingsRoutes.UPDATES -> UpdatesSettingsScreen(onBackClick = { currentRoute = null })
-                SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null })
+                SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null }, onNavigateToGoSettings = { currentRoute = SettingsRoutes.GO_SETTINGS })
+                SettingsRoutes.GO_SETTINGS -> chromahub.rhythm.app.features.streaming.presentation.screens.GoSettingsScreen(
+                    onBackClick = { currentRoute = null },
+                    onConfigureCurrentProvider = { serviceId ->
+                        appSettings.setInitialStreamingRoute("streaming_service_setup/$serviceId")
+                        appSettings.setAppMode("STREAMING")
+                        if (!navController.popBackStack()) {
+                            navController.navigate("main") { launchSingleTop = true }
+                        }
+                    }
+                )
                 SettingsRoutes.API_MANAGEMENT -> ApiManagementSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.CACHE_MANAGEMENT -> CacheManagementSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.BACKUP_RESTORE -> BackupRestoreSettingsScreen(onBackClick = { currentRoute = null })

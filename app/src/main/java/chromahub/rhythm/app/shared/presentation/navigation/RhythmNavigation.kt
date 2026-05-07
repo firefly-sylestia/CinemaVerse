@@ -17,6 +17,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -196,7 +198,26 @@ fun RhythmNavigation(
             }
 
             // Settings screen (shared between both modes)
-            composable("settings") {
+            composable(
+                route = "settings",
+                enterTransition = {
+                    fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(300))
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(300)) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
+                }
+            ) {
                 chromahub.rhythm.app.features.local.presentation.screens.settings.SettingsScreenWrapper(
                     onBack = {
                         val popped = rootNavController.popBackStack()

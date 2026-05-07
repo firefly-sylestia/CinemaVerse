@@ -435,6 +435,8 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_STREAMING_HOME_SHOW_RECOMMENDED = "streaming_home_show_recommended"
         private const val KEY_STREAMING_HOME_SHOW_NEW_RELEASES = "streaming_home_show_new_releases"
         private const val KEY_STREAMING_HOME_SHOW_PLAYLISTS = "streaming_home_show_playlists"
+        private const val KEY_STREAMING_HOME_SHOW_RECOMMENDATIONS = "streaming_home_show_recommendations"
+        private const val KEY_STREAMING_HOME_SHOW_TOP_CHARTS = "streaming_home_show_top_charts"
         private const val KEY_STREAMING_HOME_SECTION_ORDER = "streaming_home_section_order"
 
         private const val KEY_ALBUM_BOTTOM_SHEET_GRADIENT_BLUR = "album_bottom_sheet_gradient_blur"
@@ -493,6 +495,8 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_EXPRESSIVE_SHAPE_PLAYER_CONTROLS = "expressive_shape_player_controls" // Shape for player controls
         private const val KEY_EXPRESSIVE_SHAPE_MINI_PLAYER = "expressive_shape_mini_player" // Shape for mini player
         private const val KEY_SHOW_SETTINGS_SUGGESTIONS = "show_settings_suggestions"
+        private const val KEY_INITIAL_SETTINGS_SUBROUTE = "initial_settings_subroute"
+        private const val KEY_INITIAL_STREAMING_ROUTE = "initial_streaming_route"
         
         @Volatile
         private var INSTANCE: AppSettings? = null
@@ -506,6 +510,26 @@ class AppSettings private constructor(context: Context) {
     
     private val context: Context = context.applicationContext
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    fun setInitialSettingsSubroute(route: String?) {
+        prefs.edit().putString(KEY_INITIAL_SETTINGS_SUBROUTE, route).apply()
+    }
+
+    fun consumeInitialSettingsSubroute(): String? {
+        val v = prefs.getString(KEY_INITIAL_SETTINGS_SUBROUTE, null)
+        if (v != null) prefs.edit().remove(KEY_INITIAL_SETTINGS_SUBROUTE).apply()
+        return v
+    }
+
+    fun setInitialStreamingRoute(route: String?) {
+        prefs.edit().putString(KEY_INITIAL_STREAMING_ROUTE, route).apply()
+    }
+
+    fun consumeInitialStreamingRoute(): String? {
+        val v = prefs.getString(KEY_INITIAL_STREAMING_ROUTE, null)
+        if (v != null) prefs.edit().remove(KEY_INITIAL_STREAMING_ROUTE).apply()
+        return v
+    }
     
     // Playback Settings
     private val _highQualityAudio = MutableStateFlow(prefs.getBoolean(KEY_HIGH_QUALITY_AUDIO, true))
@@ -4343,6 +4367,20 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _streamingHomeShowPlaylists.value = value
         prefs.edit().putBoolean(KEY_STREAMING_HOME_SHOW_PLAYLISTS, value).apply()
     }
+
+    private val _streamingHomeShowRecommendations = MutableStateFlow(prefs.getBoolean(KEY_STREAMING_HOME_SHOW_RECOMMENDATIONS, true))
+    val streamingHomeShowRecommendations: StateFlow<Boolean> = _streamingHomeShowRecommendations.asStateFlow()
+    fun setStreamingHomeShowRecommendations(value: Boolean) {
+        _streamingHomeShowRecommendations.value = value
+        prefs.edit().putBoolean(KEY_STREAMING_HOME_SHOW_RECOMMENDATIONS, value).apply()
+    }
+
+    private val _streamingHomeShowTopCharts = MutableStateFlow(prefs.getBoolean(KEY_STREAMING_HOME_SHOW_TOP_CHARTS, true))
+    val streamingHomeShowTopCharts: StateFlow<Boolean> = _streamingHomeShowTopCharts.asStateFlow()
+    fun setStreamingHomeShowTopCharts(value: Boolean) {
+        _streamingHomeShowTopCharts.value = value
+        prefs.edit().putBoolean(KEY_STREAMING_HOME_SHOW_TOP_CHARTS, value).apply()
+    }
     
     // ==================== Player Screen Customization Settings ====================
     
@@ -4733,7 +4771,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     }
 
     private val defaultStreamingHomeSectionOrder = listOf(
-        "GREETING", "DISCOVER", "RECENTLY_PLAYED", "RHYTHM_GUARD", "RHYTHM_STATS", "RECOMMENDED", "NEW_RELEASES"
+        "GREETING", "DISCOVER", "RECENTLY_PLAYED", "RHYTHM_GUARD", "RHYTHM_STATS", "NEW_RELEASES"
     )
 
     private fun normalizeStreamingHomeSectionOrder(rawSections: List<String>): List<String> {
@@ -4743,6 +4781,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
                 when (it) {
                     "STATS" -> "RHYTHM_STATS"
                     "PLAYLISTS" -> "DISCOVER"
+                    "RECOMMENDED" -> "DISCOVER"
                     else -> it
                 }
             }

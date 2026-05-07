@@ -27,6 +27,14 @@ object LyricsParser {
     
     // Pattern to detect voice tags in lyrics text (e.g., "v1: text" or "v2: text")
     private val voiceTagInLinePattern = Pattern.compile("^(v\\d+):\\s*(.*)$", Pattern.CASE_INSENSITIVE)
+
+    private val splitWordStopWords = setOf(
+        "a", "an", "and", "as", "at", "be", "but", "by", "can", "could", "did",
+        "do", "does", "for", "from", "had", "has", "have", "he", "her", "him",
+        "i", "if", "in", "is", "it", "me", "my", "no", "not", "of", "on", "or",
+        "our", "out", "she", "so", "the", "to", "up", "we", "with", "you", "your",
+        "will", "would", "am", "are", "was", "were", "been", "being", "there", "here"
+    )
     
     /**
      * Check if lyrics contain word-level timestamps (Enhanced LRC format)
@@ -49,6 +57,73 @@ object LyricsParser {
         } else {
             Pair(null, text)
         }
+    }
+
+    /**
+     * Normalizes lyric text that has been split into fragments like "some thing" or "catch ing".
+     * This keeps plain synced LRC lines readable when the source exported word fragments.
+     */
+    fun normalizeWordFlowText(text: String): String {
+        val trimmed = text.trim()
+        if (trimmed.isEmpty()) return trimmed
+
+        val contractionNormalized = trimmed
+            .replace(Regex("\\b([A-Za-z]+)\\s+(n['’]?t)\\b"), "$1$2")
+            .replace(Regex("\\b([A-Za-z]+)\\s+(['’](?:re|ve|ll|d|m|s|t))\\b"), "$1$2")
+
+        val tokens = contractionNormalized.split(Regex("\\s+"))
+        if (tokens.size < 2) return contractionNormalized
+
+        val normalizedTokens = mutableListOf<String>()
+        var fragmentRun = mutableListOf<String>()
+
+        fun flushFragmentRun() {
+            if (fragmentRun.isEmpty()) return
+
+            val cleanedRun = fragmentRun.map { it.trim() }.filter { it.isNotEmpty() }
+            val shouldCollapse = shouldCollapseFragmentRun(cleanedRun, tokens.size)
+
+            if (shouldCollapse) {
+                normalizedTokens += cleanedRun.joinToString(separator = "")
+            } else {
+                normalizedTokens += cleanedRun
+            }
+
+            fragmentRun = mutableListOf()
+        }
+
+        tokens.forEach { token ->
+            val trimmedToken = token.trim()
+            if (trimmedToken.matches(Regex("[A-Za-z']+"))) {
+                fragmentRun.add(trimmedToken)
+            } else {
+                flushFragmentRun()
+                normalizedTokens.add(trimmedToken)
+            }
+        }
+
+        flushFragmentRun()
+
+        return normalizedTokens.joinToString(separator = " ")
+            .replace(Regex("\\s+([,.;:!?])"), "$1")
+            .replace(Regex("([,.;:!?])(\\S)"), "$1 $2")
+    }
+
+    private fun shouldCollapseFragmentRun(run: List<String>, totalTokenCount: Int): Boolean {
+        if (run.size < 2) return false
+
+        val normalizedRun = run.map { it.lowercase().trim('\'', '’') }.filter { it.isNotEmpty() }
+        if (normalizedRun.size < 2) return false
+        if (normalizedRun.any { it in splitWordStopWords }) return false
+
+        val hasUppercase = run.any { token -> token.any { it.isUpperCase() } && token != "I" }
+        if (hasUppercase) return false
+
+        val hasShortToken = normalizedRun.any { it.length <= 4 }
+        val totalLength = normalizedRun.sumOf { it.length }
+
+        return (hasShortToken && totalTokenCount >= 6 && totalLength <= 18) ||
+            (run.size >= 3 && totalLength <= 16)
     }
     
     /**
@@ -362,7 +437,7 @@ object LyricsParser {
 
             if (timestamps.isNotEmpty()) {
                 val text = if (lastMatchEnd < trimmedLine.length) {
-                    trimmedLine.substring(lastMatchEnd).trim()
+                    normalizeWordFlowText(trimmedLine.substring(lastMatchEnd).trim())
                 } else {
                     ""
                 }

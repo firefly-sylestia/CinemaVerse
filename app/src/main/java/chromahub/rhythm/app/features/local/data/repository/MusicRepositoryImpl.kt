@@ -3738,8 +3738,9 @@ class MusicRepository(context: Context) {
                     }
                 }
                 
-                // Standard LRC format (line-by-line only)
-                LyricsData(null, cleanedLyrics, null)
+                // Standard LRC format (line-by-line only) - normalize fragmented words
+                val normalizedLyrics = normalizePlainLRC(cleanedLyrics)
+                LyricsData(null, normalizedLyrics, null)
             } else {
                 // Empty synced lyrics
                 null
@@ -3951,6 +3952,25 @@ class MusicRepository(context: Context) {
     /**
      * Format timestamp to LRC format [mm:ss.xx]
      */
+    /**
+     * Normalize plain LRC text by fixing fragmented words (e.g., "some thing" -> "something")
+     * This handles LRC files where words have been split with spaces.
+     */
+    private fun normalizePlainLRC(lrcContent: String): String {
+        val lrcRegex = Regex("""^\[(\d{1,2}):(\d{2}(?:\.\d{2,3})?)\](.*)$""", RegexOption.MULTILINE)
+        return lrcContent.lines().map { line ->
+            val matchResult = lrcRegex.matchEntire(line.trim())
+            if (matchResult != null) {
+                val timestamp = matchResult.groupValues[0].substring(0, matchResult.groupValues[0].indexOf(']') + 1)
+                val text = matchResult.groupValues[3]
+                val normalizedText = LyricsParser.normalizeWordFlowText(text)
+                "$timestamp$normalizedText"
+            } else {
+                line
+            }
+        }.joinToString("\n")
+    }
+
     private fun formatLRCTimestamp(milliseconds: Long): String {
         val totalSeconds = milliseconds / 1000
         val minutes = totalSeconds / 60
@@ -4080,7 +4100,23 @@ class MusicRepository(context: Context) {
         }
         
         val fetchFromEmbedded: suspend () -> LyricsData? = {
-            songUri?.let { uri -> getEmbeddedLyrics(uri) }
+            // Try to get embedded lyrics from the provided songUri first
+            var embeddedLyrics = songUri?.let { uri -> getEmbeddedLyrics(uri) }
+            
+            // If no embedded lyrics found and songUri is remote/streaming, 
+            // try to find a local file matching this song by artist/title
+            if (embeddedLyrics == null && songUri != null) {
+                val isRemoteUri = songUri.scheme?.let { scheme ->
+                    scheme != "file" && scheme != "content"
+                } ?: false
+                
+                if (isRemoteUri) {
+                    Log.d(TAG, "Songuri is remote ($songUri), attempting to find local file for embedded lyrics extraction")
+                    embeddedLyrics = tryGetEmbeddedLyricsFromLocalFile(artist, title)
+                }
+            }
+            
+            embeddedLyrics
         }
         
         val fetchFromAPI: suspend () -> LyricsData? = {
@@ -4208,6 +4244,45 @@ class MusicRepository(context: Context) {
 
         // No lyrics found from APIs
         return null
+    }
+
+    /**
+     * Attempts to find and extract embedded lyrics from a local audio file matching artist/title.
+     * Used as fallback when song URI is from a streaming source (remote URL).
+     */
+    private fun tryGetEmbeddedLyricsFromLocalFile(artist: String, title: String): LyricsData? {
+        return try {
+            // Query MediaStore for a local file matching this artist and title
+            val projection = arrayOf(MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA)
+            val selection = "${MediaStore.Audio.Media.TITLE} = ? AND ${MediaStore.Audio.Media.ARTIST} = ?"
+            val selectionArgs = arrayOf(title, artist)
+            
+            context.contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val dataIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                    val localFilePath = cursor.getString(dataIndex)
+                    
+                    if (localFilePath != null) {
+                        val localFile = File(localFilePath)
+                        if (localFile.exists() && localFile.canRead()) {
+                            val localUri = Uri.fromFile(localFile)
+                            Log.d(TAG, "Found local file for streaming song, attempting embedded lyrics extraction: $localFilePath")
+                            return getEmbeddedLyrics(localUri)
+                        }
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            Log.w(TAG, "Error trying to find local file for embedded lyrics: ${e.message}")
+            null
+        }
     }
 
     /**
@@ -4356,14 +4431,14 @@ class MusicRepository(context: Context) {
                 if (match != null) {
                     hasSyncedLyrics = true
                     syncedLines.add(trimmedLine) // Keep the timestamp for synced lyrics
-                    val lyricsText = match.groupValues[4].trim()
+                    val lyricsText = LyricsParser.normalizeWordFlowText(match.groupValues[4].trim())
                     if (lyricsText.isNotEmpty()) {
                         plainLines.add(lyricsText) // Extract just the lyrics text for plain version
                     }
                 } else {
                     // Metadata line (like [ar:], [ti:], [al:]) or plain text
                     if (!trimmedLine.startsWith("[") || !trimmedLine.contains("]")) {
-                        plainLines.add(trimmedLine)
+                        plainLines.add(LyricsParser.normalizeWordFlowText(trimmedLine))
                     }
                 }
             }

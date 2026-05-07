@@ -37,6 +37,7 @@ import androidx.compose.material.icons.rounded.CloudOff
 import androidx.compose.material.icons.rounded.Headphones
 import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.Reorder
 import androidx.compose.material.icons.rounded.Refresh
@@ -73,6 +74,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.sp
+import java.util.Calendar
+import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveCard
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -89,6 +103,7 @@ import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceId
 import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
 import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
 import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.features.streaming.presentation.components.settings.StreamingHomeSectionOrderBottomSheet
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
@@ -102,7 +117,6 @@ import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.M3ImageUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 private const val STREAMING_SECTION_GREETING = "GREETING"
 private const val STREAMING_SECTION_RHYTHM_GUARD = "RHYTHM_GUARD"
@@ -739,97 +753,153 @@ private fun StreamingGreetingWidgetCard(
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
 
-    Card(
-        onClick = {
-            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-            onNavigateToSearch()
-        },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+    // Mirror local HomeScreen's ModernWelcomeSection design and text logic
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val isCompactWidth = screenWidthDp < 400
+    val isTablet = screenWidthDp >= 600
+
+    val greetingFontSize = when {
+        isCompactWidth -> 28.sp
+        isTablet -> 36.sp
+        else -> 32.sp
+    }
+    val messageFontSize = when {
+        isCompactWidth -> 12.sp
+        isTablet -> 16.sp
+        else -> 14.sp
+    }
+    val quoteFontSize = when {
+        isCompactWidth -> 11.sp
+        isTablet -> 14.sp
+        else -> 12.sp
+    }
+
+    val timeBasedQuote = remember {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        when {
+            hour in 0..4 -> listOf(
+                context.getString(R.string.home_quote_late_night_1),
+                context.getString(R.string.home_quote_late_night_2),
+                context.getString(R.string.home_quote_late_night_3),
+                context.getString(R.string.home_quote_late_night_4)
+            )
+            hour in 5..11 -> listOf(
+                context.getString(R.string.home_quote_morning_1),
+                context.getString(R.string.home_quote_morning_2),
+                context.getString(R.string.home_quote_morning_3),
+                context.getString(R.string.home_quote_morning_4)
+            )
+            hour in 12..16 -> listOf(
+                context.getString(R.string.home_quote_afternoon_1),
+                context.getString(R.string.home_quote_afternoon_2),
+                context.getString(R.string.home_quote_afternoon_3),
+                context.getString(R.string.home_quote_afternoon_4)
+            )
+            hour in 17..20 -> listOf(
+                context.getString(R.string.home_quote_evening_1),
+                context.getString(R.string.home_quote_evening_2),
+                context.getString(R.string.home_quote_evening_3),
+                context.getString(R.string.home_quote_evening_4)
+            )
+            else -> listOf(
+                context.getString(R.string.home_quote_night_1),
+                context.getString(R.string.home_quote_night_2),
+                context.getString(R.string.home_quote_night_3),
+                context.getString(R.string.home_quote_night_4)
+            )
+        }.random()
+    }
+
+    ExpressiveCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                onNavigateToSearch()
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
-        elevation = noShadowCardElevation()
+        shape = ExpressiveShapes.ExtraLarge
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(16.dp),
+                    .padding(18.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 repeat(3) {
-                    Icon(
-                        imageVector = Icons.Default.WavingHand,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.18f),
-                        modifier = Modifier.size(16.dp)
+                    Text(
+                        text = "✨",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.alpha(0.12f)
                     )
                 }
             }
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(24.dp)
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f),
-                    modifier = Modifier.size(42.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 0.dp)
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.WavingHand,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(22.dp)
+                    val infiniteTransition = rememberInfiniteTransition(label = "emoji_pulse")
+                    val emojiScale by infiniteTransition.animateFloat(
+                        initialValue = 1f,
+                        targetValue = 1.1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(2000),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "emoji_scale"
+                    )
+
+                    Text(
+                        text = "☀️",
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .graphicsLayer { scaleX = emojiScale; scaleY = emojiScale }
+                    )
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = greeting,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                        Text(
+                            text = timeBasedQuote,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                            modifier = Modifier.padding(top = 5.dp)
                         )
                     }
-                }
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = greeting,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        text = quote,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.86f),
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                    Text(
-                        text = stringResource(
-                            id = R.string.streaming_home_widget_greeting_subtitle,
-                            selectedServiceName
+                    ExpressiveFilledIconButton(
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                            onNavigateToSearch()
+                        },
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f),
-                        modifier = Modifier.padding(top = 6.dp)
-                    )
-                }
-
-                FilledIconButton(
-                    onClick = {
-                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                        onNavigateToSearch()
-                    },
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.size(44.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = stringResource(id = R.string.cd_search),
-                        modifier = Modifier.size(20.dp)
-                    )
+                        modifier = Modifier.size(46.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = context.getString(R.string.cd_search),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
@@ -1395,490 +1465,6 @@ private fun StreamingPlaylistWidgetCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun StreamingHomeSectionOrderBottomSheet(
-    appSettings: AppSettings,
-    onDismiss: () -> Unit
-) {
-    val context = LocalContext.current
-    val haptics = LocalHapticFeedback.current
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    val sectionOrder by appSettings.streamingHomeSectionOrder.collectAsState()
-    val showGreeting by appSettings.streamingHomeShowGreeting.collectAsState()
-    val showRhythmGuard by appSettings.streamingHomeShowRhythmGuard.collectAsState()
-    val showRhythmStats by appSettings.streamingHomeShowRhythmStats.collectAsState()
-    val showRecent by appSettings.streamingHomeShowRecentlyPlayed.collectAsState()
-    val showDiscover by appSettings.streamingHomeShowRecommended.collectAsState()
-    val showNewReleases by appSettings.streamingHomeShowNewReleases.collectAsState()
-
-    var reorderableSections by remember(sectionOrder) {
-        mutableStateOf(
-            (
-                sectionOrder
-                    .map(::normalizeStreamingSectionId)
-                    .filter { it in defaultStreamingHomeSections } + defaultStreamingHomeSections
-                )
-                .distinct()
-                .filterNot { it == STREAMING_SECTION_GREETING || it == STREAMING_SECTION_DISCOVER }
-        )
-    }
-    var visibilityMap by remember(
-        showGreeting,
-        showRhythmGuard,
-        showRhythmStats,
-        showRecent,
-        showNewReleases,
-        showDiscover
-    ) {
-        mutableStateOf(
-            mapOf(
-                STREAMING_SECTION_GREETING to showGreeting,
-                STREAMING_SECTION_DISCOVER to showDiscover,
-                STREAMING_SECTION_RHYTHM_GUARD to showRhythmGuard,
-                STREAMING_SECTION_RHYTHM_STATS to showRhythmStats,
-                STREAMING_SECTION_RECENTLY_PLAYED to showRecent,
-                STREAMING_SECTION_NEW_RELEASES to showNewReleases
-            )
-        )
-    }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        dragHandle = {
-            BottomSheetDefaults.DragHandle(
-                color = MaterialTheme.colorScheme.primary
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-    ) {
-        val totalSectionCards = reorderableSections.size + 2
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 24.dp, vertical = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    Column {
-                        Text(
-                            text = stringResource(id = R.string.bottomsheet_home_section_order),
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Box(
-                            modifier = Modifier
-                                .padding(top = 6.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    shape = CircleShape
-                                )
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                style = MaterialTheme.typography.labelLarge,
-                                text = stringResource(id = R.string.bottomsheet_reorder_toggle_visibility),
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(18.dp))
-                }
-
-                item(key = STREAMING_SECTION_GREETING) {
-                    val isVisible = visibilityMap[STREAMING_SECTION_GREETING] == true
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ),
-                        shape = streamingGroupedBottomSheetItemShape(0, totalSectionCards)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.tertiaryContainer,
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.PushPin,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-
-                                Icon(
-                                    imageVector = streamingSectionIcon(STREAMING_SECTION_GREETING),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(22.dp)
-                                )
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(id = streamingSectionTitleRes(STREAMING_SECTION_GREETING)),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = stringResource(id = R.string.streaming_home_section_fixed_hint),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            IconButton(
-                                onClick = {
-                                    HapticUtils.performHapticFeedback(
-                                        context,
-                                        haptics,
-                                        HapticFeedbackType.TextHandleMove
-                                    )
-                                    visibilityMap = visibilityMap.toMutableMap().apply {
-                                        this[STREAMING_SECTION_GREETING] = !isVisible
-                                    }
-                                },
-                                modifier = Modifier.size(40.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                    contentDescription = null,
-                                    tint = if (isVisible) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item(key = STREAMING_SECTION_DISCOVER) {
-                    val isVisible = visibilityMap[STREAMING_SECTION_DISCOVER] == true
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ),
-                        shape = streamingGroupedBottomSheetItemShape(1, totalSectionCards)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.tertiaryContainer,
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.PushPin,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-
-                                Icon(
-                                    imageVector = streamingSectionIcon(STREAMING_SECTION_DISCOVER),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(22.dp)
-                                )
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(id = streamingSectionTitleRes(STREAMING_SECTION_DISCOVER)),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = stringResource(id = R.string.streaming_home_section_fixed_hint),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            IconButton(
-                                onClick = {
-                                    HapticUtils.performHapticFeedback(
-                                        context,
-                                        haptics,
-                                        HapticFeedbackType.TextHandleMove
-                                    )
-                                    visibilityMap = visibilityMap.toMutableMap().apply {
-                                        this[STREAMING_SECTION_DISCOVER] = !isVisible
-                                    }
-                                },
-                                modifier = Modifier.size(40.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                    contentDescription = null,
-                                    tint = if (isVisible) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                itemsIndexed(
-                    items = reorderableSections,
-                    key = { _, sectionId -> sectionId }
-                ) { index, sectionId ->
-                    val isVisible = visibilityMap[sectionId] == true
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ),
-                        shape = streamingGroupedBottomSheetItemShape(index + 2, totalSectionCards)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    modifier = Modifier.size(34.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text(
-                                            text = "${index + 1}",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                }
-
-                                Icon(
-                                    imageVector = streamingSectionIcon(sectionId),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(22.dp)
-                                )
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(id = streamingSectionTitleRes(sectionId)),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    streamingSectionSubtitleRes(sectionId)?.let { subtitleRes ->
-                                        Text(
-                                            text = stringResource(id = subtitleRes),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                            }
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        HapticUtils.performHapticFeedback(
-                                            context,
-                                            haptics,
-                                            HapticFeedbackType.TextHandleMove
-                                        )
-                                        visibilityMap = visibilityMap.toMutableMap().apply {
-                                            this[sectionId] = !isVisible
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                        contentDescription = null
-                                    )
-                                }
-
-                                IconButton(
-                                    enabled = index > 0,
-                                    onClick = {
-                                        if (index <= 0) return@IconButton
-                                        HapticUtils.performHapticFeedback(
-                                            context,
-                                            haptics,
-                                            HapticFeedbackType.TextHandleMove
-                                        )
-                                        reorderableSections = reorderableSections.toMutableList().apply {
-                                            val moved = removeAt(index)
-                                            add(index - 1, moved)
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowUpward,
-                                        contentDescription = stringResource(id = R.string.cd_move_up)
-                                    )
-                                }
-
-                                IconButton(
-                                    enabled = index < reorderableSections.lastIndex,
-                                    onClick = {
-                                        if (index >= reorderableSections.lastIndex) return@IconButton
-                                        HapticUtils.performHapticFeedback(
-                                            context,
-                                            haptics,
-                                            HapticFeedbackType.TextHandleMove
-                                        )
-                                        reorderableSections = reorderableSections.toMutableList().apply {
-                                            val moved = removeAt(index)
-                                            add(index + 1, moved)
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowDownward,
-                                        contentDescription = stringResource(id = R.string.cd_move_down)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp, bottom = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                reorderableSections = defaultStreamingHomeSections.filterNot {
-                                    it == STREAMING_SECTION_GREETING || it == STREAMING_SECTION_DISCOVER
-                                }
-                                visibilityMap = mapOf(
-                                    STREAMING_SECTION_GREETING to true,
-                                    STREAMING_SECTION_DISCOVER to true,
-                                    STREAMING_SECTION_RHYTHM_GUARD to true,
-                                    STREAMING_SECTION_RHYTHM_STATS to true,
-                                    STREAMING_SECTION_RECENTLY_PLAYED to true,
-                                    STREAMING_SECTION_NEW_RELEASES to true
-                                )
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.RestartAlt,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = stringResource(id = R.string.ui_reset))
-                        }
-
-                        Button(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                appSettings.setStreamingHomeSectionOrder(
-                                    listOf(STREAMING_SECTION_GREETING, STREAMING_SECTION_DISCOVER) + reorderableSections
-                                )
-                                appSettings.setStreamingHomeShowGreeting(
-                                    visibilityMap[STREAMING_SECTION_GREETING] == true
-                                )
-                                appSettings.setStreamingHomeShowRhythmGuard(
-                                    visibilityMap[STREAMING_SECTION_RHYTHM_GUARD] == true
-                                )
-                                appSettings.setStreamingHomeShowRhythmStats(
-                                    visibilityMap[STREAMING_SECTION_RHYTHM_STATS] == true
-                                )
-                                appSettings.setStreamingHomeShowRecentlyPlayed(
-                                    visibilityMap[STREAMING_SECTION_RECENTLY_PLAYED] == true
-                                )
-                                appSettings.setStreamingHomeShowRecommended(
-                                    visibilityMap[STREAMING_SECTION_DISCOVER] == true
-                                )
-                                appSettings.setStreamingHomeShowNewReleases(
-                                    visibilityMap[STREAMING_SECTION_NEW_RELEASES] == true
-                                )
-                                scope.launch {
-                                    sheetState.hide()
-                                    onDismiss()
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = stringResource(id = R.string.ui_save))
-                        }
-                    }
-                }
             }
         }
     }

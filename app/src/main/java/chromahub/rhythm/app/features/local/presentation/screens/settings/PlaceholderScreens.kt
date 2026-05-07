@@ -472,7 +472,31 @@ private fun toMaterial3SettingsItem(
         icon = item.icon,
         title = { Text(item.title) },
         description = description,
-        trailingContent = if (item.toggleState != null) {
+        trailingContent = if (item.toggleState != null && item.onClick != null) {
+            {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = context.getString(R.string.cd_navigate),
+                        modifier = Modifier
+                            .size(16.dp)
+                            .padding(end = 8.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                    TunerAnimatedSwitch(
+                        checked = item.toggleState,
+                        onCheckedChange = {
+                            if (!item.enabled) return@TunerAnimatedSwitch
+                            hapticFeedback?.let { haptic ->
+                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                            }
+                            item.onToggleChange?.invoke(it)
+                        },
+                        enabled = item.enabled
+                    )
+                }
+            }
+        } else if (item.toggleState != null) {
             {
                 TunerAnimatedSwitch(
                     checked = item.toggleState,
@@ -5565,7 +5589,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
 }
 
 @Composable
-fun ExperimentalFeaturesScreen(onBackClick: () -> Unit) {
+fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: (() -> Unit)? = null) {
     val context = LocalContext.current
     val appSettings = AppSettings.getInstance(context)
     val appMode by appSettings.appMode.collectAsState()
@@ -5693,7 +5717,8 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit) {
                             toggleState = appMode == "STREAMING",
                             onToggleChange = { enabled ->
                                 appSettings.setAppMode(if (enabled) "STREAMING" else "LOCAL")
-                            }
+                            },
+                            onClick = { onNavigateToGoSettings?.invoke() }
                         )
                     )
                 )

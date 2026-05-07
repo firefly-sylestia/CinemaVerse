@@ -2,6 +2,7 @@ package chromahub.rhythm.app.features.streaming.presentation.screens
 
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.OfflineBolt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import chromahub.rhythm.app.R
+import chromahub.rhythm.app.core.utils.NetworkUtils
 import chromahub.rhythm.app.features.local.presentation.screens.settings.TunerAnimatedSwitch
 import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
 import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
@@ -120,6 +123,10 @@ fun StreamingSettingsScreen(
         }
     }
 
+    val canStream = remember(allowCellularStreaming, offlineMode) {
+        NetworkUtils.canStream(context, allowCellularStreaming) && !offlineMode
+    }
+
     CollapsibleHeaderScreen(
         title = stringResource(id = R.string.streaming_settings_title),
         headerDisplayMode = 1
@@ -140,6 +147,59 @@ fun StreamingSettingsScreen(
                     serverUrl = selectedSession?.serverUrl.orEmpty()
                 )
             }
+            
+            if (!canStream) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                MaterialTheme.colorScheme.errorContainer,
+                                RoundedCornerShape(12.dp)
+                            ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Streaming Restricted",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.error,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = when {
+                                        offlineMode -> "Offline mode enabled - only cached content available"
+                                        !NetworkUtils.canStream(context, allowCellularStreaming) ->
+                                            if (NetworkUtils.isCellularConnected(context) && !allowCellularStreaming)
+                                                "Cellular streaming disabled - connect to WiFi"
+                                            else
+                                                "No network connection available"
+                                        else -> ""
+                                    },
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             item {
                 Material3SettingsGroup(
@@ -147,115 +207,13 @@ fun StreamingSettingsScreen(
                     items = listOf(
                         Material3SettingsItem(
                             icon = Icons.Default.CloudQueue,
-                            title = {
-                                Text(text = stringResource(id = R.string.streaming_settings_preferred_service))
-                            },
-                            description = {
-                                Text(text = selectedServiceLabel(selectedService, context))
-                            },
-                            onClick = { showServiceSheet = true }
-                        ),
-                        Material3SettingsItem(
-                            icon = Icons.Default.HighQuality,
-                            title = {
-                                Text(text = stringResource(id = R.string.streaming_settings_quality))
-                            },
-                            description = {
-                                Text(text = streamingQualityLabel(streamingQuality, context))
-                            },
-                            onClick = { showQualitySheet = true }
-                        ),
-                        Material3SettingsItem(
-                            icon = Icons.Default.Settings,
-                            title = {
-                                Text(text = stringResource(id = R.string.streaming_manage_service))
-                            },
-                            description = {
-                                Text(
-                                    text = if (selectedServiceConnected) {
-                                        stringResource(id = R.string.streaming_status_connected)
-                                    } else {
-                                        stringResource(id = R.string.streaming_status_not_connected)
-                                    }
-                                )
-                            },
-                            onClick = { onConfigureService(selectedService) }
-                        )
-                    )
-                )
-            }
-
-            item {
-                Material3SettingsGroup(
-                    title = stringResource(id = R.string.streaming_settings_group_network),
-                    items = listOf(
-                        Material3SettingsItem(
-                            icon = Icons.Default.MobileFriendly,
-                            title = {
-                                Text(text = stringResource(id = R.string.settings_allow_cellular_streaming))
-                            },
-                            description = {
-                                Text(text = stringResource(id = R.string.settings_allow_cellular_streaming_desc))
-                            },
-                            trailingContent = {
-                                TunerAnimatedSwitch(
-                                    checked = allowCellularStreaming,
-                                    onCheckedChange = {
-                                        HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                                        appSettings.setAllowCellularStreaming(it)
-                                    }
-                                )
-                            },
+                            title = { Text(text = stringResource(id = R.string.exp_go_mode)) },
+                            description = { Text(text = stringResource(id = R.string.exp_go_mode_desc)) },
                             onClick = {
-                                HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                                appSettings.setAllowCellularStreaming(!allowCellularStreaming)
+                                // Set settings host to open the Go Settings pane, then open settings
+                                appSettings.setInitialSettingsSubroute(chromahub.rhythm.app.features.local.presentation.screens.settings.SettingsRoutes.GO_SETTINGS)
+                                onOpenGlobalSettings()
                             }
-                        ),
-                        Material3SettingsItem(
-                            icon = Icons.Default.OfflineBolt,
-                            title = {
-                                Text(text = stringResource(id = R.string.streaming_settings_offline_mode))
-                            },
-                            description = {
-                                Text(text = stringResource(id = R.string.streaming_settings_offline_mode_desc))
-                            },
-                            trailingContent = {
-                                TunerAnimatedSwitch(
-                                    checked = offlineMode,
-                                    onCheckedChange = {
-                                        HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                                        appSettings.setOfflineMode(it)
-                                    }
-                                )
-                            },
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                                appSettings.setOfflineMode(!offlineMode)
-                            }
-                        )
-                    )
-                )
-            }
-
-            item {
-                Material3SettingsGroup(
-                    title = stringResource(id = R.string.settings_music_mode),
-                    items = listOf(
-                        Material3SettingsItem(
-                            icon = Icons.Default.CloudQueue,
-                            title = {
-                                Text(text = stringResource(id = R.string.exp_go_mode))
-                            },
-                            description = {
-                                Text(text = stringResource(id = R.string.exp_go_mode_desc))
-                            },
-                            trailingContent = {
-                                TunerAnimatedSwitch(
-                                    checked = appMode == "STREAMING",
-                                    onCheckedChange = { enabled -> setGoMode(enabled) }
-                                )
-                            },
-                            onClick = { setGoMode(appMode != "STREAMING") }
                         )
                     )
                 )

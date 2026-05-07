@@ -2,6 +2,8 @@ package chromahub.rhythm.app.features.local.presentation.components.lyrics
 
 import android.content.Context
 import android.net.Uri
+import android.provider.DocumentsContract
+import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -97,6 +99,65 @@ fun LyricsEditorBottomSheet(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+    
+    // Helper functions for lyrics document handling
+    fun getDocumentDisplayName(uri: Uri): String? {
+        return try {
+            context.contentResolver.query(
+                uri,
+                arrayOf(OpenableColumns.DISPLAY_NAME),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0 && !cursor.isNull(nameIndex)) {
+                        val name = cursor.getString(nameIndex)?.trim()
+                        if (name.isNullOrEmpty()) null else name
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            Log.w("LyricsEditor", "Unable to read lyrics document name", e)
+            null
+        }
+    }
+
+    fun maybeRenameLyricsDocument(uri: Uri, expectedFileName: String): Uri {
+        // Validate inputs
+        if (expectedFileName.isBlank()) return uri
+        
+        val currentName = getDocumentDisplayName(uri) ?: return uri
+        if (currentName.isBlank()) return uri
+        
+        // Check if provider appended .txt to our .lrc filename
+        // E.g., we wanted "song.lrc" but got "song.lrc.txt"
+        val currentNameWithoutTxt = if (currentName.endsWith(".txt", ignoreCase = true) && currentName.length > 4) {
+            currentName.substring(0, currentName.length - 4)  // Safe because we checked length > 4
+        } else {
+            currentName
+        }
+        
+        // Check if removing .txt from current name gives us the expected filename
+        val shouldRename = currentName.endsWith(".txt", ignoreCase = true) &&
+            currentNameWithoutTxt.equals(expectedFileName, ignoreCase = true)
+        
+        if (!shouldRename) {
+            return uri
+        }
+        
+        return try {
+            DocumentsContract.renameDocument(context.contentResolver, uri, expectedFileName) ?: uri
+        } catch (e: Exception) {
+            Log.w("LyricsEditor", "Unable to rename saved lyrics document from '$currentName' to '$expectedFileName'", e)
+            uri
+        }
+    }
     
     // Check if lyrics are synced (contain LRC timestamps)
     val hasSyncedLyrics = remember(editedLyrics) {
@@ -199,19 +260,31 @@ fun LyricsEditorBottomSheet(
         }
     }
 
+    val sanitizedTitle = remember(songTitle) {
+        songTitle.trim()
+            .replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            .replace(Regex("_+"), "_")  // Collapse multiple underscores
+            .trim('_')  // Remove leading/trailing underscores
+            .takeIf { it.isNotEmpty() } ?: "lyrics"  // Fallback to "lyrics" if empty
+    }
+    val defaultLyricsFileName = remember(sanitizedTitle) { "$sanitizedTitle.lrc" }
+
     // File picker launcher for saving .lrc files
     val saveLyricsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("text/plain")
+        contract = ActivityResultContracts.CreateDocument("application/octet-stream")
     ) { uri: Uri? ->
         uri?.let {
             try {
                 context.contentResolver.openOutputStream(it)?.use { outputStream ->
                     outputStream.write(editedLyrics.toByteArray())
                     outputStream.flush()
-                    Toast.makeText(context, "Lyrics saved successfully", Toast.LENGTH_SHORT).show()
-                    onSave(editedLyrics, timeOffset)
-                    onDismiss()
                 }
+
+                maybeRenameLyricsDocument(it, defaultLyricsFileName)
+
+                Toast.makeText(context, "Lyrics saved successfully", Toast.LENGTH_SHORT).show()
+                onSave(editedLyrics, timeOffset)
+                onDismiss()
             } catch (e: Exception) {
                 Log.e("LyricsEditor", "Error saving lyrics file", e)
                 Toast.makeText(context, "Error saving lyrics: ${e.message}", Toast.LENGTH_LONG).show()
@@ -582,7 +655,16 @@ fun LyricsEditorBottomSheet(
                 ExpressiveGroupButton(
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                        loadLyricsLauncher.launch(arrayOf("text/plain", "text/*", "application/octet-stream"))
+                        loadLyricsLauncher.launch(
+                            arrayOf(
+                                "text/plain",
+                                "text/*",
+                                "text/x-lrc",
+                                "application/x-lrc",
+                                "application/octet-stream",
+                                "*/*"
+                            )
+                        )
                     },
                     modifier = Modifier.weight(1f),
                     isStart = true
@@ -601,8 +683,7 @@ fun LyricsEditorBottomSheet(
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
                         if (editedLyrics.isNotBlank()) {
-                            val sanitizedTitle = songTitle.replace(Regex("[^a-zA-Z0-9._-]"), "_")
-                            saveLyricsLauncher.launch("$sanitizedTitle.lrc")
+                            saveLyricsLauncher.launch(defaultLyricsFileName)
                         }
                     },
                     modifier = Modifier.weight(1f),
@@ -694,5 +775,32 @@ private fun LyricsEditorHeader(
                 )
             }
         }
+    }
+}
+
+private fun getDocumentDisplayName(context: Context, uri: Uri): String? {
+    return try {
+        context.contentResolver.query(
+            uri,
+            arrayOf(OpenableColumns.DISPLAY_NAME),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0 && !cursor.isNull(nameIndex)) {
+                    val name = cursor.getString(nameIndex)?.trim()
+                    if (name.isNullOrEmpty()) null else name
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+    } catch (e: Exception) {
+        Log.w("LyricsEditor", "Unable to read lyrics document name", e)
+        null
     }
 }

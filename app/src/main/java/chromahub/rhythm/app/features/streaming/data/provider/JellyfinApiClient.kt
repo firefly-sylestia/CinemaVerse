@@ -89,38 +89,43 @@ class JellyfinApiClient(context: Context) {
     suspend fun searchSongs(query: String, limit: Int = 30): Result<List<ProviderSong>> {
         val cred = credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
 
-        val params = mapOf(
-            "SearchTerm" to query,
-            "IncludeItemTypes" to "Audio",
-            "Recursive" to "true",
-            "Fields" to "MediaSources,Genres,Path,Artists,AlbumArtist,AlbumId,Album,RunTimeTicks",
-            "Limit" to limit.coerceIn(1, 100).toString()
-        )
+        val params = buildAudioBrowseParams(query = query, limit = limit)
 
         return requestJson("/Users/${cred.userId}/Items", params).map { response ->
-            val items = response.optJSONArray("Items")
-            buildList {
-                for (i in 0 until (items?.length() ?: 0)) {
-                    val song = items?.optJSONObject(i) ?: continue
-                    val id = song.optString("Id", "")
-                    if (id.isBlank()) continue
+            parseAudioItems(response)
+        }
+    }
 
-                    val title = song.optString("Name", "Unknown title")
-                    val artist = parseArtist(song)
-                    val album = song.optString("Album", "Unknown album")
-                    val durationMs = song.optLong("RunTimeTicks", 0L) / 10_000L
+    suspend fun fetchLibrarySongs(limit: Int = 5_000): Result<List<ProviderSong>> {
+        val cred = credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
 
-                    add(
-                        ProviderSong(
-                            providerId = id,
-                            title = title,
-                            artist = artist,
-                            album = album,
-                            durationMs = durationMs,
-                            artworkUrl = buildImageUrl(id)
-                        )
+        return withContext(Dispatchers.IO) {
+            try {
+                val pageSize = limit.coerceIn(1, 100)
+                var startIndex = 0
+                val songs = LinkedHashMap<String, ProviderSong>()
+
+                while (songs.size < limit) {
+                    val params = buildAudioBrowseParams(
+                        query = null,
+                        limit = minOf(pageSize, limit - songs.size),
+                        startIndex = startIndex
                     )
+                    val response = requestJson("/Users/${cred.userId}/Items", params).getOrThrow()
+                    val pageSongs = parseAudioItems(response)
+
+                    if (pageSongs.isEmpty()) break
+
+                    pageSongs.forEach { song -> songs.putIfAbsent(song.providerId, song) }
+
+                    if (pageSongs.size < params["Limit"]?.toIntOrNull().orZero()) break
+                    startIndex += pageSongs.size
                 }
+
+                Result.success(songs.values.take(limit).toList())
+            } catch (e: Exception) {
+                Log.e(TAG, "Jellyfin library fetch failed", e)
+                Result.failure(e)
             }
         }
     }
@@ -226,6 +231,52 @@ class JellyfinApiClient(context: Context) {
         return request(path, params).map { JSONObject(it) }
     }
 
+    private fun buildAudioBrowseParams(
+        query: String?,
+        limit: Int,
+        startIndex: Int = 0
+    ): Map<String, String> {
+        return buildMap {
+            if (!query.isNullOrBlank()) {
+                put("SearchTerm", query)
+            }
+            put("IncludeItemTypes", "Audio")
+            put("Recursive", "true")
+            put("Fields", "MediaSources,Genres,Path,Artists,AlbumArtist,AlbumId,Album,RunTimeTicks")
+            put("Limit", limit.coerceIn(1, 100).toString())
+            if (startIndex > 0) {
+                put("StartIndex", startIndex.toString())
+            }
+        }
+    }
+
+    private fun parseAudioItems(response: JSONObject): List<ProviderSong> {
+        val items = response.optJSONArray("Items")
+        return buildList {
+            for (i in 0 until (items?.length() ?: 0)) {
+                val song = items?.optJSONObject(i) ?: continue
+                val id = song.optString("Id", "")
+                if (id.isBlank()) continue
+
+                val title = song.optString("Name", "Unknown title")
+                val artist = parseArtist(song)
+                val album = song.optString("Album", "Unknown album")
+                val durationMs = song.optLong("RunTimeTicks", 0L) / 10_000L
+
+                add(
+                    ProviderSong(
+                        providerId = id,
+                        title = title,
+                        artist = artist,
+                        album = album,
+                        durationMs = durationMs,
+                        artworkUrl = buildImageUrl(id)
+                    )
+                )
+            }
+        }
+    }
+
     private fun parseArtist(song: JSONObject): String {
         val artists = song.optJSONArray("Artists")
         val names = buildList {
@@ -241,6 +292,8 @@ class JellyfinApiClient(context: Context) {
 
         return song.optString("AlbumArtist", "Unknown artist")
     }
+
+    private fun Int?.orZero(): Int = this ?: 0
 
     private fun buildAuthorizationHeader(token: String?): String {
         val tokenPart = if (!token.isNullOrBlank()) ", Token=\"$token\"" else ""

@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.Sort
@@ -99,6 +100,12 @@ import chromahub.rhythm.app.shared.presentation.components.common.TabAnimation
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.M3ImageUtils
 import kotlinx.coroutines.launch
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.rounded.Info
 import kotlin.random.Random
 
 private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: ImageVector) {
@@ -233,13 +240,8 @@ fun StreamingLibraryScreen(
             deriveArtistsFromSongs(librarySongs)
         }
     }
-    val libraryPlaylists = remember(savedPlaylists, featuredPlaylists, librarySongs) {
-        val playlists = (savedPlaylists + featuredPlaylists).distinctBy { it.id }
-        if (playlists.isNotEmpty()) {
-            playlists
-        } else {
-            derivePlaylistsFromSongs(librarySongs)
-        }
+    val libraryPlaylists = remember(savedPlaylists, featuredPlaylists) {
+        (savedPlaylists + featuredPlaylists).distinctBy { it.id }
     }
     val resolvedLibraryAlbums = remember(libraryAlbums, librarySongs) {
         if (libraryAlbums.isNotEmpty()) {
@@ -718,51 +720,201 @@ fun StreamingLibraryScreen(
                                                 it.artist.equals(localSong.artist, ignoreCase = true)
                                         }
 
-                                        StreamingSortMenuItem(
-                                            label = stringResource(id = R.string.action_play),
-                                            icon = Icons.Rounded.PlayArrow,
-                                            ascending = true,
-                                            selected = false,
-                                            showSortDirection = false,
-                                            onClick = {
-                                                dismissMenu()
-                                                if (songIndex >= 0) {
-                                                    viewModel.playQueue(
-                                                        queue = sortedSongs,
-                                                        startIndex = songIndex,
-                                                        shuffle = false
+                                        // Play
+                                        Surface(
+                                            color = MaterialTheme.colorScheme.surfaceContainer,
+                                            shape = RoundedCornerShape(16.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        stringResource(id = R.string.action_play),
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        fontWeight = FontWeight.Medium,
+                                                        color = MaterialTheme.colorScheme.onSurface
                                                     )
+                                                },
+                                                leadingIcon = {
+                                                    Surface(
+                                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                                        shape = CircleShape,
+                                                        modifier = Modifier.size(32.dp)
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Rounded.PlayArrow,
+                                                            contentDescription = null,
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .padding(6.dp)
+                                                        )
+                                                    }
+                                                },
+                                                onClick = {
+                                                    dismissMenu()
+                                                    if (songIndex >= 0) {
+                                                        viewModel.playQueue(
+                                                            queue = sortedSongs,
+                                                            startIndex = songIndex,
+                                                            shuffle = false
+                                                        )
+                                                    }
                                                 }
-                                            }
-                                        )
+                                            )
+                                        }
 
+                                        // Add to queue
+                                        Surface(
+                                            color = MaterialTheme.colorScheme.surfaceContainer,
+                                            shape = RoundedCornerShape(16.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        "Add to queue",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        fontWeight = FontWeight.Medium,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                },
+                                                leadingIcon = {
+                                                    Surface(
+                                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                                        shape = CircleShape,
+                                                        modifier = Modifier.size(32.dp)
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = RhythmIcons.Queue,
+                                                            contentDescription = null,
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .padding(6.dp)
+                                                        )
+                                                    }
+                                                },
+                                                onClick = {
+                                                    dismissMenu()
+                                                    sortedSongsById[localSong.id]?.let { streamingSong ->
+                                                        viewModel.playQueue(queue = listOf(streamingSong), startIndex = 0, shuffle = false)
+                                                    }
+                                                }
+                                            )
+                                        }
+
+                                        // Toggle like (favorites)
+                                        Surface(
+                                            color = MaterialTheme.colorScheme.surfaceContainer,
+                                            shape = RoundedCornerShape(16.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        ) {
+                                            val streamingSong = sortedSongsById[localSong.id]
+                                            val isLiked = streamingSong != null && likedSongs.any { it.id == streamingSong.id }
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        if (isLiked) "Remove from favorites" else "Add to favorites",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        fontWeight = FontWeight.Medium,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                },
+                                                leadingIcon = {
+                                                    Surface(
+                                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
+                                                        shape = CircleShape,
+                                                        modifier = Modifier.size(32.dp)
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                                                            contentDescription = null,
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .padding(6.dp)
+                                                        )
+                                                    }
+                                                },
+                                                onClick = {
+                                                    dismissMenu()
+                                                    streamingSong?.let { s ->
+                                                        if (isLiked) viewModel.unlikeSong(s) else viewModel.likeSong(s)
+                                                    }
+                                                }
+                                            )
+                                        }
+
+                                        // Go to artist
                                         resolvedArtist?.let { artist ->
-                                            StreamingSortMenuItem(
-                                                label = "Go to artist",
-                                                icon = Icons.Rounded.Person,
-                                                ascending = true,
-                                                selected = false,
-                                                showSortDirection = false,
-                                                onClick = {
-                                                    dismissMenu()
-                                                    onNavigateToArtist(artist)
-                                                }
-                                            )
+                                            Surface(
+                                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                                shape = RoundedCornerShape(16.dp),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                                            ) {
+                                                DropdownMenuItem(
+                                                    text = { Text("Go to artist", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface) },
+                                                    leadingIcon = {
+                                                        Surface(
+                                                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                                                            shape = CircleShape,
+                                                            modifier = Modifier.size(32.dp)
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Rounded.Person,
+                                                                contentDescription = null,
+                                                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                                modifier = Modifier.fillMaxSize().padding(6.dp)
+                                                            )
+                                                        }
+                                                    },
+                                                    onClick = {
+                                                        dismissMenu()
+                                                        onNavigateToArtist(artist)
+                                                    }
+                                                )
+                                            }
                                         }
 
+                                        // Go to album
                                         resolvedAlbum?.let { album ->
-                                            StreamingSortMenuItem(
-                                                label = "Go to album",
-                                                icon = Icons.Rounded.Album,
-                                                ascending = true,
-                                                selected = false,
-                                                showSortDirection = false,
-                                                onClick = {
-                                                    dismissMenu()
-                                                    openAlbumFromLocal(album)
-                                                }
-                                            )
+                                            Surface(
+                                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                                shape = RoundedCornerShape(16.dp),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                                            ) {
+                                                DropdownMenuItem(
+                                                    text = { Text("Go to album", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface) },
+                                                    leadingIcon = {
+                                                        Surface(
+                                                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                                                            shape = CircleShape,
+                                                            modifier = Modifier.size(32.dp)
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Rounded.Album,
+                                                                contentDescription = null,
+                                                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                                modifier = Modifier.fillMaxSize().padding(6.dp)
+                                                            )
+                                                        }
+                                                    },
+                                                    onClick = {
+                                                        dismissMenu()
+                                                        openAlbumFromLocal(album)
+                                                    }
+                                                )
+                                            }
                                         }
+
                                     },
                                     onRefreshClick = { viewModel.loadLibrary() }
                                 )

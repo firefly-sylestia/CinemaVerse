@@ -544,6 +544,7 @@
     <!-- Splash/Loading -->
     <string name="splash_tagline">Your Music, Your Rhythm</string>
     <string name="splash_loading">Preparing your music library…</string>
+    <string name="splash_loading_streaming">Preparing your streaming setup…</string>
     <string name="splash_ready">Ready to groove!</string>
     
     <!-- Audio Quality -->
@@ -2685,10 +2686,14 @@
     <string name="streaming_service_setup_subtitle">Connect your account to start streaming in Rhythm Go.</string>
     <string name="streaming_service_setup_server_url">Server URL</string>
     <string name="streaming_service_setup_server_url_hint">https://your-server.example.com</string>
+    <string name="streaming_service_setup_server_url_supporting">Required for providers that need a server address.</string>
     <string name="streaming_service_setup_username">Username or Email</string>
     <string name="streaming_service_setup_username_hint">Enter your account username</string>
     <string name="streaming_service_setup_password">Password</string>
     <string name="streaming_service_setup_password_hint">Enter your account password</string>
+    <string name="streaming_service_setup_connecting">Connecting…</string>
+    <string name="streaming_service_setup_disconnecting">Disconnecting…</string>
+    <string name="streaming_service_setup_action_hint">Fill in the required fields to connect this service.</string>
     <string name="streaming_service_setup_reconnect">Reconnect</string>
     <string name="streaming_service_setup_disconnect">Disconnect</string>
     <string name="streaming_service_setup_connected_as">Connected as %1$s</string>

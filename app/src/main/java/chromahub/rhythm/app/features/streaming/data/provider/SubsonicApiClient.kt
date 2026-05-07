@@ -94,25 +94,64 @@ class SubsonicApiClient(context: Context) {
         )
 
         return requestAndParse("search3", params).map { response ->
-            val songs = response.optJSONObject("searchResult3")?.optJSONArray("song")
-            buildList {
-                for (i in 0 until (songs?.length() ?: 0)) {
-                    val song = songs?.optJSONObject(i) ?: continue
-                    val id = song.optString("id", "")
-                    if (id.isBlank()) continue
+            parseSongList(response.optJSONObject("searchResult3")?.optJSONArray("song"))
+        }
+    }
 
-                    val coverArtId = song.optString("coverArt").takeIf { it.isNotBlank() }
-                    add(
-                        ProviderSong(
-                            providerId = id,
-                            title = song.optString("title", song.optString("name", "Unknown title")),
-                            artist = song.optString("artist", "Unknown artist"),
-                            album = song.optString("album", "Unknown album"),
-                            durationMs = song.optLong("duration", 0L) * 1000L,
-                            artworkUrl = coverArtId?.let { buildCoverArtUrl(it, 500) }
+    suspend fun fetchLibrarySongs(limit: Int = 5_000): Result<List<ProviderSong>> {
+        if (!isConnected()) {
+            return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        }
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val albumPageSize = limit.coerceIn(1, 500)
+                var albumOffset = 0
+                val songs = LinkedHashMap<String, ProviderSong>()
+
+                while (songs.size < limit) {
+                    val albumResult = requestAndParse(
+                        "getAlbumList2",
+                        mapOf(
+                            "type" to "alphabeticalByArtist",
+                            "size" to minOf(albumPageSize, limit - songs.size).toString(),
+                            "offset" to albumOffset.toString()
                         )
                     )
+                    val albumList = albumResult.getOrThrow().optJSONObject("albumList2")
+                    val albums = albumList?.optJSONArray("album") ?: break
+                    if (albums.length() == 0) break
+
+                    for (i in 0 until albums.length()) {
+                        val album = albums.optJSONObject(i) ?: continue
+                        val albumId = album.optString("id", "")
+                        if (albumId.isBlank()) continue
+
+                        val albumResponse = requestAndParse("getAlbum", mapOf("id" to albumId)).getOrNull()
+                            ?.optJSONObject("album")
+                            ?: continue
+
+                        val albumSongs = parseSongList(albumResponse.optJSONArray("song"))
+                        for (song in albumSongs) {
+                            songs.putIfAbsent(song.providerId, song)
+                            if (songs.size >= limit) {
+                                break
+                            }
+                        }
+
+                        if (songs.size >= limit) {
+                            break
+                        }
+                    }
+
+                    if (albums.length() < minOf(albumPageSize, limit - songs.size).coerceAtLeast(1)) break
+                    albumOffset += albums.length()
                 }
+
+                Result.success(songs.values.take(limit).toList())
+            } catch (e: Exception) {
+                Log.e(TAG, "Subsonic library fetch failed", e)
+                Result.failure(e)
             }
         }
     }
@@ -122,7 +161,8 @@ class SubsonicApiClient(context: Context) {
         if (songId.isBlank()) return null
         val (token, salt) = generateAuthParams(cred.password)
 
-        val urlBuilder = "${cred.serverUrl}/rest/stream.view".toHttpUrl().newBuilder()
+        val parsedUrl = "${cred.serverUrl}/rest/stream.view".toHttpUrlOrNull() ?: return null
+        val urlBuilder = parsedUrl.newBuilder()
             .addQueryParameter("u", cred.username)
             .addQueryParameter("t", token)
             .addQueryParameter("s", salt)
@@ -146,7 +186,8 @@ class SubsonicApiClient(context: Context) {
         if (coverArtId.isBlank()) return null
         val (token, salt) = generateAuthParams(cred.password)
 
-        return "${cred.serverUrl}/rest/getCoverArt.view".toHttpUrl().newBuilder()
+        val parsedUrl = "${cred.serverUrl}/rest/getCoverArt.view".toHttpUrlOrNull() ?: return null
+        return parsedUrl.newBuilder()
             .addQueryParameter("u", cred.username)
             .addQueryParameter("t", token)
             .addQueryParameter("s", salt)
@@ -215,7 +256,9 @@ class SubsonicApiClient(context: Context) {
 
     private fun buildApiUrl(cred: Credentials, endpoint: String, params: Map<String, String>): String {
         val (token, salt) = generateAuthParams(cred.password)
-        val builder = "${cred.serverUrl}/rest/$endpoint.view".toHttpUrl().newBuilder()
+        val parsedUrl = "${cred.serverUrl}/rest/$endpoint.view".toHttpUrlOrNull() 
+            ?: throw IllegalStateException("Invalid API URL: ${cred.serverUrl}")
+        val builder = parsedUrl.newBuilder()
             .addQueryParameter("u", cred.username)
             .addQueryParameter("t", token)
             .addQueryParameter("s", salt)
@@ -228,6 +271,28 @@ class SubsonicApiClient(context: Context) {
         }
 
         return builder.build().toString()
+    }
+
+    private fun parseSongList(songs: org.json.JSONArray?): List<ProviderSong> {
+        return buildList {
+            for (i in 0 until (songs?.length() ?: 0)) {
+                val song = songs?.optJSONObject(i) ?: continue
+                val id = song.optString("id", "")
+                if (id.isBlank()) continue
+
+                val coverArtId = song.optString("coverArt").takeIf { it.isNotBlank() }
+                add(
+                    ProviderSong(
+                        providerId = id,
+                        title = song.optString("title", song.optString("name", "Unknown title")),
+                        artist = song.optString("artist", "Unknown artist"),
+                        album = song.optString("album", "Unknown album"),
+                        durationMs = song.optLong("duration", 0L) * 1000L,
+                        artworkUrl = coverArtId?.let { buildCoverArtUrl(it, 500) }
+                    )
+                )
+            }
+        }
     }
 
     private fun generateAuthParams(password: String): Pair<String, String> {

@@ -12,6 +12,12 @@ object LyricsFileUtils {
     private const val MAX_LYRICS_FILE_BYTES = 512 * 1024 // 512 KB
     private const val MAX_LYRICS_TEXT_CHARS = 200_000
     private val ALLOWED_LYRICS_EXTENSIONS = setOf("lrc", "txt")
+    private val ALLOWED_LYRICS_MIME_TYPES = setOf(
+        "application/octet-stream",
+        "application/x-lrc",
+        "text/plain",
+        "text/x-lrc"
+    )
 
     data class LoadResult(
         val lyrics: String? = null,
@@ -28,6 +34,10 @@ object LyricsFileUtils {
                 ?.substringAfterLast('.', "")
                 ?.lowercase()
                 ?.takeIf { it.isNotBlank() }
+                ?: uri.lastPathSegment
+                    ?.substringAfterLast('.', "")
+                    ?.lowercase()
+                    ?.takeIf { it.isNotBlank() }
 
             if (!isSupportedLyricsDocument(mimeType, extension)) {
                 return LoadResult(errorMessage = "Please select a .lrc or .txt lyrics file")
@@ -86,7 +96,11 @@ object LyricsFileUtils {
             return true
         }
 
-        return mimeType.startsWith("text/")
+        if (mimeType in ALLOWED_LYRICS_MIME_TYPES) {
+            return true
+        }
+
+        return mimeType.startsWith("text/") || mimeType == "application/octet-stream"
     }
 
     private fun decodeLyricsText(bytes: ByteArray): String {

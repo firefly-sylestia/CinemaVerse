@@ -7,36 +7,64 @@ import chromahub.rhythm.app.core.domain.model.AppMode
 import chromahub.rhythm.app.core.domain.model.SourceType
 import chromahub.rhythm.app.core.domain.model.StreamingConfig
 import chromahub.rhythm.app.core.domain.model.StreamingQuality
-import chromahub.rhythm.app.shared.data.repository.UserPreferencesRepository
+import chromahub.rhythm.app.shared.data.model.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel for managing the application mode (Local vs Streaming).
  * Handles mode switching and persists user preferences.
+ * 
+ * NOTE: Uses AppSettings (primary settings system) instead of duplicate UserPreferencesRepository
+ * for consistency and to avoid sync issues between two settings systems.
  */
 class AppModeViewModel(application: Application) : AndroidViewModel(application) {
     
-    private val userPreferencesRepository = UserPreferencesRepository.getInstance(application)
+    private val appSettings = AppSettings.getInstance(application)
     
     /**
      * Current application mode (Local or Streaming).
      */
-    val currentMode: StateFlow<AppMode> = userPreferencesRepository.appMode
+    val currentMode: StateFlow<AppMode> = appSettings.appMode
+        .map { modeString ->
+            try {
+                AppMode.valueOf(modeString)
+            } catch (e: IllegalArgumentException) {
+                AppMode.LOCAL
+            }
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = userPreferencesRepository.getCurrentAppMode()
+            initialValue = AppMode.LOCAL
         )
     
     /**
      * Current streaming configuration.
      */
-    val streamingConfig: StateFlow<StreamingConfig> = userPreferencesRepository.streamingConfig
+    val streamingConfig: StateFlow<StreamingConfig> = appSettings.streamingService
+        .map { service ->
+            StreamingConfig(
+                activeService = try {
+                    SourceType.valueOf(service.uppercase())
+                } catch (e: IllegalArgumentException) {
+                    SourceType.SUBSONIC
+                },
+                isAuthenticated = true, // Assume authenticated if service is set
+                streamingQuality = try {
+                    StreamingQuality.valueOf(appSettings.streamingQuality.value.uppercase())
+                } catch (e: IllegalArgumentException) {
+                    StreamingQuality.HIGH
+                },
+                allowCellularStreaming = appSettings.allowCellularStreaming.value,
+                offlineMode = appSettings.offlineMode.value
+            )
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -58,7 +86,7 @@ class AppModeViewModel(application: Application) : AndroidViewModel(application)
             _isModeSwitching.value = true
             
             try {
-                userPreferencesRepository.setAppMode(newMode)
+                appSettings.setAppMode(newMode.name)
                 
                 // Add a small delay for smooth transition
                 kotlinx.coroutines.delay(200)
@@ -84,7 +112,7 @@ class AppModeViewModel(application: Application) : AndroidViewModel(application)
      */
     fun setActiveStreamingService(service: SourceType) {
         viewModelScope.launch {
-            userPreferencesRepository.setActiveService(service)
+            appSettings.setStreamingService(service.name)
         }
     }
     
@@ -93,16 +121,7 @@ class AppModeViewModel(application: Application) : AndroidViewModel(application)
      */
     fun setStreamingQuality(quality: StreamingQuality) {
         viewModelScope.launch {
-            userPreferencesRepository.setStreamingQuality(quality)
-        }
-    }
-    
-    /**
-     * Update authentication status for the current streaming service.
-     */
-    fun setAuthenticated(authenticated: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setAuthenticated(authenticated)
+            appSettings.setStreamingQuality(quality.name)
         }
     }
     
