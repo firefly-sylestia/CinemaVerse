@@ -191,8 +191,8 @@ class SubsonicApiClient(context: Context) {
             "size" to limit.coerceIn(1, 500).toString()
         )
 
-        return requestAndParse("getAlbumList", params).map { response ->
-            parseAlbumList(response.optJSONObject("albumList")?.optJSONArray("album"))
+        return requestAndParse("getAlbumList2", params).map { response ->
+            parseAlbumList(response.optJSONObject("albumList2")?.optJSONArray("album"))
         }
     }
 
@@ -297,19 +297,31 @@ class SubsonicApiClient(context: Context) {
         }
     }
 
-    suspend fun getAlbumSongs(albumQuery: String, artistQuery: String? = null, limit: Int = 500): Result<List<ProviderSong>> {
+    suspend fun getAlbumSongs(albumId: String, limit: Int = 500): Result<List<ProviderSong>> {
         if (!isConnected()) {
             return Result.failure(IllegalStateException("Subsonic service is not connected"))
         }
+        if (albumId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Album id is required"))
+        }
 
-        val albums = searchAlbums(albumQuery, limit = 20).getOrDefault(emptyList())
-        val album = albums.firstOrNull { candidate ->
-            candidate.title.equals(albumQuery, ignoreCase = true) &&
-                (artistQuery.isNullOrBlank() || candidate.artist.equals(artistQuery, ignoreCase = true))
-        } ?: albums.firstOrNull() ?: return Result.success(emptyList())
-
-        return requestAndParse("getAlbum", mapOf("id" to album.providerId)).map { response ->
+        return requestAndParse("getAlbum", mapOf("id" to albumId)).map { response ->
             parseSongList(response.optJSONObject("album")?.optJSONArray("song")).take(limit)
+        }
+    }
+
+    suspend fun getAlbumById(albumId: String): Result<ProviderAlbum> {
+        if (!isConnected()) {
+            return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        }
+        if (albumId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Album id is required"))
+        }
+
+        return requestAndParse("getAlbum", mapOf("id" to albumId)).map { response ->
+            val albumJson = response.optJSONObject("album")
+                ?: throw IllegalStateException("Album not found for id=$albumId")
+            parseAlbumItem(albumJson)
         }
     }
 
@@ -374,6 +386,78 @@ class SubsonicApiClient(context: Context) {
         }
     }
 
+    suspend fun markFavorite(id: String, isFavorite: Boolean): Result<Boolean> {
+        if (!isConnected()) return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        if (id.isBlank()) return Result.failure(IllegalArgumentException("Id is required"))
+
+        val endpoint = if (isFavorite) "star" else "unstar"
+        return requestAndParse(endpoint, mapOf("id" to id)).map { true }
+    }
+
+    suspend fun scrobble(id: String, submission: Boolean): Result<Boolean> {
+        if (!isConnected()) return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        if (id.isBlank()) return Result.failure(IllegalArgumentException("Id is required"))
+
+        return requestAndParse(
+            "scrobble", 
+            mapOf("id" to id, "submission" to submission.toString(), "time" to System.currentTimeMillis().toString())
+        ).map { true }
+    }
+
+    suspend fun createPlaylist(name: String, songIds: List<String> = emptyList()): Result<ProviderPlaylist> {
+        if (!isConnected()) return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        if (name.isBlank()) return Result.failure(IllegalArgumentException("Playlist name is required"))
+
+        return requestAndParse(
+            "createPlaylist", 
+            mapOf("name" to name),
+            mapOf("songId" to songIds)
+        ).map { response ->
+            val playlist = response.optJSONObject("playlist")
+            ProviderPlaylist(
+                providerId = playlist?.optString("id", "") ?: "",
+                name = playlist?.optString("name", name) ?: name,
+                description = playlist?.optString("comment", null)?.takeIf { it.isNotBlank() },
+                artworkUrl = playlist?.optString("coverArt", null)?.takeIf { it.isNotBlank() }?.let { buildCoverArtUrl(it, 500) },
+                songCount = playlist?.optInt("songCount", songIds.size) ?: songIds.size,
+                owner = playlist?.optString("owner", credentials?.username)?.takeIf { it.isNotBlank() },
+                isPublic = playlist?.optBoolean("public", true) ?: true
+            )
+        }
+    }
+
+    suspend fun updatePlaylist(
+        playlistId: String,
+        name: String? = null,
+        songIdsToAdd: List<String> = emptyList(),
+        songIndexesToRemove: List<Int> = emptyList()
+    ): Result<Boolean> {
+        if (!isConnected()) return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        if (playlistId.isBlank()) return Result.failure(IllegalArgumentException("Playlist id is required"))
+
+        val params = buildMap {
+            put("playlistId", playlistId)
+            if (!name.isNullOrBlank()) put("name", name)
+        }
+        val listParams = buildMap {
+            if (songIdsToAdd.isNotEmpty()) put("songIdToAdd", songIdsToAdd)
+            if (songIndexesToRemove.isNotEmpty()) put("songIndexToRemove", songIndexesToRemove.map { it.toString() })
+        }
+
+        return requestAndParse(
+            "updatePlaylist",
+            params,
+            listParams
+        ).map { true }
+    }
+
+    suspend fun deletePlaylist(playlistId: String): Result<Boolean> {
+        if (!isConnected()) return Result.failure(IllegalStateException("Subsonic service is not connected"))
+        if (playlistId.isBlank()) return Result.failure(IllegalArgumentException("Playlist id is required"))
+
+        return requestAndParse("deletePlaylist", mapOf("id" to playlistId)).map { true }
+    }
+
     fun buildStreamUrl(songId: String, maxBitRateKbps: Int = 0, format: String? = null): String? {
         val cred = credentials ?: return null
         if (songId.isBlank()) return null
@@ -418,12 +502,16 @@ class SubsonicApiClient(context: Context) {
             .toString()
     }
 
-    private suspend fun request(endpoint: String, params: Map<String, String> = emptyMap()): Result<String> {
+    private suspend fun request(
+        endpoint: String, 
+        params: Map<String, String> = emptyMap(),
+        listParams: Map<String, List<String>> = emptyMap()
+    ): Result<String> {
         val cred = credentials ?: return Result.failure(IllegalStateException("Credentials not set"))
 
         return withContext(Dispatchers.IO) {
             try {
-                val url = buildApiUrl(cred, endpoint, params)
+                val url = buildApiUrl(cred, endpoint, params, listParams)
                 val request = Request.Builder()
                     .url(url)
                     .header("Accept", "application/json")
@@ -445,8 +533,12 @@ class SubsonicApiClient(context: Context) {
         }
     }
 
-    private suspend fun requestAndParse(endpoint: String, params: Map<String, String> = emptyMap()): Result<JSONObject> {
-        return request(endpoint, params).fold(
+    private suspend fun requestAndParse(
+        endpoint: String, 
+        params: Map<String, String> = emptyMap(),
+        listParams: Map<String, List<String>> = emptyMap()
+    ): Result<JSONObject> {
+        return request(endpoint, params, listParams).fold(
             onSuccess = { parseSubsonicResponse(it) },
             onFailure = { Result.failure(it) }
         )
@@ -472,7 +564,12 @@ class SubsonicApiClient(context: Context) {
         }
     }
 
-    private fun buildApiUrl(cred: Credentials, endpoint: String, params: Map<String, String>): String {
+    private fun buildApiUrl(
+        cred: Credentials, 
+        endpoint: String, 
+        params: Map<String, String>,
+        listParams: Map<String, List<String>> = emptyMap()
+    ): String {
         val (token, salt) = generateAuthParams(cred.password)
         val parsedUrl = "${cred.serverUrl}/rest/$endpoint.view".toHttpUrlOrNull()
             ?: throw IllegalStateException("Invalid API URL: ${cred.serverUrl}")
@@ -486,6 +583,12 @@ class SubsonicApiClient(context: Context) {
 
         params.forEach { (key, value) ->
             builder.addQueryParameter(key, value)
+        }
+        
+        listParams.forEach { (key, values) ->
+            values.forEach { value ->
+                builder.addQueryParameter(key, value)
+            }
         }
 
         return builder.build().toString()
@@ -506,7 +609,9 @@ class SubsonicApiClient(context: Context) {
                         artist = song.optString("artist", "Unknown artist"),
                         album = song.optString("album", "Unknown album"),
                         durationMs = song.optLong("duration", 0L) * 1000L,
-                        artworkUrl = coverArtId?.let { buildCoverArtUrl(it, 500) }
+                        artworkUrl = coverArtId?.let { buildCoverArtUrl(it, 500) },
+                        albumId = song.optString("albumId", "").takeIf { it.isNotBlank() },
+                        albumArtist = song.optString("albumArtist", "").takeIf { it.isNotBlank() }
                     )
                 )
             }
@@ -517,22 +622,26 @@ class SubsonicApiClient(context: Context) {
         return buildList {
             for (i in 0 until (albums?.length() ?: 0)) {
                 val album = albums?.optJSONObject(i) ?: continue
-                val id = album.optString("id", "")
-                if (id.isBlank()) continue
-
-                add(
-                    ProviderAlbum(
-                        providerId = id,
-                        title = album.optString("name", album.optString("album", "Unknown album")),
-                        artist = album.optString("artist", "Unknown artist"),
-                        artworkUrl = album.optString("coverArt", null)?.takeIf { it.isNotBlank() }?.let { buildCoverArtUrl(it, 500) },
-                        songCount = album.optInt("songCount", 0),
-                        year = album.optInt("year").takeIf { it > 0 },
-                        description = album.optString("comment", null)?.takeIf { it.isNotBlank() }
-                    )
-                )
+                parseAlbumItem(album)?.let { add(it) }
             }
         }
+    }
+
+    private fun parseAlbumItem(album: JSONObject): ProviderAlbum {
+        val id = album.optString("id", "")
+        if (id.isBlank()) {
+            throw IllegalStateException("Album id is missing in provider response")
+        }
+
+        return ProviderAlbum(
+            providerId = id,
+            title = album.optString("name", album.optString("album", "Unknown album")),
+            artist = album.optString("artist", "Unknown artist"),
+            artworkUrl = album.optString("coverArt", null)?.takeIf { it.isNotBlank() }?.let { buildCoverArtUrl(it, 500) },
+            songCount = album.optInt("songCount", 0),
+            year = album.optInt("year").takeIf { it > 0 },
+            description = album.optString("comment", null)?.takeIf { it.isNotBlank() }
+        )
     }
 
     private fun parseArtistList(artists: org.json.JSONArray?): List<ProviderArtist> {

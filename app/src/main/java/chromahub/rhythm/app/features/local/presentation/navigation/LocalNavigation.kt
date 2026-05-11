@@ -395,6 +395,27 @@ fun LocalNavigation(
         }
     }
 
+    // Consume pending startup route from shared settings handoff and navigate if valid.
+    LaunchedEffect(navController, appSettings) {
+        val pendingRoute = appSettings.consumeInitialStreamingRoute()
+        if (!pendingRoute.isNullOrBlank()) {
+            val isValidLocalRoute = pendingRoute == Screen.Home.route ||
+                pendingRoute == Screen.Search.route ||
+                pendingRoute == Screen.Player.route ||
+                pendingRoute == Screen.Settings.route ||
+                pendingRoute == Screen.ListeningStats.route ||
+                pendingRoute.startsWith(Screen.Library.route.substringBefore("?")) ||
+                pendingRoute.startsWith("playlist/") ||
+                pendingRoute.startsWith("artist/")
+
+            if (isValidLocalRoute) {
+                navController.navigate(pendingRoute) {
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+
     val isLibraryRoute = remember(currentRoute) {
         currentRoute.substringBefore("?") == Screen.Library.route.substringBefore("?")
     }

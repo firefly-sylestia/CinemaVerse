@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.WavingHand
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.rounded.AutoGraph
 import androidx.compose.material.icons.rounded.NewReleases
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,15 +73,17 @@ import kotlinx.coroutines.launch
 
 private const val STREAMING_SECTION_GREETING = "GREETING"
 private const val STREAMING_SECTION_DISCOVER = "DISCOVER"
+private const val STREAMING_SECTION_ARTISTS = "ARTISTS"
 private const val STREAMING_SECTION_RHYTHM_GUARD = "RHYTHM_GUARD"
 private const val STREAMING_SECTION_RHYTHM_STATS = "RHYTHM_STATS"
 private const val STREAMING_SECTION_RECENTLY_PLAYED = "RECENTLY_PLAYED"
 private const val STREAMING_SECTION_NEW_RELEASES = "NEW_RELEASES"
 
 private val defaultStreamingReorderableSections = listOf(
+    STREAMING_SECTION_RECENTLY_PLAYED,
+    STREAMING_SECTION_ARTISTS,
     STREAMING_SECTION_RHYTHM_GUARD,
     STREAMING_SECTION_RHYTHM_STATS,
-    STREAMING_SECTION_RECENTLY_PLAYED,
     STREAMING_SECTION_NEW_RELEASES
 )
 
@@ -105,6 +108,7 @@ fun StreamingHomeSectionOrderBottomSheet(
     val sectionOrder by appSettings.streamingHomeSectionOrder.collectAsState()
     val showGreeting by appSettings.streamingHomeShowGreeting.collectAsState()
     val showDiscover by appSettings.streamingHomeShowRecommended.collectAsState()
+    val showArtists by appSettings.streamingHomeShowArtists.collectAsState()
     val showRhythmGuard by appSettings.streamingHomeShowRhythmGuard.collectAsState()
     val showRhythmStats by appSettings.streamingHomeShowRhythmStats.collectAsState()
     val showRecentlyPlayed by appSettings.streamingHomeShowRecentlyPlayed.collectAsState()
@@ -117,6 +121,7 @@ fun StreamingHomeSectionOrderBottomSheet(
     var visibilityMap by remember(
         showGreeting,
         showDiscover,
+        showArtists,
         showRhythmGuard,
         showRhythmStats,
         showRecentlyPlayed,
@@ -126,6 +131,7 @@ fun StreamingHomeSectionOrderBottomSheet(
             mapOf(
                 STREAMING_SECTION_GREETING to showGreeting,
                 STREAMING_SECTION_DISCOVER to showDiscover,
+                STREAMING_SECTION_ARTISTS to showArtists,
                 STREAMING_SECTION_RHYTHM_GUARD to showRhythmGuard,
                 STREAMING_SECTION_RHYTHM_STATS to showRhythmStats,
                 STREAMING_SECTION_RECENTLY_PLAYED to showRecentlyPlayed,
@@ -141,6 +147,7 @@ fun StreamingHomeSectionOrderBottomSheet(
         return when (sectionId) {
             STREAMING_SECTION_GREETING -> context.getString(R.string.home_section_greeting) to Icons.Default.WavingHand
             STREAMING_SECTION_DISCOVER -> context.getString(R.string.home_section_discover) to Icons.Default.Recommend
+            STREAMING_SECTION_ARTISTS -> context.getString(R.string.home_top_artists) to Icons.Rounded.Person
             STREAMING_SECTION_RHYTHM_GUARD -> context.getString(R.string.settings_rhythm_guard) to Icons.Default.Security
             STREAMING_SECTION_RHYTHM_STATS -> context.getString(R.string.settings_rhythm_stats) to Icons.Rounded.AutoGraph
             STREAMING_SECTION_RECENTLY_PLAYED -> context.getString(R.string.home_section_recently_played) to Icons.Default.History
@@ -526,6 +533,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                             visibilityMap = mapOf(
                                 STREAMING_SECTION_GREETING to true,
                                 STREAMING_SECTION_DISCOVER to true,
+                                STREAMING_SECTION_ARTISTS to true,
                                 STREAMING_SECTION_RHYTHM_GUARD to true,
                                 STREAMING_SECTION_RHYTHM_STATS to true,
                                 STREAMING_SECTION_RECENTLY_PLAYED to true,
@@ -552,6 +560,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                             appSettings.setStreamingHomeSectionOrder(finalOrder)
                             appSettings.setStreamingHomeShowGreeting(visibilityMap[STREAMING_SECTION_GREETING] ?: true)
                             appSettings.setStreamingHomeShowRecommended(visibilityMap[STREAMING_SECTION_DISCOVER] ?: true)
+                            appSettings.setStreamingHomeShowArtists(visibilityMap[STREAMING_SECTION_ARTISTS] ?: true)
                             appSettings.setStreamingHomeShowRhythmGuard(visibilityMap[STREAMING_SECTION_RHYTHM_GUARD] ?: true)
                             appSettings.setStreamingHomeShowRhythmStats(visibilityMap[STREAMING_SECTION_RHYTHM_STATS] ?: true)
                             appSettings.setStreamingHomeShowRecentlyPlayed(visibilityMap[STREAMING_SECTION_RECENTLY_PLAYED] ?: true)

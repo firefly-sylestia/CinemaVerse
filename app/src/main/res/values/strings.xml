@@ -179,6 +179,9 @@
     <string name="dialog_delete">Delete</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_save">Save</string>
+    <string name="streaming_settings_switch_provider_confirm_title">Switch Streaming Provider?</string>
+    <string name="streaming_settings_switch_provider_confirm_desc">Current provider: %1$s\nSwitch to: %2$s? This will disconnect the currently active provider.</string>
+    <string name="action_switch">Switch</string>
     
     <!-- Playlist Detail Screen -->
     <string name="playlist_rename_title">Rename Playlist</string>

@@ -48,6 +48,8 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -89,9 +91,13 @@ import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.PlaybackLocation
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.core.domain.model.StreamingQuality
+import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
 import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.util.AppRestarter
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShape
@@ -112,6 +118,7 @@ fun PlaybackBottomSheet(
     onDismiss: () -> Unit,
     appSettings: AppSettings,
     onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateToGoMode: (() -> Unit)? = null,
     onNavigateToEqualizer: (() -> Unit)? = null,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
@@ -128,6 +135,8 @@ fun PlaybackBottomSheet(
     // Collect settings
     val playbackSpeed by musicViewModel.playbackSpeed.collectAsState()
     val playbackPitch by musicViewModel.playbackPitch.collectAsState()
+    val streamingQuality by appSettings.streamingQuality.collectAsState()
+    val appMode by appSettings.appMode.collectAsState()
     val syncSpeedAndPitch by appSettings.syncSpeedAndPitch.collectAsState()
     val gaplessPlayback by appSettings.gaplessPlayback.collectAsState()
     val useSystemVolume by appSettings.useSystemVolume.collectAsState()
@@ -144,6 +153,9 @@ fun PlaybackBottomSheet(
     val bassBoostStrength by appSettings.bassBoostStrength.collectAsState()
     val virtualizerEnabled by appSettings.virtualizerEnabled.collectAsState()
     val virtualizerStrength by appSettings.virtualizerStrength.collectAsState()
+    var showStreamingQualitySheet by remember { mutableStateOf(false) }
+    var showRestartDialog by remember { mutableStateOf(false) }
+    var pendingStreamingQuality by remember { mutableStateOf<StreamingQuality?>(null) }
     
     val contentAlpha by animateFloatAsState(
         targetValue = if (showContent) 1f else 0f,
@@ -279,6 +291,7 @@ fun PlaybackBottomSheet(
                 item {
                     AnimateIn {
                         PlaybackQuickSettingsCard(
+                                    appMode = appMode,
                             gaplessPlayback = gaplessPlayback,
                             useSystemVolume = useSystemVolume,
                             stopPlaybackOnZeroVolume = stopPlaybackOnZeroVolume,
@@ -296,6 +309,7 @@ fun PlaybackBottomSheet(
                             onCrossfadeEnabledChange = { appSettings.setCrossfade(it) },
                             onCrossfadeDurationChange = { appSettings.setCrossfadeDuration(it) },
                             onNavigateToSettings = onNavigateToSettings,
+                            onNavigateToGoMode = onNavigateToGoMode,
                             haptics = haptics,
                             context = context
                         )
@@ -338,6 +352,19 @@ fun PlaybackBottomSheet(
                         )
                     }
                 }
+
+                if (appMode == "STREAMING") {
+                    item {
+                        AnimateIn {
+                            StreamingQualityCard(
+                                selectedQuality = streamingQuality,
+                                onOpenQualitySheet = { showStreamingQualitySheet = true },
+                                haptics = haptics,
+                                context = context
+                            )
+                        }
+                    }
+                }
                 
                 // Playback Pitch Section
                 item {
@@ -374,6 +401,94 @@ fun PlaybackBottomSheet(
                 }
                 
 
+            }
+        }
+    }
+
+    if (showStreamingQualitySheet) {
+        StreamingQualitySelectionBottomSheet(
+            selectedQuality = streamingQuality,
+            onDismiss = { showStreamingQualitySheet = false },
+            onSelect = { quality ->
+                pendingStreamingQuality = quality
+                showStreamingQualitySheet = false
+                showRestartDialog = true
+            }
+        )
+    }
+
+    if (showRestartDialog) {
+        val restartSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = {
+                showRestartDialog = false
+                pendingStreamingQuality = null
+            },
+            sheetState = restartSheetState,
+            dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 24.dp)
+            ) {
+                StandardBottomSheetHeader(
+                    title = "Restart Required",
+                    subtitle = "Streaming quality will apply after restart.",
+                    visible = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Material3SettingsGroup(
+                    items = listOf(
+                        Material3SettingsItem(
+                            icon = Icons.Filled.GraphicEq,
+                            title = { Text(text = "Quality") },
+                            description = {
+                                Text(text = pendingStreamingQuality?.name ?: streamingQuality)
+                            },
+                            scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.STREAMING
+                        )
+                    ),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    FilledTonalButton(
+                        onClick = {
+                            pendingStreamingQuality?.let { appSettings.setStreamingQuality(it.name) }
+                            showRestartDialog = false
+                            pendingStreamingQuality = null
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Later")
+                    }
+
+                    Button(
+                        onClick = {
+                            pendingStreamingQuality?.let { quality ->
+                                appSettings.setStreamingQuality(quality.name)
+                                AppRestarter.restartApp(context)
+                            }
+                            showRestartDialog = false
+                            pendingStreamingQuality = null
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "Restart Now")
+                    }
+                }
             }
         }
     }
@@ -1172,6 +1287,7 @@ private fun PlaybackSpeedCard(
 
 @Composable
 private fun PlaybackQuickSettingsCard(
+    appMode: String,
     gaplessPlayback: Boolean,
     useSystemVolume: Boolean,
     stopPlaybackOnZeroVolume: Boolean,
@@ -1187,6 +1303,7 @@ private fun PlaybackQuickSettingsCard(
     onCrossfadeEnabledChange: (Boolean) -> Unit,
     onCrossfadeDurationChange: (Float) -> Unit,
     onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateToGoMode: (() -> Unit)? = null,
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
     context: Context,
     modifier: Modifier = Modifier
@@ -1206,6 +1323,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.LOCAL,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onUseSystemVolumeChange(!useSystemVolume)
@@ -1226,6 +1344,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onStopPlaybackOnZeroVolumeChange(!stopPlaybackOnZeroVolume)
@@ -1246,6 +1365,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onResumeOnDeviceReconnectChange(!resumeOnDeviceReconnect)
@@ -1266,6 +1386,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onGaplessPlaybackChange(!gaplessPlayback)
@@ -1286,6 +1407,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onShowPlayedQueueSongsChange(!showPlayedQueueSongs)
@@ -1306,6 +1428,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onCrossfadeEnabledChange(!crossfadeEnabled)
@@ -1348,8 +1471,24 @@ private fun PlaybackQuickSettingsCard(
             add(
                 Material3SettingsItem(
                     icon = RhythmIcons.Settings,
-                    title = { Text(text = context.getString(R.string.settings_queue_playback_title)) },
-                    description = { Text(text = context.getString(R.string.settings_queue_playback_desc)) },
+                    title = {
+                        Text(
+                            text = if (appMode == "STREAMING") {
+                                "Go Mode"
+                            } else {
+                                context.getString(R.string.settings_queue_playback_title)
+                            }
+                        )
+                    },
+                    description = {
+                        Text(
+                            text = if (appMode == "STREAMING") {
+                                "Open Go settings for provider and streaming controls"
+                            } else {
+                                context.getString(R.string.settings_queue_playback_desc)
+                            }
+                        )
+                    },
                     trailingContent = {
                         Icon(
                             imageVector = RhythmIcons.Forward,
@@ -1360,8 +1499,17 @@ private fun PlaybackQuickSettingsCard(
                     },
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                        navigateToSettings.invoke()
+                        if (appMode == "STREAMING") {
+                            if (onNavigateToGoMode != null) {
+                                onNavigateToGoMode.invoke()
+                            } else {
+                                navigateToSettings.invoke()
+                            }
+                        } else {
+                            navigateToSettings.invoke()
+                        }
                     }
+                    ,scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH
                 )
             )
         }
@@ -1377,6 +1525,103 @@ private fun PlaybackQuickSettingsCard(
             items = quickSettingsItems,
             containerColor = MaterialTheme.colorScheme.surface
         )
+    }
+}
+
+@Composable
+private fun StreamingQualityCard(
+    selectedQuality: String,
+    onOpenQualitySheet: () -> Unit,
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
+    context: Context,
+    modifier: Modifier = Modifier
+) {
+    Material3SettingsGroup(
+        title = context.getString(R.string.streaming_settings_quality),
+        items = listOf(
+            Material3SettingsItem(
+                icon = Icons.Filled.GraphicEq,
+                title = { Text(text = context.getString(R.string.streaming_settings_quality)) },
+                description = { Text(text = selectedQuality) },
+                trailingContent = {
+                    Icon(
+                        imageVector = RhythmIcons.Forward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                },
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.STREAMING,
+                onClick = {
+                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                    onOpenQualitySheet()
+                }
+            )
+        ),
+        containerColor = MaterialTheme.colorScheme.surface
+    )
+}
+
+@Composable
+private fun StreamingQualitySelectionBottomSheet(
+    selectedQuality: String,
+    onDismiss: () -> Unit,
+    onSelect: (StreamingQuality) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            StandardBottomSheetHeader(
+                title = "Streaming Quality",
+                subtitle = "Choose the quality used for streaming playback.",
+                visible = true
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val qualityOptions = listOf(
+                StreamingQuality.LOW,
+                StreamingQuality.NORMAL,
+                StreamingQuality.HIGH,
+                StreamingQuality.LOSSLESS
+            )
+
+            Material3SettingsGroup(
+                items = qualityOptions.map { quality ->
+                    val isSelected = selectedQuality.equals(quality.name, ignoreCase = true)
+                    Material3SettingsItem(
+                        icon = Icons.Filled.GraphicEq,
+                        title = { Text(text = quality.name) },
+                        description = { Text(text = if (isSelected) "Current quality" else "Tap to select") },
+                        trailingContent = {
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        },
+                        scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.STREAMING,
+                        isHighlighted = isSelected,
+                        onClick = { onSelect(quality) }
+                    )
+                },
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
+        }
     }
 }
 

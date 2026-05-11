@@ -958,6 +958,7 @@ fun SettingsScreenWrapper(
     var showSleepTimerBottomSheet by rememberSaveable { mutableStateOf(false) }
     val currentSong by musicViewModel.currentSong.collectAsState()
     val isPlaying by musicViewModel.isPlaying.collectAsState()
+    val appMode by appSettings.appMode.collectAsState()
 
     // Hoist the main settings scroll state to persist across navigation
     val mainSettingsScrollState = rememberSaveable(
@@ -991,7 +992,24 @@ fun SettingsScreenWrapper(
 
     val onNavigateToSubsetting = { route: String ->
         if (route == SettingsRoutes.LISTENING_STATS) {
-            navController.navigate("listening_stats")
+            val localStatsRoute = Screen.ListeningStats.route
+            val streamingStatsRoute = "streaming_rhythm_stats"
+            when {
+                navController.graph.findNode(streamingStatsRoute) != null -> navController.navigate(streamingStatsRoute)
+                navController.graph.findNode(localStatsRoute) != null -> navController.navigate(localStatsRoute)
+                appMode == "STREAMING" -> {
+                    appSettings.setInitialStreamingRoute(streamingStatsRoute)
+                    if (!navController.popBackStack()) {
+                        navController.navigate("main") { launchSingleTop = true }
+                    }
+                }
+                else -> {
+                    appSettings.setInitialStreamingRoute(localStatsRoute)
+                    if (!navController.popBackStack()) {
+                        navController.navigate("main") { launchSingleTop = true }
+                    }
+                }
+            }
         } else if (route == SettingsRoutes.EQUALIZER) {
             navController.navigate(Screen.Equalizer.route)
         } else if (route == SettingsRoutes.SLEEP_TIMER) {

@@ -183,6 +183,7 @@ fun PlaylistDetailScreen(
     isStreamingPlaylist: Boolean = false,
     onPlayNext: (Song) -> Unit = {},
     onAddToQueue: (Song) -> Unit = {},
+    onAddToPlaylist: (Song) -> Unit = {},
     onToggleFavorite: (Song) -> Unit = {},
     onGoToAlbum: (Song) -> Unit = {},
     onGoToArtist: (Song) -> Unit = {},
@@ -641,8 +642,7 @@ fun PlaylistDetailScreen(
                 Toast.makeText(context, "${selectedSongForOptions!!.title} added to queue", Toast.LENGTH_SHORT).show()
             },
             onAddToPlaylist = {
-                selectedSongForPlaylistAdd = selectedSongForOptions
-                showPlaylistSelector = true
+                onAddToPlaylist(selectedSongForOptions!!)
                 showSongOptionsSheet = false
             },
             onShowSongInfo = {

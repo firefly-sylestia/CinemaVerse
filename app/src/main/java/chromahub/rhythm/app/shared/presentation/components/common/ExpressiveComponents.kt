@@ -1410,7 +1410,7 @@ fun ExpressivePlayerControlGroup(
             // Previous button
             Box(
                 modifier = Modifier
-                    .weight(prevWeight)
+                    .weight(prevWeight.coerceAtLeast(0.001f))
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(containerHeight / 2))
                     .background(MaterialTheme.colorScheme.tertiary)
@@ -1432,7 +1432,7 @@ fun ExpressivePlayerControlGroup(
             if (showSeekButtons) {
                 Box(
                     modifier = Modifier
-                        .weight(seekBackWeight)
+                        .weight(seekBackWeight.coerceAtLeast(0.001f))
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(containerHeight / 2))
                         .background(MaterialTheme.colorScheme.surfaceContainerHigh)
@@ -1454,7 +1454,7 @@ fun ExpressivePlayerControlGroup(
             // Play/Pause button - center
             Box(
                 modifier = Modifier
-                    .weight(playWeight)
+                    .weight(playWeight.coerceAtLeast(0.001f))
                     .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
@@ -1477,7 +1477,7 @@ fun ExpressivePlayerControlGroup(
             if (showSeekButtons) {
                 Box(
                     modifier = Modifier
-                        .weight(seekForwardWeight)
+                        .weight(seekForwardWeight.coerceAtLeast(0.001f))
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(containerHeight / 2))
                         .background(MaterialTheme.colorScheme.surfaceContainerHigh)
@@ -1499,7 +1499,7 @@ fun ExpressivePlayerControlGroup(
             // Next button
             Box(
                 modifier = Modifier
-                    .weight(nextWeight)
+                    .weight(nextWeight.coerceAtLeast(0.001f))
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(containerHeight / 2))
                     .background(MaterialTheme.colorScheme.tertiary)

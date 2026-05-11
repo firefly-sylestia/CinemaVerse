@@ -257,8 +257,8 @@ fun QueueBottomSheet(
                 
                 val currentSongIndexInQueue = currentSong
                     ?.let { song -> displayQueue.indexOfFirst { it.id == song.id }.takeIf { it >= 0 } }
-                    ?.coerceIn(0, displayQueue.lastIndex)
-                    ?: currentQueueIndex.coerceIn(0, displayQueue.lastIndex)
+                    ?.coerceIn(0, displayQueue.lastIndex.coerceAtLeast(0))
+                    ?: currentQueueIndex.coerceIn(0, displayQueue.lastIndex.coerceAtLeast(0))
                 val isRepeatAll = repeatMode == Player.REPEAT_MODE_ALL
                 val shouldHidePlayedSongs = !showAlreadyPlayedSongsInQueue && !isShuffleEnabled
                 // Build visible queue according to current playback behavior.
@@ -337,7 +337,10 @@ fun QueueBottomSheet(
                             modifier = Modifier.fillMaxWidth(),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                         ) {
-                            itemsIndexed(visibleQueue) { index, queueItem ->
+                            itemsIndexed(
+                                items = visibleQueue,
+                                key = { _, queueItem -> "${queueItem.first}_${queueItem.second.id}" }
+                            ) { index, queueItem ->
                                 val actualQueuePosition = queueItem.first
                                 val song = queueItem.second
                                 val isPlayed = !isShuffleEnabled && actualQueuePosition < currentSongIndexInQueue

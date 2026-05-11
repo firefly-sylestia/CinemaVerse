@@ -40,6 +40,7 @@ import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServi
 import chromahub.rhythm.app.util.AppRestarter
 import chromahub.rhythm.app.features.local.presentation.components.dialogs.AppRestartDialog
 import chromahub.rhythm.app.core.utils.NetworkUtils
+import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.text.style.TextOverflow
@@ -104,9 +105,10 @@ fun GoSettingsScreen(
     var showQualitySheet by remember { mutableStateOf(false) }
     var showRestartDialog by remember { mutableStateOf(false) }
     var restartDialogMessage by remember { mutableStateOf("") }
+    var pendingServiceSelection by remember { mutableStateOf<String?>(null) }
 
     CollapsibleHeaderScreen(
-        title = "Go Settings",
+        title = "Go Mode",
         showBackButton = true,
         onBackClick = {
             showContent = false
@@ -233,13 +235,71 @@ fun GoSettingsScreen(
         ServiceSelectionBottomSheet(
             selectedService = selectedService,
             sessions = sessions,
-            onDismiss = { showServiceSheet = false },
+            onDismiss = {
+                pendingServiceSelection = null
+                showServiceSheet = false
+            },
             onSelect = { serviceId ->
-                // Validate service ID is not empty
                 if (serviceId.isNotBlank()) {
                     HapticUtils.performHapticFeedback(context, haptics, androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                    appSettings.setStreamingService(serviceId)
+
+                    // Prompt whenever switching away while any provider session is currently active.
+                    val hasActiveSession = sessions.any { (_, session) -> session.isConnected }
+                    if (hasActiveSession && serviceId != selectedService) {
+                        pendingServiceSelection = serviceId
+                    } else {
+                        appSettings.setStreamingService(serviceId)
+                        if (appMode == "STREAMING") {
+                            viewModel.refreshCurrentSession()
+                        }
+                        showServiceSheet = false
+                    }
+                }
+            }
+        )
+    }
+
+    pendingServiceSelection?.let { pendingId ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { pendingServiceSelection = null },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.CloudQueue,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_switch_provider_confirm_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                val currentLabel = selectedServiceLabel(selectedService, context)
+                val pendingLabel = selectedServiceLabel(pendingId, context)
+                Text(
+                    text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_switch_provider_confirm_desc, currentLabel, pendingLabel),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    appSettings.setStreamingService(pendingId)
+                    if (appMode == "STREAMING") {
+                        viewModel.refreshCurrentSession()
+                    }
+                    pendingServiceSelection = null
                     showServiceSheet = false
+                }) {
+                    Text(text = stringResource(id = chromahub.rhythm.app.R.string.action_switch))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { pendingServiceSelection = null }) {
+                    Text(text = stringResource(id = chromahub.rhythm.app.R.string.action_cancel))
                 }
             }
         )
@@ -398,25 +458,17 @@ private fun ServiceSelectionBottomSheet(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxWidth()
     ) {
+        StandardBottomSheetHeader(
+            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_preferred_service),
+            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_service_sheet_desc),
+            visible = true
+        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 24.dp)
         ) {
-            Text(
-                text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_preferred_service),
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-
-            Text(
-                text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_service_sheet_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -517,25 +569,17 @@ private fun QualitySelectionBottomSheet(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxWidth()
     ) {
+        StandardBottomSheetHeader(
+            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality),
+            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality_sheet_desc),
+            visible = true
+        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 24.dp)
         ) {
-            Text(
-                text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality),
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-
-            Text(
-                text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality_sheet_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
 
             Spacer(modifier = Modifier.height(8.dp))
 

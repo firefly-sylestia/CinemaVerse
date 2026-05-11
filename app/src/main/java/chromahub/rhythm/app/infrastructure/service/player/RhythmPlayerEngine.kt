@@ -13,6 +13,14 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.datasource.ResolvingDataSource
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.DataSpec
+import android.net.Uri
+import chromahub.rhythm.app.features.streaming.di.StreamingMusicModule
+import kotlinx.coroutines.runBlocking
 import chromahub.rhythm.app.infrastructure.audio.BitPerfectRenderersFactory
 import chromahub.rhythm.app.infrastructure.audio.BitPerfectAudioSink
 import chromahub.rhythm.app.infrastructure.audio.RhythmBassBoostProcessor
@@ -219,8 +227,32 @@ class RhythmPlayerEngine(
             .setUsage(C.USAGE_MEDIA)
             .build()
 
+        val resolvingDataSourceFactory = ResolvingDataSource.Factory(
+            DefaultDataSource.Factory(context, DefaultHttpDataSource.Factory()),
+            object : ResolvingDataSource.Resolver {
+                override fun resolveDataSpec(dataSpec: DataSpec): DataSpec {
+                    if (dataSpec.uri.scheme == "streaming") {
+                        val trackId = dataSpec.uri.lastPathSegment
+                        if (!trackId.isNullOrBlank()) {
+                            val repository = StreamingMusicModule.provideStreamingMusicRepository(context)
+                            // Run blocking is safe here as ExoPlayer calls resolveDataSpec on a background thread
+                            val freshUrl = runBlocking { repository.getStreamingUrl(trackId) }
+                            if (!freshUrl.isNullOrBlank()) {
+                                return dataSpec.withUri(Uri.parse(freshUrl))
+                            }
+                        }
+                    }
+                    return dataSpec
+                }
+            }
+        )
+
+        val mediaSourceFactory = DefaultMediaSourceFactory(context)
+            .setDataSourceFactory(resolvingDataSourceFactory)
+
         return ExoPlayer.Builder(context, renderersFactory)
             .setLoadControl(loadControl)
+            .setMediaSourceFactory(mediaSourceFactory)
             .build().apply {
                 setAudioAttributes(audioAttributes, handleAudioFocus)
                 setHandleAudioBecomingNoisy(true)

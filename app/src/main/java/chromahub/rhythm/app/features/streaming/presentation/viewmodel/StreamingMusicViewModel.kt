@@ -144,18 +144,9 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
                 if (connected) {
                     loadHomeContent()
                 } else {
-                    val fallbackConnectedServiceId = serviceSessionRepository.sessions.value.values
-                        .firstOrNull {
-                            it.isConnected && normalizeServiceId(it.serviceId) != normalizedServiceId
-                        }
-                        ?.serviceId
-                        ?.let(::normalizeServiceId)
-
-                    if (!fallbackConnectedServiceId.isNullOrBlank()) {
-                        appSettings.setStreamingService(fallbackConnectedServiceId)
-                        return@collect
-                    }
-
+                    // Keep the user's explicit provider selection even if disconnected.
+                    // Auto-reverting to another connected provider makes provider switching
+                    // appear to do nothing from the Go settings popup flow.
                     clearContent()
                 }
             }
@@ -345,11 +336,7 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
                     recommendations = repository.getRandomSongs(limit = 24)
                 }
 
-                // Use provider-native album discovery instead of deriving from songs
-                var newReleases = repository.getNewReleases(limit = 24)
-                if (newReleases.isEmpty()) {
-                    newReleases = repository.getAlbumList("newest", limit = 24)
-                }
+                val newReleases = repository.getNewReleases(limit = 24)
 
                 // Use actual provider playlists only.
                 val featuredPlaylists = if (syncedPlaylists.isNotEmpty()) {
@@ -466,16 +453,20 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
                 repository.syncCatalog(limit = 5_000)
 
                 val likedSongs = repository.getLikedSongs().first()
-                val savedAlbums = repository.getSavedAlbums().first()
                 val followedArtists = repository.getFollowedArtists().first()
                 val downloadedSongs = repository.getDownloadedSongs().first()
                 val syncedPlaylists = repository.syncPlaylists()
                 val savedPlaylists = repository.getPlaylists().first()
                     .filterIsInstance<StreamingPlaylist>()
 
-                val catalogAlbums = repository.getAlbums().first()
-                    .filterIsInstance<StreamingAlbum>()
-                    .distinctBy { it.id }
+                val savedAlbums = repository.getSavedAlbums().first()
+                val newReleases = repository.getNewReleases(limit = 100)
+
+                val catalogAlbums = if (savedAlbums.isNotEmpty()) {
+                    savedAlbums
+                } else {
+                    newReleases
+                }
                 val catalogArtists = repository.getArtists().first()
                     .filterIsInstance<StreamingArtist>()
                     .distinctBy { it.id }
@@ -487,13 +478,7 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
                     savedPlaylists.isNotEmpty()
 
                 // Use provider-native methods instead of inefficient seeding/derivation
-                val resolvedAlbums = if (savedAlbums.isNotEmpty()) {
-                    savedAlbums
-                } else if (catalogAlbums.isNotEmpty()) {
-                    catalogAlbums
-                } else {
-                    repository.getAlbumList("recent", limit = 48)
-                }
+                val resolvedAlbums = catalogAlbums
 
                 val resolvedArtists = if (followedArtists.isNotEmpty()) {
                     val catalogArtistsByName = catalogArtists.associateBy { it.name.lowercase() }
@@ -530,6 +515,7 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
 
                 _likedSongs.value = likedSongs
                 _savedAlbums.value = resolvedAlbums
+                _newReleases.value = newReleases
                 _followedArtists.value = resolvedArtists
                 _savedPlaylists.value = resolvedPlaylists
                 _downloadedSongs.value = downloadedSongs
@@ -582,27 +568,11 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
 
                 val songs = repository.searchSongs(query).filterIsInstance<StreamingSong>()
                 val artistsFromRepository = repository.searchArtists(query).filterIsInstance<StreamingArtist>()
-                val albumsFromRepository = repository.searchAlbums(query).filterIsInstance<StreamingAlbum>()
+                val albumsFromRepository = emptyList<StreamingAlbum>()
                 val playlists = repository.searchPlaylists(query).filterIsInstance<StreamingPlaylist>()
 
 
-                val derivedAlbums = songs
-                    .mapNotNull { searchSong ->
-                        if (searchSong.album.isBlank()) {
-                            null
-                        } else {
-                            StreamingAlbum(
-                                id = "${searchSong.sourceType.name}:album:${searchSong.album.lowercase()}",
-                                title = searchSong.album,
-                                artist = searchSong.artist,
-                                artworkUri = searchSong.artworkUri,
-                                songCount = 0,
-                                year = null,
-                                sourceType = searchSong.sourceType
-                            )
-                        }
-                    }
-                    .distinctBy { it.id }
+                val derivedAlbums = emptyList<StreamingAlbum>()
 
                 _searchResults.value = StreamingSearchResults(
                     songs = songs,
@@ -711,12 +681,7 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
      * Play an album.
      */
     fun playAlbum(album: StreamingAlbum) {
-        viewModelScope.launch {
-            val tracks = album.getTracks()
-            if (tracks.isNotEmpty()) {
-                playQueue(tracks, startIndex = 0, shuffle = false)
-            }
-        }
+        // Album logic intentionally disabled for streaming mode cleanup.
     }
 
     /**
@@ -735,36 +700,11 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
      * Resolve songs for an album with repository-first lookup and local fallback.
      */
     suspend fun getAlbumSongs(album: StreamingAlbum): List<StreamingSong> {
-        val embeddedTracks = album.getTracks()
-            .filter { it.isPlayable }
-            .distinctBy { it.id }
-        if (embeddedTracks.isNotEmpty()) {
-            return embeddedTracks
+        val songs = repository.getAlbumSongs(album.id)
+        if (songs.isNotEmpty()) {
+            return songs
         }
-
-        val repositoryTracks = repository.getSongsForAlbum(album.id)
-            .filterIsInstance<StreamingSong>()
-            .filter { it.isPlayable }
-            .distinctBy { it.id }
-        if (repositoryTracks.isNotEmpty()) {
-            return repositoryTracks
-        }
-
-        return (
-            _likedSongs.value +
-                _downloadedSongs.value +
-                _recommendations.value +
-                _searchResults.value.songs +
-                _queue.value
-            )
-            .asSequence()
-            .filter {
-                it.album.equals(album.title, ignoreCase = true) &&
-                    it.artist.equals(album.artist, ignoreCase = true)
-            }
-            .filter { it.isPlayable }
-            .distinctBy { it.id }
-            .toList()
+        return emptyList()
     }
 
     /**
@@ -827,46 +767,7 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
         artistId: String,
         artistNameHint: String? = null
     ): List<StreamingAlbum> {
-        val cachedArtist = (_followedArtists.value + _searchResults.value.artists)
-            .distinctBy { it.id }
-            .firstOrNull { it.id == artistId }
-
-        val embeddedAlbums = cachedArtist
-            ?.getAlbumsList()
-            .orEmpty()
-            .distinctBy { it.id }
-        if (embeddedAlbums.isNotEmpty()) {
-            return embeddedAlbums
-        }
-
-        val repositoryAlbums = repository.getArtistAlbums(artistId)
-            .distinctBy { it.id }
-        if (repositoryAlbums.isNotEmpty()) {
-            return repositoryAlbums
-        }
-
-        val fallbackName = artistNameHint?.trim().orEmpty()
-
-        val derivedFromSongs = getArtistTopSongs(
-            artistId = artistId,
-            artistNameHint = fallbackName,
-            limit = 120
-        )
-        if (derivedFromSongs.isNotEmpty()) {
-            return deriveAlbumsFromSongs(derivedFromSongs, limit = 24)
-        }
-
-        return (_savedAlbums.value + _newReleases.value)
-            .asSequence()
-            .filter {
-                if (fallbackName.isNotBlank()) {
-                    it.artist.equals(fallbackName, ignoreCase = true)
-                } else {
-                    artistIdMatchesSongArtist(artistId = artistId, songArtist = it.artist)
-                }
-            }
-            .distinctBy { it.id }
-            .toList()
+        return emptyList()
     }
 
     /**
@@ -949,6 +850,125 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
     }
 
     /**
+     * Like a song by its ID. Looks up the song from known library content.
+     */
+    fun likeSongById(songId: String) {
+        viewModelScope.launch {
+            try {
+                repository.likeSong(songId)
+                _likedSongs.value = repository.getLikedSongs().first()
+            } catch (e: Exception) {
+                _error.value = "Failed to save song: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Create a new playlist.
+     */
+    fun createPlaylist(name: String) {
+        viewModelScope.launch {
+            try {
+                repository.createPlaylist(name)
+                _savedPlaylists.value = repository.getPlaylists().first().filterIsInstance<StreamingPlaylist>()
+            } catch (e: Exception) {
+                _error.value = "Failed to create playlist: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Rename a playlist on the streaming service.
+     */
+    fun renamePlaylist(playlist: StreamingPlaylist, newName: String) {
+        if (newName.isBlank() || playlist.name == newName) return
+
+        viewModelScope.launch {
+            try {
+                val success = repository.renamePlaylist(playlist.id, newName)
+                if (success) {
+                    _savedPlaylists.value = repository.getPlaylists().first().filterIsInstance<StreamingPlaylist>()
+                } else {
+                    _error.value = "Failed to rename playlist"
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to rename playlist: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Add a song to a playlist.
+     */
+    fun addSongToPlaylist(playlistId: String, song: StreamingSong) {
+        viewModelScope.launch {
+            try {
+                repository.addSongsToPlaylist(playlistId, listOf(song.id))
+                _savedPlaylists.value = repository.getPlaylists().first().filterIsInstance<StreamingPlaylist>()
+            } catch (e: Exception) {
+                _error.value = "Failed to add song to playlist: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Add multiple songs to a playlist.
+     */
+    fun addSongsToPlaylist(playlistId: String, songs: List<StreamingSong>) {
+        if (songs.isEmpty()) return
+
+        viewModelScope.launch {
+            try {
+                repository.addSongsToPlaylist(playlistId, songs.map { it.id })
+                _savedPlaylists.value = repository.getPlaylists().first().filterIsInstance<StreamingPlaylist>()
+            } catch (e: Exception) {
+                _error.value = "Failed to add songs to playlist: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Remove a song from a playlist.
+     */
+    fun removeSongFromPlaylist(playlistId: String, songId: String) {
+        viewModelScope.launch {
+            try {
+                repository.removeSongsFromPlaylist(playlistId, listOf(songId))
+                _savedPlaylists.value = repository.getPlaylists().first().filterIsInstance<StreamingPlaylist>()
+            } catch (e: Exception) {
+                _error.value = "Failed to remove song from playlist: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Unfollow/delete a playlist.
+     */
+    fun unfollowPlaylist(playlist: StreamingPlaylist) {
+        deletePlaylist(playlist)
+    }
+
+    /**
+     * Delete a playlist on the streaming service.
+     */
+    fun deletePlaylist(playlist: StreamingPlaylist, onComplete: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val success = repository.deletePlaylist(playlist.id)
+                if (success) {
+                    _savedPlaylists.value = repository.getPlaylists().first().filterIsInstance<StreamingPlaylist>()
+                } else {
+                    _error.value = "Failed to remove playlist"
+                }
+                onComplete(success)
+            } catch (e: Exception) {
+                _error.value = "Failed to remove playlist: ${e.message}"
+                onComplete(false)
+            }
+        }
+    }
+
+    /**
      * Follow an artist.
      */
     fun followArtist(artist: StreamingArtist) {
@@ -966,14 +986,7 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
      * Save an album.
      */
     fun saveAlbum(album: StreamingAlbum) {
-        viewModelScope.launch {
-            try {
-                repository.saveAlbum(album.id)
-                _savedAlbums.value = repository.getSavedAlbums().first()
-            } catch (e: Exception) {
-                _error.value = "Failed to save album: ${e.message}"
-            }
-        }
+        // Album logic intentionally disabled for streaming mode cleanup.
     }
 
     /**
@@ -1079,6 +1092,13 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
     }
     
     /**
+     * Clear the currently playing song state.
+     */
+    fun clearCurrentSong() {
+        _currentSong.value = null
+    }
+
+    /**
      * Clear error state.
      */
     fun clearError() {
@@ -1095,14 +1115,20 @@ class StreamingMusicViewModel(application: Application) : AndroidViewModel(appli
 
         return songs
             .filter { it.album.isNotBlank() }
-            .groupBy { song -> "${song.sourceType.name}:${song.artist.lowercase()}:${song.album.lowercase()}" }
+            .groupBy { song ->
+                // Prefer provider album ID (albumId) for dedup; fall back to title/artist key
+                song.albumId?.takeIf { it.isNotBlank() }
+                    ?: "derived:${song.sourceType.name}:album:${song.artist.lowercase()}:${song.album.lowercase()}"
+            }
             .values
             .sortedByDescending { albumSongs -> albumSongs.size }
             .take(limit.coerceAtLeast(1))
             .map { albumSongs ->
                 val firstSong = albumSongs.first()
+                val providerId = firstSong.albumId?.takeIf { it.isNotBlank() }
+                val derivedKey = "derived:${firstSong.sourceType.name}:album:${firstSong.artist.lowercase()}:${firstSong.album.lowercase()}"
                 StreamingAlbum(
-                    id = "derived:${firstSong.sourceType.name}:album:${firstSong.artist.lowercase()}:${firstSong.album.lowercase()}",
+                    id = providerId ?: derivedKey,
                     title = firstSong.album,
                     artist = firstSong.artist,
                     artworkUri = albumSongs.firstNotNullOfOrNull { it.artworkUri },

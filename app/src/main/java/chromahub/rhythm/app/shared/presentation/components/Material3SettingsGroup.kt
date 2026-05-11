@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 
 /**
  * Material 3 Expressive settings group — card stack with dynamic corner radii.
@@ -205,6 +206,35 @@ private fun Material3SettingsItemRow(item: Material3SettingsItem) {
                 item.title()
             }
 
+            item.scope?.let { scope ->
+                if (scope != SettingScope.BOTH) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Surface(
+                        color = when (scope) {
+                            SettingScope.LOCAL -> MaterialTheme.colorScheme.secondaryContainer
+                            SettingScope.STREAMING -> MaterialTheme.colorScheme.primaryContainer
+                            SettingScope.BOTH -> MaterialTheme.colorScheme.surfaceVariant
+                        },
+                        shape = RoundedCornerShape(999.dp)
+                    ) {
+                        Text(
+                            text = when (scope) {
+                                SettingScope.LOCAL -> "Local"
+                                SettingScope.STREAMING -> "Streaming"
+                                SettingScope.BOTH -> "Both"
+                            },
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = when (scope) {
+                                SettingScope.LOCAL -> MaterialTheme.colorScheme.onSecondaryContainer
+                                SettingScope.STREAMING -> MaterialTheme.colorScheme.onPrimaryContainer
+                                SettingScope.BOTH -> MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+
             item.description?.let { desc ->
                 Spacer(modifier = Modifier.height(2.dp))
                 ProvideTextStyle(
@@ -241,5 +271,12 @@ data class Material3SettingsItem(
     val isHighlighted: Boolean = false,
     val iconShape: Shape? = null,
     val enabled: Boolean = true,
+    val scope: SettingScope = SettingScope.BOTH,
     val onClick: (() -> Unit)? = null
 )
+
+enum class SettingScope {
+    LOCAL,
+    STREAMING,
+    BOTH
+}

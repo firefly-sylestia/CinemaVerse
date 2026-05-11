@@ -213,16 +213,59 @@ class JellyfinApiClient(context: Context) {
         }
     }
 
-    suspend fun getAlbumSongs(albumQuery: String, artistQuery: String? = null, limit: Int = 500): Result<List<ProviderSong>> {
+    suspend fun getAlbumSongs(albumId: String, limit: Int = 500): Result<List<ProviderSong>> {
         val cred = credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
+        if (albumId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Album id is required"))
+        }
 
-        val params = buildAudioBrowseParams(
-            query = listOfNotNull(albumQuery.takeIf { it.isNotBlank() }, artistQuery?.takeIf { it.isNotBlank() }).joinToString(" ").ifBlank { null },
-            limit = limit
+        return withContext(Dispatchers.IO) {
+            try {
+                val pageSize = limit.coerceIn(1, 100)
+                var startIndex = 0
+                val songs = LinkedHashMap<String, ProviderSong>()
+
+                while (songs.size < limit) {
+                    val params = buildAudioBrowseParams(
+                        query = null,
+                        limit = minOf(pageSize, limit - songs.size),
+                        startIndex = startIndex
+                    ).toMutableMap()
+                    params["ParentId"] = albumId
+                    params["SortBy"] = "ParentIndexNumber,IndexNumber,SortName"
+                    params["SortOrder"] = "Ascending"
+
+                    val response = requestJson("/Users/${cred.userId}/Items", params).getOrThrow()
+                    val pageSongs = parseAudioItems(response)
+                    if (pageSongs.isEmpty()) break
+
+                    pageSongs.forEach { song -> songs.putIfAbsent(song.providerId, song) }
+
+                    if (pageSongs.size < params["Limit"]?.toIntOrNull().orZero()) break
+                    startIndex += pageSongs.size
+                }
+
+                Result.success(songs.values.take(limit).toList())
+            } catch (e: Exception) {
+                Log.e(TAG, "Jellyfin album track fetch failed for albumId=$albumId", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun getAlbumById(albumId: String): Result<ProviderAlbum> {
+        val cred = credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
+        if (albumId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Album id is required"))
+        }
+
+        val params = mapOf(
+            "Fields" to "Overview,ArtistItems,Artists,AlbumArtist,ProductionYear,ImageTags,RunTimeTicks,ParentId,ItemCounts"
         )
 
-        return requestJson("/Users/${cred.userId}/Items", params).map { response ->
-            parseAudioItems(response)
+        return requestJson("/Users/${cred.userId}/Items/$albumId", params).map { response ->
+            parseAlbumItem(response)
+                ?: throw IllegalStateException("Album not found for id=$albumId")
         }
     }
 
@@ -301,6 +344,9 @@ class JellyfinApiClient(context: Context) {
             fields = "Overview,ArtistItems,Artists,AlbumArtist,ProductionYear,ImageTags,RunTimeTicks,ParentId"
         ).toMutableMap()
         params["SortBy"] = sortBy
+        if (sortBy == "PremiereDate" || sortBy == "DateCreated" || sortBy == "PlayCount") {
+            params["SortOrder"] = "Descending"
+        }
 
         return requestJson("/Users/${cred.userId}/Items", params).map { response ->
             parseAlbumItems(response)
@@ -379,6 +425,54 @@ class JellyfinApiClient(context: Context) {
         ).map { true }
     }
 
+    suspend fun updatePlaylist(
+        playlistId: String,
+        name: String? = null,
+        songIds: List<String> = emptyList(),
+        description: String? = null,
+        isPublic: Boolean? = null
+    ): Result<Boolean> {
+        if (playlistId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Playlist id is required"))
+        }
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val bodyJson = JSONObject().apply {
+                    if (!name.isNullOrBlank()) {
+                        put("Name", name.trim())
+                    }
+                    if (songIds.isNotEmpty()) {
+                        put("Ids", songIds)
+                    }
+                    if (!description.isNullOrBlank()) {
+                        put("Overview", description.trim())
+                    }
+                    if (isPublic != null) {
+                        put("IsPublic", isPublic)
+                    }
+                }
+
+                request(
+                    path = "/Playlists/$playlistId",
+                    method = "POST",
+                    body = bodyJson.toString().toRequestBody("application/json".toMediaType())
+                ).map { true }
+            } catch (e: Exception) {
+                Log.e(TAG, "Jellyfin playlist update failed for playlistId=$playlistId", e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun deletePlaylist(playlistId: String): Result<Boolean> {
+        if (playlistId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Playlist id is required"))
+        }
+
+        return request("/Items/$playlistId", method = "DELETE").map { true }
+    }
+
     suspend fun removeSongsFromPlaylist(playlistId: String, songIds: List<String>): Result<Boolean> {
         credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
         if (playlistId.isBlank()) {
@@ -396,6 +490,52 @@ class JellyfinApiClient(context: Context) {
             path = "/Playlists/$playlistId/Items",
             params = params,
             method = "DELETE"
+        ).map { true }
+    }
+
+    suspend fun markFavorite(itemId: String, isFavorite: Boolean): Result<Boolean> {
+        val cred = credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
+        if (itemId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Item id is required"))
+        }
+
+        val method = if (isFavorite) "POST" else "DELETE"
+        return request(
+            path = "/Users/${cred.userId}/FavoriteItems/$itemId",
+            method = method
+        ).map { true }
+    }
+
+    suspend fun reportPlaybackStart(itemId: String): Result<Boolean> {
+        credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
+        if (itemId.isBlank()) return Result.failure(IllegalArgumentException("Item id is required"))
+
+        val bodyJson = JSONObject().apply {
+            put("ItemId", itemId)
+            put("PlayMethod", "DirectStream") // We use direct stream, not transcoding typically
+        }
+
+        return request(
+            path = "/Sessions/Playing",
+            method = "POST",
+            body = bodyJson.toString().toRequestBody("application/json".toMediaType())
+        ).map { true }
+    }
+
+    suspend fun reportPlaybackStop(itemId: String, positionTicks: Long): Result<Boolean> {
+        credentials ?: return Result.failure(IllegalStateException("Jellyfin service is not connected"))
+        if (itemId.isBlank()) return Result.failure(IllegalArgumentException("Item id is required"))
+
+        val bodyJson = JSONObject().apply {
+            put("ItemId", itemId)
+            put("PositionTicks", positionTicks)
+            put("PlayMethod", "DirectStream")
+        }
+
+        return request(
+            path = "/Sessions/Playing/Stopped",
+            method = "POST",
+            body = bodyJson.toString().toRequestBody("application/json".toMediaType())
         ).map { true }
     }
 
@@ -560,7 +700,9 @@ class JellyfinApiClient(context: Context) {
                         artist = artist,
                         album = album,
                         durationMs = durationMs,
-                        artworkUrl = buildImageUrl(id)
+                        artworkUrl = buildImageUrl(id),
+                        albumId = song.optString("AlbumId", "").takeIf { it.isNotBlank() },
+                        albumArtist = song.optString("AlbumArtist", "").takeIf { it.isNotBlank() }
                     )
                 )
             }
@@ -647,23 +789,28 @@ class JellyfinApiClient(context: Context) {
         return buildList {
             for (i in 0 until (items?.length() ?: 0)) {
                 val album = items?.optJSONObject(i) ?: continue
-                val id = album.optString("Id", "")
-                if (id.isBlank()) continue
-
-                add(
-                    ProviderAlbum(
-                        providerId = id,
-                        title = album.optString("Name", "Unknown album"),
-                        artist = parseAlbumArtist(album),
-                        artworkUrl = buildImageUrl(id),
-                        songCount = album.optJSONObject("ItemCounts")?.optInt("MusicCount", 0)
-                            ?: album.optInt("SongCount", 0),
-                        year = album.optInt("ProductionYear").takeIf { it > 0 },
-                        description = album.optString("Overview", null)?.takeIf { it.isNotBlank() }
-                    )
-                )
+                parseAlbumItem(album)?.let { add(it) }
             }
         }
+    }
+
+    private fun parseAlbumItem(album: JSONObject): ProviderAlbum? {
+        val id = album.optString("Id", "")
+        if (id.isBlank()) {
+            return null
+        }
+
+        return ProviderAlbum(
+            providerId = id,
+            title = album.optString("Name", "Unknown album"),
+            artist = parseAlbumArtist(album),
+            artworkUrl = buildImageUrl(id),
+            songCount = album.optJSONObject("ItemCounts")?.optInt("MusicCount")?.takeIf { it > 0 }
+                ?: album.optInt("SongCount").takeIf { it > 0 }
+                ?: album.optInt("ChildCount", 0),
+            year = album.optInt("ProductionYear").takeIf { it > 0 },
+            description = album.optString("Overview", null)?.takeIf { it.isNotBlank() }
+        )
     }
 
     private fun parseArtistItems(response: JSONObject): List<ProviderArtist> {

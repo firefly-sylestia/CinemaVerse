@@ -53,6 +53,7 @@ class StreamingMusicRepositoryImpl(
 
     private val songsFlow = MutableStateFlow<List<PlayableItem>>(emptyList())
     private val albumsFlow = MutableStateFlow<List<AlbumItem>>(emptyList())
+    private val providerAlbumsFlow = MutableStateFlow<List<StreamingAlbum>>(emptyList())  // Keep provider albums separate
     private val artistsFlow = MutableStateFlow<List<ArtistItem>>(emptyList())
     private val playlistsFlow = MutableStateFlow<List<PlaylistItem>>(emptyList())
 
@@ -68,6 +69,7 @@ class StreamingMusicRepositoryImpl(
 
     private val songCache = LinkedHashMap<String, StreamingSong>()
     private val artistArtworkCache = LinkedHashMap<String, String>()
+    private val providerAlbumCache = LinkedHashMap<String, StreamingAlbum>()
 
     override val currentService: SourceType
         get() = serviceToSourceType(activeServiceId())
@@ -138,9 +140,27 @@ class StreamingMusicRepositoryImpl(
     }
 
     override suspend fun getNewReleases(limit: Int): List<StreamingAlbum> {
-        return albumsFlow.value
-            .filterIsInstance<StreamingAlbum>()
-            .take(limit.coerceAtLeast(1))
+        if (!isServiceConnected(activeServiceId())) {
+            return emptyList()
+        }
+        
+        return when (activeServiceId()) {
+            StreamingServiceId.SUBSONIC -> {
+                subsonicClient.getAlbumList("newest", limit).getOrNull() ?: emptyList()
+            }
+            StreamingServiceId.JELLYFIN -> {
+                jellyfinClient.getAlbumList("newest", limit).getOrNull() ?: emptyList()
+            }
+            else -> emptyList()
+        }.mapNotNull { providerAlbum ->
+            try {
+                mapProviderAlbum(activeServiceId(), providerAlbum)
+            } catch (e: Exception) {
+                null
+            }
+        }.let { albums ->
+            enrichAlbumsWithTrackCounts(activeServiceId(), albums)
+        }
     }
 
     override suspend fun getFeaturedPlaylists(limit: Int): List<StreamingPlaylist> {
@@ -179,12 +199,34 @@ class StreamingMusicRepositoryImpl(
     override fun getLikedSongs(): Flow<List<StreamingSong>> = likedSongsFlow.asStateFlow()
 
     override suspend fun likeSong(songId: String): Boolean {
+        val decoded = decodeSongId(songId)
+        if (decoded != null && isServiceConnected(decoded.first)) {
+            val (serviceId, providerId) = decoded
+            val success = when (serviceId) {
+                StreamingServiceId.SUBSONIC -> subsonicClient.markFavorite(providerId, true).isSuccess
+                StreamingServiceId.JELLYFIN -> jellyfinClient.markFavorite(providerId, true).isSuccess
+                else -> false
+            }
+            if (!success) return false
+        }
+        
         likedSongIds.add(songId)
         updateLikedSongsFlow()
         return true
     }
 
     override suspend fun unlikeSong(songId: String): Boolean {
+        val decoded = decodeSongId(songId)
+        if (decoded != null && isServiceConnected(decoded.first)) {
+            val (serviceId, providerId) = decoded
+            val success = when (serviceId) {
+                StreamingServiceId.SUBSONIC -> subsonicClient.markFavorite(providerId, false).isSuccess
+                StreamingServiceId.JELLYFIN -> jellyfinClient.markFavorite(providerId, false).isSuccess
+                else -> false
+            }
+            if (!success) return false
+        }
+        
         val removed = likedSongIds.remove(songId)
         updateLikedSongsFlow()
         return removed
@@ -209,18 +251,14 @@ class StreamingMusicRepositoryImpl(
     override fun getFollowedArtists(): Flow<List<StreamingArtist>> = followedArtistsFlow.asStateFlow()
 
     override suspend fun saveAlbum(albumId: String): Boolean {
-        savedAlbumIds.add(albumId)
-        updateSavedAlbumsFlow()
-        return true
+        return false
     }
 
     override suspend fun unsaveAlbum(albumId: String): Boolean {
-        val removed = savedAlbumIds.remove(albumId)
-        updateSavedAlbumsFlow()
-        return removed
+        return false
     }
 
-    override fun getSavedAlbums(): Flow<List<StreamingAlbum>> = savedAlbumsFlow.asStateFlow()
+    override fun getSavedAlbums(): Flow<List<StreamingAlbum>> = flowOf(savedAlbumsFlow.value)
 
     override suspend fun followPlaylist(playlistId: String): Boolean {
         val playlist = getPlaylistById(playlistId) ?: return false
@@ -229,7 +267,52 @@ class StreamingMusicRepositoryImpl(
     }
 
     override suspend fun unfollowPlaylist(playlistId: String): Boolean {
-        return followedPlaylistIds.remove(playlistId)
+        return deletePlaylist(playlistId)
+    }
+
+    override suspend fun renamePlaylist(playlistId: String, newName: String): Boolean {
+        val decodedPlaylist = decodePlaylistId(playlistId) ?: return false
+        val serviceId = decodedPlaylist.first
+        val providerPlaylistId = decodedPlaylist.second
+
+        if (!isServiceConnected(serviceId)) {
+            return false
+        }
+
+        val trimmedName = newName.trim()
+        if (providerPlaylistId.isBlank() || trimmedName.isBlank()) {
+            return false
+        }
+
+        return when (serviceId) {
+            StreamingServiceId.SUBSONIC -> subsonicClient.updatePlaylist(providerPlaylistId, name = trimmedName).isSuccess
+            StreamingServiceId.JELLYFIN -> jellyfinClient.updatePlaylist(providerPlaylistId, name = trimmedName).isSuccess
+            else -> false
+        }.also { success ->
+            if (success) {
+                syncPlaylists()
+            }
+        }
+    }
+
+    override suspend fun deletePlaylist(playlistId: String): Boolean {
+        val decodedPlaylist = decodePlaylistId(playlistId) ?: return false
+        val serviceId = decodedPlaylist.first
+        val providerPlaylistId = decodedPlaylist.second
+
+        if (!isServiceConnected(serviceId)) {
+            return false
+        }
+
+        return when (serviceId) {
+            StreamingServiceId.SUBSONIC -> subsonicClient.deletePlaylist(providerPlaylistId).isSuccess
+            StreamingServiceId.JELLYFIN -> jellyfinClient.deletePlaylist(providerPlaylistId).isSuccess
+            else -> false
+        }.also { success ->
+            if (success) {
+                syncPlaylists()
+            }
+        }
     }
 
     override suspend fun createPlaylist(
@@ -250,7 +333,10 @@ class StreamingMusicRepositoryImpl(
                 isPublic = isPublic
             ).getOrNull()
 
-            StreamingServiceId.SUBSONIC -> null
+            StreamingServiceId.SUBSONIC -> subsonicClient.createPlaylist(
+                name = name,
+                songIds = emptyList()
+            ).getOrNull()
             else -> null
         } ?: return null
 
@@ -272,7 +358,7 @@ class StreamingMusicRepositoryImpl(
 
         val success = when (serviceId) {
             StreamingServiceId.JELLYFIN -> jellyfinClient.addSongsToPlaylist(providerPlaylistId, providerSongIds).isSuccess
-            StreamingServiceId.SUBSONIC -> false
+            StreamingServiceId.SUBSONIC -> subsonicClient.updatePlaylist(providerPlaylistId, songIdsToAdd = providerSongIds).isSuccess
             else -> false
         }
 
@@ -295,7 +381,17 @@ class StreamingMusicRepositoryImpl(
 
         val success = when (serviceId) {
             StreamingServiceId.JELLYFIN -> jellyfinClient.removeSongsFromPlaylist(providerPlaylistId, providerSongIds).isSuccess
-            StreamingServiceId.SUBSONIC -> false
+            StreamingServiceId.SUBSONIC -> {
+                val songsResult = subsonicClient.getPlaylistSongs(providerPlaylistId, limit = 1000)
+                val songs = songsResult.getOrElse { emptyList() }
+                val indexesToRemove = providerSongIds.mapNotNull { id -> 
+                    val index = songs.indexOfFirst { it.providerId == id }
+                    if (index >= 0) index else null
+                }
+                if (indexesToRemove.isNotEmpty()) {
+                    subsonicClient.updatePlaylist(providerPlaylistId, songIndexesToRemove = indexesToRemove).isSuccess
+                } else false
+            }
             else -> false
         }
 
@@ -343,6 +439,30 @@ class StreamingMusicRepositoryImpl(
         }
 
         return resolved
+    }
+
+    override suspend fun reportPlaybackStart(songId: String): Boolean {
+        val decoded = decodeSongId(songId) ?: return false
+        val (serviceId, providerId) = decoded
+        if (!isServiceConnected(serviceId)) return false
+        
+        return when (serviceId) {
+            StreamingServiceId.JELLYFIN -> jellyfinClient.reportPlaybackStart(providerId).isSuccess
+            StreamingServiceId.SUBSONIC -> true // Subsonic typically only scrobbles during/at the end
+            else -> false
+        }
+    }
+
+    override suspend fun reportPlaybackStop(songId: String, positionMs: Long): Boolean {
+        val decoded = decodeSongId(songId) ?: return false
+        val (serviceId, providerId) = decoded
+        if (!isServiceConnected(serviceId)) return false
+        
+        return when (serviceId) {
+            StreamingServiceId.JELLYFIN -> jellyfinClient.reportPlaybackStop(providerId, positionMs * 10_000L).isSuccess // Convert ms to ticks
+            StreamingServiceId.SUBSONIC -> subsonicClient.scrobble(providerId, true).isSuccess
+            else -> false
+        }
     }
 
     /**
@@ -393,31 +513,40 @@ class StreamingMusicRepositoryImpl(
             .take(limit.coerceAtLeast(1))
     }
 
+    override suspend fun getAlbumSongs(albumId: String): List<StreamingSong> {
+        val decodedId = decodeAlbumId(albumId) ?: return emptyList()
+        val providerAlbumId = decodedId.providerAlbumId ?: return emptyList()
+        val providerSongs = when (decodedId.serviceId) {
+            StreamingServiceId.SUBSONIC -> subsonicClient.getAlbumSongs(providerAlbumId).getOrNull()
+            StreamingServiceId.JELLYFIN -> jellyfinClient.getAlbumSongs(providerAlbumId).getOrNull()
+            else -> null
+        } ?: return emptyList()
+        
+        return providerSongs.mapNotNull { providerSong ->
+            try {
+                mapProviderSong(decodedId.serviceId, providerSong)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
     override suspend fun getArtistAlbums(artistId: String): List<StreamingAlbum> {
-        val artistName = extractArtistNameFromId(artistId)
-        if (artistName.isBlank()) {
+        val serviceId = activeServiceId()
+        if (!isServiceConnected(serviceId)) {
             return emptyList()
         }
+        val artistName = extractArtistNameFromId(artistId)
+        if (artistName.isBlank()) return emptyList()
 
-        val serviceId = artistId.substringBefore("::", activeServiceId())
-        val providerAlbums = when (serviceId) {
+        val providerResult = when (serviceId) {
             StreamingServiceId.SUBSONIC -> subsonicClient.getArtistAlbums(artistName)
             StreamingServiceId.JELLYFIN -> jellyfinClient.getArtistAlbums(artistName)
             else -> Result.success(emptyList())
-        }.getOrElse { emptyList() }
-
-        if (providerAlbums.isNotEmpty()) {
-            return providerAlbums.map { mapProviderAlbum(serviceId, it) }
         }
-
-        val cachedSongs = cachedSongsForArtist(artistName)
-        if (cachedSongs.isNotEmpty()) {
-            return deriveAlbumsFromSongs(cachedSongs, limit = 24)
-        }
-
-        return albumsFlow.value
-            .filterIsInstance<StreamingAlbum>()
-            .filter { it.artist.equals(artistName, ignoreCase = true) }
+        return providerResult.getOrElse { emptyList() }
+            .map { mapProviderAlbum(serviceId, it) }
+            .let { albums -> enrichAlbumsWithTrackCounts(serviceId, albums) }
     }
     
     private fun extractArtistNameFromId(artistId: String): String {
@@ -499,15 +628,47 @@ class StreamingMusicRepositoryImpl(
         if (!isServiceConnected(serviceId)) {
             return emptyList()
         }
-
-        val providerResult: Result<List<ProviderAlbum>> = when (serviceId) {
+        val providerResult = when (serviceId) {
             StreamingServiceId.SUBSONIC -> subsonicClient.getAlbumList(type, limit)
             StreamingServiceId.JELLYFIN -> jellyfinClient.getAlbumList(type, limit)
             else -> Result.success(emptyList())
         }
-
         return providerResult.getOrElse { emptyList() }
             .map { mapProviderAlbum(serviceId, it) }
+            .let { albums -> enrichAlbumsWithTrackCounts(serviceId, albums) }
+    }
+
+    private suspend fun enrichAlbumsWithTrackCounts(
+        serviceId: String,
+        albums: List<StreamingAlbum>
+    ): List<StreamingAlbum> {
+        return withContext(Dispatchers.IO) {
+            albums.map { album ->
+                val providerAlbumId = album.externalId
+                if (providerAlbumId.isNullOrBlank()) {
+                    album
+                } else {
+                    val providerSongs = when (serviceId) {
+                        StreamingServiceId.SUBSONIC -> subsonicClient.getAlbumSongs(providerAlbumId).getOrNull()
+                        StreamingServiceId.JELLYFIN -> jellyfinClient.getAlbumSongs(providerAlbumId).getOrNull()
+                        else -> null
+                    }.orEmpty()
+
+                    val tracks = providerSongs.mapNotNull { providerSong ->
+                        try {
+                            mapProviderSong(serviceId, providerSong)
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+
+                    album.copy(
+                        songCount = tracks.size,
+                        tracks = tracks
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun searchSongs(query: String): List<PlayableItem> {
@@ -535,19 +696,14 @@ class StreamingMusicRepositoryImpl(
         if (!isServiceConnected(serviceId)) {
             return emptyList()
         }
-
-        val providerAlbums = when (serviceId) {
-            StreamingServiceId.SUBSONIC -> subsonicClient.searchAlbums(query)
-            StreamingServiceId.JELLYFIN -> jellyfinClient.searchAlbums(query)
+        val providerResult = when (serviceId) {
+            StreamingServiceId.SUBSONIC -> subsonicClient.searchAlbums(query, SEARCH_LIMIT)
+            StreamingServiceId.JELLYFIN -> jellyfinClient.searchAlbums(query, SEARCH_LIMIT)
             else -> Result.success(emptyList())
-        }.getOrElse { emptyList() }
-
-        if (providerAlbums.isNotEmpty()) {
-            return providerAlbums.map { mapProviderAlbum(serviceId, it) }
         }
-
-        val songs = searchSongs(query).filterIsInstance<StreamingSong>()
-        return buildAlbumItems(serviceId, songs)
+        return providerResult.getOrElse { emptyList() }.map { 
+            mapProviderAlbum(serviceId, it)
+        }
     }
 
     override suspend fun searchArtists(query: String): List<ArtistItem> {
@@ -645,25 +801,17 @@ class StreamingMusicRepositoryImpl(
     }
 
     override suspend fun getAlbumById(id: String): AlbumItem? {
-        albumsFlow.value.firstOrNull { it.id == id }?.let { return it }
-
-        val decodedAlbum = decodeAlbumId(id) ?: return null
-        val serviceId = decodedAlbum.first
-        val albumTitle = decodedAlbum.second
-        val artistName = decodedAlbum.third
-
-        val providerAlbums = when (serviceId) {
-            StreamingServiceId.SUBSONIC -> subsonicClient.searchAlbums(albumTitle, limit = 20)
-            StreamingServiceId.JELLYFIN -> jellyfinClient.searchAlbums(albumTitle, limit = 20)
-            else -> Result.success(emptyList())
-        }.getOrElse { emptyList() }
-
-        val providerAlbum = providerAlbums.firstOrNull {
-            it.title.equals(albumTitle, ignoreCase = true) &&
-                (artistName.isBlank() || it.artist.equals(artistName, ignoreCase = true))
-        } ?: providerAlbums.firstOrNull()
-
-        return providerAlbum?.let { mapProviderAlbum(serviceId, it) }
+        val decodedId = decodeAlbumId(id) ?: return null
+        val providerAlbumId = decodedId.providerAlbumId ?: return null
+        val providerResult = when (decodedId.serviceId) {
+            StreamingServiceId.SUBSONIC -> subsonicClient.getAlbumById(providerAlbumId)
+            StreamingServiceId.JELLYFIN -> jellyfinClient.getAlbumById(providerAlbumId)
+            else -> Result.failure(Exception("Unknown service"))
+        }
+        
+        return providerResult.getOrNull()?.let {
+            mapProviderAlbum(decodedId.serviceId, it)
+        }
     }
 
     override suspend fun getArtistById(id: String): ArtistItem? {
@@ -693,26 +841,7 @@ class StreamingMusicRepositoryImpl(
     }
 
     override suspend fun getSongsForAlbum(albumId: String): List<PlayableItem> {
-        val localMatches = songsFlow.value
-            .filterIsInstance<StreamingSong>()
-            .filter { buildAlbumId(activeServiceId(), it.artist, it.album) == albumId }
-
-        if (localMatches.isNotEmpty()) {
-            return localMatches
-        }
-
-        val decodedAlbum = decodeAlbumId(albumId) ?: return emptyList()
-        val serviceId = decodedAlbum.first
-        val albumTitle = decodedAlbum.second
-        val artistName = decodedAlbum.third
-
-        val providerTracks = when (serviceId) {
-            StreamingServiceId.SUBSONIC -> subsonicClient.getAlbumSongs(albumTitle, artistName)
-            StreamingServiceId.JELLYFIN -> jellyfinClient.getAlbumSongs(albumTitle, artistName)
-            else -> Result.success(emptyList())
-        }.getOrElse { emptyList() }
-
-        return providerTracks.map { mapProviderSong(serviceId, it) }
+        return emptyList()
     }
 
     private suspend fun replaceCatalog(songs: List<StreamingSong>) {
@@ -724,7 +853,10 @@ class StreamingMusicRepositoryImpl(
         }
 
         songsFlow.value = songs
-        albumsFlow.value = buildAlbumItems(serviceId, songs)
+        // Only populate albumsFlow with derived albums if no provider albums are cached
+        if (providerAlbumCache.isEmpty()) {
+            albumsFlow.value = buildAlbumItems(serviceId, songs)
+        }
         artistsFlow.value = buildDerivedArtistItems(serviceId, songs)
         playlistsFlow.value = emptyList()
 
@@ -748,7 +880,10 @@ class StreamingMusicRepositoryImpl(
             .distinctBy { it.id }
 
         songsFlow.value = mergedSongs
-        albumsFlow.value = buildAlbumItems(serviceId, mergedSongs)
+        // Only populate albumsFlow with derived albums if no provider albums are cached
+        if (providerAlbumCache.isEmpty()) {
+            albumsFlow.value = buildAlbumItems(serviceId, mergedSongs)
+        }
         artistsFlow.value = buildDerivedArtistItems(serviceId, mergedSongs)
         playlistsFlow.value = emptyList()
 
@@ -771,9 +906,7 @@ class StreamingMusicRepositoryImpl(
     }
 
     private fun updateSavedAlbumsFlow() {
-        savedAlbumsFlow.value = savedAlbumIds.mapNotNull { id ->
-            albumsFlow.value.firstOrNull { it.id == id } as? StreamingAlbum
-        }
+        savedAlbumsFlow.value = emptyList()
     }
 
     private fun updateFollowedArtistsFlow() {
@@ -785,6 +918,9 @@ class StreamingMusicRepositoryImpl(
     private fun mapProviderSong(serviceId: String, providerSong: ProviderSong): StreamingSong {
         val encodedId = encodeSongId(serviceId, providerSong.providerId)
         val sourceType = serviceToSourceType(serviceId)
+        val encodedAlbumId = providerSong.albumId
+            ?.takeIf { it.isNotBlank() }
+            ?.let { encodeAlbumId(serviceId, it) }
         val streamingUrl = when (serviceId) {
             StreamingServiceId.SUBSONIC -> subsonicClient.buildStreamUrl(providerSong.providerId, desiredBitrateKbps())
             StreamingServiceId.JELLYFIN -> jellyfinClient.buildStreamUrl(providerSong.providerId, desiredBitrateKbps())
@@ -802,7 +938,9 @@ class StreamingMusicRepositoryImpl(
             streamingUrl = streamingUrl,
             previewUrl = null,
             isPlayable = true,
-            externalId = providerSong.providerId
+            externalId = providerSong.providerId,
+            albumId = encodedAlbumId,
+            albumArtist = providerSong.albumArtist
         )
     }
 
@@ -856,25 +994,26 @@ class StreamingMusicRepositoryImpl(
 
     private fun buildAlbumItems(serviceId: String, songs: List<StreamingSong>): List<StreamingAlbum> {
         return songs
-            .groupBy { it.artist to it.album }
-            .map { (key, tracks) ->
-                val (artist, album) = key
+            .filter { it.album.isNotBlank() }
+            .groupBy { song -> song.albumId ?: buildLegacyAlbumId(serviceId, song.artist, song.album) }
+            .map { (albumKey, tracks) ->
+                val firstSong = tracks.first()
                 StreamingAlbum(
-                    id = buildAlbumId(serviceId, artist, album),
-                    title = album,
-                    artist = artist,
-                    artworkUri = tracks.firstOrNull()?.artworkUri,
+                    id = albumKey,
+                    title = firstSong.album,
+                    artist = firstSong.albumArtist?.takeIf { it.isNotBlank() } ?: firstSong.artist,
+                    artworkUri = tracks.firstNotNullOfOrNull { it.artworkUri },
                     songCount = tracks.size,
-                    year = null,
+                    year = firstSong.releaseDate?.take(4)?.toIntOrNull(),
                     sourceType = serviceToSourceType(serviceId)
                 )
             }
-            .sortedBy { it.title.lowercase() }
+            .sortedWith(compareBy<StreamingAlbum> { it.title.lowercase() }.thenBy { it.artist.lowercase() })
     }
 
     private fun mapProviderAlbum(serviceId: String, providerAlbum: ProviderAlbum): StreamingAlbum {
         return StreamingAlbum(
-            id = buildAlbumId(serviceId, providerAlbum.artist, providerAlbum.title),
+            id = encodeAlbumId(serviceId, providerAlbum.providerId),
             title = providerAlbum.title,
             artist = providerAlbum.artist,
             artworkUri = providerAlbum.artworkUrl,
@@ -1021,20 +1160,20 @@ class StreamingMusicRepositoryImpl(
 
         return songs
             .filter { it.album.isNotBlank() }
-            .groupBy { song -> "${song.sourceType.name}:${song.artist.lowercase()}:${song.album.lowercase()}" }
+            .groupBy { song -> song.albumId ?: "${song.sourceType.name}:${song.artist.lowercase()}:${song.album.lowercase()}" }
             .values
             .sortedByDescending { albumSongs -> albumSongs.size }
             .take(limit.coerceAtLeast(1))
             .map { albumSongs ->
                 val firstSong = albumSongs.first()
                 StreamingAlbum(
-                    id = buildAlbumId(
+                    id = firstSong.albumId ?: buildLegacyAlbumId(
                         serviceId = firstSong.sourceType.name,
                         artist = firstSong.artist,
                         album = firstSong.album
                     ),
                     title = firstSong.album,
-                    artist = firstSong.artist,
+                    artist = firstSong.albumArtist?.takeIf { it.isNotBlank() } ?: firstSong.artist,
                     artworkUri = albumSongs.firstNotNullOfOrNull { it.artworkUri },
                     songCount = albumSongs.size,
                     year = firstSong.releaseDate?.take(4)?.toIntOrNull(),
@@ -1057,25 +1196,80 @@ class StreamingMusicRepositoryImpl(
         return "$serviceId::artist::${normalizeKey(artist)}"
     }
 
-    private fun buildAlbumId(serviceId: String, artist: String, album: String): String {
+    private fun buildLegacyAlbumId(serviceId: String, artist: String, album: String): String {
         return "$serviceId::album::${normalizeKey(artist)}::${normalizeKey(album)}"
     }
 
-    private fun decodeAlbumId(albumId: String): Triple<String, String, String>? {
-        val parts = albumId.split("::")
-        if (parts.size < 4 || parts[1] != "album") {
+    private fun decodeAlbumId(albumId: String): DecodedAlbumId? {
+        val marker = "::album::"
+        val separatorIndex = albumId.indexOf(marker)
+        if (separatorIndex <= 0 || separatorIndex >= albumId.length - marker.length) {
             return null
         }
 
-        val serviceId = parts[0]
-        val artist = parts[2].replace("_", " ").trim()
-        val album = parts.subList(3, parts.size).joinToString("::").replace("_", " ").trim()
-
-        if (artist.isBlank() || album.isBlank()) {
+        val serviceId = albumId.substring(0, separatorIndex)
+        val payload = albumId.substring(separatorIndex + marker.length)
+        if (payload.isBlank()) {
             return null
         }
 
-        return Triple(serviceId, album, artist)
+        val payloadParts = payload.split("::")
+        return if (payloadParts.size >= 2) {
+            val artist = payloadParts.first().replace("_", " ").trim()
+            val album = payloadParts.drop(1).joinToString("::").replace("_", " ").trim()
+
+            if (artist.isBlank() || album.isBlank()) {
+                null
+            } else {
+                DecodedAlbumId(
+                    serviceId = serviceId,
+                    providerAlbumId = null,
+                    title = album,
+                    artist = artist,
+                    isLegacy = true
+                )
+            }
+        } else {
+            DecodedAlbumId(
+                serviceId = serviceId,
+                providerAlbumId = payload,
+                title = "",
+                artist = "",
+                isLegacy = false
+            )
+        }
+    }
+
+    private fun encodeAlbumId(serviceId: String, providerAlbumId: String): String {
+        return "$serviceId::album::$providerAlbumId"
+    }
+
+    private fun legacyAlbumIdForSong(song: StreamingSong, fallbackServiceId: String?): String {
+        val songServiceId = decodeSongId(song.id)?.first ?: fallbackServiceId ?: activeServiceId()
+        return buildLegacyAlbumId(songServiceId, song.artist, song.album)
+    }
+
+    private data class DecodedAlbumId(
+        val serviceId: String,
+        val providerAlbumId: String?,
+        val title: String,
+        val artist: String,
+        val isLegacy: Boolean
+    )
+
+    @Deprecated("Use encodeAlbumId(serviceId, providerAlbumId) for streaming album IDs")
+    private fun buildAlbumId(serviceId: String, artist: String, album: String): String {
+        return buildLegacyAlbumId(serviceId, artist, album)
+    }
+
+    @Deprecated("Use decodeAlbumId(albumId) and provider album IDs")
+    private fun decodeLegacyAlbumId(albumId: String): Triple<String, String, String>? {
+        val decoded = decodeAlbumId(albumId)
+        if (decoded == null || !decoded.isLegacy) {
+            return null
+        }
+
+        return Triple(decoded.serviceId, decoded.title, decoded.artist)
     }
 
     private fun normalizeKey(value: String): String {

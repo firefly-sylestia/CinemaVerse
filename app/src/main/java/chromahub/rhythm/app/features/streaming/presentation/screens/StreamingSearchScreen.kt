@@ -194,34 +194,6 @@ fun StreamingSearchScreen(
                         }
                     }
 
-                    if (newReleases.isNotEmpty()) {
-                        item {
-                            Material3SettingsGroup(
-                                title = stringResource(id = R.string.streaming_home_widget_new_releases_title),
-                                items = newReleases.take(6).map { album ->
-                                    Material3SettingsItem(
-                                        title = {
-                                            Text(
-                                                text = album.title,
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        },
-                                        description = {
-                                            Text(
-                                                text = album.artist,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        },
-                                        isHighlighted = true,
-                                        onClick = { viewModel.playAlbum(album) }
-                                    )
-                                }
-                            )
-                        }
-                    }
-
                     if (featuredPlaylists.isNotEmpty()) {
                         item {
                             Material3SettingsGroup(
@@ -334,33 +306,6 @@ fun StreamingSearchScreen(
                                             )
                                         },
                                         onClick = { viewModel.playSong(song) }
-                                    )
-                                }
-                            )
-                        }
-                    }
-
-                    if (results.albums.isNotEmpty()) {
-                        item {
-                            Material3SettingsGroup(
-                                title = "Albums (${results.albums.size})",
-                                items = results.albums.take(8).map { album ->
-                                    Material3SettingsItem(
-                                        title = {
-                                            Text(
-                                                text = album.title,
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        },
-                                        description = {
-                                            Text(
-                                                text = album.artist,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        },
-                                        onClick = { viewModel.playAlbum(album) }
                                     )
                                 }
                             )

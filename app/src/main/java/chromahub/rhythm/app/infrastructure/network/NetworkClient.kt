@@ -126,7 +126,7 @@ object NetworkClient {
     private fun deezerHeadersInterceptor() = Interceptor { chain ->
         try {
             val request = chain.request().newBuilder()
-                .header("User-Agent", "RhythmApp/2.9 (Android)")
+                .header("User-Agent", "RhythmApp/4.8 (Android)")
                 .header("Accept", "application/json")
                 .build()
             chain.proceed(request)

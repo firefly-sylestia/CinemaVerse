@@ -22,15 +22,10 @@ data class StreamingAlbum(
     val label: String? = null,
     val copyright: String? = null,
     val isExplicit: Boolean = false,
-    private val tracks: List<StreamingSong> = emptyList()
+    val tracks: List<StreamingSong> = emptyList()
 ) : AlbumItem {
     
     override suspend fun getSongs(): List<PlayableItem> = tracks
-    
-    /**
-     * Get the tracks if already loaded.
-     */
-    fun getTracks(): List<StreamingSong> = tracks
 }
 
 /**

@@ -432,6 +432,7 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_STREAMING_HOME_SHOW_RHYTHM_GUARD = "streaming_home_show_rhythm_guard"
         private const val KEY_STREAMING_HOME_SHOW_RHYTHM_STATS = "streaming_home_show_rhythm_stats"
         private const val KEY_STREAMING_HOME_SHOW_RECENTLY_PLAYED = "streaming_home_show_recently_played"
+        private const val KEY_STREAMING_HOME_SHOW_ARTISTS = "streaming_home_show_artists"
         private const val KEY_STREAMING_HOME_SHOW_RECOMMENDED = "streaming_home_show_recommended"
         private const val KEY_STREAMING_HOME_SHOW_NEW_RELEASES = "streaming_home_show_new_releases"
         private const val KEY_STREAMING_HOME_SHOW_PLAYLISTS = "streaming_home_show_playlists"
@@ -4347,6 +4348,13 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         prefs.edit().putBoolean(KEY_STREAMING_HOME_SHOW_RECENTLY_PLAYED, value).apply()
     }
 
+    private val _streamingHomeShowArtists = MutableStateFlow(prefs.getBoolean(KEY_STREAMING_HOME_SHOW_ARTISTS, true))
+    val streamingHomeShowArtists: StateFlow<Boolean> = _streamingHomeShowArtists.asStateFlow()
+    fun setStreamingHomeShowArtists(value: Boolean) {
+        _streamingHomeShowArtists.value = value
+        prefs.edit().putBoolean(KEY_STREAMING_HOME_SHOW_ARTISTS, value).apply()
+    }
+
     private val _streamingHomeShowRecommended = MutableStateFlow(prefs.getBoolean(KEY_STREAMING_HOME_SHOW_RECOMMENDED, true))
     val streamingHomeShowRecommended: StateFlow<Boolean> = _streamingHomeShowRecommended.asStateFlow()
     fun setStreamingHomeShowRecommended(value: Boolean) {
@@ -4771,7 +4779,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     }
 
     private val defaultStreamingHomeSectionOrder = listOf(
-        "GREETING", "DISCOVER", "RECENTLY_PLAYED", "RHYTHM_GUARD", "RHYTHM_STATS", "NEW_RELEASES"
+        "GREETING", "DISCOVER", "RECENTLY_PLAYED", "ARTISTS", "RHYTHM_GUARD", "RHYTHM_STATS", "NEW_RELEASES"
     )
 
     private fun normalizeStreamingHomeSectionOrder(rawSections: List<String>): List<String> {

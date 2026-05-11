@@ -318,6 +318,7 @@ fun PlayerScreen(
         appSettings ?: chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
     val useSystemVolume by appSettingsInstance.useSystemVolume.collectAsState()
     val stopPlaybackOnZeroVolume by appSettingsInstance.stopPlaybackOnZeroVolume.collectAsState()
+    val appMode by appSettingsInstance.appMode.collectAsState()
     val groupByAlbumArtist by appSettingsInstance.groupByAlbumArtist.collectAsState()
     val artistSeparatorEnabled by appSettingsInstance.artistSeparatorEnabled.collectAsState()
     val artistSeparatorDelimiters by appSettingsInstance.artistSeparatorDelimiters.collectAsState()
@@ -921,6 +922,14 @@ fun PlayerScreen(
             onNavigateToSettings = {
                 showDeviceOutputSheet = false
                 navController.navigate(Screen.TunerQueuePlayback.route)
+            },
+            onNavigateToGoMode = if (appMode == "STREAMING") {
+                {
+                    showDeviceOutputSheet = false
+                    navController.navigate("streaming_go_settings")
+                }
+            } else {
+                null
             },
             onNavigateToEqualizer = {
                 showDeviceOutputSheet = false

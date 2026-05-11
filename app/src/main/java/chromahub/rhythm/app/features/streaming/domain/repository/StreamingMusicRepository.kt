@@ -145,6 +145,16 @@ interface StreamingMusicRepository : MusicRepository {
      * Create a new playlist on the streaming service.
      */
     suspend fun createPlaylist(name: String, description: String? = null, isPublic: Boolean = false): StreamingPlaylist?
+
+    /**
+     * Rename an existing playlist on the streaming service.
+     */
+    suspend fun renamePlaylist(playlistId: String, newName: String): Boolean
+
+    /**
+     * Delete a playlist on the streaming service.
+     */
+    suspend fun deletePlaylist(playlistId: String): Boolean
     
     /**
      * Add songs to a playlist.
@@ -206,10 +216,25 @@ interface StreamingMusicRepository : MusicRepository {
      * Get random songs from the service.
      */
     suspend fun getRandomSongs(limit: Int = 50): List<StreamingSong>
+
+    /**
+     * Get an album's tracks.
+     */
+    suspend fun getAlbumSongs(albumId: String): List<StreamingSong>
     
     /**
      * Get album list with optional type filtering.
      * @param type Type of album list: "newest", "recent", "random", "alphabetical", "frequent"
      */
     suspend fun getAlbumList(type: String = "newest", limit: Int = 50): List<StreamingAlbum>
+
+    /**
+     * Report that playback has started (scrobbling/now playing)
+     */
+    suspend fun reportPlaybackStart(songId: String): Boolean
+
+    /**
+     * Report that playback has stopped (scrobbling)
+     */
+    suspend fun reportPlaybackStop(songId: String, positionMs: Long): Boolean
 }

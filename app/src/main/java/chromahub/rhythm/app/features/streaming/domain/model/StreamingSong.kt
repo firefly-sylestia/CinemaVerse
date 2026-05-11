@@ -21,6 +21,8 @@ data class StreamingSong(
     val releaseDate: String? = null,
     val isPlayable: Boolean = true,
     val externalId: String? = null, // Spotify URI, Apple Music ID, etc.
+    val albumId: String? = null,
+    val albumArtist: String? = null,
     val isrc: String? = null // International Standard Recording Code
 ) : PlayableItem {
     

@@ -4013,8 +4013,30 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun resolveControllerIndexForQueueSelection(song: Song, queueIndex: Int): Int? {
-        val occurrence = resolveQueueOccurrenceForSong(song.id, queueIndex)
-        return findControllerIndexForSong(song.id, occurrence)
+        val controller = mediaController ?: return null
+        if (controller.mediaItemCount <= 0) return null
+
+        if (!controller.shuffleModeEnabled) {
+            val occurrence = resolveQueueOccurrenceForSong(song.id, queueIndex)
+            return findControllerIndexForSong(song.id, occurrence)
+        } else {
+            val timeline = controller.currentTimeline
+            if (timeline.isEmpty) return null
+
+            var windowIndex = timeline.getFirstWindowIndex(true)
+            var count = 0
+            val visited = BooleanArray(timeline.windowCount)
+
+            while (windowIndex != C.INDEX_UNSET && windowIndex in visited.indices && !visited[windowIndex]) {
+                if (count == queueIndex) {
+                    return windowIndex
+                }
+                visited[windowIndex] = true
+                count++
+                windowIndex = timeline.getNextWindowIndex(windowIndex, Player.REPEAT_MODE_OFF, true)
+            }
+            return null
+        }
     }
 
     /**
@@ -4388,6 +4410,18 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         currentPlaybackSongId = songId
         currentPlaybackAccumulatedTime = 0L
         
+        // Report playback start for streaming items
+        if (songId.startsWith("streaming://") || songId.contains("::")) {
+            viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val repository = chromahub.rhythm.app.features.streaming.di.StreamingMusicModule.provideStreamingMusicRepository(getApplication())
+                    repository.reportPlaybackStart(songId)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to scrobble playback start for song: $songId", e)
+                }
+            }
+        }
+        
         // Check if player is actually playing right now
         val actuallyPlaying = mediaController?.isPlaying == true
         if (actuallyPlaying) {
@@ -4436,7 +4470,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             
             // Only record if meaningful playback occurred (more than 3 seconds)
             if (actualDuration >= 3000) {
-                val song = _songs.value.find { it.id == songId }
+                val song = _songs.value.find { it.id == songId } ?: _recentlyPlayed.value.find { it.id == songId }
                 if (song != null) {
                     Log.d(TAG, "Finalizing playback for '${song.title}': ${actualDuration}ms actual listening time")
                     playbackStatsRepository.recordPlayback(
@@ -4445,6 +4479,18 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 } else {
                     Log.d(TAG, "Song not found for finalization: $songId")
+                }
+                
+                // Report playback stop/scrobble for streaming items
+                if (songId.startsWith("streaming://") || songId.contains("::")) {
+                    viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            val repository = chromahub.rhythm.app.features.streaming.di.StreamingMusicModule.provideStreamingMusicRepository(getApplication())
+                            repository.reportPlaybackStop(songId, actualDuration)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to scrobble playback stop for song: $songId", e)
+                        }
+                    }
                 }
             } else {
                 Log.d(TAG, "Skipping playback record for short duration: ${actualDuration}ms")
@@ -4708,7 +4754,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                         controller.addMediaItems(insertIndex, mediaItems)
 
                         val targetQueueIndex = (insertIndex + validStartIndex)
-                            .coerceIn(0, currentQueueSongs.lastIndex)
+                            .coerceIn(0, currentQueueSongs.lastIndex.coerceAtLeast(0))
                         val targetSong = currentQueueSongs[targetQueueIndex]
 
                         val targetControllerIndex = if (controller.shuffleModeEnabled) {

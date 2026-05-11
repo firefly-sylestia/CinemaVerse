@@ -9,7 +9,9 @@ data class ProviderSong(
     val artist: String,
     val album: String,
     val durationMs: Long,
-    val artworkUrl: String? = null
+    val artworkUrl: String? = null,
+    val albumId: String? = null,
+    val albumArtist: String? = null
 )
 
 /**
