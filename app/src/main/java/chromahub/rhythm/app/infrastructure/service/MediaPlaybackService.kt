@@ -368,31 +368,44 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
 
+        // CRITICAL: startForeground() MUST be called within 5 seconds when service is
+        // started via startForegroundService(), or Android will ANR the app.
+        // Even if an exception occurs, we must attempt the call.
+        var foregroundStartSucceeded = false
+        
         try {
-            // Call the system's startForeground() method
             super.startForeground(NOTIFICATION_ID, notification)
+            foregroundStartSucceeded = true
             Log.d(TAG, "Started foreground service: $title - $content")
-        } catch (e: RuntimeException) {
-            val startBlockedBySystem =
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                    e.javaClass.name == "android.app.ForegroundServiceStartNotAllowedException") ||
-                    (e is IllegalStateException &&
-                        e.message?.contains("startForeground", ignoreCase = true) == true)
-
-            if (!startBlockedBySystem) {
-                throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "startForeground() failed with exception: ${e.javaClass.simpleName}: ${e.message}", e)
+            
+            // Check if this is a background restriction issue
+            val isForegroundRestricted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                e.javaClass.name.contains("ForegroundServiceStartNotAllowedException")
+            
+            if (isForegroundRestricted) {
+                Log.w(TAG, "Foreground service start blocked by system (background restriction). Service will run with standard notification.")
+                // In this case, we can't satisfy the startForegroundService() contract,
+                // but we'll continue anyway and show a regular notification.
+                // This is not ideal but better than crashing.
+            } else {
+                // For other exceptions, log them but try to continue
+                Log.w(TAG, "Unexpected exception during startForeground(), will attempt notification fallback.", e)
             }
-
-            Log.w(
-                TAG,
-                "Foreground start is not currently allowed; continuing with standard notification instead.",
-                e
-            )
-
-            // Keep users informed without crashing when foreground promotion is blocked.
-            val notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(NOTIFICATION_ID, notification)
+            
+            // Attempt to show notification as fallback (will not satisfy startForegroundService contract)
+            try {
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(NOTIFICATION_ID, notification)
+                Log.w(TAG, "Posted notification as fallback. Service may experience issues on some Android versions.")
+            } catch (notifyError: Exception) {
+                Log.e(TAG, "Failed to post fallback notification", notifyError)
+            }
+        }
+        
+        if (!foregroundStartSucceeded) {
+            Log.w(TAG, "WARNING: startForeground() was not successfully called. This service may be terminated if it stays in background.")
         }
     }
 

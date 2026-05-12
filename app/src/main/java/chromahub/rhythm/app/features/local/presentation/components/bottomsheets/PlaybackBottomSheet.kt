@@ -91,16 +91,18 @@ import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.PlaybackLocation
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.core.domain.model.StreamingQuality
-import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
 import chromahub.rhythm.app.util.HapticUtils
-import chromahub.rhythm.app.util.AppRestarter
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HighQuality
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.ui.res.stringResource
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShape
+import chromahub.rhythm.app.features.local.presentation.components.dialogs.AppRestartDialog
+import chromahub.rhythm.app.util.AppRestarter
+import chromahub.rhythm.app.core.domain.model.StreamingQuality
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,9 +155,6 @@ fun PlaybackBottomSheet(
     val bassBoostStrength by appSettings.bassBoostStrength.collectAsState()
     val virtualizerEnabled by appSettings.virtualizerEnabled.collectAsState()
     val virtualizerStrength by appSettings.virtualizerStrength.collectAsState()
-    var showStreamingQualitySheet by remember { mutableStateOf(false) }
-    var showRestartDialog by remember { mutableStateOf(false) }
-    var pendingStreamingQuality by remember { mutableStateOf<StreamingQuality?>(null) }
     
     val contentAlpha by animateFloatAsState(
         targetValue = if (showContent) 1f else 0f,
@@ -174,6 +173,11 @@ fun PlaybackBottomSheet(
         ),
         label = "contentTranslation"
     )
+
+    // Quality sheet and restart dialog state
+    var showQualitySheet by remember { mutableStateOf(false) }
+    var showRestartDialog by remember { mutableStateOf(false) }
+    var restartDialogMessage by remember { mutableStateOf("") }
 
     // Initialize system volume and monitor for changes
     LaunchedEffect(Unit) {
@@ -265,6 +269,22 @@ fun PlaybackBottomSheet(
                         )
                     }
                 }
+
+                if (appMode == "STREAMING") {
+                    item {
+                        AnimateIn {
+                            StreamingQualityCard(
+                                selectedQuality = streamingQuality,
+                                onOpenQualitySheet = {
+                                    showQualitySheet = true
+                                },
+                                haptics = haptics,
+                                context = context,
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
+                        }
+                    }
+                }
                 
                 // Volume Control Section
                 item {
@@ -353,19 +373,6 @@ fun PlaybackBottomSheet(
                     }
                 }
 
-                if (appMode == "STREAMING") {
-                    item {
-                        AnimateIn {
-                            StreamingQualityCard(
-                                selectedQuality = streamingQuality,
-                                onOpenQualitySheet = { showStreamingQualitySheet = true },
-                                haptics = haptics,
-                                context = context
-                            )
-                        }
-                    }
-                }
-                
                 // Playback Pitch Section
                 item {
                     AnimateIn {
@@ -405,93 +412,32 @@ fun PlaybackBottomSheet(
         }
     }
 
-    if (showStreamingQualitySheet) {
-        StreamingQualitySelectionBottomSheet(
-            selectedQuality = streamingQuality,
-            onDismiss = { showStreamingQualitySheet = false },
+    // Quality selection bottom sheet
+    if (showQualitySheet) {
+        QualitySelectionBottomSheet(
+            selectedQuality = streamingQuality.uppercase(),
+            onDismiss = { showQualitySheet = false },
             onSelect = { quality ->
-                pendingStreamingQuality = quality
-                showStreamingQualitySheet = false
+                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                appSettings.setStreamingQuality(quality)
+                // Show restart dialog
+                restartDialogMessage = "Streaming quality changed. Restart the app to apply the new audio settings."
                 showRestartDialog = true
+                showQualitySheet = false
             }
         )
     }
 
+    // Restart dialog
     if (showRestartDialog) {
-        val restartSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(
-            onDismissRequest = {
-                showRestartDialog = false
-                pendingStreamingQuality = null
-            },
-            sheetState = restartSheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 24.dp)
-            ) {
-                StandardBottomSheetHeader(
-                    title = "Restart Required",
-                    subtitle = "Streaming quality will apply after restart.",
-                    visible = true
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Material3SettingsGroup(
-                    items = listOf(
-                        Material3SettingsItem(
-                            icon = Icons.Filled.GraphicEq,
-                            title = { Text(text = "Quality") },
-                            description = {
-                                Text(text = pendingStreamingQuality?.name ?: streamingQuality)
-                            },
-                            scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.STREAMING
-                        )
-                    ),
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    FilledTonalButton(
-                        onClick = {
-                            pendingStreamingQuality?.let { appSettings.setStreamingQuality(it.name) }
-                            showRestartDialog = false
-                            pendingStreamingQuality = null
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(text = "Later")
-                    }
-
-                    Button(
-                        onClick = {
-                            pendingStreamingQuality?.let { quality ->
-                                appSettings.setStreamingQuality(quality.name)
-                                AppRestarter.restartApp(context)
-                            }
-                            showRestartDialog = false
-                            pendingStreamingQuality = null
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(text = "Restart Now")
-                    }
-                }
-            }
-        }
+        AppRestartDialog(
+            onDismiss = { showRestartDialog = false },
+            onRestart = { AppRestarter.restartApp(context) },
+            onContinue = { /* continue without restart */ },
+            message = restartDialogMessage
+        )
     }
+
 }
 
 @Composable
@@ -1323,7 +1269,6 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.LOCAL,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onUseSystemVolumeChange(!useSystemVolume)
@@ -1536,92 +1481,33 @@ private fun StreamingQualityCard(
     context: Context,
     modifier: Modifier = Modifier
 ) {
-    Material3SettingsGroup(
-        title = context.getString(R.string.streaming_settings_quality),
-        items = listOf(
-            Material3SettingsItem(
-                icon = Icons.Filled.GraphicEq,
-                title = { Text(text = context.getString(R.string.streaming_settings_quality)) },
-                description = { Text(text = selectedQuality) },
-                trailingContent = {
-                    Icon(
-                        imageVector = RhythmIcons.Forward,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.STREAMING,
-                onClick = {
-                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                    onOpenQualitySheet()
-                }
-            )
-        ),
-        containerColor = MaterialTheme.colorScheme.surface
-    )
-}
-
-@Composable
-private fun StreamingQualitySelectionBottomSheet(
-    selectedQuality: String,
-    onDismiss: () -> Unit,
-    onSelect: (StreamingQuality) -> Unit
-) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 24.dp)
-        ) {
-            StandardBottomSheetHeader(
-                title = "Streaming Quality",
-                subtitle = "Choose the quality used for streaming playback.",
-                visible = true
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            val qualityOptions = listOf(
-                StreamingQuality.LOW,
-                StreamingQuality.NORMAL,
-                StreamingQuality.HIGH,
-                StreamingQuality.LOSSLESS
-            )
-
-            Material3SettingsGroup(
-                items = qualityOptions.map { quality ->
-                    val isSelected = selectedQuality.equals(quality.name, ignoreCase = true)
-                    Material3SettingsItem(
-                        icon = Icons.Filled.GraphicEq,
-                        title = { Text(text = quality.name) },
-                        description = { Text(text = if (isSelected) "Current quality" else "Tap to select") },
-                        trailingContent = {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        },
-                        scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.STREAMING,
-                        isHighlighted = isSelected,
-                        onClick = { onSelect(quality) }
-                    )
-                },
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            )
-        }
+        Material3SettingsGroup(
+            title = context.getString(R.string.streaming_settings_quality),
+            items = listOf(
+                Material3SettingsItem(
+                    icon = Icons.Filled.HighQuality,
+                    title = { Text(text = context.getString(R.string.streaming_settings_quality)) },
+                    description = { Text(text = selectedQuality) },
+                    trailingContent = {
+                        Icon(
+                            imageVector = RhythmIcons.Forward,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    onClick = {
+                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                        onOpenQualitySheet()
+                    }
+                )
+            ),
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     }
 }
 
@@ -2048,6 +1934,111 @@ private fun AudioEffectsCard(
             items = audioEffectItems,
             containerColor = MaterialTheme.colorScheme.surface
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun QualitySelectionBottomSheet(
+    selectedQuality: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.primary) },
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        StandardBottomSheetHeader(
+            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality),
+            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality_sheet_desc),
+            visible = true
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+        ) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val streamingQualityOptions = listOf(
+                Pair("LOW", chromahub.rhythm.app.R.string.streaming_quality_low),
+                Pair("NORMAL", chromahub.rhythm.app.R.string.streaming_quality_normal),
+                Pair("HIGH", chromahub.rhythm.app.R.string.streaming_quality_high),
+                Pair("LOSSLESS", chromahub.rhythm.app.R.string.streaming_quality_lossless)
+            )
+
+            streamingQualityOptions.forEach { option ->
+                val isSelected = selectedQuality == option.first
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerHigh
+                        }
+                    ),
+                    onClick = { onSelect(option.first) }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.HighQuality,
+                            contentDescription = null,
+                            tint = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = option.second),
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                color = if (isSelected) {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                        }
+
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 
