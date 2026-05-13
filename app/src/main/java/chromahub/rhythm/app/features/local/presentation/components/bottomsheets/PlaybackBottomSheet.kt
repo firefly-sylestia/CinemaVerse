@@ -270,21 +270,7 @@ fun PlaybackBottomSheet(
                     }
                 }
 
-                if (appMode == "STREAMING") {
-                    item {
-                        AnimateIn {
-                            StreamingQualityCard(
-                                selectedQuality = streamingQuality,
-                                onOpenQualitySheet = {
-                                    showQualitySheet = true
-                                },
-                                haptics = haptics,
-                                context = context,
-                                modifier = Modifier.padding(horizontal = 24.dp)
-                            )
-                        }
-                    }
-                }
+                // Streaming quality (moved below volume control for streaming/go mode)
                 
                 // Volume Control Section
                 item {
@@ -304,6 +290,23 @@ fun PlaybackBottomSheet(
                             },
                             haptics = haptics
                         )
+                    }
+                }
+
+                // Place StreamingQualityCard below the Volume control when in STREAMING mode
+                if (appMode == "STREAMING") {
+                    item {
+                        AnimateIn {
+                            StreamingQualityCard(
+                                selectedQuality = streamingQuality,
+                                onOpenQualitySheet = {
+                                    showQualitySheet = true
+                                },
+                                haptics = haptics,
+                                context = context,
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
+                        }
                     }
                 }
                 
@@ -647,13 +650,13 @@ private fun ActiveDeviceCard(
                                 scaleY = pulseScale
                             },
                         shape = expressiveIconShape,
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = MaterialTheme.colorScheme.primary
                     ) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                             Icon(
                                 imageVector = getDeviceIcon(location),
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(26.dp)
                             )
                         }
@@ -694,13 +697,13 @@ private fun ActiveDeviceCard(
                     Surface(
                         modifier = Modifier.size(56.dp),
                         shape = expressiveIconShape,
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = MaterialTheme.colorScheme.primary
                     ) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                             Icon(
                                 imageVector = RhythmIcons.Speaker,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
