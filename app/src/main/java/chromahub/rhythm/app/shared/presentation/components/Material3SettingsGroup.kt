@@ -206,32 +206,31 @@ private fun Material3SettingsItemRow(item: Material3SettingsItem) {
                 item.title()
             }
 
-            item.scope?.let { scope ->
-                if (scope != SettingScope.BOTH) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Surface(
-                        color = when (scope) {
-                            SettingScope.LOCAL -> MaterialTheme.colorScheme.secondaryContainer
-                            SettingScope.STREAMING -> MaterialTheme.colorScheme.primaryContainer
-                            SettingScope.BOTH -> MaterialTheme.colorScheme.surfaceVariant
+            val scope = item.scope
+            if (scope != SettingScope.BOTH) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Surface(
+                    color = when (scope) {
+                        SettingScope.LOCAL -> MaterialTheme.colorScheme.secondaryContainer
+                        SettingScope.STREAMING -> MaterialTheme.colorScheme.primaryContainer
+                        SettingScope.BOTH -> MaterialTheme.colorScheme.surfaceVariant
+                    },
+                    shape = RoundedCornerShape(999.dp)
+                ) {
+                    Text(
+                        text = when (scope) {
+                            SettingScope.LOCAL -> "Local"
+                            SettingScope.STREAMING -> "Streaming"
+                            SettingScope.BOTH -> "Both"
                         },
-                        shape = RoundedCornerShape(999.dp)
-                    ) {
-                        Text(
-                            text = when (scope) {
-                                SettingScope.LOCAL -> "Local"
-                                SettingScope.STREAMING -> "Streaming"
-                                SettingScope.BOTH -> "Both"
-                            },
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = when (scope) {
-                                SettingScope.LOCAL -> MaterialTheme.colorScheme.onSecondaryContainer
-                                SettingScope.STREAMING -> MaterialTheme.colorScheme.onPrimaryContainer
-                                SettingScope.BOTH -> MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = when (scope) {
+                            SettingScope.LOCAL -> MaterialTheme.colorScheme.onSecondaryContainer
+                            SettingScope.STREAMING -> MaterialTheme.colorScheme.onPrimaryContainer
+                            SettingScope.BOTH -> MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
                 }
             }
 

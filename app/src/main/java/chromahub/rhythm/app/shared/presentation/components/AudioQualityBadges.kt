@@ -68,24 +68,28 @@ fun AudioQualityBadges(
 
                 // Use the enhanced quality detector with format info
                 // Prefer Song's metadata when available as it's more reliable
-                val bitrateKbps = if (song.bitrate != null && song.bitrate!! > 0) {
-                    song.bitrate!! / 1000
+                val songBitrate = song.bitrate ?: 0
+                val songSampleRate = song.sampleRate ?: 0
+                val songChannels = song.channels ?: 0
+
+                val bitrateKbps = if (songBitrate > 0) {
+                    songBitrate / 1000
                 } else if (formatInfo.bitrateKbps > 0) {
                     formatInfo.bitrateKbps
                 } else {
                     0
                 }
                 
-                val sampleRateHz = if (song.sampleRate != null && song.sampleRate!! > 0) {
-                    song.sampleRate!!
+                val sampleRateHz = if (songSampleRate > 0) {
+                    songSampleRate
                 } else if (formatInfo.sampleRateHz > 0) {
                     formatInfo.sampleRateHz
                 } else {
                     0
                 }
                 
-                val channelCount = if (song.channels != null && song.channels!! > 0) {
-                    song.channels!!
+                val channelCount = if (songChannels > 0) {
+                    songChannels
                 } else if (formatInfo.channelCount > 0) {
                     formatInfo.channelCount
                 } else {

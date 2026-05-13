@@ -481,7 +481,7 @@ class PlaybackStatsRepository private constructor(private val context: Context) 
         var currentStreak = 0
         var lastDay: LocalDate? = null
         sortedDays.forEach { day ->
-            if (lastDay == null || day == lastDay?.plusDays(1)) {
+            if (lastDay == null || day == lastDay.plusDays(1)) {
                 currentStreak++
             } else {
                 currentStreak = 1

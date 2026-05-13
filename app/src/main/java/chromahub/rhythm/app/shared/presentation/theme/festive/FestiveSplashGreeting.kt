@@ -73,7 +73,6 @@ fun FestiveSplashGreeting(
                 FestiveThemeType.VALENTINES -> {
                     ValentinesGreeting()
                 }
-                else -> {}
             }
         }
     }

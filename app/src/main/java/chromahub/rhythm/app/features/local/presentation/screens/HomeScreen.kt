@@ -2533,11 +2533,11 @@ private fun ModernListeningStatsSection(
     }
 
     val songsPlayed = remember(statsSummary) {
-        (statsSummary?.totalPlayCount ?: 0).toInt()
+        statsSummary?.totalPlayCount ?: 0
     }
 
     val uniqueArtistsCount = remember(statsSummary) {
-        (statsSummary?.uniqueArtists ?: 0).toInt()
+        statsSummary?.uniqueArtists ?: 0
     }
 
     // Enhanced stats card with expressive design and animations

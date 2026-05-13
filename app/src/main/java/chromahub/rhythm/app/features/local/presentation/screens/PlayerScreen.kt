@@ -315,8 +315,7 @@ fun PlayerScreen(
     val playerBackgroundColor = BottomSheetDefaults.ContainerColor
 
     // Get AppSettings for volume control setting
-    val appSettingsInstance =
-        appSettings ?: chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
+    val appSettingsInstance = appSettings
     val useSystemVolume by appSettingsInstance.useSystemVolume.collectAsState()
     val stopPlaybackOnZeroVolume by appSettingsInstance.stopPlaybackOnZeroVolume.collectAsState()
     val appMode by appSettingsInstance.appMode.collectAsState()
@@ -952,10 +951,8 @@ fun PlayerScreen(
             playlists = playlists,
             onDismissRequest = onAddToPlaylistSheetDismiss,
             onAddToPlaylist = { playlist ->
-                playlist.id?.let { playlistId ->
-                    onAddSongToPlaylist(song, playlistId)
-                    onAddToPlaylistSheetDismiss()
-                }
+                onAddSongToPlaylist(song, playlist.id)
+                onAddToPlaylistSheetDismiss()
             },
             onCreateNewPlaylist = {
                 onAddToPlaylistSheetDismiss()
@@ -991,7 +988,7 @@ fun PlayerScreen(
                 showDeviceOutputSheet = false
                 onStopDeviceMonitoring()
             },
-            appSettings = appSettings ?: chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context),
+            appSettings = appSettings,
             onNavigateToSettings = {
                 showDeviceOutputSheet = false
                 navController.navigate(Screen.TunerQueuePlayback.route)
@@ -1184,10 +1181,8 @@ fun PlayerScreen(
             onAlbum = {
                 song?.let { currentSong ->
                     val albumForSong = resolveAlbumForSong(currentSong)
-                    albumForSong?.let {
-                        selectedAlbum = it
-                        showAlbumSheet = true
-                    }
+                    selectedAlbum = albumForSong
+                    showAlbumSheet = true
                 }
             },
             onArtist = {
@@ -3328,10 +3323,8 @@ fun PlayerScreen(
                                                         // Find the album for the current song and show bottom sheet
                                                         song?.let { currentSong ->
                                                             val albumForSong = resolveAlbumForSong(currentSong)
-                                                            albumForSong?.let {
-                                                                selectedAlbum = it
-                                                                showAlbumSheet = true
-                                                            }
+                                                            selectedAlbum = albumForSong
+                                                            showAlbumSheet = true
                                                         }
                                                     },
                                                     label = {

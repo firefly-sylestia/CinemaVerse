@@ -921,7 +921,7 @@ fun SearchScreen(
             playlists = playlists,
             onDismissRequest = { showAddToPlaylistSheet = false },
             onAddToPlaylist = { playlist ->
-                onAddSongToPlaylist(selectedSong!!, playlist.id ?: "")
+                onAddSongToPlaylist(selectedSong!!, playlist.id)
                 scope.launch {
                     addToPlaylistSheetState.hide()
                 }.invokeOnCompletion {

@@ -60,7 +60,6 @@ object BitPerfectAudioSink {
         rhythmSpatializationProcessor = spatializationProcessor
         
         val builder = DefaultAudioSink.Builder(context)
-            .setEnableAudioTrackPlaybackParams(true)
         
         if (enableBitPerfect) {
             // Bit-perfect: preserve the native sample format (don't force 16-bit).

@@ -2259,3 +2259,4 @@ private fun formatCompactDuration(durationMs: Long): String {
     val seconds = totalSeconds % 60L
     return if (minutes > 0L) "${minutes}m ${seconds}s" else "${seconds}s"
 }
+

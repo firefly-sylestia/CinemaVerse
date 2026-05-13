@@ -368,7 +368,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(110, 110, "ExtraSmall")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // Small Widget
                 LegacyWidgetPreviewCard(
@@ -379,7 +379,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(220, 90, "Small")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // Vertical Widget
                 LegacyWidgetPreviewCard(
@@ -390,7 +390,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(110, 220, "Vertical", isVertical = true)
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // Medium Widget
                 LegacyWidgetPreviewCard(
@@ -401,7 +401,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(250, 140, "Medium")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // Wide Widget
                 LegacyWidgetPreviewCard(
@@ -412,7 +412,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(300, 90, "Wide")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // Large Widget
                 LegacyWidgetPreviewCard(
@@ -423,7 +423,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(280, 280, "Large", showAlbumArtLarge = true)
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // Extra Large Widget
                 LegacyWidgetPreviewCard(
@@ -434,7 +434,7 @@ fun LegacyWidgetPreviewsScreen() {
                     LegacyWidgetMockup(320, 240, "ExtraLarge", showAlbumArtLarge = true)
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 5x5 Widget
                 LegacyWidgetPreviewCard(
@@ -572,3 +572,4 @@ fun LargeLegacyWidgetDetailPreview() {
         }
     }
 }
+

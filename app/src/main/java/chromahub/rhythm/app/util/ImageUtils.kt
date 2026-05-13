@@ -168,7 +168,7 @@ object ImageUtils {
             onError = { _, result ->
                 // Only log critical errors occasionally to reduce overhead
                 if (System.currentTimeMillis() % 100 == 0L) {
-                    Log.w(TAG, "Image load error: ${result.throwable?.message ?: "Unknown"}")
+                    Log.w(TAG, "Image load error: ${result.throwable.message}")
                 }
             }
         )

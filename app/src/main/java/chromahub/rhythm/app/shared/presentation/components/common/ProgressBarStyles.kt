@@ -628,13 +628,13 @@ private fun WavyProgressBar(
                         val y = yAt(x)
                         val midX = (prevX + x) * 0.5f
                         val midY = (prevY + y) * 0.5f
-                        path.quadraticBezierTo(prevX, prevY, midX, midY)
+                        path.quadraticTo(prevX, prevY, midX, midY)
                         prevX = x
                         prevY = y
                         x += waveStep
                     }
                     val endY = yAt(waveEndDrawX)
-                    path.quadraticBezierTo(prevX, prevY, waveEndDrawX, endY)
+                    path.quadraticTo(prevX, prevY, waveEndDrawX, endY)
 
                     drawPath(
                         path = path,
@@ -1220,7 +1220,7 @@ private fun WavyCircularProgress(
                         // Use quadratic bezier for smoother curves
                         val midX = (prevX + x) * 0.5f
                         val midY = (prevY + y) * 0.5f
-                        path.quadraticBezierTo(prevX, prevY, midX, midY)
+                        path.quadraticTo(prevX, prevY, midX, midY)
                         prevX = x
                         prevY = y
                     }
@@ -1899,3 +1899,4 @@ private fun getPointOnRoundedRect(
     // Top edge (left half)
     return Offset(left + cr + pos, top)
 }
+

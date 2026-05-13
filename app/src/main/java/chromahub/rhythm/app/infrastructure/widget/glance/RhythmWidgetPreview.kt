@@ -166,7 +166,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(110, 110, "OneByOne")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 1x2 Narrow Vertical Widget
                 WidgetPreviewCard(
@@ -176,7 +176,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(110, 220, "Gabe")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 2x1 Horizontal Strip Widget
                 WidgetPreviewCard(
@@ -186,7 +186,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(250, 80, "Thin")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 2x2 Small Widget
                 WidgetPreviewCard(
@@ -196,7 +196,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(180, 180, "Small")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 3x2 Medium Widget
                 WidgetPreviewCard(
@@ -206,7 +206,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(250, 150, "Medium")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 4x2 Large Widget
                 WidgetPreviewCard(
@@ -216,7 +216,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(300, 180, "Large")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 3x3 Extra Large Widget
                 WidgetPreviewCard(
@@ -226,7 +226,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(300, 220, "ExtraLarge")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 4x3 Extra Large Plus Widget
                 WidgetPreviewCard(
@@ -236,7 +236,7 @@ fun GlanceWidgetPreviewsScreen() {
                     WidgetMockup(350, 260, "ExtraLargePlus")
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 // 5x4 Huge Widget
                 WidgetPreviewCard(
@@ -383,3 +383,4 @@ fun LargeWidgetDetailPreview() {
         }
     }
 }
+

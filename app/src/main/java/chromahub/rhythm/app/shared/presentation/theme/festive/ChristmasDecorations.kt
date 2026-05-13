@@ -891,3 +891,4 @@ private fun DrawScope.drawGingerbread(center: Offset, scale: Float = 1f) {
         center = Offset(center.x, center.y + size * 0.25f)
     )
 }
+

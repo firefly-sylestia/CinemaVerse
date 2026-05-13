@@ -444,13 +444,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         appSettings.blacklistedFolders,
         appSettings.whitelistedSongs,
         appSettings.whitelistedFolders
-    ) { flows: Array<Any> ->
-        val songs = flows[0] as List<Song>
-        val mode = flows[1] as String
-        val blacklistedIds = flows[2] as List<String>
-        val blacklistedFolders = flows[3] as List<String>
-        val whitelistedIds = flows[4] as List<String>
-        val whitelistedFolders = flows[5] as List<String>
+    ) { args ->
+        val songs = args[0] as List<Song>
+        val mode = args[1] as String
+        val blacklistedIds = args[2] as List<String>
+        val blacklistedFolders = args[3] as List<String>
+        val whitelistedIds = args[4] as List<String>
+        val whitelistedFolders = args[5] as List<String>
+
         filterSongsAsync(songs, mode, blacklistedIds, blacklistedFolders, whitelistedIds, whitelistedFolders)
     }.flowOn(Dispatchers.IO).stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
     
@@ -6562,7 +6563,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                             SortOrder.DATE_ADDED_DESC -> -it.dateCreated // Descending
                             SortOrder.DATE_MODIFIED_ASC -> it.dateModified
                             SortOrder.DATE_MODIFIED_DESC -> -it.dateModified // Descending
-                            else -> it.name // Default for other sort orders
                         }
                     }
                 )

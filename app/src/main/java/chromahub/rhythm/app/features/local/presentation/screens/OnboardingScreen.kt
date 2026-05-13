@@ -4532,7 +4532,7 @@ private fun LibraryFeatureCard(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable { onClick?.invoke() } else Modifier)
+            .then(if (onClick != null) Modifier.clickable { onClick.invoke() } else Modifier)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

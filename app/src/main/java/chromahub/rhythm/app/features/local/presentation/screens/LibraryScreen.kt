@@ -1180,7 +1180,7 @@ fun LibraryScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent
                 ),
@@ -1936,26 +1936,30 @@ fun SingleCardSongsContent(
             try {
                 // Use AudioFormatDetector for accurate codec and format detection
                 val formatInfo = AudioFormatDetector.detectFormat(context, song.uri, song)
+
+                val songBitrate = song.bitrate ?: 0
+                val songSampleRate = song.sampleRate ?: 0
+                val songChannels = song.channels ?: 0
                 
                 // Prefer Song's metadata when available (more reliable)
-                val bitrateKbps = if (song.bitrate != null && song.bitrate!! > 0) {
-                    song.bitrate!! / 1000
+                val bitrateKbps = if (songBitrate > 0) {
+                    songBitrate / 1000
                 } else if (formatInfo.bitrateKbps > 0) {
                     formatInfo.bitrateKbps
                 } else {
                     0
                 }
                 
-                val sampleRateHz = if (song.sampleRate != null && song.sampleRate!! > 0) {
-                    song.sampleRate!!
+                val sampleRateHz = if (songSampleRate > 0) {
+                    songSampleRate
                 } else if (formatInfo.sampleRateHz > 0) {
                     formatInfo.sampleRateHz
                 } else {
                     0
                 }
                 
-                val channelCount = if (song.channels != null && song.channels!! > 0) {
-                    song.channels!!
+                val channelCount = if (songChannels > 0) {
+                    songChannels
                 } else if (formatInfo.channelCount > 0) {
                     formatInfo.channelCount
                 } else {
@@ -7129,7 +7133,7 @@ fun getStorageRoots(context: android.content.Context): List<ExplorerItem> {
             android.util.Log.d("LibraryScreen", "Using Android 9/10 specific storage access method")
             
             // Method 1: Try using getExternalFilesDir to get storage roots
-            val externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null)
+            val externalFilesDirs = context.getExternalFilesDirs(null)
             externalFilesDirs.forEachIndexed { index, dir ->
                 if (dir != null) {
                     try {
@@ -7208,7 +7212,7 @@ fun getStorageRoots(context: android.content.Context): List<ExplorerItem> {
             }
 
             // Get external storage directories (SD cards, etc.)
-            val externalDirs = ContextCompat.getExternalFilesDirs(context, null)
+            val externalDirs = context.getExternalFilesDirs(null)
             
             externalDirs.forEachIndexed { index, dir ->
                 if (dir != null && index > 0) {
@@ -9002,3 +9006,4 @@ fun BottomFloatingButtonGroup(
         }
     }
 }
+

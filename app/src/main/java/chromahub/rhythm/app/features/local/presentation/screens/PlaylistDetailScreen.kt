@@ -1461,8 +1461,8 @@ fun PlaylistDetailScreen(
                             item {
                                 val totalDurationMs = filteredSongs.sumOf { it.duration.toLong() }
                                 val durationSeconds = totalDurationMs / 1000
-                                val hours = (durationSeconds / 3600).toInt()
-                                val minutes = ((durationSeconds % 3600) / 60).toInt()
+                                val hours = durationSeconds / 3600
+                                val minutes = (durationSeconds % 3600) / 60
                                 val timeText = when {
                                     hours > 0 && minutes > 0 -> "$hours hr $minutes mins"
                                     hours > 0 -> "$hours hr"
@@ -1913,8 +1913,8 @@ fun PlaylistDetailScreen(
                     item {
                         val totalDurationMs = filteredSongs.sumOf { it.duration.toLong() }
                         val durationSeconds = totalDurationMs / 1000
-                        val hours = (durationSeconds / 3600).toInt()
-                        val minutes = ((durationSeconds % 3600) / 60).toInt()
+                        val hours = durationSeconds / 3600
+                        val minutes = (durationSeconds % 3600) / 60
                         val timeText = when {
                             hours > 0 && minutes > 0 -> "$hours hr $minutes mins"
                             hours > 0 -> "$hours hr"
@@ -2778,7 +2778,7 @@ fun PlaylistSongItem(
                 Button(
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove) // Use captured haptics
-                        onRemove?.invoke("Removed ${song.title} from playlist")
+                        onRemove("Removed ${song.title} from playlist")
                         showRemoveDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(

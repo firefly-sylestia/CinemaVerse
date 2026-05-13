@@ -249,13 +249,13 @@ fun WaveSlider(
                                         val midX = (prevX + x) * 0.5f
                                         val midY = (prevY + y) * 0.5f
                                         // Compose Path: quadraticBezierTo(controlX, controlY, endX, endY)
-                                        wavePath.quadraticBezierTo(prevX, prevY, midX, midY)
+                                        wavePath.quadraticTo(prevX, prevY, midX, midY)
                                         prevX = x
                                         prevY = y
                                         x += waveStep
                                     }
                                     val endY = yAt(waveEndDrawX)
-                                    wavePath.quadraticBezierTo(prevX, prevY, waveEndDrawX, endY)
+                                    wavePath.quadraticTo(prevX, prevY, waveEndDrawX, endY)
 
                                     drawPath(
                                         path = wavePath,
@@ -301,4 +301,5 @@ fun WaveSlider(
         )
     }
 }
+
 

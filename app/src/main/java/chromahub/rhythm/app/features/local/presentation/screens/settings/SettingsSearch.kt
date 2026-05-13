@@ -68,8 +68,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material.icons.filled.PlayCircleFilled
 import androidx.compose.material.icons.filled.PlaylistAddCheckCircle
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Reorder
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.RoundedCorner
@@ -232,7 +231,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_language),
             description = context.getString(R.string.settings_language_desc),
             keywords = listOf("language", "locale", "translation", "english", "spanish", "french", "german", "hindi", "chinese", "japanese", "korean"),
-            icon = Icons.Default.Public,
+            icon = Icons.Default.Info,
             route = null,
             parentScreen = context.getString(R.string.settings_section_user_interface),
             settingKey = "language"
@@ -331,7 +330,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_queue_playback_title),
             description = context.getString(R.string.settings_queue_playback_desc),
             keywords = listOf("queue", "playback", "shuffle", "repeat", "auto queue", "playlist"),
-            icon = Icons.Default.QueueMusic,
+            icon = Icons.AutoMirrored.Filled.QueueMusic,
             route = SettingsRoutes.QUEUE_PLAYBACK,
             parentScreen = context.getString(R.string.settings_section_queue_playback)
         ))
@@ -841,7 +840,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_lyrics_show_translation),
             description = context.getString(R.string.settings_lyrics_show_translation_desc),
             keywords = listOf("lyrics", "translation", "translate", "multi-language", "subtitle"),
-            icon = Icons.Default.Public,
+            icon = Icons.Default.Info,
             route = SettingsRoutes.EXPERIMENTAL_FEATURES,
             parentScreen = "Experimental",
             settingKey = "showLyricsTranslation"
@@ -1216,7 +1215,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_playlist_action_dialog),
             description = context.getString(R.string.settings_playlist_action_dialog_desc),
             keywords = listOf("playlist", "action", "dialog", "click", "behavior", "load", "play"),
-            icon = Icons.Default.QueueMusic,
+            icon = Icons.AutoMirrored.Filled.QueueMusic,
             route = SettingsRoutes.QUEUE_PLAYBACK,
             parentScreen = "Queue & Playback",
             settingKey = "playlistClickBehavior"
@@ -1226,7 +1225,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_list_queue_action_dialog),
             description = context.getString(R.string.settings_list_queue_action_dialog_desc),
             keywords = listOf("queue", "play all", "section", "replace", "play next", "add to end", "behavior", "rule"),
-            icon = Icons.Default.QueueMusic,
+            icon = Icons.AutoMirrored.Filled.QueueMusic,
             route = SettingsRoutes.QUEUE_PLAYBACK,
             parentScreen = "Queue & Playback",
             settingKey = "listQueueActionBehavior"
@@ -1335,7 +1334,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_discord_enabled_search),
             description = context.getString(R.string.settings_discord_enabled_search_desc),
             keywords = listOf("discord", "rich presence", "status", "show listening"),
-            icon = Icons.Default.Public,
+            icon = Icons.Default.Info,
             route = SettingsRoutes.EXPERIMENTAL_FEATURES,
             parentScreen = "Experimental",
             settingKey = "discordRichPresenceEnabled"
@@ -1345,7 +1344,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             title = context.getString(R.string.settings_broadcast_status_enabled),
             description = context.getString(R.string.settings_broadcast_status_enabled_desc),
             keywords = listOf("broadcast", "status", "playback", "share", "other apps"),
-            icon = Icons.Default.Public,
+            icon = Icons.Default.Info,
             route = SettingsRoutes.EXPERIMENTAL_FEATURES,
             parentScreen = "Experimental",
             settingKey = "broadcastStatusEnabled"
@@ -1758,4 +1757,5 @@ fun SettingsSearchResults(
         }
     }
 }
+
 
