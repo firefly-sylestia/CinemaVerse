@@ -250,6 +250,7 @@ class AppSettings private constructor(context: Context) {
         // App Updater Settings
         private const val KEY_AUTO_CHECK_FOR_UPDATES = "auto_check_for_updates"
         private const val KEY_UPDATE_CHANNEL = "update_channel" // New key for update channel
+        private const val KEY_UPDATE_SOURCE = "update_source" // New key for OTA source flavor
         private const val KEY_UPDATES_ENABLED = "updates_enabled" // Master switch for updates
         private const val KEY_UPDATE_NOTIFICATIONS_ENABLED = "update_notifications_enabled" // Push-style notifications
         private const val KEY_UPDATE_STATUS_NOTIFICATIONS_ENABLED = "update_status_notifications_enabled" // Notify for no-update/error states
@@ -1307,6 +1308,9 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     
     private val _updateChannel = MutableStateFlow(prefs.getString(KEY_UPDATE_CHANNEL, "stable") ?: "stable")
     val updateChannel: StateFlow<String> = _updateChannel.asStateFlow()
+
+    private val _updateSource = MutableStateFlow(prefs.getString(KEY_UPDATE_SOURCE, "installed") ?: "installed")
+    val updateSource: StateFlow<String> = _updateSource.asStateFlow()
     
     private val _updatesEnabled = MutableStateFlow(prefs.getBoolean(KEY_UPDATES_ENABLED, BuildConfig.FLAVOR != "fdroid"))
     val updatesEnabled: StateFlow<Boolean> = _updatesEnabled.asStateFlow()
@@ -2684,6 +2688,11 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     fun setUpdateChannel(channel: String) {
         prefs.edit().putString(KEY_UPDATE_CHANNEL, channel).apply()
         _updateChannel.value = channel
+    }
+
+    fun setUpdateSource(source: String) {
+        prefs.edit().putString(KEY_UPDATE_SOURCE, source).apply()
+        _updateSource.value = source
     }
 
     fun setUpdatesEnabled(enable: Boolean) {
@@ -4115,6 +4124,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         // App Updates
         _autoCheckForUpdates.value = prefs.getBoolean(KEY_AUTO_CHECK_FOR_UPDATES, BuildConfig.FLAVOR != "fdroid")
         _updateChannel.value = prefs.getString(KEY_UPDATE_CHANNEL, "stable") ?: "stable"
+        _updateSource.value = prefs.getString(KEY_UPDATE_SOURCE, "installed") ?: "installed"
         _updatesEnabled.value = prefs.getBoolean(KEY_UPDATES_ENABLED, BuildConfig.FLAVOR != "fdroid")
         _updateNotificationsEnabled.value = prefs.getBoolean(KEY_UPDATE_NOTIFICATIONS_ENABLED, BuildConfig.FLAVOR != "fdroid")
         _updateStatusNotificationsEnabled.value = prefs.getBoolean(KEY_UPDATE_STATUS_NOTIFICATIONS_ENABLED, false)

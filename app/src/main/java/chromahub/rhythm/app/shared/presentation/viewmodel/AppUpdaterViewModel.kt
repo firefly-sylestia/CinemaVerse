@@ -13,10 +13,12 @@ import androidx.core.app.NotificationCompat
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.activities.MainActivity
 import chromahub.rhythm.app.network.GitHubRelease
+import chromahub.rhythm.app.network.GitHubAsset
 import chromahub.rhythm.app.network.NetworkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -42,6 +44,7 @@ import androidx.core.content.ContextCompat
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
@@ -223,7 +226,11 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
         loadDownloadState()
         
         viewModelScope.launch {
-            _appSettings.updateChannel.collectLatest { channel ->
+            combine(_appSettings.updateChannel, _appSettings.updateSource) { channel, source ->
+                channel to source
+            }
+                .distinctUntilChanged()
+                .collectLatest { (channel, _) ->
                 _updateChannel.value = channel
                 // Re-check for updates if channel changes, but only if updates are enabled
                 if (_appSettings.updatesEnabled.first()) {
@@ -573,19 +580,10 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
         Log.d(TAG, "Parsed whatsNew: ${releaseContent.whatsNew}")
         Log.d(TAG, "Parsed knownIssues: ${releaseContent.knownIssues}")
         
-        // Find the APK asset: prefer github-flavored APKs (arm64-v8a > universal > any github),
-        // explicitly excluding fdroid variants so the in-app updater always pulls the github build.
-        val githubApks = release.assets.filter {
-            val lowerName = it.name.lowercase(Locale.ROOT)
-            (lowerName.contains("-github-") || lowerName.contains("githubrelease")) &&
-            !lowerName.contains("fdroid") &&
-            it.name.endsWith(".apk") &&
-            it.state == "uploaded"
-        }
-        val apkAsset = githubApks.firstOrNull { it.name.contains("arm64-v8a", ignoreCase = true) }
-            ?: githubApks.firstOrNull { it.name.contains("universal", ignoreCase = true) }
-            ?: githubApks.firstOrNull()
-            ?: release.assets.firstOrNull { it.name.endsWith(".apk") && it.state == "uploaded" }
+        // Pick the APK that matches the installed flavor and prefer the universal APK.
+        // This keeps OTA aligned with the current distribution channel instead of
+        // accidentally falling back to a different build flavor.
+        val apkAsset = selectReleaseApkAsset(release)
         
         // Get download URL, preferring an APK asset if available
         val downloadUrl = apkAsset?.browser_download_url ?: release.html_url
@@ -974,6 +972,13 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
                             } else {
                                 contentLength
                             }
+
+                            var resumePosition = existingLength
+                            if (resumePosition > 0 && response.code != 206) {
+                                Log.w(TAG, "Server ignored range request with HTTP ${response.code}; restarting download from scratch")
+                                resumePosition = 0L
+                                file.delete()
+                            }
                             
                             // Store download state
                             val checksumHeader = response.header("X-Checksum-SHA256") ?: response.header("Digest")
@@ -981,10 +986,10 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
                                 fileName = fileName,
                                 url = downloadUrl,
                                 totalBytes = totalLength,
-                                downloadedBytes = existingLength,
+                                downloadedBytes = resumePosition,
                                 etag = response.header("ETag"),
                                 lastModified = response.header("Last-Modified"),
-                                resumePosition = existingLength,
+                                resumePosition = resumePosition,
                                 checksum = checksumHeader,
                                 retryCount = retryAttempt
                             )
@@ -993,7 +998,7 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
                             }
                             
                             // Create output stream
-                            val outputStream = FileOutputStream(file, existingLength > 0)
+                            val outputStream = FileOutputStream(file, resumePosition > 0)
                             
                             // Get input stream
                             val inputStream = response.body.byteStream()
@@ -1001,7 +1006,7 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
                             // Create buffer
                             val buffer = ByteArray(8192)
                             var bytesRead: Int
-                            var totalBytesRead = existingLength
+                            var totalBytesRead = resumePosition
                             
                             // Read input stream
                             while (inputStream.read(buffer).also { bytesRead = it } != -1) {
@@ -1197,6 +1202,54 @@ class AppUpdaterViewModel(application: Application) : AndroidViewModel(applicati
             .trim()
         
         return actual.lowercase() == cleanExpected
+    }
+
+    /**
+     * Select the APK asset for the currently installed flavor.
+     * Prefers the flavor-specific universal APK, then any flavor-matching APK.
+     */
+    private fun selectReleaseApkAsset(release: GitHubRelease): GitHubAsset? {
+        val flavor = resolveUpdateSourceFlavor().lowercase(Locale.ROOT)
+
+        val uploadedApks = release.assets.filter { asset ->
+            asset.state == "uploaded" && asset.name.endsWith(".apk", ignoreCase = true)
+        }
+
+        val flavorAssets = uploadedApks.filter { asset ->
+            val lowerName = asset.name.lowercase(Locale.ROOT)
+            when (flavor) {
+                "fdroid" -> lowerName.contains("fdroidrelease") || lowerName.contains("-fdroid-")
+                "github" -> lowerName.contains("githubrelease") || lowerName.contains("-github-")
+                else -> false
+            }
+        }
+
+        if (flavorAssets.isEmpty()) {
+            Log.w(TAG, "No APK asset matched current flavor '$flavor' for release ${release.tag_name}")
+            return null
+        }
+
+        return flavorAssets.firstOrNull { asset -> isUniversalApkName(asset.name) }
+            ?: flavorAssets.firstOrNull { asset -> !hasAbiSuffix(asset.name) }
+            ?: flavorAssets.firstOrNull()
+    }
+
+    private fun resolveUpdateSourceFlavor(): String {
+        return when (_appSettings.updateSource.value.lowercase(Locale.ROOT)) {
+            "installed" -> BuildConfig.FLAVOR
+            "github" -> "github"
+            "fdroid" -> "fdroid"
+            else -> BuildConfig.FLAVOR
+        }
+    }
+
+    private fun isUniversalApkName(name: String): Boolean {
+        return name.contains("universal", ignoreCase = true) || !hasAbiSuffix(name)
+    }
+
+    private fun hasAbiSuffix(name: String): Boolean {
+        val lowerName = name.lowercase(Locale.ROOT)
+        return listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86").any { lowerName.contains(it) }
     }
     
     /**

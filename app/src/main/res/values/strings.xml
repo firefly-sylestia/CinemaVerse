@@ -1408,6 +1408,14 @@
     <string name="updates_cancel">Cancel Download</string>
     <string name="updates_enable_auto_check">Enable Auto-check</string>
     <string name="updates_channel_title">Update Channel</string>
+    <string name="updates_source_title">Update Source</string>
+    <string name="updates_source_desc">Choose which release family Rhythm should use for OTA updates.</string>
+    <string name="updates_source_installed">Match Installed Build</string>
+    <string name="updates_source_installed_label">Installed Build</string>
+    <string name="updates_source_github_label">GitHub Builds</string>
+    <string name="updates_source_fdroid_label">F-Droid Builds</string>
+    <string name="updates_source_github_desc">Always download the GitHub release assets.</string>
+    <string name="updates_source_fdroid_desc">Always download the F-Droid release assets.</string>
     <string name="updates_check_interval_title">Update Check Interval</string>
     
     <!-- Cache Actions -->
@@ -2640,6 +2648,7 @@
     <string name="settings_lyrics_cache_clear_failed">Failed to clear lyrics cache</string>
     <string name="settings_all_cache_cleared">All cache cleared</string>
     <string name="settings_cache_clear_failed">Failed to clear cache</string>
+    <string name="settings_cache_restart_required">Cache was cleared. Restart the app to refresh everything cleanly.</string>
     <string name="settings_clear_all_cache">Clear All Cache</string>
     <string name="settings_clear_all_cache_desc">Remove all cached data, including embedded artwork cache entries</string>
     <string name="settings_cache_info_1">Cache includes album art, temporary files, and app data</string>

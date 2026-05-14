@@ -4678,6 +4678,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
     val autoCheckForUpdates by appSettings.autoCheckForUpdates.collectAsState()
     val useSmartUpdatePolling by appSettings.useSmartUpdatePolling.collectAsState()
     val updateChannel by appSettings.updateChannel.collectAsState()
+    val updateSource by appSettings.updateSource.collectAsState()
     val updateCheckIntervalHours by appSettings.updateCheckIntervalHours.collectAsState()
     val currentVersion by updaterViewModel.currentVersion.collectAsState()
     val latestVersion by updaterViewModel.latestVersion.collectAsState()
@@ -4692,6 +4693,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
 
     // Dialog states
     var showChannelDialog by remember { mutableStateOf(false) }
+    var showSourceDialog by remember { mutableStateOf(false) }
     var showIntervalDialog by remember { mutableStateOf(false) }
 
     val intervalOptions = listOf(
@@ -5356,6 +5358,14 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                         )
                         add(
                             SettingItem(
+                                Icons.Default.Category,
+                                context.getString(R.string.updates_source_title),
+                                getUpdateSourceLabel(context, updateSource),
+                                onClick = { showSourceDialog = true }
+                            )
+                        )
+                        add(
+                            SettingItem(
                                 Icons.Default.Schedule,
                                 context.getString(R.string.updates_check_interval_title),
                                 updateIntervalLabel,
@@ -5575,6 +5585,89 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
+                    Text(context.getString(R.string.ui_close))
+                }
+            },
+            shape = RoundedCornerShape(24.dp)
+        )
+    }
+
+    if (showSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showSourceDialog = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Category,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = { Text(context.getString(R.string.updates_source_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = context.getString(R.string.updates_source_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val sources = listOf(
+                        "installed" to getUpdateSourceLabel(context, "installed"),
+                        "github" to context.getString(R.string.updates_source_github_desc),
+                        "fdroid" to context.getString(R.string.updates_source_fdroid_desc)
+                    )
+
+                    sources.forEach { (source, description) ->
+                        Card(
+                            onClick = {
+                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                appSettings.setUpdateSource(source)
+                                showSourceDialog = false
+                            },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (updateSource == source)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = when (source) {
+                                            "installed" -> context.getString(R.string.updates_source_installed)
+                                            else -> source.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                                        },
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (updateSource == source) {
+                                    Icon(
+                                        imageVector = Icons.Filled.CheckCircle,
+                                        contentDescription = "Selected",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSourceDialog = false }) {
                     Text(context.getString(R.string.ui_close))
                 }
             },
@@ -5934,8 +6027,16 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
             message = restartDialogMessage
         )
     }
-    
+
     // Show update bottomsheet - removed, now handled globally in LocalNavigation
+}
+
+private fun getUpdateSourceLabel(context: Context, source: String): String {
+    return when (source.lowercase()) {
+        "github" -> context.getString(R.string.updates_source_github_label)
+        "fdroid" -> context.getString(R.string.updates_source_fdroid_label)
+        else -> context.getString(R.string.updates_source_installed_label)
+    }
 }
 
 /**
@@ -8058,6 +8159,8 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
     var isClearingCache by remember { mutableStateOf(false) }
     var showCacheSizeDialog by remember { mutableStateOf(false) }
     var showClearCacheSuccess by remember { mutableStateOf(false) }
+    var showRestartDialog by remember { mutableStateOf(false) }
+    var restartDialogMessage by remember { mutableStateOf("") }
     var cacheDetails by remember { mutableStateOf<Map<String, Long>>(emptyMap()) }
     var isRebuildingRoom by remember { mutableStateOf(false) }
     var roomSongCount by remember { mutableStateOf(-1) }
@@ -8108,6 +8211,20 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                 appSettings.setMaxCacheSize(size)
                 showCacheSizeDialog = false
             }
+        )
+    }
+
+    if (showRestartDialog) {
+        AppRestartDialog(
+            onDismiss = { showRestartDialog = false },
+            onRestart = {
+                showRestartDialog = false
+                chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+            },
+            onContinue = {
+                showRestartDialog = false
+            },
+            message = restartDialogMessage
         )
     }
 
@@ -8335,6 +8452,8 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                         musicViewModel.getMusicRepository().clearSongCacheData()
                                         refreshCacheStats()
                                         showClearCacheSuccess = true
+                                        restartDialogMessage = context.getString(R.string.settings_cache_restart_required)
+                                        showRestartDialog = true
                                         Toast.makeText(context, context.getString(R.string.settings_all_cache_cleared), Toast.LENGTH_SHORT).show()
                                     } catch (e: Exception) {
                                         Log.e("CacheManagement", "Error clearing cache", e)
