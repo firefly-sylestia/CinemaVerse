@@ -622,7 +622,6 @@ private fun ModernScrollableContent(
     val newReleasesCount by appSettings.homeNewReleasesCount.collectAsState()
     val recentlyAddedCount by appSettings.homeRecentlyAddedCount.collectAsState()
     val recommendedCount by appSettings.homeRecommendedCount.collectAsState()
-    val discoverCarouselStyle by appSettings.homeDiscoverCarouselStyle.collectAsState()
 
     // Discover widget card content visibility settings
     val discoverShowAlbumName by appSettings.homeDiscoverShowAlbumName.collectAsState()
@@ -795,7 +794,6 @@ private fun ModernScrollableContent(
                                             showYear = discoverShowYear,
                                             showPlayButton = discoverShowPlayButton,
                                             showGradient = discoverShowGradient,
-                                            carouselStyle = discoverCarouselStyle,
                                             widthSizeClass = widthSizeClass,
                                             heightSizeClass = heightSizeClass
                                         )
@@ -1653,7 +1651,6 @@ private fun ModernFeaturedSection(
     showYear: Boolean = true,
     showPlayButton: Boolean = true,
     showGradient: Boolean = true,
-    carouselStyle: Int = 0,
     widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
 ) {
@@ -1683,7 +1680,10 @@ private fun ModernFeaturedSection(
                 delay(4500)
                 val currentItem = carouselState.currentItem
                 val nextItem = (currentItem + 1) % albums.size
-                carouselState.animateScrollToItem(nextItem)
+                carouselState.animateScrollToItem(
+                    nextItem,
+                    animationSpec = tween(durationMillis = 900)
+                )
             }
         }
     }

@@ -1327,7 +1327,10 @@ private fun StreamingRecommendationsCarousel(
                 delay(autoScrollIntervalSeconds.coerceIn(2, 20) * 1000L)
                 val currentItem = carouselState.currentItem
                 val nextItem = (currentItem + 1) % songs.size
-                carouselState.animateScrollToItem(nextItem)
+                carouselState.animateScrollToItem(
+                    nextItem,
+                    animationSpec = tween(durationMillis = 900)
+                )
             }
         }
     }

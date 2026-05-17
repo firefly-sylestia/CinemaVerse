@@ -4335,8 +4335,15 @@ fun AboutScreen(
                                 context = context
                             )
                             CommunityMember(
+                                name = "itzKane",
+                                role = "UI Concept Designer",
+                                githubUsername = "soykane",
+                                avatarUrl = "https://github.com/soykane.png",
+                                context = context
+                            )
+                            CommunityMember(
                                 name = "firefly-sylestia",
-                                role = "Tester",
+                                role = "Beta Tester & QA",
                                 githubUsername = "firefly-sylestia",
                                 avatarUrl = "https://github.com/firefly-sylestia.png",
                                 context = context

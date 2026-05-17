@@ -436,173 +436,127 @@ fun MiniPlayer(
         interactionSource = interactionSource
     ) {
         // Display visual hints when user starts dragging
-        val dragUpIndicatorAlpha = if (offsetY < 0 && abs(offsetY) > abs(offsetX)) minOf((-offsetY / swipeUpThreshold) * 0.3f, 0.3f) else 0f
-        val dragDownIndicatorAlpha = if (offsetY > 0 && abs(offsetY) > abs(offsetX)) minOf((offsetY / swipeDownThreshold) * 0.3f, 0.3f) else 0f
-        val dragLeftIndicatorAlpha = if (offsetX < 0 && abs(offsetX) > abs(offsetY)) minOf((-offsetX / swipeHorizontalThreshold) * 0.3f, 0.3f) else 0f
-        val dragRightIndicatorAlpha = if (offsetX > 0 && abs(offsetX) > abs(offsetY)) minOf((offsetX / swipeHorizontalThreshold) * 0.3f, 0.3f) else 0f
-        
-        Column {
-            // Enhanced drag handle indicator with better visual feedback
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier
-                        .width(40.dp) // Slightly wider for better touch target
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp)),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                        alpha = 0.4f + dragUpIndicatorAlpha + dragDownIndicatorAlpha + dragLeftIndicatorAlpha + dragRightIndicatorAlpha
-                    )
-                )
-            }
+        val dragUpIndicatorAlpha = if (offsetY < 0 && abs(offsetY) > abs(offsetX)) minOf(
+            (-offsetY / swipeUpThreshold) * 0.3f,
+            0.3f
+        ) else 0f
+        val dragDownIndicatorAlpha = if (offsetY > 0 && abs(offsetY) > abs(offsetX)) minOf(
+            (offsetY / swipeDownThreshold) * 0.3f,
+            0.3f
+        ) else 0f
+        val dragLeftIndicatorAlpha = if (offsetX < 0 && abs(offsetX) > abs(offsetY)) minOf(
+            (-offsetX / swipeHorizontalThreshold) * 0.3f,
+            0.3f
+        ) else 0f
+        val dragRightIndicatorAlpha = if (offsetX > 0 && abs(offsetX) > abs(offsetY)) minOf(
+            (offsetX / swipeHorizontalThreshold) * 0.3f,
+            0.3f
+        ) else 0f
 
-            // Visual indicators for swipe actions with improved positioning
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                // Swipe up indicator
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = offsetY < -20f && abs(offsetY) > abs(offsetX),
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = (-offsetY / swipeUpThreshold).coerceIn(0f, 0.8f)),
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.miniplayer_swipe_up_hint),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-
-                // Swipe down indicator
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = offsetY > 20f && abs(offsetY) > abs(offsetX),
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = (offsetY / swipeDownThreshold).coerceIn(0f, 0.8f)),
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.miniplayer_swipe_down_hint),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-                
-                // Swipe left indicator (next track)
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = offsetX < -20f && abs(offsetX) > abs(offsetY),
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = (-offsetX / swipeHorizontalThreshold).coerceIn(0f, 0.8f)),
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.miniplayer_swipe_left_hint),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-                
-                // Swipe right indicator (previous track)
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = offsetX > 20f && abs(offsetX) > abs(offsetY),
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = (offsetX / swipeHorizontalThreshold).coerceIn(0f, 0.8f)),
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.miniplayer_swipe_right_hint),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-
-            // Mini player progress bar (phone)
-            if (song != null && miniPlayerShowProgress && !useTabletLayout) {
-                if (miniPlayerUseCircularProgress) {
-                    M3LinearLoader(
-                        progress = animatedProgress,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 28.dp)
-                            .height(4.dp),
-                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                    )
-                } else {
-                    StyledProgressBar(
-                        progress = animatedProgress,
-                        style = try { ProgressStyle.valueOf(miniPlayerProgressStyle) } catch (e: Exception) { ProgressStyle.NORMAL },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 28.dp),
-                        progressColor = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                        isPlaying = isPlaying,
-                        height = 4.dp,
-                        waveAmplitudeWhenPlaying = 3.dp,
-                        waveLength = 30.dp // Shorter wavelength = more waves for MiniPlayer
-                    )
-                }
-            }
-
-            if (useTabletLayout) {
-                // Tablet: Vertical layout for right-side positioning
-                val miniPlayerArtShape = rememberExpressiveShapeFor(
-                    ExpressiveShapeTarget.MINI_PLAYER,
-                    fallbackShape = RoundedCornerShape(miniPlayerCornerRadius.dp)
-                )
-                Column(
+        Box {
+            Column {
+                // Enhanced drag handle indicator with better visual feedback
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(if (isLargeHeight) 16.dp else 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(if (isLargeHeight) 14.dp else 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(top = 8.dp, bottom = 4.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Customizable album art - larger for right sidebar with optional circular progress
-                    if (miniPlayerShowArtwork) {
-                        Box(
-                            contentAlignment = Alignment.Center
-                        ) {
-                            // Circular progress ring around artwork
-                            if (song != null && miniPlayerShowProgress && miniPlayerUseCircularProgress) {
-                                Box(
-                                    modifier = Modifier.size(if (isLargeHeight) 152.dp else 132.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularWavyProgressIndicator(
-                                        progress = { animatedProgress },
-                                        modifier = Modifier.size(if (isLargeHeight) 152.dp else 132.dp)
-                                    )
-                                    // Artwork inside the progress ring
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .width(40.dp) // Slightly wider for better touch target
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp)),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.4f + dragUpIndicatorAlpha + dragDownIndicatorAlpha + dragLeftIndicatorAlpha + dragRightIndicatorAlpha
+                        )
+                    )
+                }
+
+                // Mini player progress bar (phone)
+                if (song != null && miniPlayerShowProgress && !useTabletLayout) {
+                    if (miniPlayerUseCircularProgress) {
+                        M3LinearLoader(
+                            progress = animatedProgress,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 28.dp)
+                                .height(4.dp),
+                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                        )
+                    } else {
+                        StyledProgressBar(
+                            progress = animatedProgress,
+                            style = try {
+                                ProgressStyle.valueOf(miniPlayerProgressStyle)
+                            } catch (e: Exception) {
+                                ProgressStyle.NORMAL
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 28.dp),
+                            progressColor = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            isPlaying = isPlaying,
+                            height = 4.dp,
+                            waveAmplitudeWhenPlaying = 3.dp,
+                            waveLength = 30.dp // Shorter wavelength = more waves for MiniPlayer
+                        )
+                    }
+                }
+
+                if (useTabletLayout) {
+                    // Tablet: Vertical layout for right-side positioning
+                    val miniPlayerArtShape = rememberExpressiveShapeFor(
+                        ExpressiveShapeTarget.MINI_PLAYER,
+                        fallbackShape = RoundedCornerShape(miniPlayerCornerRadius.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(if (isLargeHeight) 16.dp else 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(if (isLargeHeight) 14.dp else 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Customizable album art - larger for right sidebar with optional circular progress
+                        if (miniPlayerShowArtwork) {
+                            Box(
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // Circular progress ring around artwork
+                                if (song != null && miniPlayerShowProgress && miniPlayerUseCircularProgress) {
+                                    Box(
+                                        modifier = Modifier.size(if (isLargeHeight) 152.dp else 132.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularWavyProgressIndicator(
+                                            progress = { animatedProgress },
+                                            modifier = Modifier.size(if (isLargeHeight) 152.dp else 132.dp)
+                                        )
+                                        // Artwork inside the progress ring
+                                        Surface(
+                                            modifier = Modifier.size(if (isLargeHeight) 140.dp else 120.dp),
+                                            shape = miniPlayerArtShape,
+                                            shadowElevation = 0.dp,
+                                            tonalElevation = 2.dp,
+                                            color = MaterialTheme.colorScheme.surfaceVariant
+                                        ) {
+                                            Box {
+                                                ShimmerBox(
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+
+                                                M3ImageUtils.TrackImage(
+                                                    imageUrl = song.artworkUri,
+                                                    trackName = song.title,
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    applyExpressiveShape = false
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // Regular artwork without circular progress
                                     Surface(
                                         modifier = Modifier.size(if (isLargeHeight) 140.dp else 120.dp),
                                         shape = miniPlayerArtShape,
@@ -611,512 +565,254 @@ fun MiniPlayer(
                                         color = MaterialTheme.colorScheme.surfaceVariant
                                     ) {
                                         Box {
-                                            ShimmerBox(
-                                                modifier = Modifier.fillMaxSize()
-                                            )
-                                            
-                                            M3ImageUtils.TrackImage(
-                                                imageUrl = song.artworkUri,
-                                                trackName = song.title,
-                                                modifier = Modifier.fillMaxSize(),
-                                                applyExpressiveShape = false
-                                            )
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Regular artwork without circular progress
-                                Surface(
-                                    modifier = Modifier.size(if (isLargeHeight) 140.dp else 120.dp),
-                                    shape = miniPlayerArtShape,
-                                    shadowElevation = 0.dp,
-                                    tonalElevation = 2.dp,
-                                    color = MaterialTheme.colorScheme.surfaceVariant
-                                ) {
-                                    Box {
-                                        if (song != null) {
-                                            ShimmerBox(
-                                                modifier = Modifier.fillMaxSize()
-                                            )
-                                            
-                                            M3ImageUtils.TrackImage(
-                                                imageUrl = song.artworkUri,
-                                                trackName = song.title,
-                                                modifier = Modifier.fillMaxSize(),
-                                                applyExpressiveShape = false
-                                            )
-                                        } else {
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .background(
-                                                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                                                            colors = listOf(
-                                                                MaterialTheme.colorScheme.primaryContainer,
-                                                                MaterialTheme.colorScheme.secondaryContainer
-                                                            )
-                                                        )
-                                                    ),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Icon(
-                                                    imageVector = RhythmIcons.Album,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(40.dp),
-                                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                            if (song != null) {
+                                                ShimmerBox(
+                                                    modifier = Modifier.fillMaxSize()
                                                 )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
 
-                    // Song title with marquee
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (song != null) {
-                            AutoScrollingTextOnDemand(
-                                text = song.title,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = if (isLargeHeight) 14.sp else 12.sp
-                                ),
-                                gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                enabled = true,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            
-                            Spacer(modifier = Modifier.height(if (isLargeHeight) 5.dp else 4.dp))
-                            
-                            Text(
-                                text = song.artist,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = if (isLargeHeight) 11.sp else 10.sp
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-
-                    // Tablet progress bar
-                    if (song != null && miniPlayerShowProgress) {
-                        if (miniPlayerUseCircularProgress) {
-                            M3LinearLoader(
-                                progress = animatedProgress,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(3.dp),
-                                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                            )
-                        } else {
-                            StyledProgressBar(
-                                progress = animatedProgress,
-                                style = try { ProgressStyle.valueOf(miniPlayerProgressStyle) } catch (e: Exception) { ProgressStyle.NORMAL },
-                                modifier = Modifier.fillMaxWidth(),
-                                progressColor = MaterialTheme.colorScheme.primary,
-                                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                                isPlaying = isPlaying,
-                                height = 3.dp,
-                                waveAmplitudeWhenPlaying = 2.dp,
-                                waveLength = 20.dp
-                            )
-                        }
-                    }
-
-                    // Playback controls with gesture support
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .pointerInput(miniPlayerSwipeGestures) {
-                                if (miniPlayerSwipeGestures) {
-                                    detectDragGestures(
-                                        onDragStart = { 
-                                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                                        },
-                                        onDragEnd = {
-                                            val absX = abs(offsetX)
-                                            val absY = abs(offsetY)
-                                            val swipeHorizontalThreshold = 80f
-                                            val swipeUpThreshold = 80f
-                                            
-                                            if (absX > absY) {
-                                                // Horizontal swipe
-                                                if (offsetX < -swipeHorizontalThreshold) {
-                                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                                    onSkipNext()
-                                                } else if (offsetX > swipeHorizontalThreshold) {
-                                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                                    onSkipPrevious()
-                                                }
+                                                M3ImageUtils.TrackImage(
+                                                    imageUrl = song.artworkUri,
+                                                    trackName = song.title,
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    applyExpressiveShape = false
+                                                )
                                             } else {
-                                                // Vertical swipe
-                                                if (offsetY < -swipeUpThreshold) {
-                                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                                    onPlayerClick()
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .background(
+                                                            brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                                                                colors = listOf(
+                                                                    MaterialTheme.colorScheme.primaryContainer,
+                                                                    MaterialTheme.colorScheme.secondaryContainer
+                                                                )
+                                                            )
+                                                        ),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Icon(
+                                                        imageVector = RhythmIcons.Album,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(40.dp),
+                                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                                    )
                                                 }
                                             }
-                                            
-                                            offsetX = 0f
-                                            offsetY = 0f
-                                        },
-                                        onDragCancel = {
-                                            offsetX = 0f
-                                            offsetY = 0f
-                                        },
-                                        onDrag = { change, dragAmount ->
-                                            change.consume()
-                                            offsetX += dragAmount.x
-                                            offsetY += dragAmount.y
                                         }
-                                    )
+                                    }
                                 }
-                            },
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Get player controls shape once, used for all buttons
-                        val playerControlsShape = rememberExpressiveShapeFor(
-                            ExpressiveShapeTarget.PLAYER_CONTROLS,
-                            fallbackShape = ExpressiveShapes.Full
-                        )
-                        
-                        // Expressive previous button with bouncy animation
-                        val prevInteractionSource = remember { MutableInteractionSource() }
-                        val isPrevPressed by prevInteractionSource.collectIsPressedAsState()
-                        val prevScale by animateFloatAsState(
-                            targetValue = if (isPrevPressed) 0.88f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            label = "prev_scale"
-                        )
-                        
-                        FilledTonalIconButton(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                onSkipPrevious()
-                            },
-                            modifier = Modifier
-                                .size(if (isLargeHeight) 48.dp else 40.dp)
-                                .graphicsLayer {
-                                    scaleX = prevScale
-                                    scaleY = prevScale
-                                },
-                            shape = playerControlsShape,
-                            interactionSource = prevInteractionSource
-                        ) {
-                            Icon(
-                                imageVector = RhythmIcons.SkipPrevious,
-                                contentDescription = null,
-                                modifier = Modifier.size(if (isLargeHeight) 22.dp else 20.dp)
-                            )
-                        }
-
-                        // Expressive play/pause button with bouncy animation
-                        val playInteractionSource = remember { MutableInteractionSource() }
-                        val isPlayPressed by playInteractionSource.collectIsPressedAsState()
-                        val playScale by animateFloatAsState(
-                            targetValue = if (isPlayPressed) 0.9f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            label = "play_scale"
-                        )
-                        
-                        // Play button with primary color - shows loader when buffering
-                        FilledIconButton(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                onPlayPause()
-                            },
-                            modifier = Modifier
-                                .size(if (isLargeHeight) 56.dp else 48.dp)
-                                .graphicsLayer {
-                                    scaleX = playScale
-                                    scaleY = playScale
-                                },
-                            shape = playerControlsShape,
-                            colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            ),
-                            interactionSource = playInteractionSource
-                        ) {
-                            if (isMediaLoading) {
-                                M3CircularLoader(
-                                    modifier = Modifier.size(if (isLargeHeight) 24.dp else 20.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.24f),
-                                    strokeWidth = 2f
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = if (isPlaying) RhythmIcons.Pause else RhythmIcons.Play,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(if (isLargeHeight) 28.dp else 24.dp)
-                                )
                             }
                         }
 
-                        // Expressive next button with bouncy animation
-                        val nextInteractionSource = remember { MutableInteractionSource() }
-                        val isNextPressed by nextInteractionSource.collectIsPressedAsState()
-                        val nextScale by animateFloatAsState(
-                            targetValue = if (isNextPressed) 0.88f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            label = "next_scale"
-                        )
-                        
-                        FilledTonalIconButton(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                onSkipNext()
-                            },
-                            modifier = Modifier
-                                .size(if (isLargeHeight) 48.dp else 40.dp)
-                                .graphicsLayer {
-                                    scaleX = nextScale
-                                    scaleY = nextScale
-                                },
-                            shape = playerControlsShape,
-                            interactionSource = nextInteractionSource
+                        // Song title with marquee
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = RhythmIcons.SkipNext,
-                                contentDescription = null,
-                                modifier = Modifier.size(if (isLargeHeight) 22.dp else 20.dp)
-                            )
-                        }
-                    }
-                }
-            } else {
-                // Phone: Original horizontal layout
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = if (isCompactHeight) 12.dp else 20.dp,
-                        vertical = if (isCompactHeight) 8.dp else 16.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = spacedBy(if (isCompactHeight) 8.dp else 16.dp)
-            ) {
-                // Customizable album art with settings-driven size and corner radius
-                if (miniPlayerShowArtwork) {
-                    val miniPlayerArtShape = rememberExpressiveShapeFor(
-                        ExpressiveShapeTarget.MINI_PLAYER,
-                        fallbackShape = RoundedCornerShape(miniPlayerCornerRadius.dp)
-                    )
-                    Surface(
-                        modifier = Modifier
-                            .size((if (isTablet) miniPlayerArtworkSize + 8 else miniPlayerArtworkSize).dp),
-                        shape = miniPlayerArtShape,
-                        shadowElevation = 0.dp, // Remove shadow as requested
-                        tonalElevation = 2.dp, // Keep subtle tonal elevation for depth
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    ) {
-                        Box {
                             if (song != null) {
-                                // Show shimmer while loading artwork
-                                ShimmerBox(
-                                    modifier = Modifier.fillMaxSize()
+                                AutoScrollingTextOnDemand(
+                                    text = song.title,
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = if (isLargeHeight) 14.sp else 12.sp
+                                    ),
+                                    gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    enabled = true,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
-                                
-                                M3ImageUtils.TrackImage(
-                                    imageUrl = song.artworkUri,
-                                    trackName = song.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    applyExpressiveShape = false
+
+                                Spacer(modifier = Modifier.height(if (isLargeHeight) 5.dp else 4.dp))
+
+                                Text(
+                                    text = song.artist,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = if (isLargeHeight) 11.sp else 10.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+
+                        // Tablet progress bar
+                        if (song != null && miniPlayerShowProgress) {
+                            if (miniPlayerUseCircularProgress) {
+                                M3LinearLoader(
+                                    progress = animatedProgress,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(3.dp),
+                                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                                 )
                             } else {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                                                colors = listOf(
-                                                    MaterialTheme.colorScheme.primaryContainer,
-                                                    MaterialTheme.colorScheme.secondaryContainer
+                                StyledProgressBar(
+                                    progress = animatedProgress,
+                                    style = try {
+                                        ProgressStyle.valueOf(miniPlayerProgressStyle)
+                                    } catch (e: Exception) {
+                                        ProgressStyle.NORMAL
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    progressColor = MaterialTheme.colorScheme.primary,
+                                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                    isPlaying = isPlaying,
+                                    height = 3.dp,
+                                    waveAmplitudeWhenPlaying = 2.dp,
+                                    waveLength = 20.dp
+                                )
+                            }
+                        }
+
+                        // Playback controls with gesture support
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .pointerInput(miniPlayerSwipeGestures) {
+                                    if (miniPlayerSwipeGestures) {
+                                        detectDragGestures(
+                                            onDragStart = {
+                                                HapticUtils.performHapticFeedback(
+                                                    context,
+                                                    haptic,
+                                                    HapticFeedbackType.TextHandleMove
                                                 )
-                                            )
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = RhythmIcons.Album,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            }
-                            
-                            // Enhanced "live" badge with better styling
-                            if (song?.title?.contains("LIVE", ignoreCase = true) == true || 
-                                song?.genre?.contains("live", ignoreCase = true) == true) {
-                                Badge(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(2.dp),
-                                    containerColor = MaterialTheme.colorScheme.error
-                                ) {
-                                Text(
-                                    context.getString(R.string.badge_live),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onError,
-                                    fontSize = 8.sp
-                                )
-                            }
-                        }
-                    }
-                    }
-                }
-                
-                // Enhanced song info with better typography and spacing
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = spacedBy(if (isCompactHeight) 0.dp else 2.dp)
-                ) {
-                    if (song != null) {
-                        AutoScrollingTextOnDemand(
-                            text = song.title,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = if (isCompactHeight) 13.sp else 16.sp
-                            ),
-                            gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                            enabled = true
-                        )
-                    } else {
-                        Text(
-                            text = context.getString(R.string.miniplayer_no_song),
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = if (isCompactHeight) 13.sp else 16.sp
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = spacedBy(if (isCompactHeight) 3.dp else 6.dp)
-                    ) {
-                        // Artist info with auto-scrolling
-                        if (song != null) {
-                            AutoScrollingTextOnDemand(
-                                text = song.artist,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = if (isCompactHeight) 11.sp else 13.sp
-                                ),
-                                gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
-                                modifier = Modifier.weight(1f, fill = false),
-                                enabled = true
-                            )
-                        } else {
-                            Text(
-                                text = "",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = if (isCompactHeight) 11.sp else 13.sp
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false)
-                            )
-                        }
-                        
-                        // Compact time indicator - controlled by setting
-                        if (miniPlayerShowTime && song != null && progress > 0) {
-                            Surface(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text(
-                                    text = "${formatDuration((progress * song.duration).toLong(), useHoursFormat)}/${formatDuration(song.duration, useHoursFormat)}",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = if (isCompactHeight) 8.sp else 10.sp
-                                    ),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.padding(horizontal = if (isCompactHeight) 4.dp else 6.dp, vertical = if (isCompactHeight) 1.dp else 2.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                // Enhanced controls with better visual hierarchy and spacing
-                // Get miniplayer play button shape from expressive settings
-                val miniPlayButtonShape = rememberExpressiveShapeFor(
-                    ExpressiveShapeTarget.PLAYER_CONTROLS,
-                    fallbackShape = CircleShape
-                )
-                Row(
-                    horizontalArrangement = spacedBy(if (isCompactHeight) 4.dp else 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Play/pause button with optional circular progress border
-                    if (song != null && miniPlayerUseCircularProgress) {
-                        // Circular progress as border around play/pause button using official Material 3 Expressive
-                        Box(
-                            modifier = Modifier.size(if (isCompactHeight) 50.dp else 60.dp),
-                            contentAlignment = Alignment.Center
+                                            },
+                                            onDragEnd = {
+                                                val absX = abs(offsetX)
+                                                val absY = abs(offsetY)
+                                                val swipeHorizontalThreshold = 80f
+                                                val swipeUpThreshold = 80f
+
+                                                if (absX > absY) {
+                                                    // Horizontal swipe
+                                                    if (offsetX < -swipeHorizontalThreshold) {
+                                                        HapticUtils.performHapticFeedback(
+                                                            context,
+                                                            haptic,
+                                                            HapticFeedbackType.LongPress
+                                                        )
+                                                        onSkipNext()
+                                                    } else if (offsetX > swipeHorizontalThreshold) {
+                                                        HapticUtils.performHapticFeedback(
+                                                            context,
+                                                            haptic,
+                                                            HapticFeedbackType.LongPress
+                                                        )
+                                                        onSkipPrevious()
+                                                    }
+                                                } else {
+                                                    // Vertical swipe
+                                                    if (offsetY < -swipeUpThreshold) {
+                                                        HapticUtils.performHapticFeedback(
+                                                            context,
+                                                            haptic,
+                                                            HapticFeedbackType.LongPress
+                                                        )
+                                                        onPlayerClick()
+                                                    }
+                                                }
+
+                                                offsetX = 0f
+                                                offsetY = 0f
+                                            },
+                                            onDragCancel = {
+                                                offsetX = 0f
+                                                offsetY = 0f
+                                            },
+                                            onDrag = { change, dragAmount ->
+                                                change.consume()
+                                                offsetX += dragAmount.x
+                                                offsetY += dragAmount.y
+                                            }
+                                        )
+                                    }
+                                },
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            CircularWavyProgressIndicator(
-                                progress = { animatedProgress },
-                                modifier = Modifier.size(if (isCompactHeight) 50.dp else 60.dp)
+                            // Get player controls shape once, used for all buttons
+                            val playerControlsShape = rememberExpressiveShapeFor(
+                                ExpressiveShapeTarget.PLAYER_CONTROLS,
+                                fallbackShape = ExpressiveShapes.Full
                             )
-                            
-                            // Expressive play/pause with bouncy animation
-                            val phonePlayInteractionSource = remember { MutableInteractionSource() }
-                            val isPhonePlayPressed by phonePlayInteractionSource.collectIsPressedAsState()
-                            val phonePlayScale by animateFloatAsState(
-                                targetValue = if (isPhonePlayPressed) 0.88f else 1f,
+
+                            // Expressive previous button with bouncy animation
+                            val prevInteractionSource = remember { MutableInteractionSource() }
+                            val isPrevPressed by prevInteractionSource.collectIsPressedAsState()
+                            val prevScale by animateFloatAsState(
+                                targetValue = if (isPrevPressed) 0.88f else 1f,
                                 animationSpec = spring(
                                     dampingRatio = Spring.DampingRatioMediumBouncy,
                                     stiffness = Spring.StiffnessMedium
                                 ),
-                                label = "phone_play_scale"
+                                label = "prev_scale"
                             )
-                            
+
+                            FilledTonalIconButton(
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(
+                                        context,
+                                        haptic,
+                                        HapticFeedbackType.LongPress
+                                    )
+                                    onSkipPrevious()
+                                },
+                                modifier = Modifier
+                                    .size(if (isLargeHeight) 48.dp else 40.dp)
+                                    .graphicsLayer {
+                                        scaleX = prevScale
+                                        scaleY = prevScale
+                                    },
+                                shape = playerControlsShape,
+                                interactionSource = prevInteractionSource
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.SkipPrevious,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(if (isLargeHeight) 22.dp else 20.dp)
+                                )
+                            }
+
+                            // Expressive play/pause button with bouncy animation
+                            val playInteractionSource = remember { MutableInteractionSource() }
+                            val isPlayPressed by playInteractionSource.collectIsPressedAsState()
+                            val playScale by animateFloatAsState(
+                                targetValue = if (isPlayPressed) 0.9f else 1f,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                label = "play_scale"
+                            )
+
+                            // Play button with primary color - shows loader when buffering
                             FilledIconButton(
                                 onClick = {
-                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                                    HapticUtils.performHapticFeedback(
+                                        context,
+                                        haptic,
+                                        HapticFeedbackType.LongPress
+                                    )
                                     onPlayPause()
                                 },
                                 modifier = Modifier
-                                    .size(if (isCompactHeight) 36.dp else 44.dp)
+                                    .size(if (isLargeHeight) 56.dp else 48.dp)
                                     .graphicsLayer {
-                                        scaleX = phonePlayScale
-                                        scaleY = phonePlayScale
+                                        scaleX = playScale
+                                        scaleY = playScale
                                     },
-                                shape = miniPlayButtonShape,
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                shape = playerControlsShape,
+                                colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
                                 ),
-                                interactionSource = phonePlayInteractionSource
+                                interactionSource = playInteractionSource
                             ) {
                                 if (isMediaLoading) {
                                     M3CircularLoader(
-                                        modifier = Modifier.size(if (isCompactHeight) 14.dp else 18.dp),
+                                        modifier = Modifier.size(if (isLargeHeight) 24.dp else 20.dp),
                                         color = MaterialTheme.colorScheme.onPrimary,
                                         trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.24f),
                                         strokeWidth = 2f
@@ -1124,103 +820,504 @@ fun MiniPlayer(
                                 } else {
                                     Icon(
                                         imageVector = if (isPlaying) RhythmIcons.Pause else RhythmIcons.Play,
-                                        contentDescription = if (isPlaying) "Pause" else "Play",
-                                        modifier = Modifier.size(if (isCompactHeight) 16.dp else 20.dp)
+                                        contentDescription = null,
+                                        modifier = Modifier.size(if (isLargeHeight) 28.dp else 24.dp)
                                     )
                                 }
                             }
-                        }
-                    } else {
-                        // Standard play/pause button without circular progress - with expressive animation
-                        val stdPlayInteractionSource = remember { MutableInteractionSource() }
-                        val isStdPlayPressed by stdPlayInteractionSource.collectIsPressedAsState()
-                        val stdPlayScale by animateFloatAsState(
-                            targetValue = if (isStdPlayPressed) 0.88f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            label = "std_play_scale"
-                        )
-                        
-                        FilledIconButton(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                onPlayPause()
-                            },
-                            modifier = Modifier
-                                .size(if (isCompactHeight) 36.dp else 44.dp)
-                                .graphicsLayer {
-                                    scaleX = stdPlayScale
-                                    scaleY = stdPlayScale
+
+                            // Expressive next button with bouncy animation
+                            val nextInteractionSource = remember { MutableInteractionSource() }
+                            val isNextPressed by nextInteractionSource.collectIsPressedAsState()
+                            val nextScale by animateFloatAsState(
+                                targetValue = if (isNextPressed) 0.88f else 1f,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                label = "next_scale"
+                            )
+
+                            FilledTonalIconButton(
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(
+                                        context,
+                                        haptic,
+                                        HapticFeedbackType.LongPress
+                                    )
+                                    onSkipNext()
                                 },
-                            shape = miniPlayButtonShape,
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            ),
-                            interactionSource = stdPlayInteractionSource
-                        ) {
-                            if (isMediaLoading) {
-                                M3CircularLoader(
-                                    modifier = Modifier.size(if (isCompactHeight) 14.dp else 18.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.24f),
-                                    strokeWidth = 2f
-                                )
-                            } else {
+                                modifier = Modifier
+                                    .size(if (isLargeHeight) 48.dp else 40.dp)
+                                    .graphicsLayer {
+                                        scaleX = nextScale
+                                        scaleY = nextScale
+                                    },
+                                shape = playerControlsShape,
+                                interactionSource = nextInteractionSource
+                            ) {
                                 Icon(
-                                    imageVector = if (isPlaying) RhythmIcons.Pause else RhythmIcons.Play,
-                                    contentDescription = if (isPlaying) "Pause" else "Play",
-                                    modifier = Modifier.size(if (isCompactHeight) 16.dp else 20.dp)
+                                    imageVector = RhythmIcons.SkipNext,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(if (isLargeHeight) 22.dp else 20.dp)
                                 )
                             }
                         }
                     }
-                    
-                    // Enhanced next track button with expressive bouncy animation
-                    val nextTrackInteractionSource = remember { MutableInteractionSource() }
-                    val isNextTrackPressed by nextTrackInteractionSource.collectIsPressedAsState()
-                    val nextTrackScale by animateFloatAsState(
-                        targetValue = if (isNextTrackPressed) 0.88f else 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        ),
-                        label = "next_track_scale"
-                    )
-                    
-                    FilledTonalIconButton(
-                        onClick = {
-                            // Strong haptic feedback for next track - respecting settings
-                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            onSkipNext()
-                        },
+                } else {
+                    // Phone: Original horizontal layout
+                    Row(
                         modifier = Modifier
-                            .size(if (isCompactHeight) 32.dp else 36.dp)
-                            .graphicsLayer {
-                                scaleX = nextTrackScale
-                                scaleY = nextTrackScale
-                            },
-                        shape = ExpressiveShapes.Full, // Expressive pill shape
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        ),
-                        interactionSource = nextTrackInteractionSource
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = if (isCompactHeight) 12.dp else 20.dp,
+                                vertical = if (isCompactHeight) 8.dp else 16.dp
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = spacedBy(if (isCompactHeight) 8.dp else 16.dp)
                     ) {
-                        Icon(
-                            imageVector = RhythmIcons.SkipNext,
-                            contentDescription = "Next track",
-                            modifier = Modifier.size(if (isCompactHeight) 14.dp else 18.dp)
+                        // Customizable album art with settings-driven size and corner radius
+                        if (miniPlayerShowArtwork) {
+                            val miniPlayerArtShape = rememberExpressiveShapeFor(
+                                ExpressiveShapeTarget.MINI_PLAYER,
+                                fallbackShape = RoundedCornerShape(miniPlayerCornerRadius.dp)
+                            )
+                            Surface(
+                                modifier = Modifier
+                                    .size((if (isTablet) miniPlayerArtworkSize + 8 else miniPlayerArtworkSize).dp),
+                                shape = miniPlayerArtShape,
+                                shadowElevation = 0.dp, // Remove shadow as requested
+                                tonalElevation = 2.dp, // Keep subtle tonal elevation for depth
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            ) {
+                                Box {
+                                    if (song != null) {
+                                        // Show shimmer while loading artwork
+                                        ShimmerBox(
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+
+                                        M3ImageUtils.TrackImage(
+                                            imageUrl = song.artworkUri,
+                                            trackName = song.title,
+                                            modifier = Modifier.fillMaxSize(),
+                                            applyExpressiveShape = false
+                                        )
+                                    } else {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                                                        colors = listOf(
+                                                            MaterialTheme.colorScheme.primaryContainer,
+                                                            MaterialTheme.colorScheme.secondaryContainer
+                                                        )
+                                                    )
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = RhythmIcons.Album,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
+                                    }
+
+                                    // Enhanced "live" badge with better styling
+                                    if (song?.title?.contains("LIVE", ignoreCase = true) == true ||
+                                        song?.genre?.contains("live", ignoreCase = true) == true
+                                    ) {
+                                        Badge(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(2.dp),
+                                            containerColor = MaterialTheme.colorScheme.error
+                                        ) {
+                                            Text(
+                                                context.getString(R.string.badge_live),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onError,
+                                                fontSize = 8.sp
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Enhanced song info with better typography and spacing
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = spacedBy(if (isCompactHeight) 0.dp else 2.dp)
+                        ) {
+                            if (song != null) {
+                                AutoScrollingTextOnDemand(
+                                    text = song.title,
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = if (isCompactHeight) 13.sp else 16.sp
+                                    ),
+                                    gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    enabled = true
+                                )
+                            } else {
+                                Text(
+                                    text = context.getString(R.string.miniplayer_no_song),
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = if (isCompactHeight) 13.sp else 16.sp
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = spacedBy(if (isCompactHeight) 3.dp else 6.dp)
+                            ) {
+                                // Artist info with auto-scrolling
+                                if (song != null) {
+                                    AutoScrollingTextOnDemand(
+                                        text = song.artist,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                        ),
+                                        gradientEdgeColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        modifier = Modifier.weight(1f, fill = false),
+                                        enabled = true
+                                    )
+                                } else {
+                                    Text(
+                                        text = "",
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = if (isCompactHeight) 11.sp else 13.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f, fill = false)
+                                    )
+                                }
+
+                                // Compact time indicator - controlled by setting
+                                if (miniPlayerShowTime && song != null && progress > 0) {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                            alpha = 0.6f
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            text = "${
+                                                formatDuration(
+                                                    (progress * song.duration).toLong(),
+                                                    useHoursFormat
+                                                )
+                                            }/${formatDuration(song.duration, useHoursFormat)}",
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = if (isCompactHeight) 8.sp else 10.sp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            modifier = Modifier.padding(
+                                                horizontal = if (isCompactHeight) 4.dp else 6.dp,
+                                                vertical = if (isCompactHeight) 1.dp else 2.dp
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Enhanced controls with better visual hierarchy and spacing
+                        // Get miniplayer play button shape from expressive settings
+                        val miniPlayButtonShape = rememberExpressiveShapeFor(
+                            ExpressiveShapeTarget.PLAYER_CONTROLS,
+                            fallbackShape = CircleShape
                         )
+                        Row(
+                            horizontalArrangement = spacedBy(if (isCompactHeight) 4.dp else 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Play/pause button with optional circular progress border
+                            if (song != null && miniPlayerUseCircularProgress) {
+                                // Circular progress as border around play/pause button using official Material 3 Expressive
+                                Box(
+                                    modifier = Modifier.size(if (isCompactHeight) 50.dp else 60.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularWavyProgressIndicator(
+                                        progress = { animatedProgress },
+                                        modifier = Modifier.size(if (isCompactHeight) 50.dp else 60.dp)
+                                    )
+
+                                    // Expressive play/pause with bouncy animation
+                                    val phonePlayInteractionSource =
+                                        remember { MutableInteractionSource() }
+                                    val isPhonePlayPressed by phonePlayInteractionSource.collectIsPressedAsState()
+                                    val phonePlayScale by animateFloatAsState(
+                                        targetValue = if (isPhonePlayPressed) 0.88f else 1f,
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                                            stiffness = Spring.StiffnessMedium
+                                        ),
+                                        label = "phone_play_scale"
+                                    )
+
+                                    FilledIconButton(
+                                        onClick = {
+                                            HapticUtils.performHapticFeedback(
+                                                context,
+                                                haptic,
+                                                HapticFeedbackType.LongPress
+                                            )
+                                            onPlayPause()
+                                        },
+                                        modifier = Modifier
+                                            .size(if (isCompactHeight) 36.dp else 44.dp)
+                                            .graphicsLayer {
+                                                scaleX = phonePlayScale
+                                                scaleY = phonePlayScale
+                                            },
+                                        shape = miniPlayButtonShape,
+                                        colors = IconButtonDefaults.filledIconButtonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        ),
+                                        interactionSource = phonePlayInteractionSource
+                                    ) {
+                                        if (isMediaLoading) {
+                                            M3CircularLoader(
+                                                modifier = Modifier.size(if (isCompactHeight) 14.dp else 18.dp),
+                                                color = MaterialTheme.colorScheme.onPrimary,
+                                                trackColor = MaterialTheme.colorScheme.onPrimary.copy(
+                                                    alpha = 0.24f
+                                                ),
+                                                strokeWidth = 2f
+                                            )
+                                        } else {
+                                            Icon(
+                                                imageVector = if (isPlaying) RhythmIcons.Pause else RhythmIcons.Play,
+                                                contentDescription = if (isPlaying) "Pause" else "Play",
+                                                modifier = Modifier.size(if (isCompactHeight) 16.dp else 20.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                // Standard play/pause button without circular progress - with expressive animation
+                                val stdPlayInteractionSource =
+                                    remember { MutableInteractionSource() }
+                                val isStdPlayPressed by stdPlayInteractionSource.collectIsPressedAsState()
+                                val stdPlayScale by animateFloatAsState(
+                                    targetValue = if (isStdPlayPressed) 0.88f else 1f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium
+                                    ),
+                                    label = "std_play_scale"
+                                )
+
+                                FilledIconButton(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(
+                                            context,
+                                            haptic,
+                                            HapticFeedbackType.LongPress
+                                        )
+                                        onPlayPause()
+                                    },
+                                    modifier = Modifier
+                                        .size(if (isCompactHeight) 36.dp else 44.dp)
+                                        .graphicsLayer {
+                                            scaleX = stdPlayScale
+                                            scaleY = stdPlayScale
+                                        },
+                                    shape = miniPlayButtonShape,
+                                    colors = IconButtonDefaults.filledIconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary
+                                    ),
+                                    interactionSource = stdPlayInteractionSource
+                                ) {
+                                    if (isMediaLoading) {
+                                        M3CircularLoader(
+                                            modifier = Modifier.size(if (isCompactHeight) 14.dp else 18.dp),
+                                            color = MaterialTheme.colorScheme.onPrimary,
+                                            trackColor = MaterialTheme.colorScheme.onPrimary.copy(
+                                                alpha = 0.24f
+                                            ),
+                                            strokeWidth = 2f
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = if (isPlaying) RhythmIcons.Pause else RhythmIcons.Play,
+                                            contentDescription = if (isPlaying) "Pause" else "Play",
+                                            modifier = Modifier.size(if (isCompactHeight) 16.dp else 20.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Enhanced next track button with expressive bouncy animation
+                            val nextTrackInteractionSource = remember { MutableInteractionSource() }
+                            val isNextTrackPressed by nextTrackInteractionSource.collectIsPressedAsState()
+                            val nextTrackScale by animateFloatAsState(
+                                targetValue = if (isNextTrackPressed) 0.88f else 1f,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessMedium
+                                ),
+                                label = "next_track_scale"
+                            )
+
+                            FilledTonalIconButton(
+                                onClick = {
+                                    // Strong haptic feedback for next track - respecting settings
+                                    HapticUtils.performHapticFeedback(
+                                        context,
+                                        haptic,
+                                        HapticFeedbackType.TextHandleMove
+                                    )
+                                    onSkipNext()
+                                },
+                                modifier = Modifier
+                                    .size(if (isCompactHeight) 32.dp else 36.dp)
+                                    .graphicsLayer {
+                                        scaleX = nextTrackScale
+                                        scaleY = nextTrackScale
+                                    },
+                                shape = ExpressiveShapes.Full, // Expressive pill shape
+                                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ),
+                                interactionSource = nextTrackInteractionSource
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.SkipNext,
+                                    contentDescription = "Next track",
+                                    modifier = Modifier.size(if (isCompactHeight) 14.dp else 18.dp)
+                                )
+                            }
+                        }
+                    }
+                }  // Close the else block for phone layout
+            }
+
+                // Guide chips are rendered in an overlay so they never affect MiniPlayer height.
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .padding(top = 20.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    // Swipe up indicator
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = offsetY < -20f && abs(offsetY) > abs(offsetX),
+                        enter = fadeIn() + slideInVertically(),
+                        exit = fadeOut() + slideOutVertically()
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                alpha = (-offsetY / swipeUpThreshold).coerceIn(
+                                    0f,
+                                    0.8f
+                                )
+                            )
+                        ) {
+                            Text(
+                                text = context.getString(R.string.miniplayer_swipe_up_hint),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    // Swipe down indicator
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = offsetY > 20f && abs(offsetY) > abs(offsetX),
+                        enter = fadeIn() + slideInVertically(),
+                        exit = fadeOut() + slideOutVertically()
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.errorContainer.copy(
+                                alpha = (offsetY / swipeDownThreshold).coerceIn(
+                                    0f,
+                                    0.8f
+                                )
+                            )
+                        ) {
+                            Text(
+                                text = context.getString(R.string.miniplayer_swipe_down_hint),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    // Swipe left indicator (next track)
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = offsetX < -20f && abs(offsetX) > abs(offsetY),
+                        enter = fadeIn() + slideInVertically(),
+                        exit = fadeOut() + slideOutVertically()
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(
+                                alpha = (-offsetX / swipeHorizontalThreshold).coerceIn(
+                                    0f,
+                                    0.8f
+                                )
+                            )
+                        ) {
+                            Text(
+                                text = context.getString(R.string.miniplayer_swipe_left_hint),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
+                    // Swipe right indicator (previous track)
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = offsetX > 20f && abs(offsetX) > abs(offsetY),
+                        enter = fadeIn() + slideInVertically(),
+                        exit = fadeOut() + slideOutVertically()
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(
+                                alpha = (offsetX / swipeHorizontalThreshold).coerceIn(
+                                    0f,
+                                    0.8f
+                                )
+                            )
+                        ) {
+                            Text(
+                                text = context.getString(R.string.miniplayer_swipe_right_hint),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                 }
             }
-            }  // Close the else block for phone layout
         }
     }
-}
 
 /**
  * Format duration from milliseconds to mm:ss or h:mm:ss format

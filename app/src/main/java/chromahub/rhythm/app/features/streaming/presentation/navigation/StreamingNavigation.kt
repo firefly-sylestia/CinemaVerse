@@ -1,5 +1,6 @@
 package chromahub.rhythm.app.features.streaming.presentation.navigation
 
+import android.app.Activity
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -12,11 +13,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.EaseOutQuint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,6 +42,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -45,6 +51,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,12 +67,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.filled.AutoGraph
+import androidx.compose.material.icons.outlined.AutoGraph
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -149,6 +162,7 @@ private sealed class StreamingScreen(val route: String, val titleRes: Int? = nul
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 fun StreamingNavigation(
     localMusicViewModel: LocalMusicViewModel = viewModel(),
     streamingMusicViewModel: StreamingMusicViewModel = viewModel(),
@@ -193,11 +207,31 @@ fun StreamingNavigation(
     val sessions by streamingMusicViewModel.serviceSessions.collectAsState()
     val hasConnectedService = sessions.values.any { it.isConnected }
 
+    val windowSizeClass = calculateWindowSizeClass(context as Activity)
+    val isTablet = windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Medium
+
     val isServiceSetupRoute = currentRoute.startsWith("streaming_service_setup")
     val isPlayerRoute = currentRoute == StreamingScreen.Player.route
     val isEqualizerRoute = currentRoute == Screen.Equalizer.route
     val isQueuePlaybackRoute = currentRoute == Screen.TunerQueuePlayback.route
-    val isSettingsRoute = currentRoute == Screen.Settings.route
+    val isSettingsRoute = currentRoute.contains("settings")
+
+    val isHomeRoute = currentRoute == StreamingScreen.Home.route
+    val isLibraryRoute = currentRoute == StreamingScreen.Library.route
+    val isSearchRoute = currentRoute == StreamingScreen.Search.route
+    val isRhythmStatsRoute = currentRoute == StreamingScreen.RhythmStats.route
+    val isRhythmGuardRoute = currentRoute == StreamingScreen.RhythmGuard.route
+    val isRailEligibleRoute =
+        isHomeRoute || isLibraryRoute || isSearchRoute || isSettingsRoute || isRhythmStatsRoute || isRhythmGuardRoute
+    val requiresConnectedServiceForRailRoute = isHomeRoute || isLibraryRoute || isSearchRoute
+    val showTabletNavigationRail =
+        isTablet &&
+            !isPlayerRoute &&
+            !isEqualizerRoute &&
+            !isQueuePlaybackRoute &&
+            !isServiceSetupRoute &&
+            isRailEligibleRoute &&
+            (!requiresConnectedServiceForRailRoute || hasConnectedService)
 
     var isMiniPlayerDismissed by rememberSaveable { mutableStateOf(false) }
 
@@ -208,19 +242,25 @@ fun StreamingNavigation(
         }
     }
 
-    val showMiniPlayer = currentSong != null && !isMiniPlayerDismissed && !isPlayerRoute && !isEqualizerRoute && !isQueuePlaybackRoute
+    val showMiniPlayer =
+        currentSong != null &&
+            !isMiniPlayerDismissed &&
+            !isPlayerRoute &&
+            !isEqualizerRoute &&
+            !isQueuePlaybackRoute &&
+            !isSearchRoute
     
     // Bottom nav only shows on main navigation screens (Home, Library, Search)
     val showBottomNav = hasConnectedService && !isPlayerRoute && !isEqualizerRoute && !isQueuePlaybackRoute && !isSettingsRoute && (
-        currentRoute == StreamingScreen.Home.route ||
-            currentRoute == StreamingScreen.Library.route ||
-            currentRoute == StreamingScreen.Search.route
+        isHomeRoute ||
+            isLibraryRoute ||
+            isSearchRoute
         )
     
     val requiresConnectedService =
-        currentRoute == StreamingScreen.Home.route ||
-            currentRoute == StreamingScreen.Library.route ||
-            currentRoute == StreamingScreen.Search.route
+        isHomeRoute ||
+            isLibraryRoute ||
+            isSearchRoute
     
     // Calculate miniplayer padding for bottom content alignment
     val miniPlayerPaddingValues = remember(showMiniPlayer, currentRoute) {
@@ -234,6 +274,15 @@ fun StreamingNavigation(
         // Return padding values
         PaddingValues(bottom = totalPadding)
     }
+
+    val tabletContentStartPadding by animateDpAsState(
+        targetValue = if (showTabletNavigationRail) 96.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "streaming_tablet_content_start_padding"
+    )
     
     var hasPendingStartupRoute by remember { mutableStateOf(false) }
 
@@ -387,27 +436,51 @@ fun StreamingNavigation(
         }
     }
 
-    CompositionLocalProvider(LocalMiniPlayerPadding provides miniPlayerPaddingValues) {
+    @Composable
+    fun StreamingNavigationLayout(contentModifier: Modifier, showBottomNavValue: Boolean) {
+        CompositionLocalProvider(LocalMiniPlayerPadding provides miniPlayerPaddingValues) {
         Scaffold(
-            modifier = modifier,
+            modifier = contentModifier,
         bottomBar = {
-            Column(
+            val bottomChromeVisible = showMiniPlayer || showBottomNavValue
+            val bottomChromeAlpha by animateFloatAsState(
+                targetValue = if (bottomChromeVisible) 1f else 0f,
+                animationSpec = tween(durationMillis = 220),
+                label = "streaming_bottom_chrome_alpha"
+            )
+            val miniPlayerBottomOffset by animateDpAsState(
+                targetValue = if (showBottomNavValue) MusicDimensions.bottomNavigationHeight + 16.dp else 8.dp,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "streaming_miniplayer_bottom_offset"
+            )
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colorStops = arrayOf(
-                                0f to Color.Transparent,
-                                0.25f to MaterialTheme.colorScheme.surface.copy(alpha = 0.28f),
-                                0.62f to MaterialTheme.colorScheme.surface.copy(alpha = 0.76f),
-                                1f to MaterialTheme.colorScheme.surface.copy(alpha = 1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .graphicsLayer { alpha = bottomChromeAlpha }
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0f to Color.Transparent,
+                                    0.25f to MaterialTheme.colorScheme.surface.copy(alpha = 0.28f),
+                                    0.62f to MaterialTheme.colorScheme.surface.copy(alpha = 0.76f),
+                                    1f to MaterialTheme.colorScheme.surface.copy(alpha = 1f)
+                                )
                             )
                         )
-                    )
-            ) {
+                )
+
                 AnimatedVisibility(
                     visible = showMiniPlayer,
+                    modifier = Modifier.align(Alignment.BottomCenter),
                     enter = slideInVertically(
                         initialOffsetY = { fullHeight -> fullHeight },
                         animationSpec = spring(
@@ -433,7 +506,11 @@ fun StreamingNavigation(
                         )
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = miniPlayerBottomOffset)
+                    ) {
                         // Only render MiniPlayer if currentSong is not null
                         currentSong?.let { song ->
                             MiniPlayer(
@@ -460,7 +537,8 @@ fun StreamingNavigation(
                 }
 
                 AnimatedVisibility(
-                    visible = showBottomNav,
+                    visible = showBottomNavValue,
+                    modifier = Modifier.align(Alignment.BottomCenter),
                     enter = slideInVertically(
                         initialOffsetY = { fullHeight -> fullHeight / 2 },
                         animationSpec = spring(
@@ -515,7 +593,9 @@ fun StreamingNavigation(
             ) {
                 StreamingHomeScreen(
                     viewModel = streamingMusicViewModel,
-                    onNavigateToSettings = onNavigateToSettings,
+                    onNavigateToSettings = {
+                        navigateToTopLevel(StreamingScreen.Settings.route)
+                    },
                     onConfigureService = { serviceId ->
                         navController.navigate(StreamingScreen.ServiceSetup.createRoute(serviceId)) {
                             launchSingleTop = true
@@ -579,7 +659,7 @@ fun StreamingNavigation(
                     playbackStatsSummary = playbackStatsSummary,
                     listeningTimeMs = listeningTime,
                     onNavigateToSettings = {
-                        onNavigateToSettings()
+                        navigateToTopLevel(StreamingScreen.Settings.route)
                     },
                     onNavigateToSearch = {
                         navigateToTopLevel(StreamingScreen.Search.route)
@@ -828,13 +908,21 @@ fun StreamingNavigation(
             composable(
                 route = StreamingScreen.RhythmStats.route,
                 enterTransition = {
-                    fadeIn(animationSpec = tween(250))
+                    fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(200))
+                    fadeOut(animationSpec = tween(300))
                 },
                 popExitTransition = {
-                    fadeOut(animationSpec = tween(200))
+                    fadeOut(animationSpec = tween(300)) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
                 }
             ) {
                 ListeningStatsScreen(
@@ -846,13 +934,21 @@ fun StreamingNavigation(
             composable(
                 route = StreamingScreen.RhythmGuard.route,
                 enterTransition = {
-                    fadeIn(animationSpec = tween(250))
+                    fadeIn(animationSpec = tween(300)) +
+                        slideInVertically(
+                            initialOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(200))
+                    fadeOut(animationSpec = tween(300))
                 },
                 popExitTransition = {
-                    fadeOut(animationSpec = tween(200))
+                    fadeOut(animationSpec = tween(300)) +
+                        slideOutVertically(
+                            targetOffsetY = { it / 4 },
+                            animationSpec = tween(350, easing = EaseInOutQuart)
+                        )
                 }
             ) {
                 RhythmGuardSettingsScreen(
@@ -1055,13 +1151,32 @@ fun StreamingNavigation(
                 route = StreamingScreen.PlaylistDetail.route,
                 arguments = listOf(navArgument("playlistId") { type = NavType.StringType }),
                 enterTransition = {
-                    fadeIn(animationSpec = tween(250))
+                    fadeIn(animationSpec = tween(350)) +
+                        scaleIn(
+                            initialScale = 0.85f,
+                            animationSpec = tween(400, easing = EaseOutQuint)
+                        )
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(200))
+                    fadeOut(animationSpec = tween(350)) +
+                        scaleOut(
+                            targetScale = 0.85f,
+                            animationSpec = tween(300, easing = EaseInOutQuart)
+                        )
+                },
+                popEnterTransition = {
+                    fadeIn(animationSpec = tween(350)) +
+                        scaleIn(
+                            initialScale = 0.85f,
+                            animationSpec = tween(400, easing = EaseOutQuint)
+                        )
                 },
                 popExitTransition = {
-                    fadeOut(animationSpec = tween(200))
+                    fadeOut(animationSpec = tween(350)) +
+                        scaleOut(
+                            targetScale = 0.85f,
+                            animationSpec = tween(300, easing = EaseInOutQuart)
+                        )
                 }
             ) { backStackEntry ->
                 val playlistId = backStackEntry.arguments
@@ -1694,6 +1809,58 @@ fun StreamingNavigation(
         }
 
     }
+        }
+    }
+
+    if (isTablet) {
+        Box(modifier = modifier.fillMaxSize()) {
+            AnimatedVisibility(
+                visible = showTabletNavigationRail,
+                enter = slideInHorizontally(
+                    initialOffsetX = { -it / 2 },
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                ) + fadeIn(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                ),
+                exit = slideOutHorizontally(
+                    targetOffsetX = { -it / 2 },
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                ) + fadeOut(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                )
+            ) {
+                StreamingNavigationRail(
+                    currentRoute = currentRoute,
+                    navController = navController,
+                    context = context,
+                    haptic = haptic
+                )
+            }
+
+            StreamingNavigationLayout(
+                contentModifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = tabletContentStartPadding),
+                showBottomNavValue = false
+            )
+        }
+    } else {
+        StreamingNavigationLayout(
+            contentModifier = modifier,
+            showBottomNavValue = showBottomNav
+        )
     }
 }
 
@@ -1839,6 +2006,205 @@ private fun buildStreamingPlayerArtists(
             numberOfTracks = artistSongs.size
         )
     )
+}
+
+@Composable
+private fun StreamingNavigationRail(
+    currentRoute: String,
+    navController: NavHostController,
+    context: android.content.Context,
+    haptic: HapticFeedback
+) {
+    val navigateToTopLevel: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    val railHeight = (5 * 64 + 32).dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            tonalElevation = 3.dp,
+            modifier = Modifier
+                .height(railHeight)
+                .width(80.dp)
+                .clip(RoundedCornerShape(24.dp))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)
+            ) {
+                val items = listOf(
+                    StreamingNavRailItem(
+                        route = StreamingScreen.Home.route,
+                        title = context.getString(R.string.home),
+                        selectedIcon = RhythmIcons.HomeFilled,
+                        unselectedIcon = RhythmIcons.Home,
+                        onClick = { navigateToTopLevel(StreamingScreen.Home.route) }
+                    ),
+                    StreamingNavRailItem(
+                        route = StreamingScreen.Library.route,
+                        title = context.getString(R.string.library),
+                        selectedIcon = RhythmIcons.Navigation.Library,
+                        unselectedIcon = RhythmIcons.Navigation.LibraryOutlined,
+                        onClick = { navigateToTopLevel(StreamingScreen.Library.route) }
+                    ),
+                    StreamingNavRailItem(
+                        route = StreamingScreen.RhythmStats.route,
+                        title = context.getString(R.string.rhythm_stats),
+                        selectedIcon = Icons.Filled.AutoGraph,
+                        unselectedIcon = Icons.Outlined.AutoGraph,
+                        onClick = { navigateToTopLevel(StreamingScreen.RhythmStats.route) }
+                    ),
+                    StreamingNavRailItem(
+                        route = StreamingScreen.Search.route,
+                        title = context.getString(R.string.search),
+                        selectedIcon = RhythmIcons.Search,
+                        unselectedIcon = RhythmIcons.Navigation.SearchOutlined,
+                        onClick = { navigateToTopLevel(StreamingScreen.Search.route) }
+                    ),
+                    StreamingNavRailItem(
+                        route = StreamingScreen.Settings.route,
+                        title = context.getString(R.string.settings_title),
+                        selectedIcon = RhythmIcons.Navigation.Settings,
+                        unselectedIcon = RhythmIcons.Navigation.SettingsOutlined,
+                        onClick = { navigateToTopLevel(StreamingScreen.Settings.route) }
+                    )
+                )
+
+                items.forEach { item ->
+                    StreamingNavigationRailItemWithAnimation(
+                        item = item,
+                        isSelected = when (item.route) {
+                            StreamingScreen.Library.route -> currentRoute == StreamingScreen.Library.route
+                            StreamingScreen.Search.route -> currentRoute == StreamingScreen.Search.route
+                            StreamingScreen.Settings.route -> currentRoute.contains("settings")
+                            StreamingScreen.RhythmStats.route -> currentRoute == StreamingScreen.RhythmStats.route
+                            else -> currentRoute == item.route
+                        },
+                        haptic = haptic,
+                        context = context
+                    )
+                }
+            }
+        }
+    }
+}
+
+private data class StreamingNavRailItem(
+    val route: String,
+    val title: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val onClick: () -> Unit
+)
+
+@Composable
+private fun StreamingNavigationRailItemWithAnimation(
+    item: StreamingNavRailItem,
+    isSelected: Boolean,
+    haptic: HapticFeedback,
+    context: android.content.Context
+) {
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isSelected) 1.08f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "streaming_scale_${item.title}"
+    )
+
+    val animatedAlpha by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0.7f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "streaming_alpha_${item.title}"
+    )
+
+    val iconColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        animationSpec = tween(300),
+        label = "streaming_icon_color_${item.title}"
+    )
+
+    val indicatorHeight by animateDpAsState(
+        targetValue = if (isSelected) 56.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "streaming_indicator_height_${item.title}"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(64.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable {
+                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                item.onClick()
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = animatedScale
+                    scaleY = animatedScale
+                    alpha = animatedAlpha
+                }
+                .then(
+                    if (isSelected) {
+                        Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .size(64.dp, indicatorHeight.coerceAtLeast(0.dp))
+                            .padding(vertical = 8.dp)
+                    } else {
+                        Modifier.padding(8.dp)
+                    }
+                )
+        ) {
+            androidx.compose.animation.Crossfade(
+                targetState = isSelected,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessVeryLow
+                ),
+                label = "streaming_icon_crossfade_${item.title}"
+            ) { selected ->
+                Icon(
+                    imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                    contentDescription = item.title,
+                    tint = iconColor,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable

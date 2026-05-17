@@ -432,8 +432,11 @@ fun LocalNavigation(
     }
 
     // Provide dynamic mini-player padding with comprehensive navigation handling
-    val showMiniPlayer = currentSong != null && !isMiniPlayerDismissed &&
-        currentRoute != Screen.Player.route
+    val showMiniPlayer =
+        currentSong != null &&
+            !isMiniPlayerDismissed &&
+            currentRoute != Screen.Player.route &&
+            currentRoute != Screen.Search.route
     val showNavBar = remember(currentRoute) {
         currentRoute == Screen.Home.route ||
             isLibraryRoute ||
@@ -459,13 +462,22 @@ fun LocalNavigation(
         PaddingValues(bottom = totalPadding)
     }
 
+    val tabletContentStartPadding by animateDpAsState(
+        targetValue = if (showNavBar) 96.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "local_tablet_content_start_padding"
+    )
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     CompositionLocalProvider(LocalMiniPlayerPadding provides miniPlayerPaddingValues) {
         if (isTablet) {
             // Tablet layout with NavigationRail
-            Row(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 // Navigation rail for tablets
                 AnimatedVisibility(
                     visible = showNavBar,
@@ -505,6 +517,9 @@ fun LocalNavigation(
                 
                 // Main content wrapped in Scaffold (without bottom nav)
                 LocalNavigationContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = tabletContentStartPadding),
                     navController = navController,
                     viewModel = viewModel,
                     themeViewModel = themeViewModel,
@@ -632,6 +647,7 @@ fun LocalNavigation(
 
 @Composable
 private fun LocalNavigationContent(
+    modifier: Modifier = Modifier,
     navController: NavHostController,
     viewModel: MusicViewModel,
     themeViewModel: ThemeViewModel,
@@ -732,6 +748,7 @@ private fun LocalNavigationContent(
     }
 
     Scaffold(
+        modifier = modifier,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 val isRemovalSnackbar = data.visuals.message.contains("removed from playlist")
@@ -776,26 +793,47 @@ private fun LocalNavigationContent(
             }
         },
         bottomBar = {
-            // Wrap entire bottom bar in Column with system insets handling
-            Column(
+            val bottomChromeVisible = showMiniPlayer || showBottomNav
+            val bottomChromeAlpha by animateFloatAsState(
+                targetValue = if (bottomChromeVisible) 1f else 0f,
+                animationSpec = tween(durationMillis = 220),
+                label = "local_bottom_chrome_alpha"
+            )
+            val miniPlayerBottomOffset by animateDpAsState(
+                targetValue = if (showBottomNav) MusicDimensions.bottomNavigationHeight + 16.dp else 8.dp,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "local_miniplayer_bottom_offset"
+            )
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.navigationBars) // Handle system navigation bars once
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colorStops = arrayOf(
-                                0f to Color.Transparent,
-                                0.25f to MaterialTheme.colorScheme.surface.copy(alpha = 0.28f),
-                                0.62f to MaterialTheme.colorScheme.surface.copy(alpha = 0.76f),
-                                1f to MaterialTheme.colorScheme.surface.copy(alpha = 1f)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .graphicsLayer { alpha = bottomChromeAlpha }
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0f to Color.Transparent,
+                                    0.25f to MaterialTheme.colorScheme.surface.copy(alpha = 0.28f),
+                                    0.62f to MaterialTheme.colorScheme.surface.copy(alpha = 0.76f),
+                                    1f to MaterialTheme.colorScheme.surface.copy(alpha = 1f)
+                                )
                             )
                         )
-                    )
-            ) {
+                )
+
                 // Global MiniPlayer (hidden on full player screen) with bounce entrance animation
                 // Show at bottom on phones, or on right side if tablet miniplayer is enabled
                 AnimatedVisibility(
                     visible = showMiniPlayer,
+                    modifier = Modifier.align(Alignment.BottomCenter),
                     enter = slideInVertically(
                         initialOffsetY = { fullHeight -> fullHeight },
                         animationSpec = spring(
@@ -821,7 +859,11 @@ private fun LocalNavigationContent(
                         )
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = miniPlayerBottomOffset)
+                    ) {
                         MiniPlayer(
                             song = currentSong,
                             isPlaying = isPlaying,
@@ -842,6 +884,7 @@ private fun LocalNavigationContent(
                 // Navigation bar shown only on specific routes with spring animation
                 AnimatedVisibility(
                     visible = showBottomNav,
+                    modifier = Modifier.align(Alignment.BottomCenter),
                     enter = slideInVertically(
                         initialOffsetY = { fullHeight -> fullHeight / 2 },
                         animationSpec = spring(
