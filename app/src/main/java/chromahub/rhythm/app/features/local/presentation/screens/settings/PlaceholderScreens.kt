@@ -6576,6 +6576,7 @@ fun LibrarySettingsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
     val appSettings = AppSettings.getInstance(context)
     val haptics = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
 
     val enableRatingSystem by appSettings.enableRatingSystem.collectAsState()
     val libraryCombineDiscs by appSettings.libraryCombineDiscs.collectAsState()
@@ -6701,12 +6702,20 @@ fun LibrarySettingsScreen(onBackClick: () -> Unit) {
                 restartRequiresArtworkRescan = false
             },
             onRestart = {
-                if (restartRequiresArtworkRescan) {
-                    appSettings.requestFullMediaRescanOnNextLaunch(reason = "library_artwork_settings_restart")
-                }
+                val shouldRefreshLibrary = restartRequiresArtworkRescan
                 showRestartDialog = false
                 restartRequiresArtworkRescan = false
-                chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+                scope.launch {
+                    if (shouldRefreshLibrary) {
+                        try {
+                            chromahub.rhythm.app.util.CacheManager.clearAllCache(context, null)
+                            appSettings.requestFullMediaRescanOnNextLaunch(reason = "library_artwork_settings_restart")
+                        } catch (e: Exception) {
+                            Log.e("CacheManagement", "Error clearing cache before artwork settings restart", e)
+                        }
+                    }
+                    chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+                }
             },
             onContinue = {
                 showRestartDialog = false
@@ -8590,6 +8599,8 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                                 Toast.makeText(context, context.getString(R.string.settings_storage_rebuild_failed), Toast.LENGTH_SHORT).show()
                                             } finally {
                                                 isRebuildingRoom = false
+                                                restartDialogMessage = context.getString(R.string.settings_storage_rebuild_room_desc)
+                                                showRestartDialog = true
                                             }
                                         }
                                     }

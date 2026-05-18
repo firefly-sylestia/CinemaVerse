@@ -555,21 +555,8 @@ fun ArtistCollapsibleHeaderScreen(
                             scrolledContainerColor = containerColor
                         )
                     )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(headerBlendHeight)
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        headerBlendBaseColor,
-                                        headerBlendBaseColor.copy(alpha = 0.72f),
-                                        headerBlendBaseColor.copy(alpha = 0.32f),
-                                        Color.Transparent
-                                    )
-                                )
-                            )
-                    )
+                    // Intentionally no header blend here for artist screen —
+                    // the artwork background already includes its own gradient overlay.
                 }
             }
         ) { paddingValues ->
