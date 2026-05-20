@@ -9,9 +9,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +21,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -38,17 +42,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
 import chromahub.rhythm.app.shared.data.repository.StatsTimeRange
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
 import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.TabAnimation
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.util.M3ImageUtils
 import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun ListeningStatsScreen(
     navController: NavController,
@@ -57,11 +67,17 @@ fun ListeningStatsScreen(
     val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
     val songs by viewModel.songs.collectAsState()
+    val artists by viewModel.artists.collectAsState()
+    val ranges = StatsTimeRange.entries
 
     var selectedRange by remember { mutableStateOf(StatsTimeRange.WEEK) }
     var statsSummary by remember { mutableStateOf<PlaybackStatsRepository.PlaybackStatsSummary?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     val tabRowState = rememberLazyListState()
+    val pagerState = rememberPagerState(
+        initialPage = ranges.indexOf(selectedRange).coerceAtLeast(0),
+        pageCount = { ranges.size }
+    )
 
     var showContent by remember { mutableStateOf(false) }
 
@@ -76,9 +92,19 @@ fun ListeningStatsScreen(
         isLoading = false
     }
 
+    LaunchedEffect(pagerState.currentPage) {
+        val currentRange = ranges[pagerState.currentPage]
+        if (selectedRange != currentRange) {
+            selectedRange = currentRange
+        }
+    }
+
     LaunchedEffect(selectedRange) {
-        val index = StatsTimeRange.entries.indexOf(selectedRange)
-        tabRowState.animateScrollToItem(index.coerceAtLeast(0))
+        val index = ranges.indexOf(selectedRange).coerceAtLeast(0)
+        if (pagerState.currentPage != index) {
+            pagerState.animateScrollToPage(index)
+        }
+        tabRowState.animateScrollToItem(index)
     }
 
     CollapsibleHeaderScreen(
@@ -104,48 +130,55 @@ fun ListeningStatsScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = 16.dp, bottom = 24.dp)
-                .navigationBarsPadding(),
+                .padding(top = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { _ ->
+                val pageScrollState = rememberScrollState()
 
-            AnimatedContent(
-                targetState = Pair(isLoading, selectedRange),
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(200))
-                },
-                label = "statsContentTransition"
-            ) { (loading, _) ->
-                if (loading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(400.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
-                } else if (statsSummary == null || statsSummary!!.totalPlayCount == 0) {
-                    EmptyStatsView()
-                } else {
-                    val stats = statsSummary!!
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(pageScrollState)
+                        .padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    AnimatedContent(
+                        targetState = Pair(isLoading, selectedRange),
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(200))
+                        },
+                        label = "statsContentTransition"
+                    ) { (loading, _) ->
+                        if (loading) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(400.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                            }
+                        } else if (statsSummary == null || statsSummary!!.totalPlayCount == 0) {
+                            EmptyStatsView()
+                        } else {
+                            val stats = statsSummary!!
 
-                    Column(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
-                    ) {
-                        StatsHeroSection(stats = stats)
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(24.dp)
+                            ) {
+                                ListeningOverviewCard(stats = stats)
 
-                        CategoryMetricsSection(stats = stats)
+                                CategoryMetricsSection(stats = stats, artists = artists)
 
-                        ListeningHabitsCard(stats = stats)
+                                ListeningHabitsCard(stats = stats)
 
-                        if (stats.timeline.isNotEmpty()) {
-                            BeatTimelineCard(timeline = stats.timeline)
+                                RatingStatsCard(viewModel = viewModel)
+                            }
                         }
-
-                        RatingStatsCard(viewModel = viewModel)
                     }
                 }
             }
@@ -206,56 +239,279 @@ private fun RhythmTimeRangeTabs(
 }
 
 @Composable
-private fun StatsHeroSection(stats: PlaybackStatsRepository.PlaybackStatsSummary) {
-    Row(
-        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        HeroCard(
-            title = "Listening Time",
-            value = formatDuration(stats.totalDurationMs),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.weight(1f).fillMaxHeight()
-        )
+private fun ListeningOverviewCard(stats: PlaybackStatsRepository.PlaybackStatsSummary) {
+    val timeline = stats.timeline.takeLast(3)
+    val leadingEntry = timeline.maxByOrNull { it.playCount }
+    val durationText = formatDurationAsMinutes(stats.totalDurationMs)
 
-        HeroCard(
-            title = "Total Plays",
-            value = "${stats.totalPlayCount}",
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            modifier = Modifier.weight(1f).fillMaxHeight()
-        )
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = durationText,
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Text(
+                text = if (stats.range == StatsTimeRange.TODAY && leadingEntry != null) {
+                    "30 minutes longer than yesterday"
+                } else {
+                    "Compared with the previous period"
+                },
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        if (timeline.isNotEmpty()) {
+            val segmentColors = listOf(
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.20f),
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.28f)
+            )
+            val maxPlays = timeline.maxOf { it.playCount }.coerceAtLeast(1)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                timeline.forEachIndexed { index, entry ->
+                    val progress = (entry.playCount.toFloat() / maxPlays).coerceIn(0.28f, 1f)
+                    Surface(
+                        shape = when (index) {
+                            0 -> RoundedCornerShape(topStart = 18.dp, bottomStart = 18.dp, topEnd = 4.dp, bottomEnd = 4.dp)
+                            timeline.lastIndex -> RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp, topEnd = 18.dp, bottomEnd = 18.dp)
+                            else -> RoundedCornerShape(4.dp)
+                        },
+                        color = segmentColors[index % segmentColors.size],
+                        modifier = Modifier
+                            .weight(progress)
+                            .fillMaxHeight()
+                    ) {}
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Most active at ${timeline.firstOrNull()?.label ?: "9:30 am"}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                timeline.drop(1).forEach { entry ->
+                    Text(
+                        text = entry.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Top Songs & Artists
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun TopSongsCard(stats: PlaybackStatsRepository.PlaybackStatsSummary) {
+    if (stats.topSongs.isEmpty()) return
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Top Songs",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            stats.topSongs.take(5).forEachIndexed { index, song ->
+                val songArtShape = rememberExpressiveShapeFor(
+                    ExpressiveShapeTarget.SONG_ART,
+                    fallbackShape = RoundedCornerShape(16.dp)
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Rank badge
+                        Surface(
+                            shape = songArtShape,
+                            color = if (index == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
+                            contentColor = if (index == 0) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (song.albumArtUri != null) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(song.albumArtUri)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Text(
+                                        text = (index + 1).toString(),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = song.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = song.artist,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = formatDuration(song.totalDurationMs),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "${song.playCount} plays",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun HeroCard(
-    title: String,
-    value: String,
-    containerColor: Color,
-    contentColor: Color,
-    modifier: Modifier = Modifier
+private fun TopArtistsCard(
+    stats: PlaybackStatsRepository.PlaybackStatsSummary,
+    artists: List<Artist>
 ) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .background(containerColor)
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    if (stats.topArtists.isEmpty()) return
+
+    val artistByName = remember(artists) { artists.associateBy { it.name } }
+    val artistArtShape = rememberExpressiveShapeFor(
+        ExpressiveShapeTarget.ARTIST_ART,
+        fallbackShape = RoundedCornerShape(16.dp)
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium,
-            color = contentColor.copy(alpha = 0.85f)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = contentColor
-        )
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Top Artists",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp)
+            ) {
+                items(stats.topArtists.take(5)) { artist ->
+                    val libraryArtist = artistByName[artist.artist]
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Surface(
+                            shape = artistArtShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.size(84.dp)
+                        ) {
+                            M3ImageUtils.ArtistImage(
+                                imageUrl = libraryArtist?.artworkUri,
+                                artistName = artist.artist,
+                                modifier = Modifier.fillMaxSize(),
+                                applyExpressiveShape = false
+                            )
+                        }
+                        Text(
+                            text = artist.artist,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.width(80.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -279,23 +535,11 @@ private data class CategoryMetricEntry(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CategoryMetricsSection(stats: PlaybackStatsRepository.PlaybackStatsSummary) {
+private fun CategoryMetricsSection(
+    stats: PlaybackStatsRepository.PlaybackStatsSummary,
+    artists: List<Artist>
+) {
     var selectedDimension by remember { mutableStateOf(CategoryDimension.SONG) }
-
-    val entries = when (selectedDimension) {
-        CategoryDimension.SONG -> stats.topSongs.map {
-            CategoryMetricEntry(it.title, it.totalDurationMs, it.playCount, it.artist)
-        }
-        CategoryDimension.ARTIST -> stats.topArtists.map {
-            CategoryMetricEntry(it.artist, it.totalDurationMs, it.playCount, "${it.uniqueSongs} tracks")
-        }
-        CategoryDimension.ALBUM -> stats.topAlbums.map {
-            CategoryMetricEntry(it.album, it.totalDurationMs, it.playCount, "${it.uniqueSongs} tracks")
-        }
-        CategoryDimension.GENRE -> stats.topGenres.map {
-            CategoryMetricEntry(it.genre, 0L, (it.percentage * stats.totalPlayCount).toInt(), "Top Genre")
-        }
-    }.filter { it.plays > 0 || it.durationMs > 0 }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         FlowRow(
@@ -329,108 +573,124 @@ private fun CategoryMetricsSection(stats: PlaybackStatsRepository.PlaybackStatsS
                     )
                 )
             }
-        }
 
-        Card(
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp).animateContentSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Top ${selectedDimension.displayName}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+        when (selectedDimension) {
+            CategoryDimension.SONG -> TopSongsCard(stats = stats)
+                CategoryDimension.ARTIST -> TopArtistsCard(stats = stats, artists = artists)
+            else -> {
+                val entries = when (selectedDimension) {
+                    CategoryDimension.ALBUM -> stats.topAlbums.map {
+                        CategoryMetricEntry(it.album, it.totalDurationMs, it.playCount, "${it.uniqueSongs} tracks")
+                    }
+                    CategoryDimension.GENRE -> stats.topGenres.map {
+                        CategoryMetricEntry(it.genre, 0L, (it.percentage * stats.totalPlayCount).toInt(), "Top Genre")
+                    }
+                    else -> emptyList()
+                }.filter { it.plays > 0 || it.durationMs > 0 }
 
-                if (entries.isEmpty()) {
-                    Text(
-                        "No data available for this category yet.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    val maxVal = entries.maxOf { if (it.durationMs > 0) it.durationMs.toFloat() else it.plays.toFloat() }.coerceAtLeast(1f)
+                Card(
+                    shape = RoundedCornerShape(28.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp).animateContentSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "Top ${selectedDimension.displayName}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
 
-                    entries.take(8).forEachIndexed { index, entry ->
-                        val isTop = index == 0
-                        val rawVal = if (entry.durationMs > 0) entry.durationMs.toFloat() else entry.plays.toFloat()
-                        val progress = (rawVal / maxVal).coerceIn(0f, 1f)
+                        if (entries.isEmpty()) {
+                            Text(
+                                "No data available for this category yet.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            val maxVal = entries.maxOf { if (it.durationMs > 0) it.durationMs.toFloat() else it.plays.toFloat() }.coerceAtLeast(1f)
 
-                        val rowColor = if (isTop) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-                        else MaterialTheme.colorScheme.surfaceContainerLow
-                        val accentColor = if (isTop) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                        val accentOnColor = if (isTop) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+                            entries.take(8).forEachIndexed { index, entry ->
+                                val isTop = index == 0
+                                val rawVal = if (entry.durationMs > 0) entry.durationMs.toFloat() else entry.plays.toFloat()
+                                val progress = (rawVal / maxVal).coerceIn(0f, 1f)
 
-                        Surface(
-                            shape = RoundedCornerShape(22.dp),
-                            color = rowColor
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(14.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                val rowColor = if (isTop) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+                                else MaterialTheme.colorScheme.surfaceContainerLow
+                                val accentColor = if (isTop) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                                val accentOnColor = if (isTop) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+
+                                Surface(
+                                    shape = RoundedCornerShape(22.dp),
+                                    color = rowColor
                                 ) {
-                                    CategoryRankBadge(
-                                        rank = index + 1,
-                                        accentColor = accentColor,
-                                        accentOnColor = accentOnColor,
-                                        highlighted = isTop
-                                    )
                                     Column(
-                                        modifier = Modifier.weight(1f),
-                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                        modifier = Modifier.padding(14.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
                                     ) {
-                                        Text(
-                                            text = entry.label,
-                                            style = MaterialTheme.typography.titleSmall,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = entry.supporting,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        if (entry.durationMs > 0) {
-                                            Text(
-                                                text = formatDuration(entry.durationMs),
-                                                style = MaterialTheme.typography.labelMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurface
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            CategoryRankBadge(
+                                                rank = index + 1,
+                                                accentColor = accentColor,
+                                                accentOnColor = accentOnColor,
+                                                highlighted = isTop
                                             )
+                                            Column(
+                                                modifier = Modifier.weight(1f),
+                                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                                            ) {
+                                                Text(
+                                                    text = entry.label,
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                                Text(
+                                                    text = entry.supporting,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                            Column(horizontalAlignment = Alignment.End) {
+                                                if (entry.durationMs > 0) {
+                                                    Text(
+                                                        text = formatDuration(entry.durationMs),
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                }
+                                                Text(
+                                                    text = "${entry.plays} plays",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
                                         }
-                                        Text(
-                                            text = "${entry.plays} plays",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+
+                                        LinearProgressIndicator(
+                                            progress = { progress },
+                                            modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
+                                            color = accentColor,
+                                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                                         )
                                     }
                                 }
-
-                                LinearProgressIndicator(
-                                    progress = { progress },
-                                    modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
-                                    color = accentColor,
-                                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                                )
                             }
                         }
                     }
                 }
             }
+        }
         }
     }
 }
@@ -713,4 +973,9 @@ private fun formatDuration(ms: Long): String {
         minutes > 0 -> "${minutes}m"
         else -> "< 1m"
     }
+}
+
+private fun formatDurationAsMinutes(ms: Long): String {
+    val minutes = (ms / 1000 / 60).coerceAtLeast(1)
+    return "$minutes min"
 }
