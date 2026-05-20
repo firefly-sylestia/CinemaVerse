@@ -170,8 +170,11 @@ private fun Material3SettingsItemRow(item: Material3SettingsItem) {
             .padding(horizontal = 21.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon with circle background — NO tint, uses proper icon color
-        item.icon?.let { icon ->
+        // Icon with circle background or custom leadingContent
+        if (item.leadingContent != null) {
+            item.leadingContent.invoke()
+            Spacer(modifier = Modifier.width(16.dp))
+        } else item.icon?.let { icon ->
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = item.iconShape ?: CircleShape,
@@ -271,6 +274,7 @@ data class Material3SettingsItem(
     val iconShape: Shape? = null,
     val enabled: Boolean = true,
     val scope: SettingScope = SettingScope.BOTH,
+    val leadingContent: (@Composable () -> Unit)? = null,
     val onClick: (() -> Unit)? = null
 )
 

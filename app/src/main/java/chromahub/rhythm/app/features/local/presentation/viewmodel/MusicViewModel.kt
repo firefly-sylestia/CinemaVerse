@@ -7930,6 +7930,16 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun removeSearchQuery(query: String) {
+        viewModelScope.launch {
+            val currentHistory = _searchHistory.value.toMutableList()
+            if (currentHistory.remove(query)) {
+                _searchHistory.value = currentHistory
+                saveSearchHistory()
+            }
+        }
+    }
+
     // Theme Settings Methods
     fun setUseSystemTheme(use: Boolean) {
         appSettings.setUseSystemTheme(use)

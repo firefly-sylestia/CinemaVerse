@@ -280,7 +280,6 @@ import chromahub.rhythm.app.features.local.presentation.screens.HomeScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
 import chromahub.rhythm.app.features.local.presentation.screens.PlayerScreen
 import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
-import chromahub.rhythm.app.features.local.presentation.screens.SearchScreen
 import chromahub.rhythm.app.features.local.presentation.screens.settings.SettingsScreenWrapper
 import chromahub.rhythm.app.features.local.presentation.screens.settings.*
 import chromahub.rhythm.app.shared.presentation.components.MediaScanLoader

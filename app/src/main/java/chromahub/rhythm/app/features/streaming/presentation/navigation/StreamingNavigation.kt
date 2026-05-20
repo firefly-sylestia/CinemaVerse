@@ -109,7 +109,6 @@ import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingContentHomeScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingHomeScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingLibraryScreen
-import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingSearchScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingServiceSetupScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.GoSettingsScreen
 import chromahub.rhythm.app.features.streaming.presentation.screens.toLibraryAlbum
@@ -250,11 +249,10 @@ fun StreamingNavigation(
             !isQueuePlaybackRoute &&
             !isSearchRoute
     
-    // Bottom nav only shows on main navigation screens (Home, Library, Search)
+    // Bottom nav only shows on main navigation screens (Home, Library)
     val showBottomNav = hasConnectedService && !isPlayerRoute && !isEqualizerRoute && !isQueuePlaybackRoute && !isSettingsRoute && (
         isHomeRoute ||
-            isLibraryRoute ||
-            isSearchRoute
+            isLibraryRoute
         )
     
     val requiresConnectedService =
@@ -528,6 +526,7 @@ fun StreamingNavigation(
                                 onSkipPrevious = { localMusicViewModel.skipToPrevious() },
                                 onDismiss = { 
                                     isMiniPlayerDismissed = true
+                                    localMusicViewModel.clearCurrentSong()
                                 },
                                 isMediaLoading = isMediaLoading,
                                 modifier = Modifier.align(Alignment.BottomEnd)
@@ -784,20 +783,30 @@ fun StreamingNavigation(
                         )
                 }
             ) {
-                StreamingSearchScreen(
-                    viewModel = streamingMusicViewModel,
-                    onConfigureService = { serviceId ->
-                        navController.navigate(StreamingScreen.ServiceSetup.createRoute(serviceId)) {
-                            launchSingleTop = true
-                        }
+                chromahub.rhythm.app.shared.presentation.screens.UniversalSearchScreen(
+                    localViewModel = localMusicViewModel,
+                    streamingViewModel = streamingMusicViewModel,
+                    onLocalSongClick = { song ->
+                        localMusicViewModel.playSongFromSearch(song, emptyList())
+                        navController.navigate(StreamingScreen.Player.route)
                     },
-                    onNavigateToArtist = { artist ->
+                    onLocalAlbumClick = { /* Could add route */ },
+                    onLocalArtistClick = { /* Could add route */ },
+                    onLocalPlaylistClick = { /* Could add route */ },
+                    onStreamingSongClick = { song ->
+                        streamingMusicViewModel.playSong(song)
+                        navController.navigate(StreamingScreen.Player.route)
+                    },
+                    onStreamingAlbumClick = { streamingMusicViewModel.playAlbum(it) },
+                    onStreamingArtistClick = { artist ->
                         navController.navigate(
                             StreamingScreen.ArtistDetail.createRoute(artist.id, artist.name)
                         ) {
                             launchSingleTop = true
                         }
-                    }
+                    },
+                    onStreamingPlaylistClick = { streamingMusicViewModel.playPlaylist(it) },
+                    onBack = { navController.popBackStack() }
                 )
             }
 

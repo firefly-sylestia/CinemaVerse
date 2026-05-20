@@ -1,0 +1,1717 @@
+package chromahub.rhythm.app.shared.presentation.screens
+
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import android.net.Uri
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.features.local.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.SettingScope
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.dialogs.SwitchModeDialog
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.util.ImageUtils
+import chromahub.rhythm.app.util.M3ImageUtils
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UniversalSearchScreen(
+    localViewModel: MusicViewModel = viewModel(),
+    streamingViewModel: StreamingMusicViewModel = viewModel(),
+    onLocalSongClick: (Song) -> Unit = {},
+    onLocalAlbumClick: (Album) -> Unit = {},
+    onLocalArtistClick: (Artist) -> Unit = {},
+    onLocalPlaylistClick: (Playlist) -> Unit = {},
+    onStreamingSongClick: (StreamingSong) -> Unit = {},
+    onStreamingAlbumClick: (StreamingAlbum) -> Unit = {},
+    onStreamingArtistClick: (StreamingArtist) -> Unit = {},
+    onStreamingPlaylistClick: (StreamingPlaylist) -> Unit = {},
+    onBack: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val appSettings = AppSettings.getInstance(context)
+    val appMode by appSettings.appMode.collectAsState()
+
+    DisposableEffect(context) {
+        val activity = context as? android.app.Activity
+        val originalMode = activity?.window?.attributes?.softInputMode
+        activity?.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        onDispose {
+            if (originalMode != null) {
+                activity.window?.setSoftInputMode(originalMode)
+            }
+        }
+    }
+
+    val focusManager = LocalFocusManager.current
+    val haptics = LocalHapticFeedback.current
+    val coroutineScope = rememberCoroutineScope()
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+    val horizontalPadding = if (isTablet) 32.dp else 24.dp
+
+    var query by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+
+    var showFilters by remember { mutableStateOf(false) }
+    var filterSongs by remember { mutableStateOf(true) }
+    var filterAlbums by remember { mutableStateOf(true) }
+    var filterArtists by remember { mutableStateOf(true) }
+    var filterPlaylists by remember { mutableStateOf(true) }
+
+    var showSwitchDialog by remember { mutableStateOf(false) }
+    var pendingAction: (() -> Unit)? by remember { mutableStateOf(null) }
+    var targetModeForPendingAction by remember { mutableStateOf("") }
+
+    var showAllSongsPage by remember { mutableStateOf(false) }
+    var showSongOptionsSheet by remember { mutableStateOf(false) }
+    var selectedSongForOptions by remember { mutableStateOf<Any?>(null) }
+
+    var showAddToPlaylistSheet by remember { mutableStateOf(false) }
+    var selectedSongForPlaylist by remember { mutableStateOf<Song?>(null) }
+    var showSongInfoSheet by remember { mutableStateOf(false) }
+    var selectedSongForInfo by remember { mutableStateOf<Song?>(null) }
+    var isSongInfoStreaming by remember { mutableStateOf(false) }
+    var showCreatePlaylistDialog by remember { mutableStateOf(false) }
+
+    val localSongs by localViewModel.filteredSongs.collectAsState()
+    val localAlbums by localViewModel.filteredAlbums.collectAsState()
+    val localArtists by localViewModel.filteredArtists.collectAsState()
+    val localPlaylists by localViewModel.playlists.collectAsState()
+    val searchHistory by localViewModel.searchHistory.collectAsState()
+    val favoriteSongs by localViewModel.favoriteSongs.collectAsState()
+
+    val streamingQuery by streamingViewModel.searchQuery.collectAsState()
+    val streamingResults by streamingViewModel.searchResults.collectAsState()
+    val isStreamingLoading by streamingViewModel.isLoading.collectAsState()
+    val streamingLikedSongs by streamingViewModel.likedSongs.collectAsState()
+
+    LaunchedEffect(query) {
+        if (query.isNotBlank() && streamingQuery != query) {
+            streamingViewModel.search(query)
+        }
+    }
+
+    val matchedLocalSongs = remember(query, localSongs, filterSongs) {
+        if (!filterSongs || query.isBlank()) emptyList()
+        else localSongs.filter { it.title.contains(query, true) || it.artist.contains(query, true) }
+    }
+    val matchedLocalAlbums = remember(query, localAlbums, filterAlbums) {
+        if (!filterAlbums || query.isBlank()) emptyList()
+        else localAlbums.filter { it.title.contains(query, true) || it.artist.contains(query, true) }
+    }
+    val matchedLocalArtists = remember(query, localArtists, filterArtists) {
+        if (!filterArtists || query.isBlank()) emptyList()
+        else localArtists.filter { it.name.contains(query, true) }
+    }
+    val matchedLocalPlaylists = remember(query, localPlaylists, filterPlaylists) {
+        if (!filterPlaylists || query.isBlank()) emptyList()
+        else localPlaylists.filter { it.name.contains(query, true) }
+    }
+
+    val matchedStreamingSongs = if (filterSongs) streamingResults.songs else emptyList()
+    val matchedStreamingAlbums = if (filterAlbums) streamingResults.albums else emptyList()
+    val matchedStreamingArtists = if (filterArtists) streamingResults.artists else emptyList()
+    val matchedStreamingPlaylists = if (filterPlaylists) streamingResults.playlists else emptyList()
+
+    val hasResults = matchedLocalSongs.isNotEmpty() || matchedStreamingSongs.isNotEmpty() ||
+            matchedLocalAlbums.isNotEmpty() || matchedStreamingAlbums.isNotEmpty() ||
+            matchedLocalArtists.isNotEmpty() || matchedStreamingArtists.isNotEmpty() ||
+            matchedLocalPlaylists.isNotEmpty() || matchedStreamingPlaylists.isNotEmpty()
+
+    val handleAction = { itemMode: String, action: () -> Unit ->
+        if (itemMode == appMode) {
+            action()
+        } else {
+            targetModeForPendingAction = itemMode
+            pendingAction = action
+            showSwitchDialog = true
+        }
+    }
+
+    val handleBack = {
+        if (showAllSongsPage) {
+            showAllSongsPage = false
+        } else if (query.isNotEmpty() || showFilters) {
+            query = ""
+            showFilters = false
+            focusManager.clearFocus()
+        } else {
+            onBack()
+        }
+    }
+
+    BackHandler { handleBack() }
+
+    if (showSwitchDialog) {
+        SwitchModeDialog(
+            targetMode = targetModeForPendingAction,
+            onDismissRequest = {
+                showSwitchDialog = false
+                pendingAction = null
+            },
+            onConfirm = {
+                appSettings.setAppMode(targetModeForPendingAction)
+                pendingAction?.invoke()
+                showSwitchDialog = false
+                pendingAction = null
+            }
+        )
+    }
+
+    val statusBarsTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val searchBarHeightPadding = 88.dp + (if (showFilters) 48.dp else 0.dp)
+    val totalBottomPadding = searchBarHeightPadding + navigationBarsBottom + 16.dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        AnimatedContent(
+            targetState = query.isBlank(),
+            transitionSpec = {
+                if (targetState) {
+                    (slideInVertically(initialOffsetY = { -it / 6 }) + fadeIn(animationSpec = tween(300)))
+                        .togetherWith(slideOutVertically(targetOffsetY = { it / 6 }) + fadeOut(animationSpec = tween(250)))
+                } else {
+                    (slideInVertically(initialOffsetY = { it / 6 }) + fadeIn(animationSpec = tween(300)))
+                        .togetherWith(slideOutVertically(targetOffsetY = { -it / 6 }) + fadeOut(animationSpec = tween(250)))
+                }
+            },
+            label = "SearchTransition",
+            modifier = Modifier.fillMaxSize()
+        ) { isBlank ->
+            if (isBlank) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = horizontalPadding),
+                    contentPadding = PaddingValues(
+                        top = statusBarsTop + 16.dp,
+                        bottom = totalBottomPadding
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (searchHistory.isNotEmpty()) {
+                        item(key = "history_header") {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, bottom = 8.dp)
+                                    .animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = context.getString(R.string.search_recent_searches),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                TextButton(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                        localViewModel.clearSearchHistory()
+                                    },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        contentColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    shape = CircleShape,
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    modifier = Modifier.height(32.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(14.dp))
+                                        Text("Clear All", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold))
+                                    }
+                                }
+                            }
+                        }
+                        item(key = "history_list") {
+                            val historyItems = searchHistory.take(8).map { item ->
+                                Material3SettingsItem(
+                                    icon = Icons.Rounded.History,
+                                    iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    iconBackgroundTint = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.16f),
+                                    iconShape = RoundedCornerShape(12.dp),
+                                    title = { Text(item, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    scope = SettingScope.BOTH,
+                                    trailingContent = {
+                                        IconButton(
+                                            onClick = {
+                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                                localViewModel.removeSearchQuery(item)
+                                            },
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .background(MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape)
+                                        ) {
+                                            Icon(Icons.Rounded.Clear, contentDescription = "Remove search", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
+                                        }
+                                    },
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                        query = item
+                                    }
+                                )
+                            }
+                            Box(modifier = Modifier.animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+                                Material3SettingsGroup(items = historyItems)
+                            }
+                        }
+                    }
+
+                    if (searchHistory.isEmpty()) {
+                        item(key = "empty_prompt") {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 80.dp)
+                                    .animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp, bottomStart = 16.dp, bottomEnd = 48.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(120.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(RhythmIcons.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(48.dp))
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Text("Search across Local & Streaming", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = horizontalPadding),
+                    contentPadding = PaddingValues(
+                        top = statusBarsTop + 16.dp,
+                        bottom = totalBottomPadding
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (isStreamingLoading && !hasResults) {
+                        item(key = "loading") {
+                            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp).animateItem(), contentAlignment = Alignment.Center) {
+                                WavyLoader()
+                            }
+                        }
+                    } else if (!hasResults && !isStreamingLoading) {
+                        item(key = "no_results") {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp).animateItem(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(RhythmIcons.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text("No results found for \"$query\"", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    } else {
+                        val allSongs = buildList {
+                            matchedLocalSongs.take(3).forEach { song ->
+                                add(SongSearchItem("LOCAL", song.title, "${song.artist} • ${song.album}", song.artworkUri, song) {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("LOCAL") { onLocalSongClick(song) }
+                                })
+                            }
+                            matchedStreamingSongs.take(3).forEach { song ->
+                                add(SongSearchItem("STREAMING", song.title, "${song.artist} • ${song.album}", song.artworkUri, song) {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("STREAMING") { onStreamingSongClick(song) }
+                                })
+                            }
+                        }
+
+                        if (allSongs.isNotEmpty()) {
+                            item(key = "songs_group") {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+                                ) {
+                                    Text(
+                                        text = "Songs",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                                    )
+
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        allSongs.forEachIndexed { index, item ->
+                                            UniversalSearchSongItem(
+                                                title = item.title,
+                                                subtitle = item.subtitle,
+                                                artworkUri = item.artworkUri,
+                                                mode = item.mode,
+                                                onClick = item.onClick,
+                                                onMoreClick = {
+                                                    selectedSongForOptions = item.originalSong
+                                                    showSongOptionsSheet = true
+                                                },
+                                                haptics = haptics,
+                                                index = index,
+                                                totalCount = allSongs.size
+                                            )
+                                        }
+                                    }
+
+                                    val totalSongs = matchedLocalSongs.size + matchedStreamingSongs.size
+                                    if (totalSongs > allSongs.size) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Card(
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                            ),
+                                            shape = RoundedCornerShape(16.dp),
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 4.dp)
+                                                .clickable {
+                                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                                    showAllSongsPage = true
+                                                }
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(16.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column {
+                                                    Text(
+                                                        text = context.getString(R.string.search_view_all_songs),
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.Medium,
+                                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                                    )
+                                                    Text(
+                                                        text = "See all $totalSongs songs",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                                    )
+                                                }
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                                    contentDescription = "View all",
+                                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = 180f }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        val allAlbums = buildList {
+                            matchedLocalAlbums.take(6).forEach { album ->
+                                add(SearchGridItem("LOCAL", album.title, album.artist, album.artworkUri) {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("LOCAL") { onLocalAlbumClick(album) }
+                                })
+                            }
+                            matchedStreamingAlbums.take(6).forEach { album ->
+                                add(SearchGridItem("STREAMING", album.title, album.artist, album.artworkUri) {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("STREAMING") { onStreamingAlbumClick(album) }
+                                })
+                            }
+                        }
+                        if (allAlbums.isNotEmpty()) {
+                            item(key = "albums_header") {
+                                Text("Albums", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp).animateItem())
+                            }
+                            item(key = "albums_grid") {
+                                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.animateItem()) {
+                                    items(allAlbums.size, key = { i -> "album_${allAlbums[i].title}_$i" }) { i ->
+                                        SearchGridCard(item = allAlbums[i], haptics = haptics, context = context, isAlbum = true)
+                                    }
+                                }
+                            }
+                        }
+
+                        val allArtists = buildList {
+                            matchedLocalArtists.take(6).forEach { artist ->
+                                add(SearchGridItem("LOCAL", artist.name, "${artist.numberOfTracks} tracks", artist.artworkUri) {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("LOCAL") { onLocalArtistClick(artist) }
+                                })
+                            }
+                            matchedStreamingArtists.take(6).forEach { artist ->
+                                add(SearchGridItem("STREAMING", artist.name, "Streaming Artist", artist.artworkUri) {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("STREAMING") { onStreamingArtistClick(artist) }
+                                })
+                            }
+                        }
+                        if (allArtists.isNotEmpty()) {
+                            item(key = "artists_header") {
+                                Text("Artists", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp).animateItem())
+                            }
+                            item(key = "artists_grid") {
+                                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.animateItem()) {
+                                    items(allArtists.size, key = { i -> "artist_${allArtists[i].title}_$i" }) { i ->
+                                        SearchGridCard(item = allArtists[i], haptics = haptics, context = context, isAlbum = false)
+                                    }
+                                }
+                            }
+                        }
+
+                        val allPlaylists = buildList {
+                            matchedLocalPlaylists.take(5).forEach { playlist ->
+                                add(Triple("LOCAL", playlist.name, "Local Playlist") to {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("LOCAL") { onLocalPlaylistClick(playlist) }
+                                })
+                            }
+                            matchedStreamingPlaylists.take(5).forEach { playlist ->
+                                add(Triple("STREAMING", playlist.name, "Streaming Playlist") to {
+                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                    handleAction("STREAMING") { onStreamingPlaylistClick(playlist) }
+                                })
+                            }
+                        }
+                        if (allPlaylists.isNotEmpty()) {
+                            item(key = "playlists_group") {
+                                val playlistItems = allPlaylists.map { (info, action) ->
+                                    val (mode, title, subtitle) = info
+                                    Material3SettingsItem(
+                                        icon = if (mode == "STREAMING") Icons.Rounded.Cloud else RhythmIcons.Playlist,
+                                        scope = if (mode == "STREAMING") SettingScope.STREAMING else SettingScope.LOCAL,
+                                        iconBackgroundTint = if (mode == "STREAMING") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                                        title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                        description = { Text(subtitle) },
+                                        onClick = {
+                                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                            action()
+                                        }
+                                    )
+                                }
+                                Box(modifier = Modifier.animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+                                    Material3SettingsGroup(title = "Playlists", items = playlistItems)
+                                }
+                            }
+                        }
+
+                        if (isStreamingLoading) {
+                            item(key = "streaming_loading") {
+                                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp).animateItem(), contentAlignment = Alignment.Center) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                        WavyLoader()
+                                        Text("Loading streaming results...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Bottom Search Bar & Controls Area
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0f to Color.Transparent,
+                            0.2f to MaterialTheme.colorScheme.background.copy(alpha = 0.92f),
+                            1f to MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(horizontal = horizontalPadding)
+                .padding(top = 16.dp, bottom = 12.dp)
+                .animateContentSize(spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium))
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    IconButton(onClick = handleBack) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+
+                Card(
+                    modifier = Modifier.weight(1f).height(52.dp),
+                    shape = CircleShape,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(RhythmIcons.Search, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        BasicTextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            modifier = Modifier.weight(1f).focusRequester(focusRequester),
+                            textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Medium),
+                            singleLine = true,
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            decorationBox = { innerTextField ->
+                                Box(contentAlignment = Alignment.CenterStart) {
+                                    if (query.isEmpty()) {
+                                        Text("Search everywhere...", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    innerTextField()
+                                }
+                            }
+                        )
+                        if (query.isNotEmpty()) {
+                            IconButton(onClick = {
+                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                query = ""
+                            }, modifier = Modifier.size(32.dp)) {
+                                Icon(Icons.Rounded.Clear, contentDescription = "Clear", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+
+                Surface(
+                    shape = CircleShape,
+                    color = if (showFilters) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    IconButton(onClick = {
+                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                        showFilters = !showFilters
+                    }) {
+                        Icon(
+                            Icons.Rounded.FilterList,
+                            contentDescription = "Filters",
+                            tint = if (showFilters) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = showFilters,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = filterSongs,
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                            filterSongs = !filterSongs
+                        },
+                        label = { Text("Songs", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, selectedContainerColor = MaterialTheme.colorScheme.primaryContainer),
+                        border = null
+                    )
+                    FilterChip(
+                        selected = filterAlbums,
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                            filterAlbums = !filterAlbums
+                        },
+                        label = { Text("Albums", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, selectedContainerColor = MaterialTheme.colorScheme.primaryContainer),
+                        border = null
+                    )
+                    FilterChip(
+                        selected = filterArtists,
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                            filterArtists = !filterArtists
+                        },
+                        label = { Text("Artists", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, selectedContainerColor = MaterialTheme.colorScheme.primaryContainer),
+                        border = null
+                    )
+                    FilterChip(
+                        selected = filterPlaylists,
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                            filterPlaylists = !filterPlaylists
+                        },
+                        label = { Text("Playlists", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, selectedContainerColor = MaterialTheme.colorScheme.primaryContainer),
+                        border = null
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showAllSongsPage,
+            enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            ),
+            exit = fadeOut(animationSpec = tween(250)) + slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        ) {
+            UniversalAllSongsPage(
+                localSongs = matchedLocalSongs,
+                streamingSongs = matchedStreamingSongs,
+                onBack = { showAllSongsPage = false },
+                onOptionsClick = { songObj ->
+                    selectedSongForOptions = songObj
+                    showSongOptionsSheet = true
+                },
+                onLocalSongClick = { song -> handleAction("LOCAL") { onLocalSongClick(song) } },
+                onStreamingSongClick = { song -> handleAction("STREAMING") { onStreamingSongClick(song) } },
+                haptics = haptics
+            )
+        }
+
+        if (showSongOptionsSheet && selectedSongForOptions != null) {
+            val songObj = selectedSongForOptions!!
+            val isLocal = songObj is Song
+            val isFavorite = if (isLocal) {
+                favoriteSongs.contains((songObj as Song).id)
+            } else {
+                streamingLikedSongs.any { it.id == (songObj as StreamingSong).id }
+            }
+
+            UniversalSongOptionsBottomSheet(
+                songObj = songObj,
+                onDismiss = { showSongOptionsSheet = false },
+                onPlayNext = {
+                    handleAction(if (isLocal) "LOCAL" else "STREAMING") {
+                        if (isLocal) {
+                            localViewModel.playNext(songObj as Song)
+                            Toast.makeText(context, "${(songObj as Song).title} will play next", Toast.LENGTH_SHORT).show()
+                        } else {
+                            try { streamingViewModel.javaClass.getMethod("playNext", StreamingSong::class.java).invoke(streamingViewModel, songObj as StreamingSong) } catch (e: Exception) {}
+                            Toast.makeText(context, "${(songObj as StreamingSong).title} will play next", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    showSongOptionsSheet = false
+                },
+                onAddToQueue = {
+                    handleAction(if (isLocal) "LOCAL" else "STREAMING") {
+                        if (isLocal) {
+                            localViewModel.addSongToQueue(songObj as Song)
+                            Toast.makeText(context, "${(songObj as Song).title} added to queue", Toast.LENGTH_SHORT).show()
+                        } else {
+                            try { streamingViewModel.javaClass.getMethod("addSongToQueue", StreamingSong::class.java).invoke(streamingViewModel, songObj as StreamingSong) } catch (e: Exception) {}
+                            Toast.makeText(context, "${(songObj as StreamingSong).title} added to queue", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    showSongOptionsSheet = false
+                },
+                onAddToPlaylist = {
+                    if (isLocal) {
+                        selectedSongForPlaylist = songObj as Song
+                    } else {
+                        selectedSongForPlaylist = (songObj as StreamingSong).toLocalSong()
+                    }
+                    showAddToPlaylistSheet = true
+                    showSongOptionsSheet = false
+                },
+                onToggleFavorite = {
+                    if (isLocal) {
+                        localViewModel.toggleFavorite(songObj as Song)
+                    } else {
+                        val streamingSong = songObj as StreamingSong
+                        val isCurrentlyLiked = streamingLikedSongs.any { it.id == streamingSong.id }
+                        if (isCurrentlyLiked) {
+                            streamingViewModel.unlikeSong(streamingSong)
+                            Toast.makeText(context, "Removed from streaming favorites", Toast.LENGTH_SHORT).show()
+                        } else {
+                            streamingViewModel.likeSong(streamingSong)
+                            Toast.makeText(context, "Added to streaming favorites", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    showSongOptionsSheet = false
+                },
+                isFavorite = isFavorite,
+                onShowSongInfo = {
+                    if (isLocal) {
+                        selectedSongForInfo = songObj as Song
+                        isSongInfoStreaming = false
+                    } else {
+                        selectedSongForInfo = (songObj as StreamingSong).toLocalSong()
+                        isSongInfoStreaming = true
+                    }
+                    showSongInfoSheet = true
+                    showSongOptionsSheet = false
+                },
+                onGoToAlbum = {
+                    showSongOptionsSheet = false
+                    if (isLocal) {
+                        val album = localAlbums.find { it.title.equals((songObj as Song).album, ignoreCase = true) }
+                        if (album != null) {
+                            handleAction("LOCAL") { onLocalAlbumClick(album) }
+                        } else Toast.makeText(context, "Album not found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val streamingSong = songObj as StreamingSong
+                        if (streamingSong.albumId != null) {
+                            val streamingAlbum = StreamingAlbum(
+                                id = streamingSong.albumId,
+                                title = streamingSong.album,
+                                artist = streamingSong.artist,
+                                artworkUri = streamingSong.artworkUri,
+                                songCount = 0,
+                                year = null,
+                                sourceType = streamingSong.sourceType
+                            )
+                            handleAction("STREAMING") { onStreamingAlbumClick(streamingAlbum) }
+                        } else {
+                            Toast.makeText(context, "Album not found", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onGoToArtist = {
+                    showSongOptionsSheet = false
+                    if (isLocal) {
+                        val artist = localArtists.find { it.name.equals((songObj as Song).artist, ignoreCase = true) }
+                        if (artist != null) {
+                            handleAction("LOCAL") { onLocalArtistClick(artist) }
+                        } else Toast.makeText(context, "Artist not found", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val streamingSong = songObj as StreamingSong
+                        val streamingArtist = StreamingArtist(
+                            id = streamingSong.albumArtist ?: streamingSong.artist,
+                            name = streamingSong.artist,
+                            artworkUri = streamingSong.artworkUri,
+                            songCount = 0,
+                            albumCount = 0,
+                            sourceType = streamingSong.sourceType
+                        )
+                        handleAction("STREAMING") { onStreamingArtistClick(streamingArtist) }
+                    }
+                },
+                onAddToBlacklist = {
+                    handleAction("LOCAL") {
+                        if (isLocal) {
+                            appSettings.addToBlacklist((songObj as Song).id)
+                            Toast.makeText(context, "${(songObj as Song).title} added to blacklist", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    showSongOptionsSheet = false
+                },
+                haptics = haptics
+            )
+        }
+
+        if (showAddToPlaylistSheet && selectedSongForPlaylist != null) {
+            AddToPlaylistBottomSheet(
+                song = selectedSongForPlaylist!!,
+                playlists = localPlaylists,
+                onDismissRequest = { showAddToPlaylistSheet = false },
+                onAddToPlaylist = { playlist ->
+                    localViewModel.addSongToPlaylist(selectedSongForPlaylist!!, playlist.id) { msg ->
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                    showAddToPlaylistSheet = false
+                },
+                onCreateNewPlaylist = {
+                    showAddToPlaylistSheet = false
+                    showCreatePlaylistDialog = true
+                }
+            )
+        }
+
+        if (showSongInfoSheet && selectedSongForInfo != null) {
+            SongInfoBottomSheet(
+                song = selectedSongForInfo,
+                onDismiss = { showSongInfoSheet = false },
+                appSettings = appSettings,
+                isStreamingMode = isSongInfoStreaming
+            )
+        }
+
+        if (showCreatePlaylistDialog) {
+            CreatePlaylistDialog(
+                onDismiss = { showCreatePlaylistDialog = false },
+                song = selectedSongForPlaylist,
+                onConfirm = { name ->
+                    localViewModel.createPlaylist(name)
+                    showCreatePlaylistDialog = false
+                },
+                onConfirmWithSong = { name ->
+                    localViewModel.createPlaylist(name)
+                    if (selectedSongForPlaylist != null) {
+                        coroutineScope.launch {
+                            var found = false
+                            for (i in 1..20) {
+                                delay(50)
+                                val match = localPlaylists.find { it.name == name }
+                                if (match != null) {
+                                    localViewModel.addSongToPlaylist(selectedSongForPlaylist!!, match.id) { msg ->
+                                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                    }
+                                    found = true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    showCreatePlaylistDialog = false
+                }
+            )
+        }
+    }
+}
+
+private fun StreamingSong.toLocalSong(): Song {
+    return Song(
+        id = this.id,
+        title = this.title,
+        artist = this.artist,
+        album = this.album,
+        albumId = this.albumId ?: "",
+        duration = this.duration,
+        uri = Uri.parse(this.streamingUrl ?: this.previewUrl ?: ""),
+        artworkUri = this.artworkUri?.let { Uri.parse(it) },
+        trackNumber = 0,
+        year = 0,
+        genre = null,
+        albumArtist = this.albumArtist
+    )
+}
+
+data class SearchGridItem(
+    val mode: String,
+    val title: String,
+    val subtitle: String,
+    val artworkUrl: Any?,
+    val onClick: () -> Unit
+)
+
+data class SongSearchItem(
+    val mode: String,
+    val title: String,
+    val subtitle: String,
+    val artworkUri: Any?,
+    val originalSong: Any,
+    val onClick: () -> Unit
+)
+
+private fun groupedSongItemShape(index: Int, totalCount: Int): RoundedCornerShape {
+    return when {
+        totalCount <= 1 -> RoundedCornerShape(24.dp)
+        index == 0 -> RoundedCornerShape(
+            topStart = 24.dp,
+            topEnd = 24.dp,
+            bottomStart = 6.dp,
+            bottomEnd = 6.dp
+        )
+        index == totalCount - 1 -> RoundedCornerShape(
+            topStart = 6.dp,
+            topEnd = 6.dp,
+            bottomStart = 24.dp,
+            bottomEnd = 24.dp
+        )
+        else -> RoundedCornerShape(6.dp)
+    }
+}
+
+@Composable
+fun UniversalSearchSongItem(
+    title: String,
+    subtitle: String,
+    artworkUri: Any?,
+    mode: String,
+    onClick: () -> Unit,
+    onMoreClick: () -> Unit,
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
+    index: Int = 0,
+    totalCount: Int = 1
+) {
+    val context = LocalContext.current
+    Card(
+        onClick = {
+            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+            onClick()
+        },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = groupedSongItemShape(index, totalCount),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            M3ImageUtils.TrackImage(
+                imageUrl = artworkUri,
+                trackName = title,
+                modifier = Modifier.size(48.dp),
+                applyExpressiveShape = true
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Surface(
+                    color = if (mode == "STREAMING")
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.16f)
+                    else
+                        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.16f),
+                    shape = RoundedCornerShape(999.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (mode == "STREAMING") Icons.Rounded.Cloud else Icons.Rounded.Folder,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = if (mode == "STREAMING")
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.secondary
+                        )
+                        Text(
+                            text = if (mode == "STREAMING") "Streaming" else "Local",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                            color = if (mode == "STREAMING")
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+            }
+
+            FilledIconButton(
+                onClick = {
+                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                    onMoreClick()
+                },
+                modifier = Modifier.size(36.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More options",
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchGridCard(
+    item: SearchGridItem,
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
+    context: android.content.Context,
+    isAlbum: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "grid_card_scale"
+    )
+
+    val expressiveShape = RoundedCornerShape(
+        topStart = 28.dp,
+        topEnd = 8.dp,
+        bottomEnd = 28.dp,
+        bottomStart = 8.dp
+    )
+
+    Card(
+        onClick = {
+            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+            item.onClick()
+        },
+        modifier = modifier
+            .width(if (isAlbum) 160.dp else 140.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
+        shape = expressiveShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp
+        ),
+        interactionSource = interactionSource
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isAlbum) {
+                M3ImageUtils.AlbumArt(
+                    imageUrl = item.artworkUrl,
+                    albumName = item.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                    applyExpressiveShape = true
+                )
+            } else {
+                M3ImageUtils.ArtistImage(
+                    imageUrl = item.artworkUrl,
+                    artistName = item.title,
+                    modifier = Modifier
+                        .size(120.dp),
+                    applyExpressiveShape = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = item.subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Surface(
+                color = if (item.mode == "STREAMING")
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.16f)
+                else
+                    MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.16f),
+                shape = RoundedCornerShape(999.dp),
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = if (item.mode == "STREAMING") Icons.Rounded.Cloud else Icons.Rounded.Folder,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = if (item.mode == "STREAMING")
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.secondary
+                    )
+                    Text(
+                        text = if (item.mode == "STREAMING") "Streaming" else "Local",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                        color = if (item.mode == "STREAMING")
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun WavyLoader(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "WavyLoader")
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        for (i in 0 until 4) {
+            val scale by infiniteTransition.animateFloat(
+                initialValue = 0.4f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 300, delayMillis = i * 100, easing = LinearOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "bar_$i"
+            )
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(20.dp)
+                    .graphicsLayer { scaleY = scale }
+                    .background(color, CircleShape)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UniversalAllSongsPage(
+    localSongs: List<Song>,
+    streamingSongs: List<StreamingSong>,
+    onBack: () -> Unit,
+    onOptionsClick: (Any) -> Unit,
+    onLocalSongClick: (Song) -> Unit,
+    onStreamingSongClick: (StreamingSong) -> Unit,
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
+) {
+    val context = LocalContext.current
+    val allSongs = buildList {
+        localSongs.forEach { add(it to "LOCAL") }
+        streamingSongs.forEach { add(it to "STREAMING") }
+    }
+
+    val miniPlayerBottomPadding = LocalMiniPlayerPadding.current.calculateBottomPadding()
+    val contentBottomPadding = (miniPlayerBottomPadding + 20.dp).coerceAtLeast(96.dp)
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+    val horizontalPadding = if (isTablet) 32.dp else 24.dp
+
+    CollapsibleHeaderScreen(
+        title = "Songs",
+        showBackButton = true,
+        onBackClick = onBack,
+        containerColor = MaterialTheme.colorScheme.background
+    ) { modifier ->
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(
+                start = horizontalPadding,
+                end = horizontalPadding,
+                top = 12.dp,
+                bottom = contentBottomPadding
+            ),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            item(key = "header_spacer") {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            itemsIndexed(
+                items = allSongs,
+                key = { index, _ -> "song_$index" }
+            ) { index, item ->
+                val isLocal = item.second == "LOCAL"
+                val title = if (isLocal) (item.first as Song).title else (item.first as StreamingSong).title
+                val artist = if (isLocal) (item.first as Song).artist else (item.first as StreamingSong).artist
+                val album = if (isLocal) (item.first as Song).album else (item.first as StreamingSong).album
+                val artworkUri = if (isLocal) (item.first as Song).artworkUri else (item.first as StreamingSong).artworkUri
+
+                UniversalSearchSongItem(
+                    title = title,
+                    subtitle = "$artist • $album",
+                    artworkUri = artworkUri,
+                    mode = item.second,
+                    onClick = {
+                        if (isLocal) onLocalSongClick(item.first as Song)
+                        else onStreamingSongClick(item.first as StreamingSong)
+                    },
+                    onMoreClick = {
+                        onOptionsClick(item.first)
+                    },
+                    haptics = haptics,
+                    index = index,
+                    totalCount = allSongs.size
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UniversalSongOptionsBottomSheet(
+    songObj: Any,
+    onDismiss: () -> Unit,
+    onPlayNext: () -> Unit,
+    onAddToQueue: () -> Unit,
+    onAddToPlaylist: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    isFavorite: Boolean,
+    onShowSongInfo: () -> Unit,
+    onGoToAlbum: () -> Unit,
+    onGoToArtist: () -> Unit,
+    onAddToBlacklist: () -> Unit,
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
+) {
+    val context = LocalContext.current
+    var showContent by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(100)
+        showContent = true
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(
+                color = MaterialTheme.colorScheme.primary
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+        tonalElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn() + slideInVertically { it },
+                exit = fadeOut() + slideOutVertically { it }
+            ) {
+                UniversalSongOptionsHeader(songObj = songObj)
+            }
+
+            AnimatedVisibility(
+                visible = showContent,
+                enter = fadeIn() + slideInVertically { it },
+                exit = fadeOut() + slideOutVertically { it }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = Icons.Rounded.SkipNext,
+                                text = "Play next",
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onPlayNext()
+                                }
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = RhythmIcons.Queue,
+                                text = "Add to queue",
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onAddToQueue()
+                                }
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = RhythmIcons.AddToPlaylist,
+                                text = "Add to playlist",
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onAddToPlaylist()
+                                }
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = if (isFavorite) RhythmIcons.Favorite else Icons.Rounded.FavoriteBorder,
+                                text = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onToggleFavorite()
+                                }
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = RhythmIcons.Album,
+                                text = "Go to album",
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onGoToAlbum()
+                                }
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = RhythmIcons.Artist,
+                                text = "Go to artist",
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onGoToArtist()
+                                }
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            UniversalSongOptionGridItem(
+                                icon = Icons.Rounded.Info,
+                                text = "Song info",
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    onShowSongInfo()
+                                }
+                            )
+                        }
+                        val isLocal = songObj is Song
+                        if (isLocal) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                UniversalSongOptionGridItem(
+                                    icon = Icons.Rounded.Block,
+                                    text = "Add to blacklist",
+                                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                                    iconColor = MaterialTheme.colorScheme.error,
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                        onAddToBlacklist()
+                                    }
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UniversalSongOptionsHeader(
+    songObj: Any,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val isLocal = songObj is Song
+    val title = if (isLocal) (songObj as Song).title else (songObj as StreamingSong).title
+    val artist = if (isLocal) (songObj as Song).artist else (songObj as StreamingSong).artist
+    val album = if (isLocal) (songObj as Song).album else (songObj as StreamingSong).album
+    val artworkUri = if (isLocal) (songObj as Song).artworkUri else (songObj as StreamingSong).artworkUri
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 16.dp)
+    ) {
+        Text(
+            text = "Song options",
+            style = MaterialTheme.typography.displayMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    tonalElevation = 0.dp
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .apply(ImageUtils.buildImageRequest(
+                                artworkUri,
+                                title,
+                                context.cacheDir,
+                                M3PlaceholderType.TRACK
+                            ))
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = if (isLocal) "Local Song" else "Streaming Song",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Text(
+                        text = "$artist • $album",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UniversalSongOptionGridItem(
+    icon: ImageVector,
+    text: String,
+    containerColor: Color,
+    iconColor: Color,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                modifier = Modifier.size(44.dp),
+                shape = CircleShape,
+                color = containerColor.copy(alpha = 0.3f),
+                tonalElevation = 0.dp
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    containerColor.copy(alpha = 0.15f),
+                                    containerColor.copy(alpha = 0.05f)
+                                ),
+                                radius = 22f
+                            )
+                        )
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}

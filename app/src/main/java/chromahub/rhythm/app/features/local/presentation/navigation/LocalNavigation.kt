@@ -121,7 +121,6 @@ import chromahub.rhythm.app.features.local.presentation.screens.PlayerScreen
 
 import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ArtistDetailScreen
-import chromahub.rhythm.app.features.local.presentation.screens.SearchScreen
 import chromahub.rhythm.app.features.local.presentation.screens.settings.SettingsScreenWrapper
 import chromahub.rhythm.app.features.local.presentation.screens.settings.*
 import chromahub.rhythm.app.shared.data.model.PlaybackLocation
@@ -534,7 +533,10 @@ fun LocalNavigation(
                     onPlayerClick = onPlayerClick,
                     onSkipNext = onSkipNext,
                     onSkipPrevious = onSkipPrevious,
-                    onMiniPlayerDismiss = { isMiniPlayerDismissed = true },
+                    onMiniPlayerDismiss = { 
+                        isMiniPlayerDismissed = true
+                        viewModel.clearCurrentSong()
+                    },
                     showMiniPlayer = showMiniPlayer,
                     showBottomNav = false, // Hide nav bar in content for tablet
                     isTablet = true,
@@ -590,7 +592,10 @@ fun LocalNavigation(
                 onPlayerClick = onPlayerClick,
                 onSkipNext = onSkipNext,
                 onSkipPrevious = onSkipPrevious,
-                onMiniPlayerDismiss = { isMiniPlayerDismissed = true },
+                onMiniPlayerDismiss = { 
+                    isMiniPlayerDismissed = true
+                    viewModel.clearCurrentSong()
+                },
                 showMiniPlayer = showMiniPlayer,
                 showBottomNav = showBottomNav,
                 isTablet = false,
@@ -800,7 +805,11 @@ private fun LocalNavigationContent(
                 label = "local_bottom_chrome_alpha"
             )
             val miniPlayerBottomOffset by animateDpAsState(
-                targetValue = if (showBottomNav) MusicDimensions.bottomNavigationHeight + 16.dp else 8.dp,
+                targetValue = when {
+                    showBottomNav -> MusicDimensions.bottomNavigationHeight + 16.dp
+                    currentRoute == Screen.Search.route -> 88.dp // Height of search bar + padding
+                    else -> 8.dp
+                },
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
                     stiffness = Spring.StiffnessLow
@@ -1328,45 +1337,25 @@ private fun LocalNavigationContent(
                                 )
                     }
                 ) {
-                    SearchScreen(
-                        musicViewModel = viewModel,
-                        songs = songs,
-                        albums = albums,
-                        artists = artists,
-                        playlists = playlists,
-                        currentSong = currentSong,
-                        isPlaying = isPlaying,
-                        progress = progress,
-                        onSongClick = { song ->
+                    val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+                    chromahub.rhythm.app.shared.presentation.screens.UniversalSearchScreen(
+                        localViewModel = viewModel,
+                        streamingViewModel = streamingViewModel,
+                        onLocalSongClick = { song ->
                             viewModel.playSongFromSearch(song, songs)
-                        },
-                        onAlbumClick = onPlayAlbum,
-                        onArtistClick = onPlayArtist,
-                        onPlaylistClick = { playlist ->
-                            // Navigate to playlist detail screen
-                            navController.navigate(Screen.PlaylistDetail.createRoute(playlist.id))
-                        },
-                        onPlayPause = onPlayPause,
-                        onPlayerClick = {
                             navController.navigate(Screen.Player.route)
                         },
-                        onSkipNext = onSkipNext,
-                        onAddSongToPlaylist = { song, playlistId ->
-                            viewModel.addSongToPlaylist(song, playlistId) { message ->
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(message)
-                                }
-                            }
+                        onLocalAlbumClick = onPlayAlbum,
+                        onLocalArtistClick = { artist -> navController.navigate(Screen.ArtistDetail.createRoute(artist.name)) },
+                        onLocalPlaylistClick = { playlist -> navController.navigate(Screen.PlaylistDetail.createRoute(playlist.id)) },
+                        onStreamingSongClick = { song ->
+                            streamingViewModel.playSong(song)
+                            navController.navigate(Screen.Player.route)
                         },
-                        onCreatePlaylist = { name ->
-                            viewModel.createPlaylist(name)
-                        },
-                        onBack = {
-                            navigateToLanding()
-                        },
-                        onNavigateToArtist = { artist ->
-                            navController.navigate(Screen.ArtistDetail.createRoute(artist.name))
-                        }
+                        onStreamingAlbumClick = { streamingViewModel.playAlbum(it) },
+                        onStreamingArtistClick = { /* Could add streaming artist route later */ },
+                        onStreamingPlaylistClick = { streamingViewModel.playPlaylist(it) },
+                        onBack = { navigateToLanding() }
                     )
                 }
 
