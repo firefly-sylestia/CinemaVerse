@@ -48,6 +48,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Slider
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -115,6 +116,7 @@ import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShap
 import chromahub.rhythm.app.shared.presentation.components.common.buildSplashBackdropShapes
 import chromahub.rhythm.app.shared.presentation.components.common.SplashBackgroundOrbs
 import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppVersion
 import chromahub.rhythm.app.ui.theme.getFontPreviewStyle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -4909,8 +4911,52 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
     val isDownloading by updaterViewModel.isDownloading.collectAsState()
     val downloadProgress by updaterViewModel.downloadProgress.collectAsState()
     val downloadedFile by updaterViewModel.downloadedFile.collectAsState()
-    val whatsNew = latestVersion?.whatsNew ?: emptyList()
-    val knownIssues = latestVersion?.knownIssues ?: emptyList()
+
+    // Simulation state variables
+    var simulateEnabled by remember { mutableStateOf(false) }
+    var simIsChecking by remember { mutableStateOf(false) }
+    var simUpdateAvailable by remember { mutableStateOf(false) }
+    var simIsDownloading by remember { mutableStateOf(false) }
+    var simDownloadProgress by remember { mutableStateOf(0f) }
+    var simDownloadedFile by remember { mutableStateOf<File?>(null) }
+    var simError by remember { mutableStateOf<String?>(null) }
+
+    val simLatestVersion = remember {
+        AppVersion(
+            versionName = "3.2.0-beta",
+            versionCode = 320,
+            releaseDate = "2026-05-21",
+            whatsNew = listOf(
+                "Added a brand new <b>UI Test Sandbox</b> for easy developer updates debugging!",
+                "Stunning onboarding-style wavy progress animations for app status updates.",
+                "Premium glassmorphic card layouts and dynamic gradient highlights.",
+                "Smooth micro-animations and improved layout responsiveness across all screen sizes."
+            ),
+            knownIssues = listOf(
+                "Simulated sandbox mode overrides actual remote check updates."
+            ),
+            downloadUrl = "https://github.com/cromaguy/Rhythm/releases",
+            apkAssetName = "rhythm-v3.2.0-beta.apk",
+            apkSize = 18454937, // ~17.6 MB
+            releaseNotes = "Simulated update notes",
+            isPreRelease = true,
+            buildNumber = 3200
+        )
+    }
+
+    val activeIsCheckingForUpdates = if (simulateEnabled) simIsChecking else isCheckingForUpdates
+    val activeUpdateAvailable = if (simulateEnabled) simUpdateAvailable else updateAvailable
+    val activeError = if (simulateEnabled) simError else error
+    val activeIsDownloading = if (simulateEnabled) simIsDownloading else isDownloading
+    val activeDownloadProgress = if (simulateEnabled) simDownloadProgress else downloadProgress
+    val activeDownloadedFile = if (simulateEnabled) simDownloadedFile else downloadedFile
+    val activeLatestVersion = if (simulateEnabled) {
+        if (simUpdateAvailable) simLatestVersion else null
+    } else {
+        latestVersion
+    }
+    val activeWhatsNew = activeLatestVersion?.whatsNew ?: emptyList()
+    val activeKnownIssues = activeLatestVersion?.knownIssues ?: emptyList()
 
     // Dialog states
     var showChannelDialog by remember { mutableStateOf(false) }
@@ -4928,16 +4974,6 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
         hours == updateCheckIntervalHours
     }?.second ?: context.getString(R.string.settings_check_interval_value, updateCheckIntervalHours)
 
-    // Determine status text for header
-    val statusText = when {
-        error != null -> context.getString(R.string.updates_status_error)
-        isCheckingForUpdates -> context.getString(R.string.updates_status_checking)
-        updateAvailable && latestVersion != null -> context.getString(R.string.updates_status_update_available)
-        !updatesEnabled -> context.getString(R.string.updates_status_disabled)
-        !autoCheckForUpdates -> context.getString(R.string.updates_status_manual)
-        else -> context.getString(R.string.updates_status_up_to_date)
-    }
-
     // Check for updates when the screen is first shown and updates are enabled
     LaunchedEffect(updatesEnabled) {
         if (updatesEnabled) {
@@ -4945,24 +4981,131 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
         }
     }
 
-    CollapsibleHeaderScreen(
-        title = context.getString(R.string.updates_title),
-        showBackButton = true,
-        onBackClick = onBackClick,
-//        actions = {
-//            Text(
-//                text = statusText,
-//                style = MaterialTheme.typography.bodyMedium,
-//                color = when {
-//                    error != null -> MaterialTheme.colorScheme.error
-//                    updateAvailable -> Color(0xFF4CAF50)
-//                    !updatesEnabled -> MaterialTheme.colorScheme.onSurfaceVariant
-//                    else -> MaterialTheme.colorScheme.primary
-//                },
-//                modifier = Modifier.padding(end = 16.dp)
-//            )
-//        }
-    ) { modifier ->
+    // Infinite transition for continuous animations
+    val infiniteTransition = rememberInfiniteTransition(label = "update_animations")
+
+    // Rotating icon for downloading state
+    val rotationAngle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotation"
+    )
+
+    // Success scale animation
+    val successScale = remember { Animatable(0.7f) }
+    LaunchedEffect(activeDownloadedFile) {
+        if (activeDownloadedFile != null) {
+            successScale.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+        }
+    }
+
+    // Determine status components
+    val statusIcon = when {
+        activeError != null -> Icons.Rounded.BugReport
+        activeDownloadedFile != null -> Icons.Rounded.CheckCircle
+        activeIsDownloading -> Icons.Rounded.Autorenew
+        activeUpdateAvailable -> RhythmIcons.Download
+        !updatesEnabled -> Icons.Rounded.UpdateDisabled
+        else -> Icons.Rounded.SystemUpdate
+    }
+
+    val statusColor = when {
+        activeError != null -> MaterialTheme.colorScheme.error
+        activeDownloadedFile != null -> MaterialTheme.colorScheme.tertiary
+        activeIsDownloading -> MaterialTheme.colorScheme.secondary
+        activeUpdateAvailable -> MaterialTheme.colorScheme.primary
+        !updatesEnabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    val statusTitle = when {
+        activeError != null -> context.getString(R.string.updates_check_failed)
+        !updatesEnabled -> context.getString(R.string.updates_disabled)
+        activeIsCheckingForUpdates -> context.getString(R.string.updates_checking)
+        activeIsDownloading -> context.getString(R.string.updates_downloading)
+        activeDownloadedFile != null -> context.getString(R.string.updates_download_complete)
+        activeUpdateAvailable -> context.getString(R.string.updates_available)
+        !autoCheckForUpdates -> context.getString(R.string.updates_manual_check)
+        else -> context.getString(R.string.updates_up_to_date_message)
+    }
+
+    val statusDescription = when {
+        activeError != null -> activeError ?: context.getString(R.string.updates_unknown_error)
+        !updatesEnabled -> context.getString(R.string.updates_disabled_message)
+        activeIsCheckingForUpdates -> context.getString(R.string.fetching_latest_version)
+        activeIsDownloading -> "${((activeLatestVersion?.apkSize ?: 0) * activeDownloadProgress / 100).toLong().let { updaterViewModel.getReadableFileSize(it) }} / ${activeLatestVersion?.let { updaterViewModel.getReadableFileSize(it.apkSize) } ?: ""}"
+        activeDownloadedFile != null -> "Version ${activeLatestVersion?.versionName ?: "?"} is ready to install"
+        activeUpdateAvailable -> "Version ${activeLatestVersion?.versionName ?: "?"} • ${activeLatestVersion?.let { updaterViewModel.getReadableFileSize(it.apkSize) } ?: ""}"
+        !autoCheckForUpdates -> context.getString(R.string.updates_auto_disabled)
+        else -> "Rhythm is up to date with the latest features and security updates"
+    }
+
+    val headerBlendHeight = 24.dp
+    val headerBlendBaseColor = MaterialTheme.colorScheme.surface
+
+    Scaffold(
+        topBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
+                // Static, non-collapsible Top Bar
+                androidx.compose.material3.TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onBackClick,
+                            modifier = Modifier.padding(start = 12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(headerBlendHeight)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    headerBlendBaseColor,
+                                    headerBlendBaseColor.copy(alpha = 0.72f),
+                                    headerBlendBaseColor.copy(alpha = 0.32f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+            }
+        }
+    ) { paddingValues ->
         val lazyListState = rememberSaveable(
             saver = LazyListStateSaver
         ) {
@@ -4971,95 +5114,158 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
 
         LazyColumn(
             state = lazyListState,
-            modifier = modifier.fillMaxSize(),
-            contentPadding = PaddingValues(24.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .offset(y = -headerBlendHeight),
+            contentPadding = PaddingValues(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Combined App Info and Update Status Card
+            // 1. Live Update Status display (No card bg, onboarding-like placements and wavy loaders)
             item {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
+                        .padding(vertical = 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Centered Icon with no container background (Onboarding style)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 0.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = statusIcon,
+                            contentDescription = null,
+                            tint = statusColor,
+                            modifier = Modifier
+                                .size(72.dp)
+                                .then(
+                                    if (activeIsDownloading) {
+                                        Modifier.graphicsLayer(rotationZ = rotationAngle)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                        )
+                    }
+
+                    // Status Title
+                    Text(
+                        text = statusTitle,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = statusColor,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                    )
+
+                    // Linear Wavy Progress Bar between Title and Description (Onboarding style)
+                    if (activeIsCheckingForUpdates) {
+                        LinearWavyProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                                .height(8.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                        )
+                    }
+
+                    if (activeIsDownloading) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    CircularWavyProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                    Text(
+                                        text = context.getString(R.string.onboarding_in_progress),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                                Text(
+                                    text = "${activeDownloadProgress.toInt()}%",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+
+                            LinearWavyProgressIndicator(
+                                progress = { activeDownloadProgress / 100f },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                            )
+                        }
+                    }
+
+                    // Status Description
+                    Text(
+                        text = statusDescription,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (activeError != null) MaterialTheme.colorScheme.error.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                    )
+
+                    // Action buttons (Install, Download, Cancel, Retry, Enable Updates, Check Again)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .padding(vertical = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // Rhythm logo and name
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = chromahub.rhythm.app.R.drawable.rhythm_splash_logo),
-                                contentDescription = "Rhythm Logo",
-                                modifier = Modifier.size(52.dp)
-                            )
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text(
-                                text = context.getString(R.string.common_rhythm),
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Version info
-                        Text(
-                            text = context.getString(R.string.updates_version_prefix, currentVersion.versionName),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = context.getString(R.string.updates_released_prefix, currentVersion.releaseDate),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Status display with loader and progress like onboarding
                         when {
-                            error != null -> {
-                                Icon(
-                                    imageVector = Icons.Rounded.Error,
-                                    contentDescription = context.getString(R.string.updates_error),
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(40.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_check_failed),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = error ?: context.getString(R.string.updates_unknown_error),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
+                            activeError != null -> {
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                                 ) {
                                     OutlinedButton(
-                                        onClick = { updaterViewModel.clearError() },
+                                        onClick = {
+                                            if (simulateEnabled) {
+                                                simError = null
+                                            } else {
+                                                updaterViewModel.clearError()
+                                            }
+                                        },
                                         modifier = Modifier.weight(1f),
-                                        shape = RoundedCornerShape(12.dp)
+                                        shape = RoundedCornerShape(20.dp),
+                                        border = BorderStroke(2.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Rounded.Close,
@@ -5067,68 +5273,73 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(context.getString(R.string.ui_dismiss))
+                                        Text(
+                                            text = context.getString(R.string.ui_dismiss),
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
                                     }
                                     Button(
                                         onClick = {
-                                            if (error?.contains("unknown sources", ignoreCase = true) == true ||
-                                                error?.contains("install from unknown", ignoreCase = true) == true) {
-                                                val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                                                    data = Uri.parse("package:${context.packageName}")
-                                                }
-                                                try {
-                                                    context.startActivity(intent)
-                                                } catch (e: Exception) {
-                                                    val fallbackIntent = Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)
-                                                    context.startActivity(fallbackIntent)
+                                            if (simulateEnabled) {
+                                                simError = null
+                                                scope.launch {
+                                                    simIsChecking = true
+                                                    delay(1500)
+                                                    simIsChecking = false
+                                                    simUpdateAvailable = true
                                                 }
                                             } else {
-                                                updaterViewModel.checkForUpdates(force = true)
+                                                if (error?.contains("unknown sources", ignoreCase = true) == true ||
+                                                    error?.contains("install from unknown", ignoreCase = true) == true) {
+                                                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                                        data = Uri.parse("package:${context.packageName}")
+                                                    }
+                                                    try {
+                                                        context.startActivity(intent)
+                                                    } catch (e: Exception) {
+                                                        val fallbackIntent = Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)
+                                                        context.startActivity(fallbackIntent)
+                                                    }
+                                                } else {
+                                                    updaterViewModel.checkForUpdates(force = true)
+                                                }
                                             }
                                         },
                                         modifier = Modifier.weight(1f),
-                                        shape = RoundedCornerShape(12.dp)
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                        elevation = ButtonDefaults.buttonElevation(
+                                            defaultElevation = 4.dp,
+                                            pressedElevation = 8.dp
+                                        )
                                     ) {
                                         Icon(
-                                            imageVector = if (error?.contains("unknown sources", ignoreCase = true) == true ||
-                                                             error?.contains("install from unknown", ignoreCase = true) == true)
+                                            imageVector = if (!simulateEnabled && (error?.contains("unknown sources", ignoreCase = true) == true ||
+                                                              error?.contains("install from unknown", ignoreCase = true) == true))
                                                 Icons.Rounded.Settings else Icons.Rounded.Refresh,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(if (error?.contains("unknown sources", ignoreCase = true) == true ||
-                                                 error?.contains("install from unknown", ignoreCase = true) == true) context.getString(R.string.updates_open_settings) else context.getString(R.string.updates_retry))
+                                        Text(
+                                            text = if (!simulateEnabled && (error?.contains("unknown sources", ignoreCase = true) == true ||
+                                                     error?.contains("install from unknown", ignoreCase = true) == true))
+                                                context.getString(R.string.updates_open_settings)
+                                            else
+                                                context.getString(R.string.updates_retry),
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
                                     }
                                 }
                             }
 
                             !updatesEnabled -> {
-                                Icon(
-                                    imageVector = Icons.Rounded.UpdateDisabled,
-                                    contentDescription = context.getString(R.string.updates_disabled),
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(40.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_disabled),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_disabled_message),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
                                 Button(
                                     onClick = { appSettings.setUpdatesEnabled(true) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp)
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                                    shape = RoundedCornerShape(20.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Rounded.SystemUpdate,
@@ -5136,223 +5347,149 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(context.getString(R.string.updates_enable_updates))
+                                    Text(
+                                        text = context.getString(R.string.updates_enable_updates),
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    )
                                 }
                             }
 
-                            isCheckingForUpdates -> {
-                                M3FourColorCircularLoader(
-                                    modifier = Modifier.size(40.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_checking),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    textAlign = TextAlign.Center
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
+                            activeIsDownloading -> {
                                 OutlinedButton(
-                                    onClick = { updaterViewModel.checkForUpdates(force = true) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp)
+                                    onClick = {
+                                        if (simulateEnabled) {
+                                            simIsDownloading = false
+                                            simDownloadProgress = 0f
+                                            simUpdateAvailable = true
+                                        } else {
+                                            updaterViewModel.cancelDownload()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        contentColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.error),
+                                    shape = RoundedCornerShape(20.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Search,
+                                        imageVector = Icons.Rounded.Block,
                                         contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(context.getString(R.string.updates_check_now))
-                                }
-                            }
-
-                            updateAvailable && latestVersion != null -> {
-                                Icon(
-                                    imageVector = Icons.Rounded.Update,
-                                    contentDescription = "Update available",
-                                    tint = Color(0xFF4CAF50),
-                                    modifier = Modifier.size(40.dp)
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_available),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF4CAF50)
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_version_prefix, latestVersion?.versionName ?: ""),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = context.getString(R.string.updates_released_prefix, latestVersion?.releaseDate ?: ""),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-
-                                latestVersion?.let { version ->
-                                    if (version.apkSize > 0) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = RhythmIcons.Download,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                modifier = Modifier.size(14.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text(
-                                                text = version.apkAssetName,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                                modifier = Modifier.weight(1f, fill = false)
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text(
-                                                text = "(${updaterViewModel.getReadableFileSize(version.apkSize)})",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1,
-                                                softWrap = false
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                if (isDownloading) {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = context.getString(R.string.updates_downloading),
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        LinearProgressIndicator(
-                                            progress = { downloadProgress / 100f },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            color = MaterialTheme.colorScheme.primary,
-                                            trackColor = MaterialTheme.colorScheme.primaryContainer
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "${downloadProgress.toInt()}%",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        OutlinedButton(
-                                            onClick = { updaterViewModel.cancelDownload() },
-                                            colors = ButtonDefaults.outlinedButtonColors(
-                                                contentColor = MaterialTheme.colorScheme.error
-                                            ),
-                                            modifier = Modifier.fillMaxWidth(),
-                                            shape = RoundedCornerShape(12.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Rounded.Cancel,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(context.getString(R.string.updates_cancel_download))
-                                        }
-                                    }
-                                } else if (downloadedFile != null) {
-                                    Icon(
-                                        imageVector = RhythmIcons.Check,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = context.getString(R.string.updates_download_complete),
-                                        style = MaterialTheme.typography.titleMedium,
+                                        text = context.getString(R.string.updates_cancel_download),
                                         fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
+                                        style = MaterialTheme.typography.titleSmall,
+                                        modifier = Modifier.padding(vertical = 4.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = downloadedFile?.name ?: "",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Button(
-                                        onClick = { updaterViewModel.installDownloadedApk() },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = RhythmIcons.Check,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(context.getString(R.string.updates_install_update))
-                                        }
-                                    }
-                                } else {
-                                    Button(
-                                        onClick = { updaterViewModel.downloadUpdate() },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = RhythmIcons.Download,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(context.getString(R.string.updates_download_update))
-                                        }
-                                    }
                                 }
                             }
 
-                            !isCheckingForUpdates && error == null -> {
-                                if (!autoCheckForUpdates) {
+                            activeDownloadedFile != null -> {
+                                Button(
+                                    onClick = {
+                                        if (simulateEnabled) {
+                                            Toast.makeText(context, "Simulating update installation (Success!)", Toast.LENGTH_SHORT).show()
+                                            simDownloadedFile = null
+                                            simUpdateAvailable = false
+                                        } else {
+                                            updaterViewModel.installDownloadedApk()
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp)
+                                        .scale(successScale.value),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                                    shape = RoundedCornerShape(20.dp),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 6.dp,
+                                        pressedElevation = 12.dp
+                                    )
+                                ) {
                                     Icon(
-                                        imageVector = RhythmIcons.Refresh,
-                                        contentDescription = context.getString(R.string.updates_manual_check),
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(40.dp)
+                                        imageVector = Icons.Rounded.CheckCircle,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(22.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        text = context.getString(R.string.updates_manual_check),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold
+                                        text = context.getString(R.string.updates_install_update),
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(vertical = 6.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+
+                            activeUpdateAvailable -> {
+                                Button(
+                                    onClick = {
+                                        if (simulateEnabled) {
+                                            scope.launch {
+                                                simIsDownloading = true
+                                                simDownloadProgress = 0f
+                                                while (simDownloadProgress < 100f && simIsDownloading) {
+                                                    delay(100)
+                                                    simDownloadProgress += 4f
+                                                }
+                                                if (simIsDownloading) {
+                                                    simIsDownloading = false
+                                                    simDownloadedFile = File(context.cacheDir, "simulated_update.apk")
+                                                }
+                                            }
+                                        } else {
+                                            updaterViewModel.downloadUpdate()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                                    shape = RoundedCornerShape(20.dp),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 6.dp,
+                                        pressedElevation = 12.dp
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = RhythmIcons.Download,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
                                     Text(
-                                        text = context.getString(R.string.updates_auto_disabled),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        textAlign = TextAlign.Center
+                                        text = context.getString(R.string.updates_download_update),
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(vertical = 6.dp)
                                     )
-                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            }
+
+                            !activeIsCheckingForUpdates -> {
+                                if (!autoCheckForUpdates) {
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.fillMaxWidth()
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                                     ) {
                                         Button(
-                                            onClick = { updaterViewModel.checkForUpdates(force = true) },
+                                            onClick = {
+                                                if (simulateEnabled) {
+                                                    scope.launch {
+                                                        simIsChecking = true
+                                                        simError = null
+                                                        delay(1500)
+                                                        simIsChecking = false
+                                                        simUpdateAvailable = true
+                                                    }
+                                                } else {
+                                                    updaterViewModel.checkForUpdates(force = true)
+                                                }
+                                            },
                                             modifier = Modifier.weight(1f),
-                                            shape = RoundedCornerShape(12.dp)
+                                            shape = RoundedCornerShape(20.dp)
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Rounded.Search,
@@ -5360,12 +5497,18 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                                 modifier = Modifier.size(18.dp)
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Check Now")
+                                            Text(
+                                                text = "Check Now",
+                                                fontWeight = FontWeight.Bold,
+                                                style = MaterialTheme.typography.titleSmall,
+                                                modifier = Modifier.padding(vertical = 4.dp)
+                                            )
                                         }
                                         OutlinedButton(
                                             onClick = { appSettings.setAutoCheckForUpdates(true) },
                                             modifier = Modifier.weight(1f),
-                                            shape = RoundedCornerShape(12.dp)
+                                            shape = RoundedCornerShape(20.dp),
+                                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Rounded.Autorenew,
@@ -5373,27 +5516,31 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                                 modifier = Modifier.size(18.dp)
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
-                                            Text(context.getString(R.string.updates_enable_auto_check))
+                                            Text(
+                                                text = context.getString(R.string.updates_enable_auto_check),
+                                                fontWeight = FontWeight.Bold,
+                                                style = MaterialTheme.typography.titleSmall,
+                                                modifier = Modifier.padding(vertical = 4.dp)
+                                            )
                                         }
                                     }
                                 } else {
-                                    Icon(
-                                        imageVector = RhythmIcons.Check,
-                                        contentDescription = context.getString(R.string.updates_up_to_date),
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(40.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = context.getString(R.string.updates_up_to_date_message),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
                                     Button(
-                                        onClick = { updaterViewModel.checkForUpdates(force = true) },
-                                        shape = RoundedCornerShape(12.dp)
+                                        onClick = {
+                                            if (simulateEnabled) {
+                                                scope.launch {
+                                                    simIsChecking = true
+                                                    simError = null
+                                                    delay(1500)
+                                                    simIsChecking = false
+                                                    simUpdateAvailable = true
+                                                }
+                                            } else {
+                                                updaterViewModel.checkForUpdates(force = true)
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(20.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Rounded.Refresh,
@@ -5401,7 +5548,12 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(context.getString(R.string.updates_check_again))
+                                        Text(
+                                            text = context.getString(R.string.updates_check_again),
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            modifier = Modifier.padding(vertical = 4.dp)
+                                        )
                                     }
                                 }
                             }
@@ -5409,10 +5561,54 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                     }
                 }
             }
-            // What's New section
+
+            // 2. Build Info display (moved cleanly here above changelogs)
+            item {
+                val isUpdateAvail = activeUpdateAvailable && activeLatestVersion != null
+                val displayVersionName = if (isUpdateAvail) activeLatestVersion.versionName else currentVersion.versionName
+                val displayReleaseDate = if (isUpdateAvail) activeLatestVersion.releaseDate else currentVersion.releaseDate
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                            val tag = currentVersion.versionName
+                            val releaseUrl = if (tag.startsWith("v", ignoreCase = true)) {
+                                "https://github.com/cromaguy/Rhythm/releases/tag/$tag"
+                            } else {
+                                "https://github.com/cromaguy/Rhythm/releases/tag/v$tag"
+                            }
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(releaseUrl))
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Unable to open release page", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = if (isUpdateAvail) "Available Version: V $displayVersionName" else context.getString(R.string.updates_version_prefix, displayVersionName),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isUpdateAvail) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (isUpdateAvail) "Released: $displayReleaseDate" else context.getString(R.string.updates_released_prefix, displayReleaseDate),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // 3. What's New section
             item {
                 AnimatedVisibility(
-                    visible = updatesEnabled && latestVersion != null && whatsNew.isNotEmpty(),
+                    visible = updatesEnabled && activeUpdateAvailable && activeLatestVersion != null,
                     enter = fadeIn() + expandVertically(),
                     exit = fadeOut() + shrinkVertically()
                 ) {
@@ -5435,36 +5631,44 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 modifier = Modifier.padding(20.dp)
                             ) {
                                 val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
-                                whatsNew.forEachIndexed { index, change ->
-                                    Row(
-                                        modifier = Modifier.padding(vertical = 2.dp),
-                                        verticalAlignment = Alignment.Top
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(6.dp)
-                                                .padding(top = 8.dp)
-                                                .background(
-                                                    MaterialTheme.colorScheme.primary,
-                                                    CircleShape
-                                                )
-                                        )
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        AndroidView(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            factory = { ctx ->
-                                                TextView(ctx).apply {
-                                                    setTextColor(onSurfaceColor)
+                                if (activeWhatsNew.isEmpty()) {
+                                    Text(
+                                        text = "Refer to release notes on GitHub releases page.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    activeWhatsNew.forEachIndexed { index, change ->
+                                        Row(
+                                            modifier = Modifier.padding(vertical = 2.dp),
+                                            verticalAlignment = Alignment.Top
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(6.dp)
+                                                    .padding(top = 8.dp)
+                                                    .background(
+                                                        MaterialTheme.colorScheme.primary,
+                                                        CircleShape
+                                                    )
+                                            )
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            AndroidView(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                factory = { ctx ->
+                                                    TextView(ctx).apply {
+                                                        setTextColor(onSurfaceColor)
+                                                    }
+                                                },
+                                                update = { textView ->
+                                                    textView.text = HtmlCompat.fromHtml(change, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                                                    textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
                                                 }
-                                            },
-                                            update = { textView ->
-                                                textView.text = HtmlCompat.fromHtml(change, HtmlCompat.FROM_HTML_MODE_COMPACT)
-                                                textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
-                                            }
-                                        )
-                                    }
-                                    if (index < whatsNew.size - 1) {
-                                        Spacer(modifier = Modifier.height(1.dp))
+                                            )
+                                        }
+                                        if (index < activeWhatsNew.size - 1) {
+                                            Spacer(modifier = Modifier.height(1.dp))
+                                        }
                                     }
                                 }
                             }
@@ -5473,10 +5677,10 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Known Issues section
+            // 4. Known Issues section
             item {
                 AnimatedVisibility(
-                    visible = updatesEnabled && latestVersion != null && knownIssues.isNotEmpty(),
+                    visible = updatesEnabled && activeUpdateAvailable && activeLatestVersion != null && activeKnownIssues.isNotEmpty(),
                     enter = fadeIn() + expandVertically(),
                     exit = fadeOut() + shrinkVertically()
                 ) {
@@ -5499,7 +5703,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 modifier = Modifier.padding(20.dp)
                             ) {
                                 val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
-                                knownIssues.forEachIndexed { index, issue ->
+                                activeKnownIssues.forEachIndexed { index, issue ->
                                     Row(
                                         modifier = Modifier.padding(vertical = 2.dp),
                                         verticalAlignment = Alignment.Top
@@ -5527,7 +5731,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                             }
                                         )
                                     }
-                                    if (index < knownIssues.size - 1) {
+                                    if (index < activeKnownIssues.size - 1) {
                                         Spacer(modifier = Modifier.height(1.dp))
                                     }
                                 }
@@ -5537,7 +5741,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // Settings Section below
+            // 5. Settings Section below
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 val updateSettingsItems = buildList {
@@ -5605,7 +5809,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 )
             }
 
-            // Informational card about smart polling
+            // 6. Informational card about smart polling
             item {
                 AnimatedVisibility(
                     visible = updatesEnabled && useSmartUpdatePolling,
@@ -5649,6 +5853,349 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                     }
                 }
             }
+
+            // 7. Developer UI Test Sandbox Card
+//            item {
+//                Card(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    shape = RoundedCornerShape(18.dp),
+//                    colors = CardDefaults.cardColors(
+//                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
+//                    ),
+//                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)),
+//                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+//                ) {
+//                    Column(
+//                        modifier = Modifier.padding(16.dp),
+//                        verticalArrangement = Arrangement.spacedBy(12.dp)
+//                    ) {
+//                        Row(
+//                            modifier = Modifier.fillMaxWidth(),
+//                            horizontalArrangement = Arrangement.SpaceBetween,
+//                            verticalAlignment = Alignment.CenterVertically
+//                        ) {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                            ) {
+//                                Icon(
+//                                    imageVector = Icons.Default.Science,
+//                                    contentDescription = null,
+//                                    tint = MaterialTheme.colorScheme.secondary,
+//                                    modifier = Modifier.size(24.dp)
+//                                )
+//                                Text(
+//                                    text = "UI Test Sandbox",
+//                                    style = MaterialTheme.typography.titleMedium,
+//                                    fontWeight = FontWeight.Bold,
+//                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+//                                )
+//                            }
+//                            TunerAnimatedSwitch(
+//                                checked = simulateEnabled,
+//                                onCheckedChange = {
+//                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+//                                    simulateEnabled = it
+//                                    if (!it) {
+//                                        // Reset simulated states when disabled
+//                                        simIsChecking = false
+//                                        simUpdateAvailable = false
+//                                        simIsDownloading = false
+//                                        simDownloadProgress = 0f
+//                                        simDownloadedFile = null
+//                                        simError = null
+//                                    }
+//                                }
+//                            )
+//                        }
+//
+//                        Text(
+//                            text = "Enable to simulate different update states and progress bars for UI testing.",
+//                            style = MaterialTheme.typography.bodySmall,
+//                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+//                        )
+//
+//                        AnimatedVisibility(
+//                            visible = simulateEnabled,
+//                            enter = fadeIn() + expandVertically(),
+//                            exit = fadeOut() + shrinkVertically()
+//                        ) {
+//                            Column(
+//                                verticalArrangement = Arrangement.spacedBy(8.dp)
+//                            ) {
+//                                HorizontalDivider(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
+//
+//                                Text(
+//                                    text = "Simulate State:",
+//                                    style = MaterialTheme.typography.titleSmall,
+//                                    fontWeight = FontWeight.SemiBold,
+//                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+//                                )
+//
+//                                // Row 1 of presets: Checking & Update Available
+//                                Row(
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                                ) {
+//                                    val isCheckingSelected = simIsChecking && !simUpdateAvailable && !simIsDownloading && simDownloadedFile == null && simError == null
+//                                    if (isCheckingSelected) {
+//                                        Button(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = true
+//                                                simUpdateAvailable = false
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Checking", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+//                                        }
+//                                    } else {
+//                                        OutlinedButton(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = true
+//                                                simUpdateAvailable = false
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Checking", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+//                                        }
+//                                    }
+//
+//                                    val isAvailableSelected = !simIsChecking && simUpdateAvailable && !simIsDownloading && simDownloadedFile == null && simError == null
+//                                    if (isAvailableSelected) {
+//                                        Button(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = true
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Update Available", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+//                                        }
+//                                    } else {
+//                                        OutlinedButton(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = true
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Update Available", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+//                                        }
+//                                    }
+//                                }
+//
+//                                // Row 2 of presets: Downloading & Downloaded
+//                                Row(
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                                ) {
+//                                    val isDownloadingSelected = simIsDownloading
+//                                    if (isDownloadingSelected) {
+//                                        Button(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = true
+//                                                simIsDownloading = true
+//                                                simDownloadedFile = null
+//                                                simError = null
+//
+//                                                // Start simulating a progress cycle
+//                                                scope.launch {
+//                                                    simDownloadProgress = 0f
+//                                                    while (simDownloadProgress < 100f && simIsDownloading) {
+//                                                        delay(100)
+//                                                        simDownloadProgress += 4f
+//                                                    }
+//                                                    if (simIsDownloading) {
+//                                                        simIsDownloading = false
+//                                                        simDownloadedFile = File(context.cacheDir, "simulated_update.apk")
+//                                                    }
+//                                                }
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Downloading", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+//                                        }
+//                                    } else {
+//                                        OutlinedButton(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = true
+//                                                simIsDownloading = true
+//                                                simDownloadedFile = null
+//                                                simError = null
+//
+//                                                // Start simulating a progress cycle
+//                                                scope.launch {
+//                                                    simDownloadProgress = 0f
+//                                                    while (simDownloadProgress < 100f && simIsDownloading) {
+//                                                        delay(100)
+//                                                        simDownloadProgress += 4f
+//                                                    }
+//                                                    if (simIsDownloading) {
+//                                                        simIsDownloading = false
+//                                                        simDownloadedFile = File(context.cacheDir, "simulated_update.apk")
+//                                                    }
+//                                                }
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Downloading", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+//                                        }
+//                                    }
+//
+//                                    val isDownloadedSelected = simDownloadedFile != null && !simIsDownloading
+//                                    if (isDownloadedSelected) {
+//                                        Button(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = true
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = File(context.cacheDir, "simulated_update.apk")
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Downloaded", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+//                                        }
+//                                    } else {
+//                                        OutlinedButton(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = true
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = File(context.cacheDir, "simulated_update.apk")
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Downloaded", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+//                                        }
+//                                    }
+//                                }
+//
+//                                // Row 3 of presets: Error & Reset
+//                                Row(
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                                ) {
+//                                    val isErrorSelected = simError != null
+//                                    if (isErrorSelected) {
+//                                        Button(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = false
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = "Simulated network timeout error. Please check connection and try again."
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Error", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+//                                        }
+//                                    } else {
+//                                        OutlinedButton(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = false
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = "Simulated network timeout error. Please check connection and try again."
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Error", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+//                                        }
+//                                    }
+//
+//                                    val isResetSelected = !simIsChecking && !simUpdateAvailable && !simIsDownloading && simDownloadedFile == null && simError == null
+//                                    if (isResetSelected) {
+//                                        Button(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = false
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Reset", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+//                                        }
+//                                    } else {
+//                                        OutlinedButton(
+//                                            onClick = {
+//                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+//                                                simIsChecking = false
+//                                                simUpdateAvailable = false
+//                                                simIsDownloading = false
+//                                                simDownloadedFile = null
+//                                                simError = null
+//                                            },
+//                                            modifier = Modifier.weight(1f).height(36.dp),
+//                                            shape = RoundedCornerShape(12.dp),
+//                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+//                                            contentPadding = PaddingValues(0.dp)
+//                                        ) {
+//                                            Text("Reset", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 
