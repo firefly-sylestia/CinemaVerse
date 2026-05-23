@@ -90,6 +90,13 @@ abstract class RhythmAudioProcessor : AudioProcessor {
      * Check if the processor is enabled
      */
     abstract fun isEnabled(): Boolean
+
+    /**
+     * Check if the processor should bypass processing (default: not enabled)
+     */
+    open fun isBypassed(): Boolean {
+        return !isEnabled()
+    }
     
     override fun configure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
         Log.d(TAG, "configure() - sampleRate=${inputAudioFormat.sampleRate}, channels=${inputAudioFormat.channelCount}, encoding=${inputAudioFormat.encoding}")
@@ -104,8 +111,7 @@ abstract class RhythmAudioProcessor : AudioProcessor {
     }
     
     override fun isActive(): Boolean {
-        val active = isEnabled() && 
-            inputAudioFormat != AudioProcessor.AudioFormat.NOT_SET &&
+        val active = inputAudioFormat != AudioProcessor.AudioFormat.NOT_SET &&
             encoding == C.ENCODING_PCM_16BIT
         return active
     }
@@ -115,7 +121,7 @@ abstract class RhythmAudioProcessor : AudioProcessor {
             return
         }
         
-        if (!isActive()) {
+        if (!isActive() || isBypassed()) {
             val size = inputBuffer.remaining()
             if (buffer.capacity() < size) {
                 if (buffer !== AudioProcessor.EMPTY_BUFFER) releaseByteBuffer(buffer)

@@ -68,7 +68,8 @@ object AutoEQImportExport {
      */
     fun parseParametricEQ(text: String, name: String = "Imported Profile"): AutoEQProfile? {
         return try {
-            val bands = MutableList(10) { 0f }
+            val bandSums = FloatArray(10) { 0f }
+            val bandCounts = IntArray(10) { 0 }
             val lines = text.lines()
             
             for (line in lines) {
@@ -81,13 +82,17 @@ object AutoEQImportExport {
                     // Find nearest band frequency
                     val bandIndex = findNearestBandIndex(freq)
                     if (bandIndex >= 0) {
-                        // Average if multiple filters map to same band
-                        if (bands[bandIndex] == 0f) {
-                            bands[bandIndex] = gain
-                        } else {
-                            bands[bandIndex] = (bands[bandIndex] + gain) / 2f
-                        }
+                        bandSums[bandIndex] += gain
+                        bandCounts[bandIndex] += 1
                     }
+                }
+            }
+            
+            val bands = List(10) { i ->
+                if (bandCounts[i] > 0) {
+                    bandSums[i] / bandCounts[i]
+                } else {
+                    0f
                 }
             }
             
@@ -243,7 +248,9 @@ object AutoEQImportExport {
             trimmedText.contains(",") && !trimmedText.contains("{") -> {
                 parseCSV(trimmedText)
             }
-            else -> emptyList()
+            else -> {
+                listOfNotNull(parseSpaceSeparated(trimmedText, name))
+            }
         }
     }
     
@@ -284,6 +291,30 @@ object AutoEQImportExport {
     }
     
     /**
+     * Parse space/tab/newline separated list of 10 band gains
+     */
+    fun parseSpaceSeparated(text: String, name: String = "Imported Profile"): AutoEQProfile? {
+        return try {
+            // Split by any whitespace: space, tab, carriage return, newline
+            val tokens = text.trim().split(Regex("""\s+""")).map { it.trim() }
+            val bands = tokens.mapNotNull { it.toFloatOrNull() }
+            
+            if (bands.size >= 10) {
+                AutoEQProfile(
+                    name = name,
+                    brand = extractBrandFromName(name),
+                    type = "Unknown",
+                    bands = bands.take(10)
+                )
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    /**
      * Read file content from URI
      */
     fun readFromUri(context: Context, uri: Uri): String? {
@@ -317,11 +348,14 @@ object AutoEQImportExport {
     
     // Helper functions
     private fun findNearestBandIndex(freq: Int): Int {
-        var minDiff = Int.MAX_VALUE
+        if (freq <= 0) return -1
+        var minDiff = Double.MAX_VALUE
         var nearestIndex = -1
         
+        val logFreq = kotlin.math.log10(freq.toDouble())
         for (i in BAND_FREQUENCIES.indices) {
-            val diff = kotlin.math.abs(BAND_FREQUENCIES[i] - freq)
+            val logBand = kotlin.math.log10(BAND_FREQUENCIES[i].toDouble())
+            val diff = kotlin.math.abs(logBand - logFreq)
             if (diff < minDiff) {
                 minDiff = diff
                 nearestIndex = i

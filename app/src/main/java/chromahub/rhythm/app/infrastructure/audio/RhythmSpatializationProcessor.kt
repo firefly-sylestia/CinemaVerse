@@ -27,10 +27,20 @@ class RhythmSpatializationProcessor : RhythmAudioProcessor() {
         private const val TAG = "RhythmSpatialization"
     }
     
+    // Parent processor for dynamic configuration sharing (crossfade thread safety)
+    private var parentProcessor: RhythmSpatializationProcessor? = null
+
     // Spatialization strength (0-1000)
     private var strength: Short = 0
     private var enabled: Boolean = false
     
+    /**
+     * Set the parent processor for dynamic synchronization
+     */
+    fun setParent(parent: RhythmSpatializationProcessor?) {
+        this.parentProcessor = parent
+    }
+
     /**
      * Enable or disable spatialization
      */
@@ -51,9 +61,13 @@ class RhythmSpatializationProcessor : RhythmAudioProcessor() {
     /**
      * Get current strength
      */
-    fun getStrength(): Short = strength
+    fun getStrength(): Short = parentProcessor?.getStrength() ?: strength
     
-    override fun isEnabled(): Boolean = enabled
+    override fun isEnabled(): Boolean = parentProcessor?.isEnabled() ?: enabled
+
+    override fun isBypassed(): Boolean {
+        return !isEnabled() || getStrength() == 0.toShort() || channelCount != 2
+    }
     
     /**
      * Check if spatialization is available for current audio format
@@ -62,17 +76,19 @@ class RhythmSpatializationProcessor : RhythmAudioProcessor() {
     fun isAvailable(): Boolean = channelCount == 2
     
     override fun processSamples(samples: ShortArray, sampleCount: Int) {
-        if (!enabled || strength == 0.toShort() || channelCount != 2) {
+        val currentEnabled = isEnabled()
+        val currentStrength = getStrength()
+        if (!currentEnabled || currentStrength == 0.toShort() || channelCount != 2) {
             return // Only works for stereo, pass through otherwise
         }
         
         // Convert strength (0-1000) to width multiplier (1.0-3.0)
         // Using a carefully tuned curve for natural and musical spatial imaging
         val width = when {
-            strength == 0.toShort() -> 1.0f
-            strength <= 300 -> 1.0f + (strength / 300.0f) * 0.5f  // 0-300 = 1.0-1.5x (subtle)
-            strength <= 700 -> 1.5f + ((strength - 300) / 400.0f) * 0.8f  // 300-700 = 1.5-2.3x (medium)
-            else -> 2.3f + ((strength - 700) / 300.0f) * 0.7f  // 700-1000 = 2.3-3.0x (wide)
+            currentStrength == 0.toShort() -> 1.0f
+            currentStrength <= 300 -> 1.0f + (currentStrength / 300.0f) * 0.5f  // 0-300 = 1.0-1.5x (subtle)
+            currentStrength <= 700 -> 1.5f + ((currentStrength - 300) / 400.0f) * 0.8f  // 300-700 = 1.5-2.3x (medium)
+            else -> 2.3f + ((currentStrength - 700) / 300.0f) * 0.7f  // 700-1000 = 2.3-3.0x (wide)
         }
         
         // Process stereo pairs (L, R, L, R, ...)

@@ -261,6 +261,58 @@ fun AutoEQPresetPickerBottomSheet(
                     contentPadding = PaddingValues(vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+                    item {
+                        val isCurrentlyActive = currentProfileName.isNullOrBlank() || currentProfileName == "None"
+                        Surface(
+                            onClick = {
+                                onProfileSelected(AutoEQProfile("None", "", "", List(10) { 0f }))
+                                scope.launch { sheetState.hide() }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            color = if (isCurrentlyActive)
+                                MaterialTheme.colorScheme.secondaryContainer
+                            else
+                                MaterialTheme.colorScheme.surface,
+                            shape = groupedPresetItemShape(0, filtered.size + 1),
+                            tonalElevation = if (isCurrentlyActive) 0.dp else 1.dp
+                        ) {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        "None / Disable AutoEQ",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = if (isCurrentlyActive) FontWeight.SemiBold else FontWeight.Normal,
+                                        color = if (isCurrentlyActive) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                supportingContent = {
+                                    Text(
+                                        "Clear headphone profile, use standard EQ presets",
+                                        color = if (isCurrentlyActive) MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                trailingContent = {
+                                    if (isCurrentlyActive) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Check,
+                                            contentDescription = "Currently active",
+                                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = Color.Transparent
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+
                     if (filtered.isEmpty()) {
                         item {
                             Box(
@@ -292,7 +344,7 @@ fun AutoEQPresetPickerBottomSheet(
                                     MaterialTheme.colorScheme.secondaryContainer
                                 else
                                     MaterialTheme.colorScheme.surface,
-                                shape = groupedPresetItemShape(index, filtered.size),
+                                shape = groupedPresetItemShape(index + 1, filtered.size + 1),
                                 tonalElevation = if (isCurrentlyActive) 0.dp else 1.dp
                             ) {
                                 ListItem(

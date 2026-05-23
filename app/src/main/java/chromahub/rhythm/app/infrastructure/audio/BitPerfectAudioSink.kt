@@ -62,11 +62,19 @@ object BitPerfectAudioSink {
         rhythmBassBoostProcessor = bassBoostProcessor
         rhythmSpatializationProcessor = spatializationProcessor
         
+        // Create local child instances parented to the shared ones for thread safety (crossfades)
+        val localBassBoost = bassBoostProcessor?.let { parent ->
+            RhythmBassBoostProcessor().apply { setParent(parent) }
+        }
+        val localSpatialization = spatializationProcessor?.let { parent ->
+            RhythmSpatializationProcessor().apply { setParent(parent) }
+        }
+        
         return RhythmBitPerfectAudioSink(
             context = context,
             enableBitPerfect = enableBitPerfect,
-            bassBoostProcessor = bassBoostProcessor,
-            spatializationProcessor = spatializationProcessor
+            bassBoostProcessor = localBassBoost,
+            spatializationProcessor = localSpatialization
         )
     }
     

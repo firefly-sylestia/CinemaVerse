@@ -7924,6 +7924,13 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
     
     fun applyAutoEQProfile(profile: chromahub.rhythm.app.shared.data.model.AutoEQProfile) {
+        if (profile.name.isBlank() || profile.name.equals("None", ignoreCase = true)) {
+            Log.d(TAG, "Disabling AutoEQ profile")
+            appSettings.setAutoEQProfile("")
+            applyEqualizerPreset("Flat", List(10) { 0f })
+            return
+        }
+        
         Log.d(TAG, "Applying AutoEQ profile: ${profile.name}")
         
         // Ensure we have 10 bands

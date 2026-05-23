@@ -3,6 +3,7 @@ package chromahub.rhythm.app.infrastructure.audio
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.audio.AudioProcessor
 import kotlin.math.PI
 
 /**
@@ -24,6 +25,9 @@ class RhythmBassBoostProcessor : RhythmAudioProcessor() {
         private const val BASS_CUTOFF_FREQ = 150.0 // Hz - Optimized for music playback
     }
     
+    // Parent processor for dynamic configuration sharing (crossfade thread safety)
+    private var parentProcessor: RhythmBassBoostProcessor? = null
+
     // Bass boost strength (0-1000, where 1000 = maximum boost)
     private var strength: Short = 0
     private var enabled: Boolean = false
@@ -33,6 +37,13 @@ class RhythmBassBoostProcessor : RhythmAudioProcessor() {
     private var filterCoeff = 0f
     private var filterCoeffValid = false
     
+    /**
+     * Set the parent processor for dynamic synchronization
+     */
+    fun setParent(parent: RhythmBassBoostProcessor?) {
+        this.parentProcessor = parent
+    }
+
     /**
      * Enable or disable bass boost
      */
@@ -45,16 +56,17 @@ class RhythmBassBoostProcessor : RhythmAudioProcessor() {
         }
     }
 
-    fun onAudioFormatChanged(
-        previousSampleRate: Int,
-        previousChannelCount: Int,
-        previousEncoding: Int
-    ) {
-        // Invalidate filter coefficient when sample rate changes
+    override fun configure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
+        val outputFormat = super.configure(inputAudioFormat)
+        // Reset filter state and invalidate coefficient when format changes
         filterCoeffValid = false
-        // Reset filter state to avoid discontinuities across format changes
-        prevSample.fill(0f)
-        Log.d(TAG, "Audio format changed, resetting filter state")
+        if (prevSample.size != inputAudioFormat.channelCount) {
+            prevSample = FloatArray(inputAudioFormat.channelCount)
+        } else {
+            prevSample.fill(0f)
+        }
+        Log.d(TAG, "configure() - resetting filter state for ${inputAudioFormat.channelCount} channels")
+        return outputFormat
     }
 
     fun onProcessorFlushed() {
@@ -75,9 +87,13 @@ class RhythmBassBoostProcessor : RhythmAudioProcessor() {
     /**
      * Get current strength
      */
-    fun getStrength(): Short = strength
+    fun getStrength(): Short = parentProcessor?.getStrength() ?: strength
     
-    override fun isEnabled(): Boolean = enabled
+    override fun isEnabled(): Boolean = parentProcessor?.isEnabled() ?: enabled
+
+    override fun isBypassed(): Boolean {
+        return !isEnabled() || getStrength() == 0.toShort()
+    }
     
     /**
      * Update filter coefficient based on current sample rate.
@@ -122,36 +138,40 @@ class RhythmBassBoostProcessor : RhythmAudioProcessor() {
     }
     
     override fun processSamples(samples: ShortArray, sampleCount: Int) {
-        if (!enabled || strength == 0.toShort()) {
+        val currentEnabled = isEnabled()
+        val currentStrength = getStrength()
+        if (!currentEnabled || currentStrength == 0.toShort()) {
             return // Pass through unchanged for maximum efficiency
         }
         
         // Update filter coefficient if not set
-        if (filterCoeff == 0f) {
+        if (filterCoeff == 0f || !filterCoeffValid) {
             updateFilterCoeff()
         }
         
         // Convert strength (0-1000) to linear gain (1.0-4.0)
         // Using a logarithmic curve for more natural and musical response
         val gain = when {
-            strength == 0.toShort() -> 1.0f
-            strength <= 100 -> 1.0f + (strength / 100.0f) * 0.3f  // 0-100 = 1.0-1.3x (subtle)
-            strength <= 500 -> 1.3f + ((strength - 100) / 400.0f) * 0.9f  // 100-500 = 1.3-2.2x (medium)
-            else -> 2.2f + ((strength - 500) / 500.0f) * 1.8f  // 500-1000 = 2.2-4.0x (strong)
+            currentStrength == 0.toShort() -> 1.0f
+            currentStrength <= 100 -> 1.0f + (currentStrength / 100.0f) * 0.3f  // 0-100 = 1.0-1.3x (subtle)
+            currentStrength <= 500 -> 1.3f + ((currentStrength - 100) / 400.0f) * 0.9f  // 100-500 = 1.3-2.2x (medium)
+            else -> 2.2f + ((currentStrength - 500) / 500.0f) * 1.8f  // 500-1000 = 2.2-4.0x (strong)
         }
         
-        val isStereo = channelCount == 2
+        val activeChannels = if (channelCount > 0) channelCount else 1
         
         // Process each sample with the IIR filter
         for (i in 0 until sampleCount) {
-            val channelIdx = if (isStereo) i % 2 else 0
+            val channelIdx = i % activeChannels
             
             // Convert to normalized float (-1.0 to 1.0)
             val input = samples[i] / 32768.0f
             
             // Apply low-pass IIR filter to extract bass frequencies
-            val lowPass = prevSample[channelIdx] + filterCoeff * (input - prevSample[channelIdx])
-            prevSample[channelIdx] = lowPass
+            val lowPass = prevSample.getOrElse(channelIdx) { 0f } + filterCoeff * (input - prevSample.getOrElse(channelIdx) { 0f })
+            if (channelIdx < prevSample.size) {
+                prevSample[channelIdx] = lowPass
+            }
             
             // Mix original signal with amplified bass
             val bassBoost = lowPass * (gain - 1.0f)

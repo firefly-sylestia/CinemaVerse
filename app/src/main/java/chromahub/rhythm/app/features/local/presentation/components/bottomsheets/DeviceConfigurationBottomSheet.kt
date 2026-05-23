@@ -1372,35 +1372,54 @@ private fun DeviceAutoEQSelector(
                 }
                 
                 // Profile List
-                if (filteredProfiles.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.HeadsetMic,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Text(
-                                text = "No profiles found",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    item {
+                        val isNoneSelected = device.autoEQProfileName.isNullOrBlank() || device.autoEQProfileName == "None"
+                        EQProfileCard(
+                            profile = AutoEQProfile(
+                                name = "None",
+                                brand = "Disable headphone compensation",
+                                type = "",
+                                bands = List(10) { 0f }
+                            ),
+                            isSelected = isNoneSelected,
+                            onClick = {
+                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                onProfileSelected(AutoEQProfile("None", "", "", List(10) { 0f }))
+                            }
+                        )
                     }
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
+
+                    if (filteredProfiles.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.HeadsetMic,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                    Text(
+                                        text = "No matching profiles found",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    } else {
                         items(filteredProfiles, key = { it.name }) { profile ->
                             EQProfileCard(
                                 profile = profile,
