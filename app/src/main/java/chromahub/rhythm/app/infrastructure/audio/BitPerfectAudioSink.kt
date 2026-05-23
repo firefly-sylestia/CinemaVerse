@@ -13,6 +13,9 @@ import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.AudioCapabilities
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.AuxEffectInfo
+import java.nio.ByteBuffer
 
 /**
  * Factory for creating AudioSink instances configured for bit-perfect playback.
@@ -53,48 +56,18 @@ object BitPerfectAudioSink {
         bassBoostProcessor: RhythmBassBoostProcessor? = null,
         spatializationProcessor: RhythmSpatializationProcessor? = null
     ): AudioSink {
-        Log.d(TAG, "Creating AudioSink (bit-perfect: $enableBitPerfect, Rhythm effects: ${bassBoostProcessor != null || spatializationProcessor != null})")
+        Log.d(TAG, "Creating RhythmBitPerfectAudioSink wrapper (bit-perfect: $enableBitPerfect, Rhythm effects: ${bassBoostProcessor != null || spatializationProcessor != null})")
         
         // Store processor references (available for later queries even if bit-perfect skips them)
         rhythmBassBoostProcessor = bassBoostProcessor
         rhythmSpatializationProcessor = spatializationProcessor
         
-        val builder = DefaultAudioSink.Builder(context)
-        
-        if (enableBitPerfect) {
-            // Bit-perfect: preserve the native sample format (don't force 16-bit).
-            // Float output lets ExoPlayer pass high-res PCM through without truncation.
-            builder.setEnableFloatOutput(true)
-            
-            // No audio processors – the stream must reach the sink unmodified.
-            Log.d(TAG, "Bit-perfect mode: float output enabled, no audio processors")
-        } else {
-            // Normal mode: 16-bit output is fine, add Rhythm DSP processors.
-            builder.setEnableFloatOutput(false)
-            
-            val processors = mutableListOf<AudioProcessor>()
-            
-            if (bassBoostProcessor != null) {
-                processors.add(bassBoostProcessor)
-                Log.d(TAG, "Added Rhythm bass boost processor (enabled: ${bassBoostProcessor.isEnabled()})")
-            }
-            
-            if (spatializationProcessor != null) {
-                processors.add(spatializationProcessor)
-                Log.d(TAG, "Added Rhythm spatialization processor (enabled: ${spatializationProcessor.isEnabled()})")
-            }
-            
-            if (processors.isNotEmpty()) {
-                Log.d(TAG, "Configuring audio processor chain with ${processors.size} Rhythm processors")
-                builder.setAudioProcessorChain(
-                    DefaultAudioSink.DefaultAudioProcessorChain(
-                        *processors.toTypedArray()
-                    )
-                )
-            }
-        }
-        
-        return builder.build()
+        return RhythmBitPerfectAudioSink(
+            context = context,
+            enableBitPerfect = enableBitPerfect,
+            bassBoostProcessor = bassBoostProcessor,
+            spatializationProcessor = spatializationProcessor
+        )
     }
     
     /**
@@ -156,5 +129,178 @@ object BitPerfectAudioSink {
             8 -> AudioFormat.CHANNEL_OUT_7POINT1_SURROUND
             else -> AudioFormat.CHANNEL_OUT_STEREO
         }
+    }
+}
+
+@OptIn(UnstableApi::class)
+private class RhythmBitPerfectAudioSink(
+    context: Context,
+    private val enableBitPerfect: Boolean,
+    bassBoostProcessor: RhythmBassBoostProcessor?,
+    spatializationProcessor: RhythmSpatializationProcessor?
+) : AudioSink {
+
+    private val standardSink: DefaultAudioSink
+    private val floatSink: DefaultAudioSink
+    private var activeSink: AudioSink
+
+    init {
+        val standardBuilder = DefaultAudioSink.Builder(context)
+            .setEnableFloatOutput(false)
+        
+        val processors = mutableListOf<AudioProcessor>()
+        if (bassBoostProcessor != null) {
+            processors.add(bassBoostProcessor)
+        }
+        if (spatializationProcessor != null) {
+            processors.add(spatializationProcessor)
+        }
+        if (processors.isNotEmpty()) {
+            standardBuilder.setAudioProcessorChain(
+                DefaultAudioSink.DefaultAudioProcessorChain(*processors.toTypedArray())
+            )
+        }
+        standardSink = standardBuilder.build()
+
+        floatSink = DefaultAudioSink.Builder(context)
+            .setEnableFloatOutput(true)
+            .build()
+
+        activeSink = standardSink
+    }
+
+    private fun getSinkForFormat(format: Format): AudioSink {
+        if (!enableBitPerfect) {
+            return standardSink
+        }
+        val isHighRes = format.pcmEncoding == C.ENCODING_PCM_24BIT ||
+                        format.pcmEncoding == C.ENCODING_PCM_32BIT ||
+                        format.pcmEncoding == C.ENCODING_PCM_FLOAT
+        return if (isHighRes) floatSink else standardSink
+    }
+
+    override fun setListener(listener: AudioSink.Listener) {
+        standardSink.setListener(listener)
+        floatSink.setListener(listener)
+    }
+
+    override fun supportsFormat(format: Format): Boolean {
+        return getSinkForFormat(format).supportsFormat(format)
+    }
+
+    override fun getFormatSupport(format: Format): Int {
+        return getSinkForFormat(format).getFormatSupport(format)
+    }
+
+    override fun getCurrentPositionUs(sourceEnded: Boolean): Long {
+        return activeSink.getCurrentPositionUs(sourceEnded)
+    }
+
+    override fun configure(inputFormat: Format, inputSize: Int, outputChannels: IntArray?) {
+        val newSink = getSinkForFormat(inputFormat)
+        if (newSink != activeSink) {
+            Log.d("RhythmBitPerfectSink", "Switching active AudioSink to ${if (newSink == floatSink) "floatSink (Hi-Res)" else "standardSink"}")
+            activeSink.flush()
+            activeSink.reset()
+            activeSink = newSink
+        }
+        activeSink.configure(inputFormat, inputSize, outputChannels)
+    }
+
+    override fun play() {
+        activeSink.play()
+    }
+
+    override fun handleDiscontinuity() {
+        activeSink.handleDiscontinuity()
+    }
+
+    override fun handleBuffer(
+        buffer: ByteBuffer,
+        presentationTimeUs: Long,
+        encodedAccessUnitCount: Int
+    ): Boolean {
+        return activeSink.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount)
+    }
+
+    override fun playToEndOfStream() {
+        activeSink.playToEndOfStream()
+    }
+
+    override fun isEnded(): Boolean {
+        return activeSink.isEnded()
+    }
+
+    override fun hasPendingData(): Boolean {
+        return activeSink.hasPendingData()
+    }
+
+    override fun setPlaybackParameters(playbackParameters: PlaybackParameters) {
+        standardSink.setPlaybackParameters(playbackParameters)
+        floatSink.setPlaybackParameters(playbackParameters)
+    }
+
+    override fun getPlaybackParameters(): PlaybackParameters {
+        return activeSink.getPlaybackParameters()
+    }
+
+    override fun setSkipSilenceEnabled(skipSilenceEnabled: Boolean) {
+        standardSink.setSkipSilenceEnabled(skipSilenceEnabled)
+        floatSink.setSkipSilenceEnabled(skipSilenceEnabled)
+    }
+
+    override fun getSkipSilenceEnabled(): Boolean {
+        return activeSink.getSkipSilenceEnabled()
+    }
+
+    override fun setAudioAttributes(audioAttributes: AudioAttributes) {
+        standardSink.setAudioAttributes(audioAttributes)
+        floatSink.setAudioAttributes(audioAttributes)
+    }
+
+    override fun getAudioAttributes(): AudioAttributes? {
+        return activeSink.getAudioAttributes()
+    }
+
+    override fun setAudioSessionId(audioSessionId: Int) {
+        standardSink.setAudioSessionId(audioSessionId)
+        floatSink.setAudioSessionId(audioSessionId)
+    }
+
+    override fun setAuxEffectInfo(auxEffectInfo: AuxEffectInfo) {
+        standardSink.setAuxEffectInfo(auxEffectInfo)
+        floatSink.setAuxEffectInfo(auxEffectInfo)
+    }
+
+    override fun getAudioTrackBufferSizeUs(): Long {
+        return activeSink.getAudioTrackBufferSizeUs()
+    }
+
+    override fun enableTunnelingV21() {
+        standardSink.enableTunnelingV21()
+        floatSink.enableTunnelingV21()
+    }
+
+    override fun disableTunneling() {
+        standardSink.disableTunneling()
+        floatSink.disableTunneling()
+    }
+
+    override fun setVolume(volume: Float) {
+        standardSink.setVolume(volume)
+        floatSink.setVolume(volume)
+    }
+
+    override fun pause() {
+        activeSink.pause()
+    }
+
+    override fun flush() {
+        activeSink.flush()
+    }
+
+    override fun reset() {
+        standardSink.reset()
+        floatSink.reset()
     }
 }
