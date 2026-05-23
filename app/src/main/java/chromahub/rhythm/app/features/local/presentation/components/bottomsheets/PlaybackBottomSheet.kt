@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import android.media.AudioManager
 import androidx.compose.animation.AnimatedVisibility
@@ -39,9 +43,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.rounded.SyncAlt
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.BottomSheetDefaults
@@ -52,7 +53,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -89,13 +89,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.delay
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.PlaybackLocation
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HighQuality
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.res.stringResource
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
@@ -624,7 +620,7 @@ private fun ActiveDeviceCard(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = Icons.Rounded.SyncAlt,
+                            imageVector = MaterialSymbolIcon("sync_alt", filled = true),
                             contentDescription = "Switch device",
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(18.dp)
@@ -1079,7 +1075,7 @@ private fun PlaybackSpeedCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Speed,
+                    imageVector = MaterialSymbolIcon("speed", filled = true),
                     contentDescription = "Playback Speed",
                     
                     modifier = Modifier.size(24.dp)
@@ -1128,7 +1124,7 @@ private fun PlaybackSpeedCard(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.SyncAlt,
+                                imageVector = MaterialSymbolIcon("sync_alt", filled = true),
                                 contentDescription = null,
                                 tint = if (syncEnabled) MaterialTheme.colorScheme.onPrimaryContainer
                                        else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1492,7 +1488,7 @@ private fun StreamingQualityCard(
             title = context.getString(R.string.streaming_settings_quality),
             items = listOf(
                 Material3SettingsItem(
-                    icon = Icons.Filled.HighQuality,
+                    icon = MaterialSymbolIcon("high_quality", filled = true),
                     title = { Text(text = context.getString(R.string.streaming_settings_quality)) },
                     description = { Text(text = selectedQuality) },
                     trailingContent = {
@@ -1549,7 +1545,7 @@ private fun PlaybackPitchCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Filled.GraphicEq,
+                    imageVector = MaterialSymbolIcon("graphic_eq", filled = true),
                     contentDescription = "Playback Pitch",
                     
                     modifier = Modifier.size(24.dp)
@@ -1598,7 +1594,7 @@ private fun PlaybackPitchCard(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.SyncAlt,
+                                imageVector = MaterialSymbolIcon("sync_alt", filled = true),
                                 contentDescription = null,
                                 tint = if (syncEnabled) MaterialTheme.colorScheme.onPrimaryContainer
                                        else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -2003,7 +1999,7 @@ private fun QualitySelectionBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.HighQuality,
+                            imageVector = MaterialSymbolIcon("high_quality"),
                             contentDescription = null,
                             tint = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
@@ -2030,7 +2026,7 @@ private fun QualitySelectionBottomSheet(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(20.dp)

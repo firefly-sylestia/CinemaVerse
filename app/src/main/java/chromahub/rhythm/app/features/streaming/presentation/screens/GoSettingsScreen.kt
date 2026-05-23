@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.streaming.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -7,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,8 +44,6 @@ import chromahub.rhythm.app.util.AppRestarter
 import chromahub.rhythm.app.features.local.presentation.components.dialogs.AppRestartDialog
 import chromahub.rhythm.app.core.utils.NetworkUtils
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.text.style.TextOverflow
 import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOption
 import androidx.annotation.StringRes
@@ -132,7 +133,7 @@ fun GoSettingsScreen(
                         .padding(20.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.CloudQueue,
+                        imageVector = MaterialSymbolIcon("cloud_queue"),
                         contentDescription = null,
                         tint = if (appMode == "STREAMING") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(32.dp)
@@ -172,13 +173,13 @@ fun GoSettingsScreen(
                     title = "Services",
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Default.CloudQueue,
+                            icon = MaterialSymbolIcon("cloud_queue"),
                             title = { Text(text = "Preferred Service") },
                             description = { Text(text = selectedService) },
                             onClick = { showServiceSheet = true }
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Default.Settings,
+                            icon = RhythmIcons.Settings,
                             title = { Text(text = "Configure Current Provider") },
                             description = { Text(text = selectedServiceLabel(selectedService, context)) },
                             onClick = { 
@@ -189,7 +190,7 @@ fun GoSettingsScreen(
                             }
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Default.HighQuality,
+                            icon = MaterialSymbolIcon("high_quality"),
                             title = { Text(text = "Streaming Quality") },
                             description = { Text(text = streamingQuality) },
                             onClick = { showQualitySheet = true }
@@ -203,7 +204,7 @@ fun GoSettingsScreen(
                     title = "Network",
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Default.MobileFriendly,
+                            icon = MaterialSymbolIcon("mobile_friendly"),
                             title = { Text(text = "Allow cellular streaming") },
                             description = { Text(text = "Enable streaming over mobile data") },
                             trailingContent = {
@@ -265,7 +266,7 @@ fun GoSettingsScreen(
             onDismissRequest = { pendingServiceSelection = null },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.CloudQueue,
+                    imageVector = MaterialSymbolIcon("cloud_queue"),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -376,7 +377,7 @@ private fun StreamingStatusCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.CloudQueue,
+                    imageVector = MaterialSymbolIcon("cloud_queue"),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(24.dp)
@@ -499,7 +500,7 @@ private fun ServiceSelectionBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.CloudQueue,
+                            imageVector = MaterialSymbolIcon("cloud_queue"),
                             contentDescription = null,
                             tint = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
@@ -539,7 +540,7 @@ private fun ServiceSelectionBottomSheet(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(20.dp)
@@ -616,7 +617,7 @@ private fun QualitySelectionBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.HighQuality,
+                            imageVector = MaterialSymbolIcon("high_quality"),
                             contentDescription = null,
                             tint = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
@@ -643,7 +644,7 @@ private fun QualitySelectionBottomSheet(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(20.dp)

@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.features.local.presentation.components.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.LocaleManager
 import android.content.Context
 import android.os.Build
@@ -10,10 +13,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -88,7 +87,7 @@ fun LanguageSwitcherDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Default.Language,
+                imageVector = RhythmIcons.Language,
                 contentDescription = "Language",
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -123,7 +122,7 @@ fun LanguageSwitcherDialog(
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -183,7 +182,7 @@ private fun LanguageItem(
             
             if (isSelected) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = RhythmIcons.Check,
                     contentDescription = "Selected",
                     
                     modifier = Modifier.size(24.dp)

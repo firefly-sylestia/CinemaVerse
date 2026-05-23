@@ -2,6 +2,10 @@
 
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -16,10 +20,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,7 +50,6 @@ import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.shared.presentation.components.common.ArtistCollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.ImageUtils
 import kotlinx.coroutines.Dispatchers
@@ -968,7 +967,7 @@ private fun ArtistSongItem(
                     if (showPlayNextAction) {
                     SongItemDropdownMenuItem(
                         text = "Play next",
-                        icon = Icons.Rounded.SkipNext,
+                        icon = RhythmIcons.SkipNext,
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         onClick = {
                             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -994,7 +993,7 @@ private fun ArtistSongItem(
                     if (showToggleFavoriteAction) {
                     SongItemDropdownMenuItem(
                         text = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        icon = if (isFavorite) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                        icon = if (isFavorite) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         onClick = {
                             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -1020,7 +1019,7 @@ private fun ArtistSongItem(
                     if (showSongInfoAction) {
                     SongItemDropdownMenuItem(
                         text = "Song info",
-                        icon = Icons.Rounded.Info,
+                        icon = RhythmIcons.Info,
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         onClick = {
                             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -1046,7 +1045,7 @@ private fun ArtistSongItem(
 @Composable
 private fun SongItemDropdownMenuItem(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     containerColor: Color,
     onClick: () -> Unit
 ) {

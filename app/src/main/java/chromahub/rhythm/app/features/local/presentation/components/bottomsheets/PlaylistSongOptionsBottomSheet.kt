@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -22,14 +26,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -51,7 +51,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -168,7 +167,7 @@ fun PlaylistSongOptionsBottomSheet(
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             SongOptionGridItem(
-                                icon = Icons.Rounded.SkipNext,
+                                icon = RhythmIcons.SkipNext,
                                 text = "Play next",
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -242,7 +241,7 @@ fun PlaylistSongOptionsBottomSheet(
                         }
                         Box(modifier = Modifier.weight(1f)) {
                             SongOptionGridItem(
-                                icon = Icons.Rounded.Info,
+                                icon = RhythmIcons.Info,
                                 text = "Song info",
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -278,7 +277,7 @@ fun PlaylistSongOptionsBottomSheet(
 
 @Composable
 private fun SongOptionGridItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     text: String,
     containerColor: Color,
     iconColor: Color,

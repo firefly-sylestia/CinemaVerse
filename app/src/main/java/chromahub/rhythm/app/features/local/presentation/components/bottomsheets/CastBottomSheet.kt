@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -39,20 +43,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cast
-import androidx.compose.material.icons.filled.CastConnected
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.Tv
-import androidx.compose.material.icons.filled.Speaker
-import androidx.compose.material.icons.rounded.Cast
-import androidx.compose.material.icons.rounded.CastConnected
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -63,7 +53,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -345,7 +334,7 @@ private fun CastHeader(
         
         if (isConnected) {
             Icon(
-                imageVector = Icons.Rounded.CastConnected,
+                imageVector = RhythmIcons.CastConnected,
                 contentDescription = null,
                 
                 modifier = Modifier.size(32.dp)
@@ -435,7 +424,7 @@ private fun CurrentDeviceCard(
             }
 
             Icon(
-                imageVector = Icons.Default.Check,
+                imageVector = RhythmIcons.Check,
                 contentDescription = context.getString(R.string.bottomsheet_active_device),
                 
                 modifier = Modifier.size(24.dp)
@@ -470,7 +459,7 @@ private fun OutputSwitcherCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Cast,
+                    imageVector = RhythmIcons.Cast,
                     contentDescription = null,
                     
                     modifier = Modifier.size(28.dp)
@@ -501,7 +490,7 @@ private fun OutputSwitcherCard(
                 contentPadding = PaddingValues(16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Cast,
+                    imageVector = RhythmIcons.Cast,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
@@ -560,7 +549,7 @@ private fun CastToDeviceCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Icon(
-                    imageVector = if (isCasting) Icons.Default.CastConnected else Icons.Default.Tv,
+                    imageVector = if (isCasting) RhythmIcons.CastConnected else MaterialSymbolIcon("tv"),
                     contentDescription = null,
                     tint = if (isCasting) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
@@ -592,7 +581,7 @@ private fun CastToDeviceCard(
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -615,7 +604,7 @@ private fun CastToDeviceCard(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Tv,
+                        imageVector = MaterialSymbolIcon("tv"),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -650,7 +639,7 @@ private fun CastInfoCard(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
-                imageVector = Icons.Rounded.Info,
+                imageVector = RhythmIcons.Info,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.size(24.dp)
@@ -677,13 +666,13 @@ private fun CastInfoCard(modifier: Modifier = Modifier) {
     }
 }
 
-private fun getDeviceIcon(deviceType: CastDeviceType): ImageVector {
+private fun getDeviceIcon(deviceType: CastDeviceType): MaterialSymbolIcon {
     return when (deviceType) {
-        CastDeviceType.TV -> Icons.Default.Tv
-        CastDeviceType.SPEAKER -> Icons.Default.Speaker
-        CastDeviceType.SOUNDBAR -> Icons.Default.Speaker
-        CastDeviceType.PHONE -> Icons.Default.PhoneAndroid
-        CastDeviceType.UNKNOWN -> Icons.Default.Cast
+        CastDeviceType.TV -> MaterialSymbolIcon("tv")
+        CastDeviceType.SPEAKER -> RhythmIcons.Speaker
+        CastDeviceType.SOUNDBAR -> RhythmIcons.Speaker
+        CastDeviceType.PHONE -> MaterialSymbolIcon("phone_android")
+        CastDeviceType.UNKNOWN -> RhythmIcons.Cast
     }
 }
 

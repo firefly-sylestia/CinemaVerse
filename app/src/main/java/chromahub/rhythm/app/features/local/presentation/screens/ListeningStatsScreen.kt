@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -23,8 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -717,14 +719,14 @@ private fun ListeningHabitsCard(stats: PlaybackStatsRepository.PlaybackStatsSumm
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                HabitMetricRow(Icons.Outlined.EventAvailable, "Active Days", "${stats.activeDays} days")
-                HabitMetricRow(Icons.Outlined.LocalFireDepartment, "Longest Streak", "${stats.longestStreakDays} days")
-                HabitMetricRow(Icons.Outlined.History, "Total Sessions", "${stats.totalSessions}")
-                HabitMetricRow(Icons.Outlined.HourglassEmpty, "Avg Session", formatDuration(stats.averageSessionDurationMs))
+                HabitMetricRow(MaterialSymbolIcon("event_available"), "Active Days", "${stats.activeDays} days")
+                HabitMetricRow(MaterialSymbolIcon("local_fire_department"), "Longest Streak", "${stats.longestStreakDays} days")
+                HabitMetricRow(MaterialSymbolIcon("history"), "Total Sessions", "${stats.totalSessions}")
+                HabitMetricRow(MaterialSymbolIcon("hourglass_empty"), "Avg Session", formatDuration(stats.averageSessionDurationMs))
 
                 stats.peakDayOfWeek?.let {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                    HabitMetricRow(Icons.Outlined.Whatshot, "Peak Day", it, isHighlight = true)
+                    HabitMetricRow(MaterialSymbolIcon("whatshot"), "Peak Day", it, isHighlight = true)
                 }
             }
         }
@@ -732,7 +734,7 @@ private fun ListeningHabitsCard(stats: PlaybackStatsRepository.PlaybackStatsSumm
 }
 
 @Composable
-private fun HabitMetricRow(icon: ImageVector, label: String, value: String, isHighlight: Boolean = false) {
+private fun HabitMetricRow(icon: MaterialSymbolIcon, label: String, value: String, isHighlight: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -897,14 +899,14 @@ private fun RatingStatsCard(viewModel: MusicViewModel) {
                         AssistChip(
                             onClick = { viewModel.playRatingPlaylist(5, shuffled = false) },
                             label = { Text("Favorites") },
-                            leadingIcon = { Icon(Icons.Outlined.Star, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                            leadingIcon = { Icon(MaterialSymbolIcon("star"), contentDescription = null, modifier = Modifier.size(16.dp)) }
                         )
                     }
                     if (totalRated > 0) {
                         AssistChip(
                             onClick = { viewModel.playMinimumRatingPlaylist(4, shuffled = false) },
                             label = { Text("Loved (4+)") },
-                            leadingIcon = { Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                            leadingIcon = { Icon(RhythmIcons.Favorite, contentDescription = null, modifier = Modifier.size(16.dp)) }
                         )
                     }
                 }
@@ -921,7 +923,7 @@ private fun EmptyStatsView() {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Icon(
-            imageVector = Icons.Outlined.BarChart,
+            imageVector = RhythmIcons.BarChart,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)

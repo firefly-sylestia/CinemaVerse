@@ -2,6 +2,9 @@
 
 package chromahub.rhythm.app.shared.presentation.components.common
 
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -17,10 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.UnfoldMore
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -65,7 +65,7 @@ fun ExpressiveScrollBar(
 
     val primaryColor = MaterialTheme.colorScheme.primary
     val surfaceVariantColor = MaterialTheme.colorScheme.secondaryContainer
-    val innerIcon = Icons.Rounded.UnfoldMore
+    val innerIcon = MaterialSymbolIcon("unfold_more", filled = true)
 
     val isInteracting = isPressed || isDragging
     

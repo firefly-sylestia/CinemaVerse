@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -26,21 +30,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.HeartBroken
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -67,7 +60,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.M3ImageUtils
 
@@ -188,7 +180,7 @@ fun MultiSelectionBottomSheet(
                         }
                         Box(modifier = Modifier.weight(1f)) {
                             SongOptionGridItem(
-                                icon = Icons.Rounded.SkipNext,
+                                icon = RhythmIcons.SkipNext,
                                 text = "Play next",
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -241,7 +233,7 @@ fun MultiSelectionBottomSheet(
                     ) {
                         Box(modifier = Modifier.fillMaxWidth()) {
                             SongOptionGridItem(
-                                icon = if (allAreLiked) Icons.Rounded.HeartBroken else Icons.Filled.Favorite,
+                                icon = if (allAreLiked) MaterialSymbolIcon("heart_broken", filled = true) else RhythmIcons.FavoriteFilled,
                                 text = if (allAreLiked) "Remove from favorites" else "Add to favorites",
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -312,7 +304,7 @@ fun MultiSelectionBottomSheet(
                             if (hasBlacklist) {
                                 Box(modifier = if (itemCount == 1) Modifier.fillMaxWidth() else Modifier.weight(1f)) {
                                     SongOptionGridItem(
-                                        icon = Icons.Rounded.Block,
+                                        icon = RhythmIcons.Block,
                                         text = "Add to blacklist",
                                         containerColor = MaterialTheme.colorScheme.errorContainer,
                                         iconColor = MaterialTheme.colorScheme.error,
@@ -328,7 +320,7 @@ fun MultiSelectionBottomSheet(
                             if (hasEditTags) {
                                 Box(modifier = if (itemCount == 1) Modifier.fillMaxWidth() else Modifier.weight(1f)) {
                                     SongOptionGridItem(
-                                        icon = Icons.Rounded.Edit,
+                                        icon = RhythmIcons.Edit,
                                         text = "Edit tags",
                                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                         iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -443,7 +435,7 @@ private fun MultiSelectionHeader(
  */
 @Composable
 private fun SongOptionGridItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String,
     containerColor: Color,
     iconColor: Color,

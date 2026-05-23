@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.components.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -19,28 +23,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.EmojiEmotions
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.InsertChart
-import androidx.compose.material.icons.filled.NewReleases
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Recommend
-import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.WavingHand
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -69,7 +56,6 @@ import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.launch
 
@@ -122,16 +108,16 @@ fun HomeSectionOrderBottomSheet(
     val scope = rememberCoroutineScope()
     
     // Helper function to get display name and icon for section
-    fun getSectionInfo(sectionId: String): Pair<String, ImageVector> {
+    fun getSectionInfo(sectionId: String): Pair<String, MaterialSymbolIcon> {
         return when (sectionId) {
-            "GREETING" -> Pair("Greeting", Icons.Default.WavingHand)
-            "RECENTLY_PLAYED" -> Pair("Recently Played", Icons.Default.History)
-            "DISCOVER" -> Pair("Discover Carousel", Icons.Default.Explore)
-            "ARTISTS" -> Pair("Top Artists", Icons.Default.Person)
-            "NEW_RELEASES" -> Pair("New Releases", Icons.Default.NewReleases)
+            "GREETING" -> Pair("Greeting", RhythmIcons.WavingHand)
+            "RECENTLY_PLAYED" -> Pair("Recently Played", MaterialSymbolIcon("history"))
+            "DISCOVER" -> Pair("Discover Carousel", MaterialSymbolIcon("explore"))
+            "ARTISTS" -> Pair("Top Artists", RhythmIcons.Artist)
+            "NEW_RELEASES" -> Pair("New Releases", MaterialSymbolIcon("new_releases"))
             "RECENTLY_ADDED" -> Pair("Recently Added", RhythmIcons.Music.Album)
-            "RECOMMENDED" -> Pair("Recommended", Icons.Default.Recommend)
-            "STATS" -> Pair("Listening Stats", Icons.Default.InsertChart)
+            "RECOMMENDED" -> Pair("Recommended", MaterialSymbolIcon("recommend"))
+            "STATS" -> Pair("Listening Stats", MaterialSymbolIcon("insert_chart"))
             else -> Pair(sectionId, RhythmIcons.Music.Song)
         }
     }
@@ -230,7 +216,7 @@ fun HomeSectionOrderBottomSheet(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Default.PushPin,
+                                        imageVector = RhythmIcons.Pushpin,
                                         contentDescription = null,
                                         
                                         modifier = Modifier.size(18.dp)
@@ -271,7 +257,7 @@ fun HomeSectionOrderBottomSheet(
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
-                                imageVector = if (isDiscoverVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                imageVector = if (isDiscoverVisible) RhythmIcons.Visibility else RhythmIcons.VisibilityOff,
                                 contentDescription = if (isDiscoverVisible) "Hide carousel" else "Show carousel",
                                 tint = if (isDiscoverVisible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                 modifier = Modifier.size(20.dp)
@@ -365,7 +351,7 @@ fun HomeSectionOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    imageVector = if (isVisible) RhythmIcons.Visibility else RhythmIcons.VisibilityOff,
                                     contentDescription = if (isVisible) "Hide section" else "Show section",
                                     tint = if (isVisible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     modifier = Modifier.size(20.dp)
@@ -393,7 +379,7 @@ fun HomeSectionOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowUpward,
+                                    imageVector = RhythmIcons.ArrowUpward,
                                     contentDescription = "Move up",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -420,7 +406,7 @@ fun HomeSectionOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
+                                    imageVector = RhythmIcons.ArrowDownward,
                                     contentDescription = "Move down",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -467,7 +453,7 @@ fun HomeSectionOrderBottomSheet(
                     isStart = true
                 ) {
                     Icon(
-                        imageVector = Icons.Default.RestartAlt,
+                        imageVector = MaterialSymbolIcon("restart_alt"),
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -506,7 +492,7 @@ fun HomeSectionOrderBottomSheet(
                     isEnd = true
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )

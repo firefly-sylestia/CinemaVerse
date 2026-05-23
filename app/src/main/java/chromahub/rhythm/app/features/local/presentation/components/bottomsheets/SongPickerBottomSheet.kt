@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -10,8 +14,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.*
@@ -30,7 +32,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import chromahub.rhythm.app.shared.data.model.Playlist
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.ImageUtils
@@ -132,7 +133,7 @@ fun SongPickerBottomSheet(
                                         )
                                     ) {
                                         Icon(
-                                            imageVector = if (selectedSongs.size == filteredSongs.size) Icons.Filled.Deselect else Icons.Filled.SelectAll,
+                                            imageVector = if (selectedSongs.size == filteredSongs.size) MaterialSymbolIcon("deselect", filled = true) else RhythmIcons.SelectAll,
                                             contentDescription = null,
                                             modifier = Modifier.size(20.dp)
                                         )
@@ -168,7 +169,7 @@ fun SongPickerBottomSheet(
                                         contentColor = if (isSelectionMode) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 ) {
-                                    Icon(imageVector = Icons.Filled.Checklist, contentDescription = null, modifier = Modifier.size(20.dp))
+                                    Icon(imageVector = MaterialSymbolIcon("checklist", filled = true), contentDescription = null, modifier = Modifier.size(20.dp))
                                 }
                             }
                         }
@@ -197,7 +198,7 @@ fun SongPickerBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            imageVector = RhythmIcons.Info,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
                         )
@@ -313,7 +314,7 @@ private fun SongSelectionItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 Surface(modifier = Modifier.size(36.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, tonalElevation = 0.dp) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(imageVector = Icons.Filled.Add, contentDescription = "Add song", modifier = Modifier.size(20.dp))
+                        Icon(imageVector = RhythmIcons.Add, contentDescription = "Add song", modifier = Modifier.size(20.dp))
                     }
                 }
             }
@@ -337,7 +338,7 @@ private fun EmptySongsState(hasSearch: Boolean, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(modifier = Modifier.size(72.dp), shape = CircleShape, color = MaterialTheme.colorScheme.surfaceContainerHigh) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(imageVector = Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                Icon(imageVector = RhythmIcons.SearchFilled, contentDescription = null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
         }
         Spacer(modifier = Modifier.height(16.dp))

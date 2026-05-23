@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.shared.presentation.components.common
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
@@ -57,7 +56,6 @@ import androidx.compose.ui.platform.LocalContext
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import chromahub.rhythm.app.shared.data.model.Artist
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -229,9 +227,10 @@ fun CollapsibleHeaderScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        imageVector = RhythmIcons.Back,
                                         contentDescription = "Back",
-                                        tint = MaterialTheme.colorScheme.onSurface
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(25.dp)
                                     )
                                 }
                             }
@@ -532,9 +531,10 @@ fun ArtistCollapsibleHeaderScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            imageVector = RhythmIcons.Back,
                                             contentDescription = "Back",
-                                            tint = MaterialTheme.colorScheme.onSurface
+                                            tint = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier.size(25.dp)
                                         )
                                     }
                                 }
@@ -645,9 +645,10 @@ fun FixedHeaderScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        imageVector = RhythmIcons.Back,
                                         contentDescription = "Back",
-                                        tint = MaterialTheme.colorScheme.onSurface
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(25.dp)
                                     )
                                 }
                             }

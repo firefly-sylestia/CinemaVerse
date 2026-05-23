@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.shared.presentation.components
 
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -7,9 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.HighQuality
-import androidx.compose.material.icons.rounded.SurroundSound
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -137,7 +137,7 @@ fun AudioQualityBadges(
                     AudioQualityDetector.QualityType.DSD_HIGH_RES -> {
                         QualityBadge(
                             text = quality.qualityLabel,
-                            icon = Icons.Rounded.HighQuality,
+                            icon = MaterialSymbolIcon("high_quality", filled = true),
                             qualityLevel = QualityLevel.EXCELLENT
                         )
                     }
@@ -145,7 +145,7 @@ fun AudioQualityBadges(
                     AudioQualityDetector.QualityType.HI_RES_STUDIO_MASTER -> {
                         QualityBadge(
                             text = "STUDIO MASTER",
-                            icon = Icons.Rounded.HighQuality,
+                            icon = MaterialSymbolIcon("high_quality", filled = true),
                             qualityLevel = QualityLevel.EXCELLENT
                         )
                     }
@@ -158,7 +158,7 @@ fun AudioQualityBadges(
                         }
                         QualityBadge(
                             text = badgeText,
-                            icon = Icons.Rounded.SurroundSound,
+                            icon = MaterialSymbolIcon("surround_sound", filled = true),
                             qualityLevel = QualityLevel.EXCELLENT
                         )
                     }
@@ -170,7 +170,7 @@ fun AudioQualityBadges(
                         }
                         QualityBadge(
                             text = badgeText,
-                            icon = Icons.Rounded.SurroundSound,
+                            icon = MaterialSymbolIcon("surround_sound", filled = true),
                             qualityLevel = QualityLevel.STANDARD
                         )
                     }
@@ -182,7 +182,7 @@ fun AudioQualityBadges(
                         }
                         QualityBadge(
                             text = badgeText,
-                            icon = Icons.Rounded.SurroundSound,
+                            icon = MaterialSymbolIcon("surround_sound", filled = true),
                             qualityLevel = if (quality.isLossless) QualityLevel.EXCELLENT else QualityLevel.STANDARD
                         )
                     }
@@ -191,7 +191,7 @@ fun AudioQualityBadges(
                         // Show full label: "DOLBY SURROUND 5.1" or "DOLBY SURROUND 7.1"
                         QualityBadge(
                             text = quality.qualityLabel.uppercase(),
-                            icon = Icons.Rounded.SurroundSound,
+                            icon = MaterialSymbolIcon("surround_sound", filled = true),
                             qualityLevel = QualityLevel.EXCELLENT
                         )
                     }
@@ -199,7 +199,7 @@ fun AudioQualityBadges(
                     AudioQualityDetector.QualityType.HI_RES_LOSSLESS -> {
                         QualityBadge(
                             text = "HI-RES LOSSLESS",
-                            icon = Icons.Rounded.HighQuality,
+                            icon = MaterialSymbolIcon("high_quality", filled = true),
                             qualityLevel = QualityLevel.GOOD
                         )
                     }
@@ -207,7 +207,7 @@ fun AudioQualityBadges(
                     AudioQualityDetector.QualityType.CD_QUALITY_LOSSLESS -> {
                         QualityBadge(
                             text = "LOSSLESS",
-                            icon = Icons.Rounded.HighQuality,
+                            icon = MaterialSymbolIcon("high_quality", filled = true),
                             qualityLevel = QualityLevel.GOOD
                         )
                     }
@@ -217,7 +217,7 @@ fun AudioQualityBadges(
                         if (quality.qualityDescription.contains("320")) {
                             QualityBadge(
                                 text = "320K",
-                                icon = Icons.Rounded.HighQuality,
+                                icon = MaterialSymbolIcon("high_quality", filled = true),
                                 qualityLevel = QualityLevel.STANDARD
                             )
                         }
@@ -238,7 +238,7 @@ fun AudioQualityBadges(
 @Composable
 private fun QualityBadge(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {
@@ -370,7 +370,7 @@ private fun QualityBadge(
 @Composable
 private fun LegacyQualityBadge(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {

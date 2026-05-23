@@ -2,6 +2,10 @@
 
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -41,30 +45,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentPaste
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.FileUpload
-import androidx.compose.material.icons.filled.Headphones
-import androidx.compose.material.icons.filled.HeadsetMic
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Speaker
-import androidx.compose.material.icons.filled.SpeakerGroup
-import androidx.compose.material.icons.rounded.Bluetooth
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Headphones
-import androidx.compose.material.icons.rounded.HeadsetMic
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -75,7 +55,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -283,7 +262,7 @@ fun DeviceConfigurationBottomSheet(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Icon(
-                                imageVector = if (matchedDevice != null) Icons.Rounded.Check else Icons.Rounded.Info,
+                                imageVector = if (matchedDevice != null) RhythmIcons.Check else RhythmIcons.Info,
                                 contentDescription = null,
                                 tint = if (matchedDevice != null) {
                                     MaterialTheme.colorScheme.primary
@@ -331,7 +310,7 @@ fun DeviceConfigurationBottomSheet(
                         contentPadding = PaddingValues(12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
+                            imageVector = RhythmIcons.Add,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -350,7 +329,7 @@ fun DeviceConfigurationBottomSheet(
                         contentPadding = PaddingValues(12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.FileDownload,
+                            imageVector = RhythmIcons.Download,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -369,7 +348,7 @@ fun DeviceConfigurationBottomSheet(
                         contentPadding = PaddingValues(12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.FileUpload,
+                            imageVector = MaterialSymbolIcon("file_upload"),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -400,7 +379,7 @@ fun DeviceConfigurationBottomSheet(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Default.Headphones,
+                                        imageVector = RhythmIcons.Headphones,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         modifier = Modifier.size(40.dp)
@@ -478,7 +457,7 @@ fun DeviceConfigurationBottomSheet(
             onDismissRequest = { showDeleteConfirmDialog = null },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = RhythmIcons.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -549,7 +528,7 @@ fun DeviceConfigurationBottomSheet(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.FileDownload,
+                    imageVector = RhythmIcons.Download,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -611,7 +590,7 @@ fun DeviceConfigurationBottomSheet(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Icon(Icons.Default.FileUpload, null, modifier = Modifier.size(16.dp))
+                            Icon(MaterialSymbolIcon("file_upload"), null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("File", style = MaterialTheme.typography.labelLarge)
                         }
@@ -624,7 +603,7 @@ fun DeviceConfigurationBottomSheet(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Icon(Icons.Default.ContentPaste, null, modifier = Modifier.size(16.dp))
+                            Icon(MaterialSymbolIcon("content_paste"), null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("Paste", style = MaterialTheme.typography.labelLarge)
                         }
@@ -638,7 +617,7 @@ fun DeviceConfigurationBottomSheet(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(Icons.Default.Link, null, modifier = Modifier.size(16.dp))
+                        Icon(RhythmIcons.Link, null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Open autoeq.app")
                     }
@@ -662,7 +641,7 @@ fun DeviceConfigurationBottomSheet(
                     },
                     enabled = importText.isNotBlank()
                 ) {
-                    Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp))
+                    Icon(RhythmIcons.Check, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Import")
                 }
@@ -675,7 +654,7 @@ fun DeviceConfigurationBottomSheet(
                         importError = null
                     }
                 ) {
-                    Icon(Icons.Default.Close, null, modifier = Modifier.size(18.dp))
+                    Icon(RhythmIcons.Close, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Cancel")
                 }
@@ -741,7 +720,7 @@ fun DeviceConfigurationBottomSheet(
             onDismissRequest = { showExportDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.FileUpload,
+                    imageVector = MaterialSymbolIcon("file_upload"),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -797,7 +776,7 @@ fun DeviceConfigurationBottomSheet(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Icon(Icons.Default.ContentPaste, null, modifier = Modifier.size(16.dp))
+                                Icon(MaterialSymbolIcon("content_paste"), null, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Copy", style = MaterialTheme.typography.labelLarge)
                             }
@@ -813,7 +792,7 @@ fun DeviceConfigurationBottomSheet(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Icon(Icons.Default.Share, null, modifier = Modifier.size(16.dp))
+                                Icon(RhythmIcons.Share, null, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Share", style = MaterialTheme.typography.labelLarge)
                             }
@@ -831,7 +810,7 @@ fun DeviceConfigurationBottomSheet(
                 Button(
                     onClick = { showExportDialog = false }
                 ) {
-                    Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp))
+                    Icon(RhythmIcons.Check, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Done")
                 }
@@ -960,7 +939,7 @@ private fun DeviceCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Check,
+                            imageVector = RhythmIcons.Check,
                             contentDescription = "Active",
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(18.dp)
@@ -983,7 +962,7 @@ private fun DeviceCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.HeadsetMic,
+                        imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -1004,7 +983,7 @@ private fun DeviceCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
+                        imageVector = RhythmIcons.Edit,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -1028,7 +1007,7 @@ private fun DeviceCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = RhythmIcons.Delete,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -1061,7 +1040,7 @@ private fun AddEditDeviceDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = if (isEditing) Icons.Default.Edit else Icons.Default.Add,
+                imageVector = if (isEditing) RhythmIcons.Edit else RhythmIcons.Add,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -1147,7 +1126,7 @@ private fun AddEditDeviceDialog(
                 enabled = deviceName.isNotBlank()
             ) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = RhythmIcons.Check,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -1158,7 +1137,7 @@ private fun AddEditDeviceDialog(
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -1226,7 +1205,7 @@ private fun DeviceAutoEQSelector(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Rounded.HeadsetMic,
+                        imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -1262,7 +1241,7 @@ private fun DeviceAutoEQSelector(
                     placeholder = { Text("Find a profile for this device...") },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Rounded.Search,
+                            imageVector = RhythmIcons.SearchFilled,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -1271,7 +1250,7 @@ private fun DeviceAutoEQSelector(
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Close,
+                                    imageVector = RhythmIcons.Close,
                                     contentDescription = "Clear",
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -1406,7 +1385,7 @@ private fun DeviceAutoEQSelector(
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.HeadsetMic,
+                                        imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                                         modifier = Modifier.size(32.dp)
@@ -1437,7 +1416,7 @@ private fun DeviceAutoEQSelector(
         confirmButton = {},
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, null, modifier = Modifier.size(18.dp))
+                Icon(RhythmIcons.Close, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Cancel")
             }
@@ -1491,7 +1470,7 @@ private fun EQProfileCard(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = Icons.Rounded.HeadsetMic,
+                            imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                             contentDescription = null,
                             tint = if (isSelected)
                                 MaterialTheme.colorScheme.primary
@@ -1561,7 +1540,7 @@ private fun EQProfileCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = "Selected",
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(14.dp)
@@ -1572,15 +1551,15 @@ private fun EQProfileCard(
     }
 }
 
-private fun getDeviceIcon(type: UserAudioDevice.DeviceType): ImageVector {
+private fun getDeviceIcon(type: UserAudioDevice.DeviceType): MaterialSymbolIcon {
     return when (type) {
-        UserAudioDevice.DeviceType.HEADPHONES -> Icons.Default.Headphones
-        UserAudioDevice.DeviceType.EARBUDS -> Icons.Default.HeadsetMic
-        UserAudioDevice.DeviceType.IEM -> Icons.Default.HeadsetMic
-        UserAudioDevice.DeviceType.SPEAKERS -> Icons.Default.Speaker
-        UserAudioDevice.DeviceType.BLUETOOTH_SPEAKER -> Icons.Rounded.Bluetooth
-        UserAudioDevice.DeviceType.CAR_AUDIO -> Icons.Default.DirectionsCar
-        UserAudioDevice.DeviceType.STUDIO_MONITORS -> Icons.Default.SpeakerGroup
-        UserAudioDevice.DeviceType.OTHER -> Icons.Default.Headphones
+        UserAudioDevice.DeviceType.HEADPHONES -> RhythmIcons.Headphones
+        UserAudioDevice.DeviceType.EARBUDS -> MaterialSymbolIcon("headset_mic")
+        UserAudioDevice.DeviceType.IEM -> MaterialSymbolIcon("headset_mic")
+        UserAudioDevice.DeviceType.SPEAKERS -> RhythmIcons.Speaker
+        UserAudioDevice.DeviceType.BLUETOOTH_SPEAKER -> RhythmIcons.BluetoothFilled
+        UserAudioDevice.DeviceType.CAR_AUDIO -> MaterialSymbolIcon("directions_car")
+        UserAudioDevice.DeviceType.STUDIO_MONITORS -> MaterialSymbolIcon("speaker_group")
+        UserAudioDevice.DeviceType.OTHER -> RhythmIcons.Headphones
     }
 }

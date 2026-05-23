@@ -7,6 +7,10 @@
 
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -74,21 +78,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.BarChart
-import androidx.compose.material.icons.rounded.Error
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Shuffle
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Album
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.NewReleases
-import androidx.compose.material.icons.rounded.LibraryAdd
-import androidx.compose.material.icons.rounded.TipsAndUpdates
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -110,10 +99,8 @@ import androidx.compose.material3.SplitButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.ui.draw.scale
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.material.icons.filled.Reorder
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
@@ -177,7 +164,6 @@ import chromahub.rhythm.app.shared.data.model.Album
 import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.features.local.presentation.components.player.MiniPlayer
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledButton
@@ -517,8 +503,9 @@ fun HomeScreen(
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Reorder,
-                    contentDescription = context.getString(R.string.cd_reorder_home_sections)
+                    imageVector = MaterialSymbolIcon("reorder", filled = true),
+                    contentDescription = context.getString(R.string.cd_reorder_home_sections),
+                    modifier = Modifier.size(25.dp)
                 )
             }
             ExpressiveFilledIconButton(
@@ -534,7 +521,8 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = RhythmIcons.Settings,
-                    contentDescription = context.getString(R.string.home_settings_cd)
+                    contentDescription = context.getString(R.string.home_settings_cd),
+                    modifier = Modifier.size(25.dp)
                 )
             }
         }
@@ -802,7 +790,7 @@ private fun ModernScrollableContent(
                                     } else {
                                         Box(modifier = Modifier.padding(horizontal = horizontalPadding)) {
                                             ModernEmptyState(
-                                                icon = Icons.Rounded.Album,
+                                                icon = RhythmIcons.AlbumFilled,
                                                 title = context.getString(R.string.home_no_featured_albums),
                                                 subtitle = context.getString(R.string.home_no_featured_albums_desc),
                                                 iconSize = 48.dp
@@ -835,7 +823,7 @@ private fun ModernScrollableContent(
                                             )
                                             Spacer(modifier = Modifier.height(20.dp))
                                             ModernEmptyState(
-                                                icon = Icons.Rounded.Person,
+                                                icon = RhythmIcons.ArtistFilled,
                                                 title = context.getString(R.string.home_no_artists),
                                                 subtitle = context.getString(R.string.home_no_artists_desc),
                                                 iconSize = 48.dp
@@ -937,7 +925,7 @@ private fun ModernScrollableContent(
                                             }
                                         } else {
                                             ModernEmptyState(
-                                                icon = Icons.Rounded.NewReleases,
+                                                icon = MaterialSymbolIcon("new_releases", filled = true),
                                                 title = context.getString(R.string.home_no_new_releases),
                                                 subtitle = context.getString(R.string.home_no_new_releases_desc),
                                                 iconSize = 48.dp
@@ -1029,7 +1017,7 @@ private fun ModernScrollableContent(
                                             }
                                         } else {
                                             ModernEmptyState(
-                                                icon = Icons.Rounded.LibraryAdd,
+                                                icon = MaterialSymbolIcon("library_add", filled = true),
                                                 title = context.getString(R.string.home_no_recently_added),
                                                 subtitle = context.getString(R.string.home_no_recently_added_desc),
                                                 iconSize = 48.dp
@@ -1314,7 +1302,7 @@ private fun ModernWelcomeSection(
                         modifier = Modifier.size(46.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Search,
+                            imageVector = RhythmIcons.SearchFilled,
                             contentDescription = context.getString(R.string.cd_search),
                             modifier = Modifier.size(24.dp)
                         )
@@ -1414,7 +1402,7 @@ private fun ModernRecentlyPlayedSection(
         } else {
             // Empty state for recently played
             ModernEmptyState(
-                icon = Icons.Rounded.History,
+                icon = MaterialSymbolIcon("history", filled = true),
                 title = context.getString(R.string.home_no_recent_activity),
                 subtitle = context.getString(R.string.home_no_recent_activity_desc),
                 iconSize = 48.dp
@@ -1510,7 +1498,7 @@ private fun ModernRecentSongCard(
             }
 
             Icon(
-                imageVector = Icons.Rounded.PlayArrow,
+                imageVector = RhythmIcons.Play,
                 contentDescription = context.getString(R.string.cd_play),
                 modifier = Modifier.size(16.dp)
             )
@@ -1589,7 +1577,7 @@ private fun ModernSectionTitle(
                             isEnd = true
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Shuffle,
+                                imageVector = RhythmIcons.Shuffle,
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -1647,7 +1635,7 @@ private fun ModernSectionTitle(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        imageVector = RhythmIcons.Forward,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.primary
@@ -1985,7 +1973,7 @@ private fun ModernArtistCard(
                     .padding(4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.PlayArrow,
+                    imageVector = RhythmIcons.Play,
                     contentDescription = context.getString(R.string.cd_play_artist, artist.name),
                     modifier = Modifier.size(20.dp)
                 )
@@ -2097,7 +2085,7 @@ private fun ModernAlbumCard(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.PlayArrow,
+                            imageVector = RhythmIcons.Play,
                             contentDescription = context.getString(R.string.cd_play_album),
                             modifier = Modifier.size(
                                 when (widthSizeClass) {
@@ -2300,7 +2288,7 @@ private fun ModernListeningStatsSection(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.BarChart,
+                            imageVector = RhythmIcons.BarChart,
                             contentDescription = null,
                             modifier = Modifier.size(28.dp)
                         )
@@ -2327,7 +2315,7 @@ private fun ModernListeningStatsSection(
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            imageVector = MaterialSymbolIcon("keyboard_arrow_right", filled = true),
                             contentDescription = context.getString(R.string.cd_view_detailed_stats),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
@@ -2377,7 +2365,7 @@ private fun ExpressiveStatItem(
     value: Int,
     suffix: String = "",
     label: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     accentColor: Color
 ) {
     Column(
@@ -2428,7 +2416,7 @@ private fun ExpressiveStatItem(
 private fun ModernStatCard(
     value: String,
     label: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     backgroundColor: Color,
     contentColor: Color
 ) {
@@ -2629,7 +2617,7 @@ private fun ModernRecommendedSection(
             }
         } else {
             ModernEmptyState(
-                icon = Icons.Rounded.TipsAndUpdates,
+                icon = MaterialSymbolIcon("tips_and_updates", filled = true),
                 title = context.getString(R.string.home_no_recommendations),
                 subtitle = context.getString(R.string.home_no_recommendations_desc),
                 iconSize = 48.dp
@@ -2698,7 +2686,7 @@ private fun RecommendedSongItem(
             )
         ) {
             Icon(
-                imageVector = Icons.Rounded.PlayArrow,
+                imageVector = RhythmIcons.Play,
                 contentDescription = "Play",
                 modifier = Modifier.size(25.dp)
             )
@@ -2708,7 +2696,7 @@ private fun RecommendedSongItem(
 
 @Composable
 private fun ModernEmptyState(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     subtitle: String,
     iconSize: Dp = 64.dp

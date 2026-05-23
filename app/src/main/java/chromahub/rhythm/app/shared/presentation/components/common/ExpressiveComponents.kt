@@ -1,6 +1,12 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
 package chromahub.rhythm.app.shared.presentation.components.common
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
+
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -51,10 +57,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -72,10 +74,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -104,7 +102,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import kotlinx.coroutines.delay
 
 // ============================================================================
@@ -994,7 +991,7 @@ fun ExpressiveClickableSurface(
 fun ExpressiveButtonWithIcon(
     onClick: () -> Unit,
     text: String,
-    icon: ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     iconOnStart: Boolean = true
@@ -1031,7 +1028,7 @@ fun ExpressiveButtonWithIcon(
 fun ExpressiveTonalButtonWithIcon(
     onClick: () -> Unit,
     text: String,
-    icon: ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     iconOnStart: Boolean = true
@@ -1071,7 +1068,7 @@ fun ExpressivePlayButton(
     modifier: Modifier = Modifier,
     size: Dp = 56.dp
 ) {
-    val playIcon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow
+    val playIcon = if (isPlaying) RhythmIcons.Pause else RhythmIcons.Play
     
     ExpressiveLargeIconButton(
         onClick = onClick,
@@ -1735,7 +1732,7 @@ fun ExpressiveToggleButtonGroup(
 private fun ExpressiveMorphingToggleButton(
     isActive: Boolean,
     onClick: () -> Unit,
-    icon: ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     label: String,
     isDarkTheme: Boolean,
     isCompactHeight: Boolean = false,
@@ -2497,7 +2494,7 @@ fun ExpressiveCollapsibleCard(
                 )
 
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.ExpandMore,
+                    imageVector = RhythmIcons.ExpandMore,
                     contentDescription = null,
                     modifier = Modifier
                         .size(24.dp)
@@ -2551,7 +2548,7 @@ fun ExpressiveGradientText(
 @Composable
 fun ExpressiveEmptyStateCard(
     modifier: Modifier = Modifier,
-    icon: ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     title: String,
     description: String? = null,
     actionLabel: String? = null,

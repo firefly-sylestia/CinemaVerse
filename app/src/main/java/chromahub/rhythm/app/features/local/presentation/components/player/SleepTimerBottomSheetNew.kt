@@ -2,6 +2,10 @@
 
 package chromahub.rhythm.app.features.local.presentation.components.player
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -12,10 +16,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.automirrored.rounded.VolumeDown
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,7 +48,7 @@ import kotlin.math.sin
 data class SleepTimerOption(
     val minutes: Int,
     val label: String,
-    val icon: ImageVector
+    val icon: MaterialSymbolIcon
 )
 
 
@@ -106,19 +106,19 @@ fun SleepTimerBottomSheetNew(
     
     // Timer options
     val timerOptions = listOf(
-        SleepTimerOption(5, "5 min", Icons.Rounded.Coffee),
-        SleepTimerOption(15, "15 min", Icons.Rounded.LocalCafe),
-        SleepTimerOption(30, "30 min", Icons.Rounded.WbTwilight),
-        SleepTimerOption(45, "45 min", Icons.Rounded.Bedtime),
-        SleepTimerOption(60, "1 hour", Icons.Rounded.NightlightRound),
-        SleepTimerOption(90, "1.5 hour", Icons.Rounded.DarkMode)
+        SleepTimerOption(5, "5 min", MaterialSymbolIcon("coffee", filled = true)),
+        SleepTimerOption(15, "15 min", MaterialSymbolIcon("local_cafe", filled = true)),
+        SleepTimerOption(30, "30 min", MaterialSymbolIcon("wb_twilight", filled = true)),
+        SleepTimerOption(45, "45 min", MaterialSymbolIcon("bedtime", filled = true)),
+        SleepTimerOption(60, "1 hour", MaterialSymbolIcon("nightlight_round", filled = true)),
+        SleepTimerOption(90, "1.5 hour", RhythmIcons.DarkMode)
     )
     
     // Action options
     val actionOptions = listOf(
-        Triple(SleepAction.FADE_OUT, "Fade Out", Icons.AutoMirrored.Rounded.VolumeDown),
-        Triple(SleepAction.PAUSE, "Pause", Icons.Rounded.Pause),
-        Triple(SleepAction.STOP, "Stop", Icons.Rounded.Stop)
+        Triple(SleepAction.FADE_OUT, "Fade Out", RhythmIcons.VolumeDown),
+        Triple(SleepAction.PAUSE, "Pause", RhythmIcons.Pause),
+        Triple(SleepAction.STOP, "Stop", RhythmIcons.Stop)
     )
     
     // Clean timer functions
@@ -231,7 +231,7 @@ fun SleepTimerBottomSheetNew(
 
                     if (isTimerActive) {
                         Icon(
-                            imageVector = Icons.Rounded.Timer,
+                            imageVector = MaterialSymbolIcon("timer", filled = true),
                             contentDescription = null,
                             
                             modifier = Modifier
@@ -306,7 +306,7 @@ fun SleepTimerBottomSheetNew(
                                         ).brush
                                     )
                                 ) {
-                                    Icon(Icons.Rounded.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Icon(RhythmIcons.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(context.getString(R.string.bottomsheet_cancel))
                                 }
@@ -319,7 +319,7 @@ fun SleepTimerBottomSheetNew(
                                         contentColor = MaterialTheme.colorScheme.primaryContainer
                                     )
                                 ) {
-                                    Icon(Icons.Rounded.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Icon(RhythmIcons.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(context.getString(R.string.bottomsheet_timer_edit))
                                 }
@@ -343,7 +343,7 @@ fun SleepTimerBottomSheetNew(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Timer,
+                                    imageVector = MaterialSymbolIcon("timer", filled = true),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -428,7 +428,7 @@ fun SleepTimerBottomSheetNew(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Schedule,
+                                    imageVector = RhythmIcons.AccessTime,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -460,7 +460,7 @@ fun SleepTimerBottomSheetNew(
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.AccessTime,
+                                    imageVector = RhythmIcons.AccessTime,
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -487,7 +487,7 @@ fun SleepTimerBottomSheetNew(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.PlayArrow,
+                                imageVector = RhythmIcons.Play,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -557,7 +557,7 @@ fun SleepTimerBottomSheetNew(
                                         Spacer(modifier = Modifier.weight(1f))
                                         if (isSelected) {
                                             Icon(
-                                                imageVector = Icons.Rounded.CheckCircle,
+                                                imageVector = RhythmIcons.CheckCircle,
                                                 contentDescription = null,
                                                 
                                                 modifier = Modifier.size(20.dp)

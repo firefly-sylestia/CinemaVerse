@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.activities
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -29,11 +32,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import chromahub.rhythm.app.R
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.animation.AnimatedVisibility
@@ -143,7 +141,7 @@ class CrashActivity : ComponentActivity() {
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.BugReport,
+                                imageVector = RhythmIcons.BugReport,
                                 contentDescription = "Bug Report",
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(40.dp)
@@ -287,7 +285,7 @@ class CrashActivity : ComponentActivity() {
                             shape = RoundedCornerShape(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Share,
+                                imageVector = RhythmIcons.Share,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -323,7 +321,7 @@ class CrashActivity : ComponentActivity() {
                             Text("Restart App", style = MaterialTheme.typography.labelLarge)
                             Spacer(modifier = Modifier.width(8.dp))
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                imageVector = RhythmIcons.Forward,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )

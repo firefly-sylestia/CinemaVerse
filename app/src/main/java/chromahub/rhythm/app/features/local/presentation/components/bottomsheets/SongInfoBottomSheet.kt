@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,9 +34,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -326,7 +327,7 @@ fun SongInfoBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = if (isBlacklisted) Icons.Rounded.CheckCircle else Icons.Rounded.Block,
+                        imageVector = if (isBlacklisted) RhythmIcons.CheckCircle else RhythmIcons.Block,
                         contentDescription = null,
                         tint = if (isBlacklisted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(24.dp)
@@ -370,7 +371,7 @@ fun SongInfoBottomSheet(
                     )
                 ) {
                     Icon(
-                        imageVector = if (isBlacklisted) Icons.Rounded.CheckCircle else Icons.Rounded.Block,
+                        imageVector = if (isBlacklisted) RhythmIcons.CheckCircle else RhythmIcons.Block,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -383,7 +384,7 @@ fun SongInfoBottomSheet(
                     onClick = { showBlacklistTrackConfirm = false }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -404,7 +405,7 @@ fun SongInfoBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = if (isInBlacklistedFolder) Icons.Rounded.CheckCircle else Icons.Rounded.FolderOff,
+                        imageVector = if (isInBlacklistedFolder) RhythmIcons.CheckCircle else MaterialSymbolIcon("folder_off", filled = true),
                         contentDescription = null,
                         tint = if (isInBlacklistedFolder) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(24.dp)
@@ -448,7 +449,7 @@ fun SongInfoBottomSheet(
                     )
                 ) {
                     Icon(
-                        imageVector = if (isInBlacklistedFolder) Icons.Rounded.CheckCircle else Icons.Rounded.FolderOff,
+                        imageVector = if (isInBlacklistedFolder) RhythmIcons.CheckCircle else MaterialSymbolIcon("folder_off", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -461,7 +462,7 @@ fun SongInfoBottomSheet(
                     onClick = { showBlacklistFolderConfirm = false }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -647,7 +648,7 @@ fun SongInfoBottomSheet(
                                                     )
                                                 ) {
                                                     Icon(
-                                                        imageVector = Icons.Rounded.Edit,
+                                                        imageVector = RhythmIcons.Edit,
                                                         contentDescription = "Edit",
                                                         modifier = Modifier.size(20.dp)
                                                     )
@@ -660,7 +661,7 @@ fun SongInfoBottomSheet(
                                                 modifier = Modifier.size(44.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Filled.Close,
+                                                    imageVector = RhythmIcons.Close,
                                                     contentDescription = "Close",
                                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -890,7 +891,7 @@ fun SongInfoBottomSheet(
                                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Edit,
+                                            imageVector = RhythmIcons.Edit,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -935,7 +936,7 @@ fun SongInfoBottomSheet(
                                         )
                                     } else {
                                         Icon(
-                                            imageVector = Icons.Rounded.Block,
+                                            imageVector = RhythmIcons.Block,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -973,7 +974,7 @@ fun SongInfoBottomSheet(
                                         )
                                     } else {
                                         Icon(
-                                            imageVector = Icons.Rounded.FolderOff,
+                                            imageVector = MaterialSymbolIcon("folder_off", filled = true),
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -1010,7 +1011,7 @@ fun SongInfoBottomSheet(
             //             )
             //         ) {
             //             Icon(
-            //                 imageVector = Icons.Rounded.Share,
+            //                 imageVector = RhythmIcons.Share,
             //                 contentDescription = null,
             //                 modifier = Modifier.size(16.dp)
             //             )
@@ -1040,7 +1041,7 @@ fun SongInfoBottomSheet(
             //             )
             //         ) {
             //             Icon(
-            //                 imageVector = Icons.Rounded.AudioFile,
+            //                 imageVector = MaterialSymbolIcon("audio_file", filled = true),
             //                 contentDescription = null,
             //                 modifier = Modifier.size(16.dp)
             //             )
@@ -1069,7 +1070,7 @@ fun SongInfoBottomSheet(
             //             )
             //         ) {
             //             Icon(
-            //                 imageVector = Icons.Rounded.PlayArrow,
+            //                 imageVector = RhythmIcons.Play,
             //                 contentDescription = null,
             //                 modifier = Modifier.size(16.dp)
             //             )
@@ -1173,7 +1174,7 @@ private fun SongInfoCard(
     val context = LocalContext.current
     val songInfoItems = buildList {
         // Basic song info
-        add(MetadataItem("Duration", formatDuration(song.duration, useHoursFormat), Icons.Rounded.Schedule))
+        add(MetadataItem("Duration", formatDuration(song.duration, useHoursFormat), RhythmIcons.AccessTime))
 
         // Track info (prefer extended info if available)
         val trackNum = if (song.trackNumber > 0) song.trackNumber else 0
@@ -1181,36 +1182,36 @@ private fun SongInfoCard(
             ?: song.discNumber.takeIf { it > 0 }
             ?: 0
         if (discNum > 0) {
-            add(MetadataItem("Disc", discNum.toString(), Icons.Rounded.Album))
+            add(MetadataItem("Disc", discNum.toString(), RhythmIcons.AlbumFilled))
         }
         if (trackNum > 0) {
-            add(MetadataItem("Track", trackNum.toString(), Icons.Rounded.FormatListNumbered))
+            add(MetadataItem("Track", trackNum.toString(), RhythmIcons.FormatListNumbered))
         }
 
         // Year (prefer song data, fallback to extended info)
         val yearValue = if (song.year > 0) song.year else extendedInfo?.year ?: 0
         if (yearValue > 0) {
-            add(MetadataItem("Year", yearValue.toString(), Icons.Rounded.DateRange))
+            add(MetadataItem("Year", yearValue.toString(), RhythmIcons.DateRange))
         }
 
         // Genre (prefer song data, fallback to extended info)
         val genreValue = if (!song.genre.isNullOrEmpty()) song.genre else extendedInfo?.genre
         if (!genreValue.isNullOrEmpty()) {
-            add(MetadataItem("Genre", genreValue.trim(), Icons.Rounded.Category))
+            add(MetadataItem("Genre", genreValue.trim(), RhythmIcons.Category))
         }
 
         // Album
         if (!song.album.isNullOrEmpty()) {
-            add(MetadataItem("Album", song.album, Icons.Rounded.Album))
+            add(MetadataItem("Album", song.album, RhythmIcons.AlbumFilled))
         }
 
         // Composer (moved from FileInfoCard)
         extendedInfo?.let { info ->
             if (info.composer.isNotEmpty() && info.composer != song.artist) {
-                add(MetadataItem("Composer", info.composer, Icons.Rounded.EditNote))
+                add(MetadataItem("Composer", info.composer, MaterialSymbolIcon("edit_note", filled = true)))
             }
             if (info.albumArtist.isNotEmpty() && info.albumArtist != song.artist) {
-                add(MetadataItem("Album Artist", info.albumArtist, Icons.Rounded.Person))
+                add(MetadataItem("Album Artist", info.albumArtist, RhythmIcons.ArtistFilled))
             }
         }
     }
@@ -1232,7 +1233,7 @@ private fun SongInfoCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Info,
+                        imageVector = RhythmIcons.Info,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(20.dp)
@@ -1308,16 +1309,16 @@ private fun RhythmStatsCard(
         // Rhythm stats
         songPlaybackStats?.let { stats ->
             if (stats.playCount > 0) {
-                add(MetadataItem("Play Count", stats.playCount.toString(), Icons.Rounded.PlayArrow))
+                add(MetadataItem("Play Count", stats.playCount.toString(), RhythmIcons.Play))
             }
             if (stats.totalDurationMs > 0) {
-                add(MetadataItem("Total Played", formatDuration(stats.totalDurationMs, useHoursFormat), Icons.Rounded.Schedule))
+                add(MetadataItem("Total Played", formatDuration(stats.totalDurationMs, useHoursFormat), RhythmIcons.AccessTime))
             }
         }
 
         // Star rating
         if (songRating > 0) {
-            add(MetadataItem("Rating", "${songRating}★", Icons.Rounded.Star))
+            add(MetadataItem("Rating", "${songRating}★", MaterialSymbolIcon("star", filled = true)))
         }
     }
 
@@ -1338,7 +1339,7 @@ private fun RhythmStatsCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.BarChart,
+                        imageVector = RhythmIcons.BarChart,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(20.dp)
@@ -1400,11 +1401,11 @@ private fun FileInfoCard(
             // Enhanced Audio Quality Badge - show detailed quality type
             if (info.qualityLabel != "Unknown" && info.qualityLabel.isNotEmpty()) {
                 val qualityIcon = when {
-                    info.isDolby -> Icons.Rounded.SurroundSound
-                    info.isDTS -> Icons.Rounded.SurroundSound
-                    info.isLossless -> Icons.Rounded.HighQuality
-                    info.isHiRes -> Icons.Rounded.HighQuality
-                    else -> Icons.Rounded.GraphicEq
+                    info.isDolby -> MaterialSymbolIcon("surround_sound", filled = true)
+                    info.isDTS -> MaterialSymbolIcon("surround_sound", filled = true)
+                    info.isLossless -> MaterialSymbolIcon("high_quality", filled = true)
+                    info.isHiRes -> MaterialSymbolIcon("high_quality", filled = true)
+                    else -> MaterialSymbolIcon("graphic_eq", filled = true)
                 }
                 add(MetadataItem("Quality", info.qualityLabel, qualityIcon))
             }
@@ -1412,57 +1413,57 @@ private fun FileInfoCard(
             // Legacy quality badges for backward compatibility (only if not covered by qualityLabel)
             if (info.qualityLabel == "Unknown") {
                 if (info.isLossless) {
-                    add(MetadataItem("Quality", "Lossless", Icons.Rounded.HighQuality))
+                    add(MetadataItem("Quality", "Lossless", MaterialSymbolIcon("high_quality", filled = true)))
                 }
                 if (info.isDolby) {
-                    add(MetadataItem("Audio Tech", "Dolby", Icons.Rounded.SurroundSound))
+                    add(MetadataItem("Audio Tech", "Dolby", MaterialSymbolIcon("surround_sound", filled = true)))
                 }
                 if (info.isDTS) {
-                    add(MetadataItem("Audio Tech", "DTS", Icons.Rounded.SurroundSound))
+                    add(MetadataItem("Audio Tech", "DTS", MaterialSymbolIcon("surround_sound", filled = true)))
                 }
                 if (info.isHiRes && !info.isLossless) {
-                    add(MetadataItem("Quality", "Hi-Res", Icons.Rounded.HighQuality))
+                    add(MetadataItem("Quality", "Hi-Res", MaterialSymbolIcon("high_quality", filled = true)))
                 }
             }
 
             // Audio quality info
             if (info.bitDepth > 0) {
-                add(MetadataItem("Bit Depth", "${info.bitDepth}-bit", Icons.Rounded.HighQuality))
+                add(MetadataItem("Bit Depth", "${info.bitDepth}-bit", MaterialSymbolIcon("high_quality", filled = true)))
             }
             if (info.bitrate != "Unknown") {
-                add(MetadataItem("Bitrate", info.bitrate, Icons.Rounded.GraphicEq))
+                add(MetadataItem("Bitrate", info.bitrate, MaterialSymbolIcon("graphic_eq", filled = true)))
             }
             if (info.sampleRate != "Unknown") {
-                add(MetadataItem("Sample Rate", info.sampleRate, Icons.Rounded.Tune))
+                add(MetadataItem("Sample Rate", info.sampleRate, RhythmIcons.Tune))
             }
             if (info.channels != "Unknown") {
-                add(MetadataItem("Channels", info.channels, Icons.Rounded.SettingsInputComponent))
+                add(MetadataItem("Channels", info.channels, MaterialSymbolIcon("settings_input_component", filled = true)))
             }
             if (info.formatName != "Unknown") {
-                add(MetadataItem("Format", info.formatName, Icons.Rounded.MusicNote))
+                add(MetadataItem("Format", info.formatName, RhythmIcons.MusicNote))
             } else if (info.format != "Unknown") {
-                add(MetadataItem("Format", info.format, Icons.Rounded.MusicNote))
+                add(MetadataItem("Format", info.format, RhythmIcons.MusicNote))
             }
 
             // File info
             folderPath?.let {
-                add(MetadataItem("Location", it, Icons.Rounded.FolderOpen))
+                add(MetadataItem("Location", it, RhythmIcons.FolderOpen))
             }
 
             // Additional metadata (non-duplicating)
             if (info.hasLyrics) {
-                add(MetadataItem("Lyrics", "Available", Icons.Rounded.Lyrics))
+                add(MetadataItem("Lyrics", "Available", MaterialSymbolIcon("lyrics", filled = true)))
             }
             if (info.mimeType.isNotEmpty()) {
-                add(MetadataItem("MIME Type", info.mimeType.substringAfter("/").uppercase(), Icons.Rounded.Code))
+                add(MetadataItem("MIME Type", info.mimeType.substringAfter("/").uppercase(), RhythmIcons.Code))
             }
 
             // Date info
             if (info.dateAdded > 0) {
-                add(MetadataItem("Date Added", formatDate(info.dateAdded), Icons.Rounded.Add))
+                add(MetadataItem("Date Added", formatDate(info.dateAdded), RhythmIcons.Add))
             }
             if (info.dateModified > 0 && info.dateModified != info.dateAdded) {
-                add(MetadataItem("Modified", formatDate(info.dateModified), Icons.Rounded.Update))
+                add(MetadataItem("Modified", formatDate(info.dateModified), RhythmIcons.Update))
             }
         }
     }
@@ -1484,7 +1485,7 @@ private fun FileInfoCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Folder,
+                        imageVector = RhythmIcons.Folder,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(20.dp)
@@ -2021,7 +2022,7 @@ private fun EditSongSheet(
                                         )
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Image,
+                                            imageVector = RhythmIcons.Image,
                                             contentDescription = "Change artwork",
                                             modifier = Modifier.size(22.dp)
                                         )
@@ -2042,7 +2043,7 @@ private fun EditSongSheet(
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Delete,
+                                        imageVector = RhythmIcons.Delete,
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -2088,7 +2089,7 @@ private fun EditSongSheet(
                                             modifier = Modifier.size(44.dp)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Filled.Close,
+                                                imageVector = RhythmIcons.Close,
                                                 contentDescription = "Close",
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -2120,7 +2121,7 @@ private fun EditSongSheet(
                                             label = { Text("Title") },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.MusicNote,
+                                                    imageVector = RhythmIcons.MusicNote,
                                                     contentDescription = null
                                                 )
                                             },
@@ -2136,7 +2137,7 @@ private fun EditSongSheet(
                                             label = { Text("Artist") },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.Person,
+                                                    imageVector = RhythmIcons.ArtistFilled,
                                                     contentDescription = null
                                                 )
                                             },
@@ -2152,7 +2153,7 @@ private fun EditSongSheet(
                                             label = { Text("Album") },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.Album,
+                                                    imageVector = RhythmIcons.AlbumFilled,
                                                     contentDescription = null
                                                 )
                                             },
@@ -2168,7 +2169,7 @@ private fun EditSongSheet(
                                             label = { Text("Genre") },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.Category,
+                                                    imageVector = RhythmIcons.Category,
                                                     contentDescription = null
                                                 )
                                             },
@@ -2188,7 +2189,7 @@ private fun EditSongSheet(
                                                 label = { Text("Year") },
                                                 leadingIcon = {
                                                     Icon(
-                                                        imageVector = Icons.Rounded.DateRange,
+                                                        imageVector = RhythmIcons.DateRange,
                                                         contentDescription = null
                                                     )
                                                 },
@@ -2204,7 +2205,7 @@ private fun EditSongSheet(
                                                 label = { Text("Track") },
                                                 leadingIcon = {
                                                     Icon(
-                                                        imageVector = Icons.Rounded.FormatListNumbered,
+                                                        imageVector = RhythmIcons.FormatListNumbered,
                                                         contentDescription = null
                                                     )
                                                 },
@@ -2231,7 +2232,7 @@ private fun EditSongSheet(
                                                 shape = RoundedCornerShape(16.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.RestartAlt,
+                                                    imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -2246,7 +2247,7 @@ private fun EditSongSheet(
                                                 shape = RoundedCornerShape(16.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.Close,
+                                                    imageVector = RhythmIcons.Close,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -2270,7 +2271,7 @@ private fun EditSongSheet(
                                                     Text("Saving...")
                                                 } else {
                                                     Icon(
-                                                        imageVector = Icons.Rounded.Save,
+                                                        imageVector = MaterialSymbolIcon("save", filled = true),
                                                         contentDescription = null,
                                                         modifier = Modifier.size(20.dp)
                                                     )
@@ -2299,7 +2300,7 @@ private fun EditSongSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Warning,
+                            imageVector = RhythmIcons.Warning,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(24.dp)
@@ -2333,7 +2334,7 @@ private fun EditSongSheet(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Warning,
+                            imageVector = RhythmIcons.Warning,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -2349,7 +2350,7 @@ private fun EditSongSheet(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = RhythmIcons.Close,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -2457,7 +2458,7 @@ private fun EditSongSheet(
                                         )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Image,
+                                        imageVector = RhythmIcons.Image,
                                         contentDescription = "Change artwork",
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -2475,7 +2476,7 @@ private fun EditSongSheet(
                                     isEnd = !hasArtworkPreview
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Image,
+                                        imageVector = RhythmIcons.Image,
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -2497,7 +2498,7 @@ private fun EditSongSheet(
                                         isEnd = true
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Delete,
+                                            imageVector = RhythmIcons.Delete,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -2540,7 +2541,7 @@ private fun EditSongSheet(
                                 label = { Text("Title") },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.MusicNote,
+                                        imageVector = RhythmIcons.MusicNote,
                                         contentDescription = null
                                     )
                                 },
@@ -2555,7 +2556,7 @@ private fun EditSongSheet(
                                 label = { Text("Artist") },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.Person,
+                                        imageVector = RhythmIcons.ArtistFilled,
                                         contentDescription = null
                                     )
                                 },
@@ -2570,7 +2571,7 @@ private fun EditSongSheet(
                                 label = { Text("Album") },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.Album,
+                                        imageVector = RhythmIcons.AlbumFilled,
                                         contentDescription = null
                                     )
                                 },
@@ -2585,7 +2586,7 @@ private fun EditSongSheet(
                                 label = { Text("Genre") },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.Category,
+                                        imageVector = RhythmIcons.Category,
                                         contentDescription = null
                                     )
                                 },
@@ -2608,7 +2609,7 @@ private fun EditSongSheet(
                                     label = { Text("Year") },
                                     leadingIcon = {
                                         Icon(
-                                            imageVector = Icons.Rounded.DateRange,
+                                            imageVector = RhythmIcons.DateRange,
                                             contentDescription = null
                                         )
                                     },
@@ -2627,7 +2628,7 @@ private fun EditSongSheet(
                                     label = { Text("Track") },
                                     leadingIcon = {
                                         Icon(
-                                            imageVector = Icons.Rounded.FormatListNumbered,
+                                            imageVector = RhythmIcons.FormatListNumbered,
                                             contentDescription = null
                                         )
                                     },
@@ -2664,7 +2665,7 @@ private fun EditSongSheet(
                     isStart = true
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.RestartAlt,
+                        imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2687,7 +2688,7 @@ private fun EditSongSheet(
                         Text("Saving...")
                     } else {
                         Icon(
-                            imageVector = Icons.Rounded.Save,
+                            imageVector = MaterialSymbolIcon("save", filled = true),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -2710,7 +2711,7 @@ private fun EditSongSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Warning,
+                        imageVector = RhythmIcons.Warning,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(24.dp)
@@ -2744,7 +2745,7 @@ private fun EditSongSheet(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Warning,
+                        imageVector = RhythmIcons.Warning,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2760,7 +2761,7 @@ private fun EditSongSheet(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2778,7 +2779,7 @@ private fun EditSongSheet(
 data class MetadataItem(
     val label: String,
     val value: String,
-    val icon: ImageVector
+    val icon: MaterialSymbolIcon
 )
 
 // Helper functions

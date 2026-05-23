@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -16,9 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +47,6 @@ import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.data.model.Album
 import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.player.PlayingEqIcon
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.features.local.presentation.components.player.formatDuration
@@ -514,7 +513,7 @@ fun ArtistBottomSheet(
                                             modifier = Modifier.size(44.dp)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Filled.Close,
+                                                imageVector = RhythmIcons.Close,
                                                 contentDescription = "Close",
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -1427,7 +1426,7 @@ private fun EnhancedArtistSongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Rounded.SkipNext,
+                                    imageVector = RhythmIcons.SkipNext,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -1507,7 +1506,7 @@ private fun EnhancedArtistSongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (isFavorite) androidx.compose.material.icons.Icons.Filled.Favorite else androidx.compose.material.icons.Icons.Rounded.FavoriteBorder,
+                                    imageVector = if (isFavorite) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
                                     contentDescription = null,
                                     
                                     modifier = Modifier
@@ -1588,7 +1587,7 @@ private fun EnhancedArtistSongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Rounded.Info,
+                                    imageVector = RhythmIcons.Info,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier
@@ -1629,7 +1628,7 @@ private fun EnhancedArtistSongItem(
 //                                modifier = Modifier.size(32.dp)
 //                            ) {
 //                                Icon(
-//                                    imageVector = androidx.compose.material.icons.Icons.Rounded.Block,
+//                                    imageVector = RhythmIcons.Block,
 //                                    contentDescription = null,
 //                                    tint = MaterialTheme.colorScheme.error,
 //                                    modifier = Modifier

@@ -1,9 +1,12 @@
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.Manifest
 import android.os.Build
 import android.provider.Settings
-import androidx.compose.material.icons.filled.*
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.animation.AnimatedVisibility
@@ -55,62 +58,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Album
-import androidx.compose.material.icons.filled.Api
-import androidx.compose.material.icons.filled.AspectRatio
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.AutoGraph
-import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.FontDownload
-import androidx.compose.material.icons.filled.FormatListNumbered
-import androidx.compose.material.icons.filled.Gamepad
-import androidx.compose.material.icons.filled.Gesture
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Lyrics
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.RestoreFromTrash
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Queue
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SortByAlpha
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Stars
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Style
-import androidx.compose.material.icons.filled.SwipeVertical
-import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.WavingHand
-import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material.icons.rounded.Swipe
-import androidx.compose.material.icons.rounded.SwipeDown
-import androidx.compose.material.icons.rounded.SwipeLeft
-import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -119,7 +66,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
  
 import androidx.compose.material3.MaterialTheme
@@ -173,7 +119,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButt
 import chromahub.rhythm.app.shared.presentation.components.common.M3LinearLoader
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.settings.LanguageSwitcherDialog
 import chromahub.rhythm.app.features.local.presentation.components.settings.LibraryTabOrderBottomSheet
 import chromahub.rhythm.app.features.local.presentation.screens.onboarding.OnboardingStep
@@ -392,7 +337,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -477,9 +422,9 @@ fun OnboardingScreen(
                                                             else -> context.getString(R.string.onboarding_grant_access)
                                                         }
                                                         val buttonIcon = when (permissionScreenState) {
-                                                            PermissionScreenState.PermissionsGranted -> Icons.AutoMirrored.Filled.ArrowForward
-                                                            PermissionScreenState.RedirectToSettings -> Icons.Filled.Security
-                                                            else -> Icons.Filled.Security
+                                                            PermissionScreenState.PermissionsGranted -> RhythmIcons.Forward
+                                                            PermissionScreenState.RedirectToSettings -> RhythmIcons.Security
+                                                            else -> RhythmIcons.Security
                                                         }
 
                                                         Text(
@@ -528,7 +473,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -571,7 +516,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -608,7 +553,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -651,7 +596,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -687,7 +632,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -730,7 +675,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -768,7 +713,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -811,7 +756,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -847,7 +792,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -890,7 +835,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -929,7 +874,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -972,7 +917,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -1008,7 +953,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -1051,7 +996,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -1087,7 +1032,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -1130,7 +1075,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -1166,7 +1111,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -1209,7 +1154,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -1246,7 +1191,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -1289,7 +1234,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                                imageVector = RhythmIcons.Forward,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -1325,7 +1270,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -1363,7 +1308,7 @@ fun OnboardingScreen(
                                                 shape = RoundedCornerShape(32.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -1406,7 +1351,7 @@ fun OnboardingScreen(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Icon(
-                                                imageVector = Icons.Filled.Check,
+                                                imageVector = RhythmIcons.Check,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -1495,7 +1440,7 @@ fun OnboardingScreen(
                             shape = RoundedCornerShape(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                imageVector = RhythmIcons.Back,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -1630,13 +1575,13 @@ fun OnboardingScreen(
                                         else -> context.getString(R.string.onboarding_next)
                                     }
                                     val buttonIcon = when {
-                                        currentStep == OnboardingStep.SETUP_FINISHED -> Icons.Filled.Check
+                                        currentStep == OnboardingStep.SETUP_FINISHED -> RhythmIcons.Check
                                         currentStep == OnboardingStep.PERMISSIONS -> when (permissionScreenState) {
-                                            PermissionScreenState.PermissionsGranted -> Icons.AutoMirrored.Filled.ArrowForward
-                                            PermissionScreenState.RedirectToSettings -> Icons.Filled.Security
-                                            else -> Icons.Filled.Security
+                                            PermissionScreenState.PermissionsGranted -> RhythmIcons.Forward
+                                            PermissionScreenState.RedirectToSettings -> RhythmIcons.Security
+                                            else -> RhythmIcons.Security
                                         }
-                                        else -> Icons.AutoMirrored.Filled.ArrowForward
+                                        else -> RhythmIcons.Forward
                                     }
 
                                     Text(
@@ -1705,7 +1650,7 @@ private fun OnboardingTopBackButton(onBackClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                imageVector = RhythmIcons.Back,
                 contentDescription = "Back",
                 tint = MaterialTheme.colorScheme.onSurface
             )
@@ -1752,7 +1697,7 @@ private fun OnboardingCard(
 
 @Composable
 private fun OnboardingStepHeaderIcon(
-    imageVector: ImageVector,
+    imageVector: MaterialSymbolIcon,
     tint: Color,
     iconSize: androidx.compose.ui.unit.Dp
 ) {
@@ -1806,7 +1751,7 @@ fun EnhancedWelcomeContent(onNextStep: () -> Unit, isTablet: Boolean = false, co
             shape = RoundedCornerShape(16.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Public,
+                imageVector = RhythmIcons.Public,
                 contentDescription = "Change Language",
                 modifier = Modifier.size(20.dp)
             )
@@ -2079,15 +2024,15 @@ fun EnhancedWelcomeContent(onNextStep: () -> Unit, isTablet: Boolean = false, co
 //                        .padding(horizontal = 12.dp)
 //                ) {
 //                    WelcomeFeatureChip(
-//                        icon = Icons.Filled.MusicNote,
+//                        icon = RhythmIcons.MusicNote,
 //                        text = context.getString(R.string.onboarding_offline)
 //                    )
 //                    WelcomeFeatureChip(
-//                        icon = Icons.Filled.Palette,
+//                        icon = RhythmIcons.Palette,
 //                        text = context.getString(R.string.onboarding_customizable)
 //                    )
 //                    WelcomeFeatureChip(
-//                        icon = Icons.Filled.Security,
+//                        icon = RhythmIcons.Security,
 //                        text = context.getString(R.string.onboarding_private)
 //                    )
 //                }
@@ -2123,7 +2068,7 @@ fun EnhancedWelcomeContent(onNextStep: () -> Unit, isTablet: Boolean = false, co
 
 @Composable
 private fun WelcomeFeatureChip(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Surface(
@@ -2222,9 +2167,9 @@ fun EnhancedPermissionContent(
                 ) {
                     OnboardingStepHeaderIcon(
                         imageVector = when (permissionScreenState) {
-                            PermissionScreenState.PermissionsGranted -> Icons.Filled.Check
-                            PermissionScreenState.RedirectToSettings -> Icons.Filled.Security
-                            else -> Icons.Filled.Security
+                            PermissionScreenState.PermissionsGranted -> RhythmIcons.Check
+                            PermissionScreenState.RedirectToSettings -> RhythmIcons.Security
+                            else -> RhythmIcons.Security
                         },
                         tint = when (permissionScreenState) {
                             PermissionScreenState.PermissionsGranted -> MaterialTheme.colorScheme.primary
@@ -2277,7 +2222,7 @@ fun EnhancedPermissionContent(
                             modifier = Modifier.padding(bottom = 12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -2292,15 +2237,15 @@ fun EnhancedPermissionContent(
                         }
 
                         PermissionTipItem(
-                            icon = Icons.Filled.CheckCircle,
+                            icon = RhythmIcons.CheckCircle,
                             text = context.getString(R.string.onboarding_permission_tip_1)
                         )
                         PermissionTipItem(
-                            icon = Icons.Filled.Settings,
+                            icon = RhythmIcons.SettingsFilled,
                             text = context.getString(R.string.onboarding_permission_tip_2)
                         )
                         PermissionTipItem(
-                            icon = Icons.Filled.Security,
+                            icon = RhythmIcons.Security,
                             text = context.getString(R.string.onboarding_permission_tip_3)
                         )
                     }
@@ -2329,7 +2274,7 @@ fun EnhancedPermissionContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     EnhancedPermissionCard(
-                        icon = Icons.Filled.MusicNote,
+                        icon = RhythmIcons.MusicNote,
                         title = context.getString(R.string.onboarding_permission_music_title),
                         description = context.getString(R.string.onboarding_permission_music_desc),
                         isGranted = storagePermissions.all { permission ->
@@ -2374,7 +2319,7 @@ fun EnhancedPermissionContent(
                                 modifier = Modifier.padding(bottom = 8.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.BugReport,
+                                    imageVector = RhythmIcons.BugReport,
                                     contentDescription = null,
                                     
                                     modifier = Modifier.size(20.dp)
@@ -2413,9 +2358,9 @@ fun EnhancedPermissionContent(
             ) {
                 OnboardingStepHeaderIcon(
                     imageVector = when (permissionScreenState) {
-                        PermissionScreenState.PermissionsGranted -> Icons.Filled.Check
-                        PermissionScreenState.RedirectToSettings -> Icons.Filled.Security
-                        else -> Icons.Filled.Security
+                        PermissionScreenState.PermissionsGranted -> RhythmIcons.Check
+                        PermissionScreenState.RedirectToSettings -> RhythmIcons.Security
+                        else -> RhythmIcons.Security
                     },
                     tint = when (permissionScreenState) {
                         PermissionScreenState.PermissionsGranted -> MaterialTheme.colorScheme.primary
@@ -2473,7 +2418,7 @@ fun EnhancedPermissionContent(
                             modifier = Modifier.padding(bottom = 8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.BugReport,
+                                imageVector = RhythmIcons.BugReport,
                                 contentDescription = null,
                                 
                                 modifier = Modifier.size(20.dp)
@@ -2502,7 +2447,7 @@ fun EnhancedPermissionContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 EnhancedPermissionCard(
-                    icon = Icons.Filled.MusicNote,
+                    icon = RhythmIcons.MusicNote,
                     title = context.getString(R.string.onboarding_permission_music_title),
                     description = context.getString(R.string.onboarding_permission_music_desc),
                     isGranted = storagePermissions.all { permission ->
@@ -2538,7 +2483,7 @@ fun EnhancedPermissionContent(
 
 @Composable
 fun EnhancedPermissionCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     isGranted: Boolean = false
@@ -2609,7 +2554,7 @@ fun EnhancedPermissionCard(
                     label = "iconCrossfade"
                 ) { granted ->
                     Icon(
-                        imageVector = if (granted) Icons.Filled.Check else icon,
+                        imageVector = if (granted) RhythmIcons.Check else icon,
                         contentDescription = null,
                         tint = iconTint,
                         modifier = Modifier.size(24.dp)
@@ -2672,7 +2617,7 @@ fun EnhancedPermissionCard(
 
 @Composable
 private fun PermissionTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -2902,7 +2847,7 @@ fun EnhancedBackupRestoreContent(
                     enter = scaleIn() + fadeIn()
                 ) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Backup,
+                        imageVector = MaterialSymbolIcon("backup", filled = true),
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -2938,7 +2883,7 @@ fun EnhancedBackupRestoreContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -2953,15 +2898,15 @@ fun EnhancedBackupRestoreContent(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         BackupFeatureTipItem(
-                            icon = Icons.Filled.Save,
+                            icon = MaterialSymbolIcon("save", filled = true),
                             text = context.getString(R.string.onboarding_backed_up_1)
                         )
                         BackupFeatureTipItem(
-                            icon = Icons.Filled.RestoreFromTrash,
+                            icon = MaterialSymbolIcon("restore_from_trash", filled = true),
                             text = context.getString(R.string.onboarding_backed_up_2)
                         )
                         BackupFeatureTipItem(
-                            icon = Icons.Filled.Security,
+                            icon = RhythmIcons.Security,
                             text = context.getString(R.string.onboarding_backed_up_3)
                         )
                     }
@@ -2988,7 +2933,7 @@ fun EnhancedBackupRestoreContent(
                 Material3SettingsGroup(
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Filled.Autorenew,
+                            icon = MaterialSymbolIcon("autorenew", filled = true),
                             title = { Text(context.getString(R.string.onboarding_auto_backup)) },
                             description = { Text(context.getString(R.string.onboarding_auto_backup_desc)) },
                             trailingContent = {
@@ -3062,7 +3007,7 @@ fun EnhancedBackupRestoreContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 
@@ -3098,7 +3043,7 @@ fun EnhancedBackupRestoreContent(
                     enter = scaleIn() + fadeIn()
                 ) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Backup,
+                        imageVector = MaterialSymbolIcon("backup", filled = true),
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 56.dp
                     )
@@ -3131,7 +3076,7 @@ fun EnhancedBackupRestoreContent(
                 Material3SettingsGroup(
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Filled.Autorenew,
+                            icon = MaterialSymbolIcon("autorenew", filled = true),
                             title = { Text(context.getString(R.string.onboarding_auto_backup)) },
                             description = { Text(context.getString(R.string.onboarding_auto_backup_desc)) },
                             trailingContent = {
@@ -3205,7 +3150,7 @@ fun EnhancedBackupRestoreContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 
@@ -3236,7 +3181,7 @@ fun EnhancedBackupRestoreContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -3252,15 +3197,15 @@ fun EnhancedBackupRestoreContent(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         BackupFeatureTipItem(
-                            icon = Icons.Filled.Save,
+                            icon = MaterialSymbolIcon("save", filled = true),
                             text = context.getString(R.string.onboarding_backed_up_1)
                         )
                         BackupFeatureTipItem(
-                            icon = Icons.Filled.RestoreFromTrash,
+                            icon = MaterialSymbolIcon("restore_from_trash", filled = true),
                             text = context.getString(R.string.onboarding_backed_up_2)
                         )
                         BackupFeatureTipItem(
-                            icon = Icons.Filled.Security,
+                            icon = RhythmIcons.Security,
                             text = context.getString(R.string.onboarding_backed_up_3)
                         )
                     }
@@ -3300,7 +3245,7 @@ private fun OnboardingBackupActionCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             OnboardingBackupActionRow(
-                icon = Icons.Filled.Save,
+                icon = MaterialSymbolIcon("save", filled = true),
                 title = context.getString(R.string.settings_create_backup),
                 description = context.getString(R.string.settings_create_backup_desc),
                 inProgress = isCreatingBackup,
@@ -3314,7 +3259,7 @@ private fun OnboardingBackupActionCard(
             )
 
             OnboardingBackupActionRow(
-                icon = Icons.Filled.ContentCopy,
+                icon = RhythmIcons.ContentCopy,
                 title = context.getString(R.string.settings_restore_clipboard),
                 description = context.getString(R.string.settings_restore_clipboard_desc),
                 inProgress = isRestoringFromClipboard,
@@ -3328,7 +3273,7 @@ private fun OnboardingBackupActionCard(
             )
 
             OnboardingBackupActionRow(
-                icon = Icons.Filled.FolderOpen,
+                icon = RhythmIcons.FolderOpen,
                 title = context.getString(R.string.settings_restore_file),
                 description = context.getString(R.string.settings_restore_file_desc),
                 inProgress = isRestoringFromFile,
@@ -3341,7 +3286,7 @@ private fun OnboardingBackupActionCard(
 
 @Composable
 private fun OnboardingBackupActionRow(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     inProgress: Boolean,
@@ -3387,7 +3332,7 @@ private fun OnboardingBackupActionRow(
         }
 
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            imageVector = RhythmIcons.Forward,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
             modifier = Modifier.size(18.dp)
@@ -3417,7 +3362,7 @@ private fun BackupRestoreStatusCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = if (isError) Icons.Filled.Error else Icons.Filled.CheckCircle,
+                    imageVector = if (isError) MaterialSymbolIcon("error", filled = true) else RhythmIcons.CheckCircle,
                     contentDescription = null,
                     tint = if (isError) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onTertiaryContainer,
                     modifier = Modifier.size(20.dp)
@@ -3446,7 +3391,7 @@ private fun BackupRestoreStatusCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.RestartAlt,
+                        imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -3460,7 +3405,7 @@ private fun BackupRestoreStatusCard(
 
 @Composable
 private fun BackupFeatureTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -3484,7 +3429,7 @@ private fun BackupFeatureTipItem(
 
 @Composable
 private fun LibraryTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String,
     color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onPrimaryContainer
 ) {
@@ -3582,7 +3527,7 @@ fun EnhancedAudioPlaybackContent(
                             modifier = Modifier.padding(bottom = 12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -3597,11 +3542,11 @@ fun EnhancedAudioPlaybackContent(
                         }
 
                         LibraryTipItem(
-                            icon = Icons.Filled.GraphicEq,
+                            icon = MaterialSymbolIcon("graphic_eq", filled = true),
                             text = context.getString(R.string.onboarding_equalizer_desc)
                         )
                         LibraryTipItem(
-                            icon = Icons.Filled.AccessTime,
+                            icon = RhythmIcons.AccessTime,
                             text = context.getString(R.string.onboarding_sleep_timer_desc)
                         )
                     }
@@ -3649,7 +3594,7 @@ fun EnhancedAudioPlaybackContent(
                             title = context.getString(R.string.onboarding_lyrics_source_title),
                             description = context.getString(R.string.onboarding_lyrics_source_desc),
                             selectedOption = lyricsSourcePreference.displayName,
-                            icon = Icons.Filled.Cloud,
+                            icon = MaterialSymbolIcon("cloud", filled = true),
                             options = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
                             onOptionSelected = { displayName ->
                                 val preference = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values()
@@ -3673,7 +3618,7 @@ fun EnhancedAudioPlaybackContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.Lightbulb,
+                                    imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     contentDescription = null,
                                     
@@ -3758,7 +3703,7 @@ fun EnhancedAudioPlaybackContent(
                             title = context.getString(R.string.onboarding_lyrics_source_title),
                             description = context.getString(R.string.onboarding_lyrics_source_desc),
                             selectedOption = lyricsSourcePreference.displayName,
-                            icon = Icons.Filled.Cloud,
+                            icon = MaterialSymbolIcon("cloud", filled = true),
                             options = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
                             onOptionSelected = { displayName ->
                                 val preference = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values()
@@ -3782,7 +3727,7 @@ fun EnhancedAudioPlaybackContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.Lightbulb,
+                                    imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     contentDescription = null,
                                     
@@ -3818,7 +3763,7 @@ fun EnhancedAudioPlaybackContent(
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            imageVector = RhythmIcons.Info,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
@@ -3833,11 +3778,11 @@ fun EnhancedAudioPlaybackContent(
                     }
 
                     LibraryTipItem(
-                        icon = Icons.Filled.GraphicEq,
+                        icon = MaterialSymbolIcon("graphic_eq", filled = true),
                         text = context.getString(R.string.onboarding_equalizer_desc)
                     )
                     LibraryTipItem(
-                        icon = Icons.Filled.AccessTime,
+                        icon = RhythmIcons.AccessTime,
                         text = context.getString(R.string.onboarding_sleep_timer_desc)
                     )
                 }
@@ -3888,7 +3833,7 @@ fun EnhancedLibrarySetupContent(
                     enter = scaleIn() + fadeIn()
                 ) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.LibraryMusic,
+                        imageVector = RhythmIcons.Library,
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -3924,7 +3869,7 @@ fun EnhancedLibrarySetupContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -3939,19 +3884,19 @@ fun EnhancedLibrarySetupContent(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         LibraryTipItem(
-                            icon = Icons.Filled.Reorder,
+                            icon = MaterialSymbolIcon("reorder", filled = true),
                             text = context.getString(R.string.onboarding_library_1)
                         )
                         LibraryTipItem(
-                            icon = Icons.Filled.Queue,
+                            icon = RhythmIcons.Queue,
                             text = context.getString(R.string.onboarding_library_2)
                         )
                         LibraryTipItem(
-                            icon = Icons.Filled.LibraryMusic,
+                            icon = RhythmIcons.Library,
                             text = context.getString(R.string.onboarding_library_4)
                         )
                         LibraryTipItem(
-                            icon = Icons.Filled.Tune,
+                            icon = RhythmIcons.Tune,
                             text = context.getString(R.string.onboarding_library_3)
                         )
                     }
@@ -4002,7 +3947,7 @@ fun EnhancedLibrarySetupContent(
                 enter = scaleIn() + fadeIn()
             ) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.LibraryMusic,
+                    imageVector = RhythmIcons.Library,
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -4055,7 +4000,7 @@ fun EnhancedLibrarySetupContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            imageVector = RhythmIcons.Info,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
@@ -4071,19 +4016,19 @@ fun EnhancedLibrarySetupContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     LibraryTipItem(
-                        icon = Icons.Filled.Reorder,
+                        icon = MaterialSymbolIcon("reorder", filled = true),
                         text = context.getString(R.string.onboarding_library_1)
                     )
                     LibraryTipItem(
-                        icon = Icons.Filled.Queue,
+                        icon = RhythmIcons.Queue,
                         text = context.getString(R.string.onboarding_library_2)
                     )
                     LibraryTipItem(
-                        icon = Icons.Filled.LibraryMusic,
+                        icon = RhythmIcons.Library,
                         text = context.getString(R.string.onboarding_library_4)
                     )
                     LibraryTipItem(
-                        icon = Icons.Filled.Tune,
+                        icon = RhythmIcons.Tune,
                         text = context.getString(R.string.onboarding_library_3)
                     )
                 }
@@ -4107,7 +4052,7 @@ private fun LibrarySettingsCard(
     Material3SettingsGroup(
         items = listOf(
             Material3SettingsItem(
-                icon = Icons.Default.GridView,
+                icon = RhythmIcons.GridView,
                 title = { Text(context.getString(R.string.onboarding_library_album_grid)) },
                 description = { Text(context.getString(R.string.onboarding_library_album_grid_desc)) },
                 trailingContent = {
@@ -4125,7 +4070,7 @@ private fun LibrarySettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.PersonOutline,
+                icon = RhythmIcons.Artist,
                 title = { Text(context.getString(R.string.onboarding_library_artist_grid)) },
                 description = { Text(context.getString(R.string.onboarding_library_artist_grid_desc)) },
                 trailingContent = {
@@ -4143,7 +4088,7 @@ private fun LibrarySettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.Lyrics,
+                icon = MaterialSymbolIcon("lyrics"),
                 title = { Text(context.getString(R.string.onboarding_library_show_lyrics)) },
                 description = { Text(context.getString(R.string.onboarding_library_show_lyrics_desc)) },
                 trailingContent = {
@@ -4182,7 +4127,7 @@ private fun FolderManagementCard(
     val folderItems = buildList {
         add(
             Material3SettingsItem(
-                icon = Icons.Filled.FilterList,
+                icon = RhythmIcons.FilterList,
                 title = { Text("Media Scan Mode") },
                 description = {
                     Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -4208,7 +4153,7 @@ private fun FolderManagementCard(
 
         add(
             Material3SettingsItem(
-                icon = Icons.Default.CreateNewFolder,
+                icon = MaterialSymbolIcon("create_new_folder"),
                 title = { Text("Add Folder") },
                 description = {
                     Text(
@@ -4221,7 +4166,7 @@ private fun FolderManagementCard(
                 },
                 trailingContent = {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = RhythmIcons.Add,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -4236,7 +4181,7 @@ private fun FolderManagementCard(
         if (currentFolders.isNotEmpty()) {
             add(
                 Material3SettingsItem(
-                    icon = Icons.Default.Folder,
+                    icon = RhythmIcons.Folder,
                     title = {
                         Text("${currentFolders.size} ${if (isBlacklistMode) "blocked" else "whitelisted"} folders")
                     },
@@ -4249,7 +4194,7 @@ private fun FolderManagementCard(
             currentFolders.forEach { folder ->
                 add(
                     Material3SettingsItem(
-                        icon = Icons.Default.Folder,
+                        icon = RhythmIcons.Folder,
                         title = { Text(folder.substringAfterLast("/")) },
                         description = {
                             Text(
@@ -4261,7 +4206,7 @@ private fun FolderManagementCard(
                         trailingContent = {
                             IconButton(onClick = { onRemoveFolder(folder) }) {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
+                                    imageVector = RhythmIcons.Close,
                                     contentDescription = "Remove",
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -4370,7 +4315,7 @@ private fun AudioPlaybackSettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Filled.Lyrics,
+                icon = MaterialSymbolIcon("lyrics", filled = true),
                 title = { Text(context.getString(R.string.onboarding_show_lyrics_title)) },
                 description = { Text(context.getString(R.string.onboarding_show_lyrics_desc)) },
                 trailingContent = {
@@ -4409,7 +4354,7 @@ private fun ThemeSettingsCard(
     val themeItems = buildList {
         add(
             Material3SettingsItem(
-                icon = Icons.Default.Settings,
+                icon = RhythmIcons.Settings,
                 title = { Text(context.getString(R.string.settings_theme_mode)) },
                 description = {
                     Column(
@@ -4458,7 +4403,7 @@ private fun ThemeSettingsCard(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             add(
                 Material3SettingsItem(
-                    icon = Icons.Filled.Palette,
+                    icon = RhythmIcons.Palette,
                     title = { Text(context.getString(R.string.onboarding_dynamic_colors_title)) },
                     description = { Text(context.getString(R.string.onboarding_dynamic_colors_desc)) },
                     trailingContent = {
@@ -4480,7 +4425,7 @@ private fun ThemeSettingsCard(
 
         add(
             Material3SettingsItem(
-                icon = Icons.Filled.AutoAwesome,
+                icon = RhythmIcons.AutoAwesome,
                 title = { Text("Festive Theme") },
                 description = { Text("Enable festive decorations and seasonal themes") },
                 trailingContent = {
@@ -4508,7 +4453,7 @@ private fun ThemeSettingsCard(
 
 @Composable
 private fun LibraryFeatureCard(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     onClick: (() -> Unit)? = null,
@@ -4570,7 +4515,7 @@ private fun LibraryFeatureCard(
             }
             if (onClick != null) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    imageVector = RhythmIcons.Forward,
                     contentDescription = "Open",
                     tint = if (usePrimaryStyle)
                         MaterialTheme.colorScheme.onPrimaryContainer
@@ -4627,7 +4572,7 @@ fun EnhancedThemingContent(
                     enter = scaleIn() + fadeIn()
                 ) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Palette,
+                        imageVector = RhythmIcons.Palette,
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -4663,7 +4608,7 @@ fun EnhancedThemingContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Settings,
+                                imageVector = RhythmIcons.SettingsFilled,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -4679,15 +4624,15 @@ fun EnhancedThemingContent(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         LibraryTipItem(
-                            icon = Icons.Filled.Palette,
+                            icon = RhythmIcons.Palette,
                             text = context.getString(R.string.onboarding_tuner_1)
                         )
                         LibraryTipItem(
-                            icon = Icons.Filled.FontDownload,
+                            icon = MaterialSymbolIcon("font_download", filled = true),
                             text = context.getString(R.string.onboarding_tuner_2)
                         )
                         LibraryTipItem(
-                            icon = Icons.Filled.AutoAwesome,
+                            icon = RhythmIcons.AutoAwesome,
                             text = context.getString(R.string.onboarding_tuner_3)
                         )
                     }
@@ -4777,7 +4722,7 @@ fun EnhancedThemingContent(
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Filled.MusicNote,
+                                                imageVector = RhythmIcons.MusicNote,
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.onPrimary,
                                                 modifier = Modifier.size(24.dp)
@@ -4804,7 +4749,7 @@ fun EnhancedThemingContent(
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Filled.Album,
+                                                imageVector = RhythmIcons.AlbumFilled,
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.onSecondary,
                                                 modifier = Modifier.size(24.dp)
@@ -4831,7 +4776,7 @@ fun EnhancedThemingContent(
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Filled.Palette,
+                                                imageVector = RhythmIcons.Palette,
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.onTertiary,
                                                 modifier = Modifier.size(24.dp)
@@ -4889,7 +4834,7 @@ fun EnhancedThemingContent(
 //                        verticalAlignment = Alignment.CenterVertically
 //                    ) {
 //                        Icon(
-//                            imageVector = Icons.Filled.FontDownload,
+//                            imageVector = MaterialSymbolIcon("font_download", filled = true),
 //                            contentDescription = null,
 //                            modifier = Modifier.size(24.dp)
 //                        )
@@ -4908,7 +4853,7 @@ fun EnhancedThemingContent(
 //                            )
 //                        }
 //                        Icon(
-//                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+//                            imageVector = RhythmIcons.Forward,
 //                            contentDescription = null,
 //                            tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
 //                            modifier = Modifier.size(20.dp)
@@ -4921,7 +4866,7 @@ fun EnhancedThemingContent(
                     title = context.getString(R.string.onboarding_default_screen_title),
                     description = context.getString(R.string.onboarding_default_screen_desc),
                     selectedOption = if (appSettings.defaultScreen.collectAsState().value == "library") context.getString(R.string.option_library) else context.getString(R.string.option_home),
-                    icon = Icons.Filled.Home,
+                    icon = RhythmIcons.HomeFilled,
                     options = listOf(context.getString(R.string.option_home), context.getString(R.string.option_library)),
                     onOptionSelected = { selectedOption ->
                         val selectedScreen = if (selectedOption == context.getString(R.string.option_library)) {
@@ -4948,7 +4893,7 @@ fun EnhancedThemingContent(
                 enter = scaleIn() + fadeIn()
             ) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.Palette,
+                    imageVector = RhythmIcons.Palette,
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -5034,7 +4979,7 @@ fun EnhancedThemingContent(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.MusicNote,
+                                        imageVector = RhythmIcons.MusicNote,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onPrimary,
                                         modifier = Modifier.size(24.dp)
@@ -5061,7 +5006,7 @@ fun EnhancedThemingContent(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Album,
+                                        imageVector = RhythmIcons.AlbumFilled,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSecondary,
                                         modifier = Modifier.size(24.dp)
@@ -5088,7 +5033,7 @@ fun EnhancedThemingContent(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Palette,
+                                        imageVector = RhythmIcons.Palette,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onTertiary,
                                         modifier = Modifier.size(24.dp)
@@ -5141,7 +5086,7 @@ fun EnhancedThemingContent(
                 title = context.getString(R.string.onboarding_default_screen_title),
                 description = context.getString(R.string.onboarding_default_screen_desc),
                 selectedOption = if (appSettings.defaultScreen.collectAsState().value == "library") context.getString(R.string.option_library) else context.getString(R.string.option_home),
-                icon = Icons.Filled.Home,
+                icon = RhythmIcons.HomeFilled,
                 options = listOf(context.getString(R.string.option_home), context.getString(R.string.option_library)),
                 onOptionSelected = { selectedOption ->
                     val selectedScreen = if (selectedOption == context.getString(R.string.option_library)) {
@@ -5169,7 +5114,7 @@ fun EnhancedThemingContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.FontDownload,
+                        imageVector = MaterialSymbolIcon("font_download", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
@@ -5188,7 +5133,7 @@ fun EnhancedThemingContent(
                         )
                     }
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        imageVector = RhythmIcons.Forward,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp)
@@ -5213,7 +5158,7 @@ fun EnhancedThemingContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Settings,
+                            imageVector = RhythmIcons.SettingsFilled,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
@@ -5229,15 +5174,15 @@ fun EnhancedThemingContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     LibraryTipItem(
-                        icon = Icons.Filled.Palette,
+                        icon = RhythmIcons.Palette,
                         text = context.getString(R.string.onboarding_tuner_1)
                     )
                     LibraryTipItem(
-                        icon = Icons.Filled.FontDownload,
+                        icon = MaterialSymbolIcon("font_download", filled = true),
                         text = context.getString(R.string.onboarding_tuner_2)
                     )
                     LibraryTipItem(
-                        icon = Icons.Filled.AutoAwesome,
+                        icon = RhythmIcons.AutoAwesome,
                         text = context.getString(R.string.onboarding_tuner_3)
                     )
                 }
@@ -5260,7 +5205,7 @@ fun EnhancedThemingContent(
 
 @Composable
 fun EnhancedThemeOption(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     isEnabled: Boolean,
@@ -5335,7 +5280,7 @@ fun EnhancedThemeOption(
 
 @Composable
 fun OnboardingDropdownOption(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     selectedOption: String,
@@ -5413,7 +5358,7 @@ fun OnboardingDropdownOption(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
-                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        imageVector = RhythmIcons.KeyboardArrowDown,
                         contentDescription = "Show options",
                         modifier = Modifier.size(16.dp)
                     )
@@ -5437,10 +5382,10 @@ fun OnboardingDropdownOption(
                             ) {
                                 Icon(
                                     imageVector = when (option) {
-                                        "API" -> Icons.Filled.Cloud
-                                        "Embedded" -> Icons.Filled.MusicNote
-                                        "Local" -> Icons.Filled.Folder
-                                        else -> Icons.Filled.MusicNote
+                                        "API" -> MaterialSymbolIcon("cloud", filled = true)
+                                        "Embedded" -> RhythmIcons.MusicNote
+                                        "Local" -> RhythmIcons.Folder
+                                        else -> RhythmIcons.MusicNote
                                     },
                                     contentDescription = null,
                                     tint = if (selectedOption == option)
@@ -5462,7 +5407,7 @@ fun OnboardingDropdownOption(
                                 Spacer(modifier = Modifier.weight(1f))
                                 if (selectedOption == option) {
                                     Icon(
-                                        imageVector = Icons.Filled.Check,
+                                        imageVector = RhythmIcons.Check,
                                         contentDescription = "Selected",
                                         
                                         modifier = Modifier.size(20.dp)
@@ -5507,7 +5452,7 @@ fun EnhancedRhythmGuardContent(
         val modeItems = buildList {
             add(
                 Material3SettingsItem(
-                    icon = Icons.Filled.Security,
+                    icon = RhythmIcons.Security,
                     title = { Text(context.getString(R.string.settings_rhythm_guard)) },
                     description = { Text(context.getString(R.string.settings_rhythm_guard_mode_desc)) },
                     trailingContent = {
@@ -5530,7 +5475,7 @@ fun EnhancedRhythmGuardContent(
             if (rhythmGuardEnabled) {
                 add(
                     Material3SettingsItem(
-                        icon = Icons.Filled.Tune,
+                        icon = RhythmIcons.Tune,
                         title = { Text(context.getString(R.string.onboarding_rhythm_guard_mode_title)) },
                         description = {
                             Column(
@@ -5566,7 +5511,7 @@ fun EnhancedRhythmGuardContent(
 
             add(
                 Material3SettingsItem(
-                    icon = Icons.Filled.Cake,
+                    icon = MaterialSymbolIcon("cake", filled = true),
                     title = { Text(context.getString(R.string.settings_rhythm_guard_age_search_title)) },
                     description = {
                         Column(
@@ -5585,7 +5530,7 @@ fun EnhancedRhythmGuardContent(
                                     color = MaterialTheme.colorScheme.surfaceContainerHighest
                                 ) {
                                     IconButton(onClick = { appSettings.setRhythmGuardAge((rhythmGuardAge - 1).coerceAtLeast(8)) }) {
-                                        Icon(imageVector = Icons.Filled.Remove, contentDescription = null)
+                                        Icon(imageVector = RhythmIcons.Remove, contentDescription = null)
                                     }
                                 }
                                 Text(
@@ -5599,7 +5544,7 @@ fun EnhancedRhythmGuardContent(
                                     color = MaterialTheme.colorScheme.surfaceContainerHighest
                                 ) {
                                     IconButton(onClick = { appSettings.setRhythmGuardAge((rhythmGuardAge + 1).coerceAtMost(80)) }) {
-                                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                                        Icon(imageVector = RhythmIcons.Add, contentDescription = null)
                                     }
                                 }
                             }
@@ -5636,7 +5581,7 @@ fun EnhancedRhythmGuardContent(
             ) {
                 AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Security,
+                        imageVector = RhythmIcons.Security,
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -5666,15 +5611,15 @@ fun EnhancedRhythmGuardContent(
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         OnboardingTipItem(
-                            icon = Icons.Filled.CheckCircle,
+                            icon = RhythmIcons.CheckCircle,
                             text = context.getString(R.string.onboarding_rhythm_guard_tip_1)
                         )
                         OnboardingTipItem(
-                            icon = Icons.Filled.AccessTime,
+                            icon = RhythmIcons.AccessTime,
                             text = context.getString(R.string.onboarding_rhythm_guard_tip_2)
                         )
                         OnboardingTipItem(
-                            icon = Icons.Filled.Tune,
+                            icon = RhythmIcons.Tune,
                             text = context.getString(R.string.onboarding_rhythm_guard_tip_3)
                         )
                     }
@@ -5707,7 +5652,7 @@ fun EnhancedRhythmGuardContent(
         ) {
             AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.Security,
+                    imageVector = RhythmIcons.Security,
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -5743,15 +5688,15 @@ fun EnhancedRhythmGuardContent(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     OnboardingTipItem(
-                        icon = Icons.Filled.CheckCircle,
+                        icon = RhythmIcons.CheckCircle,
                         text = context.getString(R.string.onboarding_rhythm_guard_tip_1)
                     )
                     OnboardingTipItem(
-                        icon = Icons.Filled.AccessTime,
+                        icon = RhythmIcons.AccessTime,
                         text = context.getString(R.string.onboarding_rhythm_guard_tip_2)
                     )
                     OnboardingTipItem(
-                        icon = Icons.Filled.Tune,
+                        icon = RhythmIcons.Tune,
                         text = context.getString(R.string.onboarding_rhythm_guard_tip_3)
                     )
                 }
@@ -5780,7 +5725,7 @@ fun EnhancedFullTourPromptContent(
     ) {
         AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
             OnboardingStepHeaderIcon(
-                imageVector = Icons.Filled.AutoAwesome,
+                imageVector = RhythmIcons.AutoAwesome,
                 tint = MaterialTheme.colorScheme.secondary,
                 iconSize = if (isTablet) 72.dp else 56.dp
             )
@@ -5812,15 +5757,15 @@ fun EnhancedFullTourPromptContent(
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
                 OnboardingTipItem(
-                    icon = Icons.Filled.Tune,
+                    icon = RhythmIcons.Tune,
                     text = context.getString(R.string.onboarding_full_tour_prompt_tip_1)
                 )
                 OnboardingTipItem(
-                    icon = Icons.Filled.LibraryMusic,
+                    icon = RhythmIcons.Library,
                     text = context.getString(R.string.onboarding_full_tour_prompt_tip_2)
                 )
                 OnboardingTipItem(
-                    icon = Icons.Filled.Info,
+                    icon = RhythmIcons.Info,
                     text = context.getString(R.string.onboarding_full_tour_prompt_tip_3)
                 )
             }
@@ -5878,7 +5823,7 @@ fun EnhancedFullTourPromptContent(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = RhythmIcons.Forward,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp)
             )
@@ -5903,7 +5848,7 @@ fun EnhancedFullTourPromptContent(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
-                imageVector = Icons.Filled.Check,
+                imageVector = RhythmIcons.Check,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp)
             )
@@ -6013,11 +5958,11 @@ fun EnhancedUpdaterContent(
                 ) {
                     OnboardingStepHeaderIcon(
                         imageVector = when {
-                            error != null -> Icons.Filled.BugReport
-                            downloadedFile != null -> Icons.Filled.CheckCircle
+                            error != null -> RhythmIcons.BugReport
+                            downloadedFile != null -> RhythmIcons.CheckCircle
                             updateAvailable -> RhythmIcons.Download
-                            isDownloading -> Icons.Filled.Autorenew
-                            else -> Icons.Filled.SystemUpdate
+                            isDownloading -> MaterialSymbolIcon("autorenew", filled = true)
+                            else -> RhythmIcons.SystemUpdate
                         },
                         tint = when {
                             error != null -> MaterialTheme.colorScheme.error
@@ -6140,7 +6085,7 @@ fun EnhancedUpdaterContent(
                 Material3SettingsGroup(
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Filled.SystemUpdate,
+                            icon = RhythmIcons.SystemUpdate,
                             title = { Text(context.getString(R.string.onboarding_enable_updates_title)) },
                             description = { Text(context.getString(R.string.onboarding_enable_updates_desc)) },
                             trailingContent = {
@@ -6175,9 +6120,9 @@ fun EnhancedUpdaterContent(
                             items = listOf(
                                 Material3SettingsItem(
                                     icon = when (updateChannel) {
-                                        "stable" -> Icons.Filled.Public
-                                        "beta" -> Icons.Filled.BugReport
-                                        else -> Icons.Filled.Public
+                                        "stable" -> RhythmIcons.Public
+                                        "beta" -> RhythmIcons.BugReport
+                                        else -> RhythmIcons.Public
                                     },
                                     title = { Text(context.getString(R.string.onboarding_update_channel_title)) },
                                     description = {
@@ -6204,7 +6149,7 @@ fun EnhancedUpdaterContent(
                                     }
                                 ),
                                 Material3SettingsItem(
-                                    icon = Icons.Filled.Autorenew,
+                                    icon = MaterialSymbolIcon("autorenew", filled = true),
                                     title = { Text(context.getString(R.string.onboarding_periodic_check_title)) },
                                     description = { Text(context.getString(R.string.onboarding_periodic_check_desc)) },
                                     trailingContent = {
@@ -6222,7 +6167,7 @@ fun EnhancedUpdaterContent(
                                     }
                                 ),
                                 Material3SettingsItem(
-                                    icon = Icons.Filled.Notifications,
+                                    icon = RhythmIcons.Notifications,
                                     title = { Text(context.getString(R.string.onboarding_update_notifications_title)) },
                                     description = { Text(context.getString(R.string.onboarding_update_notifications_desc)) },
                                     trailingContent = {
@@ -6240,7 +6185,7 @@ fun EnhancedUpdaterContent(
                                     }
                                 ),
                                 Material3SettingsItem(
-                                    icon = Icons.Filled.CloudSync,
+                                    icon = MaterialSymbolIcon("cloud_sync", filled = true),
                                     title = { Text(context.getString(R.string.onboarding_smart_polling_title)) },
                                     description = { Text(context.getString(R.string.onboarding_smart_polling_desc)) },
                                     trailingContent = {
@@ -6279,11 +6224,11 @@ fun EnhancedUpdaterContent(
             ) {
                 OnboardingStepHeaderIcon(
                     imageVector = when {
-                        error != null -> Icons.Filled.BugReport
-                        downloadedFile != null -> Icons.Filled.CheckCircle
+                        error != null -> RhythmIcons.BugReport
+                        downloadedFile != null -> RhythmIcons.CheckCircle
                         updateAvailable -> RhythmIcons.Download
-                        isDownloading -> Icons.Filled.Autorenew
-                        else -> Icons.Filled.SystemUpdate
+                        isDownloading -> MaterialSymbolIcon("autorenew", filled = true)
+                        else -> RhythmIcons.SystemUpdate
                     },
                     tint = when {
                         error != null -> MaterialTheme.colorScheme.error
@@ -6396,7 +6341,7 @@ fun EnhancedUpdaterContent(
                 Material3SettingsGroup(
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Filled.SystemUpdate,
+                            icon = RhythmIcons.SystemUpdate,
                             title = { Text(context.getString(R.string.onboarding_enable_updates_title)) },
                             description = { Text(context.getString(R.string.onboarding_enable_updates_desc)) },
                             trailingContent = {
@@ -6431,9 +6376,9 @@ fun EnhancedUpdaterContent(
                             items = listOf(
                                 Material3SettingsItem(
                                     icon = when (updateChannel) {
-                                        "stable" -> Icons.Filled.Public
-                                        "beta" -> Icons.Filled.BugReport
-                                        else -> Icons.Filled.Public
+                                        "stable" -> RhythmIcons.Public
+                                        "beta" -> RhythmIcons.BugReport
+                                        else -> RhythmIcons.Public
                                     },
                                     title = { Text(context.getString(R.string.onboarding_update_channel_title)) },
                                     description = {
@@ -6460,7 +6405,7 @@ fun EnhancedUpdaterContent(
                                     }
                                 ),
                                 Material3SettingsItem(
-                                    icon = Icons.Filled.Autorenew,
+                                    icon = MaterialSymbolIcon("autorenew", filled = true),
                                     title = { Text(context.getString(R.string.onboarding_periodic_check_title)) },
                                     description = { Text(context.getString(R.string.onboarding_periodic_check_desc)) },
                                     trailingContent = {
@@ -6478,7 +6423,7 @@ fun EnhancedUpdaterContent(
                                     }
                                 ),
                                 Material3SettingsItem(
-                                    icon = Icons.Filled.Notifications,
+                                    icon = RhythmIcons.Notifications,
                                     title = { Text(context.getString(R.string.onboarding_update_notifications_title)) },
                                     description = { Text(context.getString(R.string.onboarding_update_notifications_desc)) },
                                     trailingContent = {
@@ -6496,7 +6441,7 @@ fun EnhancedUpdaterContent(
                                     }
                                 ),
                                 Material3SettingsItem(
-                                    icon = Icons.Filled.CloudSync,
+                                    icon = MaterialSymbolIcon("cloud_sync", filled = true),
                                     title = { Text(context.getString(R.string.onboarding_smart_polling_title)) },
                                     description = { Text(context.getString(R.string.onboarding_smart_polling_desc)) },
                                     trailingContent = {
@@ -6525,7 +6470,7 @@ fun EnhancedUpdaterContent(
 
 @Composable
 fun EnhancedUpdateOption(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     isEnabled: Boolean,
@@ -6601,7 +6546,7 @@ fun EnhancedUpdateOption(
 @Composable
 fun EnhancedUpdateChannelOption(
     channel: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     isSelected: Boolean,
@@ -6635,7 +6580,7 @@ fun EnhancedUpdateChannelOption(
                 Spacer(modifier = Modifier.weight(1f))
                 if (isSelected) {
                     Icon(
-                        imageVector = Icons.Filled.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = "Selected",
                         
                         modifier = Modifier.size(16.dp)
@@ -6652,7 +6597,7 @@ fun SettingsDropdownItem(
     title: String,
     description: String,
     selectedOption: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     options: List<String>,
     onOptionSelected: (String) -> Unit
 ) {
@@ -6727,7 +6672,7 @@ fun SettingsDropdownItem(
             Spacer(modifier = Modifier.width(8.dp))
 
             Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
+                imageVector = RhythmIcons.KeyboardArrowDown,
                 contentDescription = "Show options",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
@@ -6767,20 +6712,20 @@ fun SettingsDropdownItem(
                         leadingIcon = {
                             Icon(
                                 imageVector = when {
-                                    option.contains("Track Number") -> Icons.Filled.FormatListNumbered
-                                    option.contains("Title A-Z") || option.contains("Title Z-A") -> Icons.Filled.SortByAlpha
-                                    option.contains("Duration") -> Icons.Filled.AccessTime
+                                    option.contains("Track Number") -> RhythmIcons.FormatListNumbered
+                                    option.contains("Title A-Z") || option.contains("Title Z-A") -> RhythmIcons.SortByAlpha
+                                    option.contains("Duration") -> RhythmIcons.AccessTime
                                     option.contains("List") -> RhythmIcons.Actions.List
-                                    option.contains("Grid") -> Icons.Filled.GridView
-                                    option.contains("Hour") -> Icons.Filled.AccessTime
-                                    option.contains("Stable") -> Icons.Filled.Public
-                                    option.contains("Beta") -> Icons.Filled.BugReport
-                                    option == "Home" -> Icons.Filled.Home
-                                    option == "Library" -> Icons.Filled.LibraryMusic
-                                    option == "API" -> Icons.Filled.Cloud
-                                    option == "Embedded" -> Icons.Filled.LibraryMusic
-                                    option == "Local" -> Icons.Filled.Folder
-                                    else -> Icons.Filled.Check // Fallback
+                                    option.contains("Grid") -> RhythmIcons.GridView
+                                    option.contains("Hour") -> RhythmIcons.AccessTime
+                                    option.contains("Stable") -> RhythmIcons.Public
+                                    option.contains("Beta") -> RhythmIcons.BugReport
+                                    option == "Home" -> RhythmIcons.HomeFilled
+                                    option == "Library" -> RhythmIcons.Library
+                                    option == "API" -> MaterialSymbolIcon("cloud", filled = true)
+                                    option == "Embedded" -> RhythmIcons.Library
+                                    option == "Local" -> RhythmIcons.Folder
+                                    else -> RhythmIcons.Check // Fallback
                                 },
                                 contentDescription = null,
                                 tint = if (selectedOption == option)
@@ -6876,7 +6821,7 @@ fun OnboardingProgressIndicator(
                         exit = scaleOut() + fadeOut()
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Check,
+                            imageVector = RhythmIcons.Check,
                             contentDescription = "Completed",
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(6.dp)
@@ -7014,7 +6959,7 @@ fun EnhancedMediaScanContent(
                     enter = scaleIn() + fadeIn()
                 ) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.FilterList,
+                        imageVector = RhythmIcons.FilterList,
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -7051,7 +6996,7 @@ fun EnhancedMediaScanContent(
                             modifier = Modifier.padding(bottom = 12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -7066,15 +7011,15 @@ fun EnhancedMediaScanContent(
                         }
 
                         MediaScanTipItem(
-                            icon = Icons.Filled.Block,
+                            icon = RhythmIcons.Block,
                             text = context.getString(R.string.onboarding_media_scan_blacklist)
                         )
                         MediaScanTipItem(
-                            icon = Icons.Filled.CheckCircle,
+                            icon = RhythmIcons.CheckCircle,
                             text = context.getString(R.string.onboarding_media_scan_whitelist)
                         )
                         MediaScanTipItem(
-                            icon = Icons.Filled.Settings,
+                            icon = RhythmIcons.SettingsFilled,
                             text = context.getString(R.string.onboarding_media_scan_configure_in_tuner)
                         )
                     }
@@ -7134,7 +7079,7 @@ fun EnhancedMediaScanContent(
                 enter = scaleIn() + fadeIn()
             ) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.FilterList,
+                    imageVector = RhythmIcons.FilterList,
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -7197,7 +7142,7 @@ fun EnhancedMediaScanContent(
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            imageVector = RhythmIcons.Info,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
@@ -7212,15 +7157,15 @@ fun EnhancedMediaScanContent(
                     }
 
                     MediaScanTipItem(
-                        icon = Icons.Filled.Block,
+                        icon = RhythmIcons.Block,
                         text = context.getString(R.string.onboarding_media_scan_blacklist)
                     )
                     MediaScanTipItem(
-                        icon = Icons.Filled.CheckCircle,
+                        icon = RhythmIcons.CheckCircle,
                         text = context.getString(R.string.onboarding_media_scan_whitelist)
                     )
                     MediaScanTipItem(
-                        icon = Icons.Filled.Settings,
+                        icon = RhythmIcons.SettingsFilled,
                         text = context.getString(R.string.onboarding_media_scan_configure_in_tuner)
                     )
                 }
@@ -7240,7 +7185,7 @@ private fun MediaScanSettingsCard(
     Material3SettingsGroup(
         items = listOf(
             Material3SettingsItem(
-                icon = Icons.Default.Block,
+                icon = RhythmIcons.Block,
                 title = { Text(context.getString(R.string.settings_blacklist_mode)) },
                 description = { Text(context.getString(R.string.settings_blacklist_mode_desc)) },
                 trailingContent = {
@@ -7258,7 +7203,7 @@ private fun MediaScanSettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.CheckCircle,
+                icon = RhythmIcons.CheckCircle,
                 title = { Text(context.getString(R.string.settings_whitelist_mode)) },
                 description = { Text(context.getString(R.string.settings_whitelist_mode_desc)) },
                 trailingContent = {
@@ -7282,7 +7227,7 @@ private fun MediaScanSettingsCard(
 
 @Composable
 private fun MediaScanTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -7306,7 +7251,7 @@ private fun MediaScanTipItem(
 
 @Composable
 fun MediaScanModeOption(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     example: String,
@@ -7430,7 +7375,7 @@ fun MediaScanModeOption(
 
             if (isSelected) {
                 Icon(
-                    imageVector = Icons.Filled.CheckCircle,
+                    imageVector = RhythmIcons.CheckCircle,
                     contentDescription = "Selected",
                     
                     modifier = Modifier.size(24.dp)
@@ -7480,7 +7425,7 @@ fun EnhancedSetupFinishedContent(
                     )
                 ) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.CheckCircle,
+                        imageVector = RhythmIcons.CheckCircle,
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -7516,7 +7461,7 @@ fun EnhancedSetupFinishedContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 
@@ -7533,19 +7478,19 @@ fun EnhancedSetupFinishedContent(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         NextStepItem(
-                            icon = Icons.Filled.LibraryMusic,
+                            icon = RhythmIcons.Library,
                             text = context.getString(R.string.onboarding_next_browse)
                         )
                         NextStepItem(
-                            icon = Icons.Filled.Queue,
+                            icon = RhythmIcons.Queue,
                             text = context.getString(R.string.onboarding_next_create)
                         )
                         NextStepItem(
-                            icon = Icons.Filled.GraphicEq,
+                            icon = MaterialSymbolIcon("graphic_eq", filled = true),
                             text = context.getString(R.string.onboarding_next_finetune)
                         )
                         NextStepItem(
-                            icon = Icons.Filled.Settings,
+                            icon = RhythmIcons.SettingsFilled,
                             text = context.getString(R.string.onboarding_next_explore)
                         )
                     }
@@ -7576,34 +7521,34 @@ fun EnhancedSetupFinishedContent(
                     Material3SettingsGroup(
                         items = listOf(
                             Material3SettingsItem(
-                                icon = Icons.Filled.LibraryMusic,
+                                icon = RhythmIcons.Library,
                                 title = { Text(context.getString(R.string.onboarding_library_configured)) },
                                 description = { Text(context.getString(R.string.onboarding_library_configured_desc)) },
                                 trailingContent = {
                                     Icon(
-                                        imageVector = Icons.Filled.Check,
+                                        imageVector = RhythmIcons.Check,
                                         contentDescription = context.getString(R.string.onboarding_complete_title)
                                     )
                                 }
                             ),
                             Material3SettingsItem(
-                                icon = Icons.Filled.Palette,
+                                icon = RhythmIcons.Palette,
                                 title = { Text(context.getString(R.string.onboarding_theme_applied)) },
                                 description = { Text(context.getString(R.string.onboarding_theme_applied_desc)) },
                                 trailingContent = {
                                     Icon(
-                                        imageVector = Icons.Filled.Check,
+                                        imageVector = RhythmIcons.Check,
                                         contentDescription = context.getString(R.string.onboarding_complete_title)
                                     )
                                 }
                             ),
                             Material3SettingsItem(
-                                icon = Icons.Filled.Backup,
+                                icon = MaterialSymbolIcon("backup", filled = true),
                                 title = { Text(context.getString(R.string.onboarding_backup_options)) },
                                 description = { Text(context.getString(R.string.onboarding_backup_options_desc)) },
                                 trailingContent = {
                                     Icon(
-                                        imageVector = Icons.Filled.Check,
+                                        imageVector = RhythmIcons.Check,
                                         contentDescription = context.getString(R.string.onboarding_complete_title)
                                     )
                                 }
@@ -7651,7 +7596,7 @@ fun EnhancedSetupFinishedContent(
                 )
             ) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.CheckCircle,
+                    imageVector = RhythmIcons.CheckCircle,
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -7683,34 +7628,34 @@ fun EnhancedSetupFinishedContent(
                 Material3SettingsGroup(
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Filled.LibraryMusic,
+                            icon = RhythmIcons.Library,
                             title = { Text(context.getString(R.string.onboarding_library_configured)) },
                             description = { Text(context.getString(R.string.onboarding_library_configured_desc)) },
                             trailingContent = {
                                 Icon(
-                                    imageVector = Icons.Filled.Check,
+                                    imageVector = RhythmIcons.Check,
                                     contentDescription = context.getString(R.string.onboarding_complete_title)
                                 )
                             }
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Filled.Palette,
+                            icon = RhythmIcons.Palette,
                             title = { Text(context.getString(R.string.onboarding_theme_applied)) },
                             description = { Text(context.getString(R.string.onboarding_theme_applied_desc)) },
                             trailingContent = {
                                 Icon(
-                                    imageVector = Icons.Filled.Check,
+                                    imageVector = RhythmIcons.Check,
                                     contentDescription = context.getString(R.string.onboarding_complete_title)
                                 )
                             }
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Filled.Backup,
+                            icon = MaterialSymbolIcon("backup", filled = true),
                             title = { Text(context.getString(R.string.onboarding_backup_options)) },
                             description = { Text(context.getString(R.string.onboarding_backup_options_desc)) },
                             trailingContent = {
                                 Icon(
-                                    imageVector = Icons.Filled.Check,
+                                    imageVector = RhythmIcons.Check,
                                     contentDescription = context.getString(R.string.onboarding_complete_title)
                                 )
                             }
@@ -7737,7 +7682,7 @@ fun EnhancedSetupFinishedContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Lightbulb,
+                            imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             contentDescription = null,
                             
@@ -7754,19 +7699,19 @@ fun EnhancedSetupFinishedContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     NextStepItem(
-                        icon = Icons.Filled.LibraryMusic,
+                        icon = RhythmIcons.Library,
                         text = context.getString(R.string.onboarding_next_browse)
                     )
                     NextStepItem(
-                        icon = Icons.Filled.Queue,
+                        icon = RhythmIcons.Queue,
                         text = context.getString(R.string.onboarding_next_create)
                     )
                     NextStepItem(
-                        icon = Icons.Filled.GraphicEq,
+                        icon = MaterialSymbolIcon("graphic_eq", filled = true),
                         text = context.getString(R.string.onboarding_next_finetune)
                     )
                     NextStepItem(
-                        icon = Icons.Filled.Settings,
+                        icon = RhythmIcons.SettingsFilled,
                         text = context.getString(R.string.onboarding_next_explore)
                     )
                 }
@@ -7787,7 +7732,7 @@ fun EnhancedSetupFinishedContent(
 
 @Composable
 private fun NextStepItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -7961,7 +7906,7 @@ private fun OnboardingExpressiveUpdateStatus(
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Refresh,
+                                imageVector = RhythmIcons.Refresh,
                                 contentDescription = null,
                                 modifier = Modifier.size(22.dp)
                             )
@@ -7991,7 +7936,7 @@ private fun OnboardingExpressiveUpdateStatus(
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.CheckCircle,
+                                imageVector = RhythmIcons.CheckCircle,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -8017,7 +7962,7 @@ private fun OnboardingExpressiveUpdateStatus(
                             shape = RoundedCornerShape(20.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Block,
+                                imageVector = RhythmIcons.Block,
                                 contentDescription = null,
                                 modifier = Modifier.size(22.dp)
                             )
@@ -8131,7 +8076,7 @@ fun EnhancedNotificationsContent(
             ) {
                 AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Notifications,
+                        imageVector = RhythmIcons.Notifications,
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -8185,7 +8130,7 @@ fun EnhancedNotificationsContent(
         ) {
             AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.Notifications,
+                    imageVector = RhythmIcons.Notifications,
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -8229,7 +8174,7 @@ private fun NotificationInfoCard() {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Filled.Info,
+                    imageVector = RhythmIcons.Info,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
@@ -8245,15 +8190,15 @@ private fun NotificationInfoCard() {
             Spacer(modifier = Modifier.height(12.dp))
 
             OnboardingTipItem(
-                icon = Icons.Filled.MusicNote,
+                icon = RhythmIcons.MusicNote,
                 text = context.getString(R.string.onboarding_notification_tip_1)
             )
             OnboardingTipItem(
-                icon = Icons.Filled.SkipNext,
+                icon = RhythmIcons.SkipNext,
                 text = context.getString(R.string.onboarding_notification_tip_2)
             )
             OnboardingTipItem(
-                icon = Icons.Filled.Palette,
+                icon = RhythmIcons.Palette,
                 text = context.getString(R.string.onboarding_notification_tip_3)
             )
         }
@@ -8299,7 +8244,7 @@ fun EnhancedGesturesContent(
             ) {
                 AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Gesture,
+                        imageVector = MaterialSymbolIcon("gesture", filled = true),
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -8360,7 +8305,7 @@ fun EnhancedGesturesContent(
         ) {
             AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.Gesture,
+                    imageVector = MaterialSymbolIcon("gesture", filled = true),
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -8420,7 +8365,7 @@ private fun GestureSettingsCards(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val onboardingToggleItem: (ImageVector, String, String, Boolean, (Boolean) -> Unit) -> Material3SettingsItem =
+    val onboardingToggleItem: (MaterialSymbolIcon, String, String, Boolean, (Boolean) -> Unit) -> Material3SettingsItem =
         { icon, title, description, isEnabled, onToggle ->
             Material3SettingsItem(
                 icon = icon,
@@ -8454,7 +8399,7 @@ private fun GestureSettingsCards(
         Material3SettingsGroup(
             items = listOf(
                 onboardingToggleItem(
-                    Icons.Filled.TouchApp,
+                    MaterialSymbolIcon("touch_app", filled = true),
                     "Haptic Feedback",
                     "Enable vibration feedback for interactions",
                     hapticFeedbackEnabled,
@@ -8477,7 +8422,7 @@ private fun GestureSettingsCards(
         Material3SettingsGroup(
             items = listOf(
                 onboardingToggleItem(
-                    Icons.Rounded.Swipe,
+                    MaterialSymbolIcon("swipe", filled = true),
                     context.getString(R.string.onboarding_gesture_swipe),
                     context.getString(R.string.onboarding_gesture_swipe_desc),
                     miniPlayerSwipeGestures,
@@ -8500,21 +8445,21 @@ private fun GestureSettingsCards(
         Material3SettingsGroup(
             items = listOf(
                 onboardingToggleItem(
-                    Icons.Rounded.SwipeDown,
+                    MaterialSymbolIcon("swipe_down", filled = true),
                     context.getString(R.string.onboarding_gesture_dismiss),
                     context.getString(R.string.onboarding_gesture_dismiss_desc),
                     gesturePlayerSwipeDismiss,
                     onSwipeDismissChange
                 ),
                 onboardingToggleItem(
-                    Icons.Rounded.SwipeLeft,
+                    MaterialSymbolIcon("swipe_left", filled = true),
                     context.getString(R.string.onboarding_gesture_tracks),
                     context.getString(R.string.onboarding_gesture_tracks_desc),
                     gesturePlayerSwipeTracks,
                     onSwipeTracksChange
                 ),
                 onboardingToggleItem(
-                    Icons.Rounded.TouchApp,
+                    MaterialSymbolIcon("touch_app", filled = true),
                     context.getString(R.string.onboarding_gesture_doubletap),
                     context.getString(R.string.onboarding_gesture_doubletap_desc),
                     gestureArtworkDoubleTap,
@@ -8540,7 +8485,7 @@ private fun GestureTipsCard() {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Filled.Lightbulb,
+                    imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     contentDescription = null,
                     
@@ -8557,11 +8502,11 @@ private fun GestureTipsCard() {
             Spacer(modifier = Modifier.height(12.dp))
 
             OnboardingTipItem(
-                icon = Icons.Default.SwipeVertical,
+                icon = MaterialSymbolIcon("swipe_vertical"),
                 text = context.getString(R.string.onboarding_gesture_tip_1)
             )
             OnboardingTipItem(
-                icon = Icons.Default.Speed,
+                icon = MaterialSymbolIcon("speed"),
                 text = context.getString(R.string.onboarding_gesture_tip_2)
             )
         }
@@ -8606,7 +8551,7 @@ fun EnhancedWidgetsContent(
             ) {
                 AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Widgets,
+                        imageVector = MaterialSymbolIcon("widgets", filled = true),
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -8665,7 +8610,7 @@ fun EnhancedWidgetsContent(
         ) {
             AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.Widgets,
+                    imageVector = MaterialSymbolIcon("widgets", filled = true),
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -8725,7 +8670,7 @@ private fun WidgetSettingsCard(
     Material3SettingsGroup(
         items = listOf(
             Material3SettingsItem(
-                icon = Icons.Default.Image,
+                icon = RhythmIcons.Image,
                 title = { Text(context.getString(R.string.onboarding_widget_album_art)) },
                 description = { Text(context.getString(R.string.onboarding_widget_album_art_desc)) },
                 trailingContent = {
@@ -8743,7 +8688,7 @@ private fun WidgetSettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.Person,
+                icon = RhythmIcons.Artist,
                 title = { Text(context.getString(R.string.onboarding_widget_artist)) },
                 description = { Text(context.getString(R.string.onboarding_widget_artist_desc)) },
                 trailingContent = {
@@ -8761,7 +8706,7 @@ private fun WidgetSettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.Album,
+                icon = RhythmIcons.Album,
                 title = { Text(context.getString(R.string.onboarding_widget_album)) },
                 description = { Text(context.getString(R.string.onboarding_widget_album_desc)) },
                 trailingContent = {
@@ -8779,7 +8724,7 @@ private fun WidgetSettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.Refresh,
+                icon = RhythmIcons.Refresh,
                 title = { Text(context.getString(R.string.onboarding_widget_auto_update)) },
                 description = { Text(context.getString(R.string.onboarding_widget_auto_update_desc)) },
                 trailingContent = {
@@ -8815,7 +8760,7 @@ private fun WidgetTipsCard() {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Filled.Info,
+                    imageVector = RhythmIcons.Info,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
@@ -8831,15 +8776,15 @@ private fun WidgetTipsCard() {
             Spacer(modifier = Modifier.height(12.dp))
 
             OnboardingTipItem(
-                icon = Icons.Default.TouchApp,
+                icon = MaterialSymbolIcon("touch_app"),
                 text = context.getString(R.string.onboarding_widget_tip_1)
             )
             OnboardingTipItem(
-                icon = Icons.Default.AspectRatio,
+                icon = MaterialSymbolIcon("aspect_ratio"),
                 text = context.getString(R.string.onboarding_widget_tip_2)
             )
             OnboardingTipItem(
-                icon = Icons.Default.Refresh,
+                icon = RhythmIcons.Refresh,
                 text = context.getString(R.string.onboarding_widget_tip_3)
             )
         }
@@ -8888,7 +8833,7 @@ fun EnhancedIntegrationsContent(
             ) {
                 AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.Api,
+                        imageVector = MaterialSymbolIcon("api", filled = true),
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -8960,7 +8905,7 @@ fun EnhancedIntegrationsContent(
         ) {
             AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.Api,
+                    imageVector = MaterialSymbolIcon("api", filled = true),
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -9037,7 +8982,7 @@ private fun IntegrationsSettingsCards(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val onboardingToggleItem: (ImageVector, String, String, Boolean, (Boolean) -> Unit) -> Material3SettingsItem =
+    val onboardingToggleItem: (MaterialSymbolIcon, String, String, Boolean, (Boolean) -> Unit) -> Material3SettingsItem =
         { icon, title, description, isEnabled, onToggle ->
             Material3SettingsItem(
                 icon = icon,
@@ -9063,7 +9008,7 @@ private fun IntegrationsSettingsCards(
         if (chromahub.rhythm.app.BuildConfig.ENABLE_DEEZER) {
             add(
                 onboardingToggleItem(
-                    Icons.Default.Public,
+                    RhythmIcons.Public,
                     context.getString(R.string.onboarding_integration_deezer),
                     context.getString(R.string.onboarding_integration_deezer_desc),
                     deezerApiEnabled,
@@ -9074,7 +9019,7 @@ private fun IntegrationsSettingsCards(
         if (chromahub.rhythm.app.BuildConfig.ENABLE_LRCLIB) {
             add(
                 onboardingToggleItem(
-                    Icons.Default.Lyrics,
+                    MaterialSymbolIcon("lyrics"),
                     context.getString(R.string.onboarding_integration_lrclib),
                     context.getString(R.string.onboarding_integration_lrclib_desc),
                     lrclibApiEnabled,
@@ -9085,7 +9030,7 @@ private fun IntegrationsSettingsCards(
         if (chromahub.rhythm.app.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
             add(
                 onboardingToggleItem(
-                    Icons.Default.MusicVideo,
+                    MaterialSymbolIcon("music_video"),
                     context.getString(R.string.onboarding_integration_ytmusic),
                     context.getString(R.string.onboarding_integration_ytmusic_desc),
                     ytMusicApiEnabled,
@@ -9097,28 +9042,28 @@ private fun IntegrationsSettingsCards(
 
     val socialItems = listOf(
         onboardingToggleItem(
-            Icons.Default.Share,
+            RhythmIcons.Share,
             context.getString(R.string.onboarding_integration_scrobbling),
             context.getString(R.string.onboarding_integration_scrobbling_desc),
             scrobblingEnabled,
             onScrobblingChange
         ),
         onboardingToggleItem(
-            Icons.Default.Gamepad,
+            MaterialSymbolIcon("gamepad"),
             context.getString(R.string.onboarding_integration_discord),
             context.getString(R.string.onboarding_integration_discord_desc),
             discordRichPresenceEnabled,
             onDiscordChange
         ),
         onboardingToggleItem(
-            Icons.Default.Cast,
+            RhythmIcons.Cast,
             context.getString(R.string.onboarding_integration_broadcast),
             context.getString(R.string.onboarding_integration_broadcast_desc),
             broadcastStatusEnabled,
             onBroadcastChange
         ),
         onboardingToggleItem(
-            Icons.Default.Lyrics,
+            MaterialSymbolIcon("lyrics"),
             context.getString(R.string.bluetooth_lyrics_enabled),
             context.getString(R.string.bluetooth_lyrics_desc),
             bluetoothLyricsEnabled,
@@ -9165,7 +9110,7 @@ private fun IntegrationsInfoCard() {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Filled.Info,
+                    imageVector = RhythmIcons.Info,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     contentDescription = null,
                     
@@ -9227,7 +9172,7 @@ fun EnhancedRhythmStatsContent(
             ) {
                 AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                     OnboardingStepHeaderIcon(
-                        imageVector = Icons.Filled.AutoGraph,
+                        imageVector = MaterialSymbolIcon("auto_graph", filled = true),
                         tint = MaterialTheme.colorScheme.primary,
                         iconSize = 72.dp
                     )
@@ -9282,7 +9227,7 @@ fun EnhancedRhythmStatsContent(
         ) {
             AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
                 OnboardingStepHeaderIcon(
-                    imageVector = Icons.Filled.AutoGraph,
+                    imageVector = MaterialSymbolIcon("auto_graph", filled = true),
                     tint = MaterialTheme.colorScheme.primary,
                     iconSize = 56.dp
                 )
@@ -9334,7 +9279,7 @@ private fun StatsSettingsCard(
     Material3SettingsGroup(
         items = listOf(
             Material3SettingsItem(
-                icon = Icons.Default.Home,
+                icon = RhythmIcons.Home,
                 title = { Text(context.getString(R.string.onboarding_stats_show_home)) },
                 description = { Text(context.getString(R.string.onboarding_stats_show_home_desc)) },
                 trailingContent = {
@@ -9352,7 +9297,7 @@ private fun StatsSettingsCard(
                 }
             ),
             Material3SettingsItem(
-                icon = Icons.Default.Star,
+                icon = MaterialSymbolIcon("star"),
                 title = { Text(context.getString(R.string.onboarding_stats_rating)) },
                 description = { Text(context.getString(R.string.onboarding_stats_rating_desc)) },
                 trailingContent = {
@@ -9389,7 +9334,7 @@ private fun StatsFeaturesAndInfoCard() {
             // Features section
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Filled.Stars,
+                    imageVector = MaterialSymbolIcon("stars", filled = true),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
@@ -9405,19 +9350,19 @@ private fun StatsFeaturesAndInfoCard() {
             Spacer(modifier = Modifier.height(12.dp))
 
             OnboardingTipItem(
-                icon = Icons.Default.AccessTime,
+                icon = RhythmIcons.AccessTime,
                 text = context.getString(R.string.onboarding_stats_feature_1)
             )
             OnboardingTipItem(
-                icon = Icons.Default.MusicNote,
+                icon = RhythmIcons.MusicNote,
                 text = context.getString(R.string.onboarding_stats_feature_2)
             )
             OnboardingTipItem(
-                icon = Icons.Default.Person,
+                icon = RhythmIcons.Artist,
                 text = context.getString(R.string.onboarding_stats_feature_3)
             )
             OnboardingTipItem(
-                icon = Icons.Default.Album,
+                icon = RhythmIcons.Album,
                 text = context.getString(R.string.onboarding_stats_feature_4)
             )
             
@@ -9430,7 +9375,7 @@ private fun StatsFeaturesAndInfoCard() {
 //            // How it works section
 //            Row(verticalAlignment = Alignment.CenterVertically) {
 //                Icon(
-//                    imageVector = Icons.Filled.Info,
+//                    imageVector = RhythmIcons.Info,
 //                    contentDescription = null,
 //                    modifier = Modifier.size(24.dp)
 //                )
@@ -9475,7 +9420,7 @@ fun OnboardingAnimatedSwitch(
 
 @Composable
 fun OnboardingTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(

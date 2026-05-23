@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -8,11 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,7 +50,7 @@ fun AppRestartDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Rounded.RestartAlt,
+                imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -88,7 +87,7 @@ fun AppRestartDialog(
                         .height(52.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.RestartAlt,
+                        imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -106,7 +105,7 @@ fun AppRestartDialog(
                         .height(52.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.PlayArrow,
+                        imageVector = RhythmIcons.Play,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -146,7 +145,7 @@ fun PlaylistExportDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Rounded.FileUpload,
+                imageVector = MaterialSymbolIcon("file_upload", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -213,7 +212,7 @@ fun PlaylistExportDialog(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Folder,
+                            imageVector = RhythmIcons.Folder,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -227,7 +226,7 @@ fun PlaylistExportDialog(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.FolderOpen,
+                            imageVector = RhythmIcons.FolderOpen,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -240,7 +239,7 @@ fun PlaylistExportDialog(
                     onClick = { showLocationOptions = true }
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.FileUpload,
+                        imageVector = MaterialSymbolIcon("file_upload", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -258,7 +257,7 @@ fun PlaylistExportDialog(
                 }
             }) {
                 Icon(
-                    imageVector = if (showLocationOptions) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Close,
+                    imageVector = if (showLocationOptions) RhythmIcons.Back else RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -298,7 +297,7 @@ fun BulkPlaylistExportDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Rounded.FolderZip,
+                imageVector = MaterialSymbolIcon("folder_zip", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -388,7 +387,7 @@ fun BulkPlaylistExportDialog(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Folder,
+                            imageVector = RhythmIcons.Folder,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -402,7 +401,7 @@ fun BulkPlaylistExportDialog(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.FolderOpen,
+                            imageVector = RhythmIcons.FolderOpen,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -415,7 +414,7 @@ fun BulkPlaylistExportDialog(
                     onClick = { showLocationOptions = true }
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.FolderZip,
+                        imageVector = MaterialSymbolIcon("folder_zip", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -427,7 +426,7 @@ fun BulkPlaylistExportDialog(
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -463,7 +462,7 @@ fun PlaylistImportDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Rounded.FileDownload,
+                imageVector = RhythmIcons.Download,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -535,7 +534,7 @@ fun PlaylistImportDialog(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.FolderOpen,
+                    imageVector = RhythmIcons.FolderOpen,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -546,7 +545,7 @@ fun PlaylistImportDialog(
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -648,7 +647,7 @@ fun PlaylistOperationResultDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = if (isError) Icons.Rounded.Error else Icons.Rounded.CheckCircle,
+                imageVector = if (isError) MaterialSymbolIcon("error", filled = true) else RhythmIcons.CheckCircle,
                 contentDescription = null,
                 tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             )
@@ -669,7 +668,7 @@ fun PlaylistOperationResultDialog(
         confirmButton = {
             Button(onClick = onDismiss) {
                 Icon(
-                    imageVector = if (isError) Icons.Filled.Close else Icons.Filled.CheckCircle,
+                    imageVector = if (isError) RhythmIcons.Close else RhythmIcons.CheckCircle,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -681,11 +680,11 @@ fun PlaylistOperationResultDialog(
     )
 }
 
-private fun getFormatIcon(format: PlaylistImportExportUtils.PlaylistExportFormat): ImageVector {
+private fun getFormatIcon(format: PlaylistImportExportUtils.PlaylistExportFormat): MaterialSymbolIcon {
     return when (format) {
-        PlaylistImportExportUtils.PlaylistExportFormat.JSON -> Icons.Rounded.Code
+        PlaylistImportExportUtils.PlaylistExportFormat.JSON -> RhythmIcons.Code
         PlaylistImportExportUtils.PlaylistExportFormat.M3U,
-        PlaylistImportExportUtils.PlaylistExportFormat.M3U8 -> Icons.AutoMirrored.Rounded.PlaylistPlay
-        PlaylistImportExportUtils.PlaylistExportFormat.PLS -> Icons.AutoMirrored.Rounded.QueueMusic
+        PlaylistImportExportUtils.PlaylistExportFormat.M3U8 -> RhythmIcons.Playlist
+        PlaylistImportExportUtils.PlaylistExportFormat.PLS -> RhythmIcons.Queue
     }
 }

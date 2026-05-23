@@ -2,6 +2,9 @@
 
 package chromahub.rhythm.app.features.local.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -27,11 +30,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Equalizer
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,7 +37,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -223,7 +220,7 @@ fun AutoEQProfileSelector(
                     placeholder = { Text("Find EQ profiles or brands...") },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Rounded.Search,
+                            imageVector = RhythmIcons.SearchFilled,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -232,7 +229,7 @@ fun AutoEQProfileSelector(
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Close,
+                                    imageVector = RhythmIcons.Close,
                                     contentDescription = "Clear",
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -421,7 +418,7 @@ private fun ProfileCard(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = Icons.Rounded.Equalizer,
+                            imageVector = RhythmIcons.Equalizer,
                             contentDescription = null,
                             tint = if (isActive)
                                 MaterialTheme.colorScheme.primary
@@ -491,7 +488,7 @@ private fun ProfileCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = "Selected",
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(14.dp)

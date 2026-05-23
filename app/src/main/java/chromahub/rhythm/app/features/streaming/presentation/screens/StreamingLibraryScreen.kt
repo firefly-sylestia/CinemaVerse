@@ -2,6 +2,10 @@
 
 package chromahub.rhythm.app.features.streaming.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,19 +30,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.Album
-import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
-import androidx.compose.material.icons.rounded.Shuffle
-import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -49,7 +40,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
@@ -107,78 +97,70 @@ import chromahub.rhythm.app.util.ArtistSeparator
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.M3ImageUtils
 import kotlinx.coroutines.launch
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.ThumbDown
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.ThumbUp
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.rounded.Info
 import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
 import kotlin.random.Random
 
-private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: ImageVector) {
-    SONGS(R.string.library_tab_songs, Icons.Rounded.History),
-    ALBUMS(R.string.library_tab_albums, Icons.Rounded.Album),
-    ARTISTS(R.string.library_tab_artists, Icons.Rounded.Person),
-    PLAYLISTS(R.string.library_tab_playlists, Icons.AutoMirrored.Rounded.QueueMusic)
+private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon) {
+    SONGS(R.string.library_tab_songs, MaterialSymbolIcon("history", filled = true)),
+    ALBUMS(R.string.library_tab_albums, RhythmIcons.AlbumFilled),
+    ARTISTS(R.string.library_tab_artists, RhythmIcons.ArtistFilled),
+    PLAYLISTS(R.string.library_tab_playlists, RhythmIcons.Queue)
 }
 
 private enum class StreamingSongSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: ImageVector
+    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
-    TITLE_ASC(R.string.sort_title, true, Icons.AutoMirrored.Rounded.Sort),
-    TITLE_DESC(R.string.sort_title, false, Icons.AutoMirrored.Rounded.Sort),
-    ARTIST_ASC(R.string.sort_artist, true, Icons.Rounded.Person),
-    ARTIST_DESC(R.string.sort_artist, false, Icons.Rounded.Person),
-    ALBUM_ASC(R.string.metadata_album, true, Icons.Rounded.Album),
-    ALBUM_DESC(R.string.metadata_album, false, Icons.Rounded.Album),
-    DURATION_ASC(R.string.sort_duration_short_first, true, Icons.Rounded.History),
-    DURATION_DESC(R.string.sort_duration_long_first, false, Icons.Rounded.History)
+    TITLE_ASC(R.string.sort_title, true, RhythmIcons.Sort),
+    TITLE_DESC(R.string.sort_title, false, RhythmIcons.Sort),
+    ARTIST_ASC(R.string.sort_artist, true, RhythmIcons.ArtistFilled),
+    ARTIST_DESC(R.string.sort_artist, false, RhythmIcons.ArtistFilled),
+    ALBUM_ASC(R.string.metadata_album, true, RhythmIcons.AlbumFilled),
+    ALBUM_DESC(R.string.metadata_album, false, RhythmIcons.AlbumFilled),
+    DURATION_ASC(R.string.sort_duration_short_first, true, MaterialSymbolIcon("history", filled = true)),
+    DURATION_DESC(R.string.sort_duration_long_first, false, MaterialSymbolIcon("history", filled = true))
 }
 
 private enum class StreamingAlbumSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: ImageVector
+    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
-    TITLE_ASC(R.string.sort_title, true, Icons.AutoMirrored.Rounded.Sort),
-    TITLE_DESC(R.string.sort_title, false, Icons.AutoMirrored.Rounded.Sort),
-    ARTIST_ASC(R.string.sort_artist, true, Icons.Rounded.Person),
-    ARTIST_DESC(R.string.sort_artist, false, Icons.Rounded.Person),
-    YEAR_ASC(R.string.metadata_year, true, Icons.Rounded.History),
-    YEAR_DESC(R.string.metadata_year, false, Icons.Rounded.History),
-    TRACK_COUNT_ASC(R.string.sort_song_count, true, Icons.AutoMirrored.Rounded.QueueMusic),
-    TRACK_COUNT_DESC(R.string.sort_song_count, false, Icons.AutoMirrored.Rounded.QueueMusic)
+    TITLE_ASC(R.string.sort_title, true, RhythmIcons.Sort),
+    TITLE_DESC(R.string.sort_title, false, RhythmIcons.Sort),
+    ARTIST_ASC(R.string.sort_artist, true, RhythmIcons.ArtistFilled),
+    ARTIST_DESC(R.string.sort_artist, false, RhythmIcons.ArtistFilled),
+    YEAR_ASC(R.string.metadata_year, true, MaterialSymbolIcon("history", filled = true)),
+    YEAR_DESC(R.string.metadata_year, false, MaterialSymbolIcon("history", filled = true)),
+    TRACK_COUNT_ASC(R.string.sort_song_count, true, RhythmIcons.Queue),
+    TRACK_COUNT_DESC(R.string.sort_song_count, false, RhythmIcons.Queue)
 }
 
 private enum class StreamingArtistSortOrder(
     @param:StringRes val labelRes: Int,
-    val icon: ImageVector,
+    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     val ascending: Boolean
 ) {
-    NAME_ASC(R.string.sort_name, Icons.Rounded.Person, true),
-    NAME_DESC(R.string.sort_name, Icons.Rounded.Person, false),
-    SONG_COUNT_ASC(R.string.sort_song_count, Icons.AutoMirrored.Rounded.QueueMusic, true),
-    SONG_COUNT_DESC(R.string.sort_song_count, Icons.AutoMirrored.Rounded.QueueMusic, false),
-    ALBUM_COUNT_ASC(R.string.bottomsheet_albums, Icons.Rounded.Album, true),
-    ALBUM_COUNT_DESC(R.string.bottomsheet_albums, Icons.Rounded.Album, false),
-    POPULARITY_DESC(R.string.bottomsheet_sort_by, Icons.Rounded.TrendingUp, false),
-    POPULARITY_ASC(R.string.bottomsheet_sort_by, Icons.Rounded.TrendingUp, true)
+    NAME_ASC(R.string.sort_name, RhythmIcons.ArtistFilled, true),
+    NAME_DESC(R.string.sort_name, RhythmIcons.ArtistFilled, false),
+    SONG_COUNT_ASC(R.string.sort_song_count, RhythmIcons.Queue, true),
+    SONG_COUNT_DESC(R.string.sort_song_count, RhythmIcons.Queue, false),
+    ALBUM_COUNT_ASC(R.string.bottomsheet_albums, RhythmIcons.AlbumFilled, true),
+    ALBUM_COUNT_DESC(R.string.bottomsheet_albums, RhythmIcons.AlbumFilled, false),
+    POPULARITY_DESC(R.string.bottomsheet_sort_by, RhythmIcons.TrendingUp, false),
+    POPULARITY_ASC(R.string.bottomsheet_sort_by, RhythmIcons.TrendingUp, true)
 }
 
 private enum class StreamingPlaylistSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: ImageVector
+    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
-    NAME_ASC(R.string.sort_name, true, Icons.AutoMirrored.Rounded.QueueMusic),
-    NAME_DESC(R.string.sort_name, false, Icons.AutoMirrored.Rounded.QueueMusic),
-    TRACK_COUNT_ASC(R.string.sort_song_count, true, Icons.AutoMirrored.Rounded.QueueMusic),
-    TRACK_COUNT_DESC(R.string.sort_song_count, false, Icons.AutoMirrored.Rounded.QueueMusic)
+    NAME_ASC(R.string.sort_name, true, RhythmIcons.Queue),
+    NAME_DESC(R.string.sort_name, false, RhythmIcons.Queue),
+    TRACK_COUNT_ASC(R.string.sort_song_count, true, RhythmIcons.Queue),
+    TRACK_COUNT_DESC(R.string.sort_song_count, false, RhythmIcons.Queue)
 }
 
 @Composable
@@ -503,9 +485,9 @@ fun StreamingLibraryScreen(
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = if (isCurrentSortAscending) {
-                                Icons.Rounded.ArrowUpward
+                                RhythmIcons.ArrowUpward
                             } else {
-                                Icons.Rounded.ArrowDownward
+                                RhythmIcons.ArrowDownward
                             },
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
@@ -710,7 +692,7 @@ fun StreamingLibraryScreen(
                             StreamingLibraryStateCard(
                                 title = stringResource(id = R.string.streaming_home_selected_service_unavailable),
                                 subtitle = libraryErrorMessage,
-                                icon = Icons.Rounded.Info,
+                                icon = RhythmIcons.Info,
                                 iconContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f),
                                 iconTint = MaterialTheme.colorScheme.onErrorContainer,
                                 actionText = stringResource(id = R.string.streaming_manage_service),
@@ -729,7 +711,7 @@ fun StreamingLibraryScreen(
                             StreamingLibraryStateCard(
                                 title = stringResource(id = R.string.streaming_library_empty),
                                 subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint),
-                                icon = Icons.Rounded.Album,
+                                icon = RhythmIcons.AlbumFilled,
                                 iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 actionText = stringResource(id = R.string.streaming_manage_service),
@@ -928,7 +910,7 @@ fun StreamingLibraryScreen(
                                                         modifier = Modifier.size(32.dp)
                                                     ) {
                                                         Icon(
-                                                            imageVector = Icons.Rounded.PlayArrow,
+                                                            imageVector = RhythmIcons.Play,
                                                             contentDescription = null,
                                                             modifier = Modifier
                                                                 .fillMaxSize()
@@ -1017,7 +999,7 @@ fun StreamingLibraryScreen(
                                                         modifier = Modifier.size(32.dp)
                                                     ) {
                                                         Icon(
-                                                            imageVector = if (isLiked) Icons.Filled.ThumbDown else Icons.Rounded.ThumbUp,
+                                                            imageVector = if (isLiked) MaterialSymbolIcon("thumb_down", filled = true) else MaterialSymbolIcon("thumb_up", filled = true),
                                                             contentDescription = null,
                                                             modifier = Modifier
                                                                 .fillMaxSize()
@@ -1091,7 +1073,7 @@ fun StreamingLibraryScreen(
                                                         modifier = Modifier.size(32.dp)
                                                     ) {
                                                         Icon(
-                                                            imageVector = Icons.Rounded.Info,
+                                                            imageVector = RhythmIcons.Info,
                                                             contentDescription = null,
                                                             tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                                             modifier = Modifier
@@ -1143,7 +1125,7 @@ fun StreamingLibraryScreen(
                                                             modifier = Modifier.size(32.dp)
                                                         ) {
                                                             Icon(
-                                                                imageVector = Icons.Rounded.Album,
+                                                                imageVector = RhythmIcons.AlbumFilled,
                                                                 contentDescription = null,
                                                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                                                 modifier = Modifier
@@ -1178,7 +1160,7 @@ fun StreamingLibraryScreen(
                                                             modifier = Modifier.size(32.dp)
                                                         ) {
                                                             Icon(
-                                                                imageVector = Icons.Rounded.Person,
+                                                                imageVector = RhythmIcons.ArtistFilled,
                                                                 contentDescription = null,
                                                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                                                 modifier = Modifier.fillMaxSize().padding(6.dp)
@@ -1388,7 +1370,7 @@ private fun StreamingSongsTabPage(
         } else if (songs.isEmpty()) {
             item {
                 StreamingLibraryEmptyCard(
-                    icon = Icons.Rounded.History,
+                    icon = MaterialSymbolIcon("history", filled = true),
                     title = stringResource(id = R.string.library_no_songs),
                     subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint)
                 )
@@ -1439,7 +1421,7 @@ private fun StreamingAlbumsTabPage(
         } else if (albums.isEmpty()) {
             item {
                 StreamingLibraryEmptyCard(
-                    icon = Icons.Rounded.Album,
+                    icon = RhythmIcons.AlbumFilled,
                     title = stringResource(id = R.string.library_no_albums),
                     subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint)
                 )
@@ -1487,7 +1469,7 @@ private fun StreamingArtistsTabPage(
         } else if (artists.isEmpty()) {
             item {
                 StreamingLibraryEmptyCard(
-                    icon = Icons.Rounded.Person,
+                    icon = RhythmIcons.ArtistFilled,
                     title = stringResource(id = R.string.library_no_artists),
                     subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint)
                 )
@@ -1538,7 +1520,7 @@ private fun StreamingPlaylistsTabPage(
         } else if (playlists.isEmpty()) {
             item {
                 StreamingLibraryEmptyCard(
-                    icon = Icons.AutoMirrored.Rounded.QueueMusic,
+                    icon = RhythmIcons.Queue,
                     title = stringResource(id = R.string.library_no_playlists),
                     subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint)
                 )
@@ -1586,7 +1568,7 @@ private fun StreamingLibrarySectionHeader(
                 onPlayAll?.let { playAction ->
                     FilledTonalButton(onClick = playAction) {
                         Icon(
-                            imageVector = Icons.Rounded.PlayArrow,
+                            imageVector = RhythmIcons.Play,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -1598,7 +1580,7 @@ private fun StreamingLibrarySectionHeader(
                 onShufflePlay?.let { shuffleAction ->
                     FilledTonalButton(onClick = shuffleAction) {
                         Icon(
-                            imageVector = Icons.Rounded.Shuffle,
+                            imageVector = RhythmIcons.Shuffle,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -1614,7 +1596,7 @@ private fun StreamingLibrarySectionHeader(
 @Composable
 private fun StreamingSortMenuItem(
     label: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     ascending: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
@@ -1658,16 +1640,16 @@ private fun StreamingSortMenuItem(
             trailingIcon = {
                 when {
                     selected -> Icon(
-                        imageVector = Icons.Rounded.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
 
                     showSortDirection -> Icon(
                         imageVector = if (ascending) {
-                            Icons.Rounded.ArrowUpward
+                            RhythmIcons.ArrowUpward
                         } else {
-                            Icons.Rounded.ArrowDownward
+                            RhythmIcons.ArrowDownward
                         },
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1734,7 +1716,7 @@ private fun StreamingLibraryLoadingCard(
     StreamingLibraryStateCard(
         title = stringResource(id = R.string.streaming_library_syncing),
         subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint),
-        icon = Icons.Rounded.History,
+        icon = MaterialSymbolIcon("history", filled = true),
         iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
         iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
         centeredContent = true,
@@ -1746,7 +1728,7 @@ private fun StreamingLibraryLoadingCard(
 private fun StreamingLibraryStateCard(
     title: String,
     subtitle: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     iconContainerColor: Color,
     iconTint: Color,
     showProgressIndicator: Boolean = false,
@@ -1968,7 +1950,7 @@ private fun StreamingLibraryArtistRow(
             }
 
             Icon(
-                imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                imageVector = RhythmIcons.Forward,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
@@ -2024,7 +2006,7 @@ private fun StreamingLibraryPlaylistRow(
             }
 
             Icon(
-                imageVector = Icons.Rounded.PlayArrow,
+                imageVector = RhythmIcons.Play,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
@@ -2035,7 +2017,7 @@ private fun StreamingLibraryPlaylistRow(
 
 @Composable
 private fun StreamingLibraryEmptyCard(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     subtitle: String
 ) {

@@ -24,7 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
@@ -187,12 +188,24 @@ private fun Material3SettingsItemRow(item: Material3SettingsItem) {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = iconColor,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    when (icon) {
+                        is MaterialSymbolIcon -> {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = iconColor,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        is ImageVector -> {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = iconColor,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.width(16.dp))
@@ -266,7 +279,7 @@ private fun Material3SettingsItemRow(item: Material3SettingsItem) {
  * Data class for a Material 3 Expressive settings item.
  */
 data class Material3SettingsItem(
-    val icon: ImageVector? = null,
+    val icon: Any? = null,
     val iconTint: Color? = null,
     val iconBackgroundTint: Color? = null,
     val title: @Composable () -> Unit,

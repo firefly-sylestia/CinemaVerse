@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,17 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AutoMode
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.GraphicEq
-import androidx.compose.material.icons.rounded.HeadsetMic
-import androidx.compose.material.icons.rounded.NotInterested
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -60,7 +57,7 @@ fun AutoEQSuggestionDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Rounded.HeadsetMic,
+                imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -112,7 +109,7 @@ fun AutoEQSuggestionDialog(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Rounded.GraphicEq,
+                                        imageVector = MaterialSymbolIcon("graphic_eq", filled = true),
                                         contentDescription = null,
                                         
                                         modifier = Modifier.size(20.dp)
@@ -142,7 +139,7 @@ fun AutoEQSuggestionDialog(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.AutoMode,
+                                imageVector = MaterialSymbolIcon("auto_mode", filled = true),
                                 contentDescription = null,
                                 
                                 modifier = Modifier.size(16.dp)
@@ -200,7 +197,7 @@ fun AutoEQSuggestionDialog(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.GraphicEq,
+                            imageVector = MaterialSymbolIcon("graphic_eq", filled = true),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -217,7 +214,7 @@ fun AutoEQSuggestionDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.HeadsetMic,
+                        imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -239,7 +236,7 @@ fun AutoEQSuggestionDialog(
                             .height(40.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.NotInterested,
+                            imageVector = MaterialSymbolIcon("not_interested", filled = true),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -257,7 +254,7 @@ fun AutoEQSuggestionDialog(
                             .height(40.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Close,
+                            imageVector = RhythmIcons.Close,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )

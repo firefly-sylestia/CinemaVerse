@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.shared.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -18,11 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -70,7 +69,6 @@ import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.SettingScope
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.shared.presentation.components.dialogs.SwitchModeDialog
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
 import chromahub.rhythm.app.util.GenreUtils
 import chromahub.rhythm.app.util.HapticUtils
@@ -329,7 +327,7 @@ fun UniversalSearchScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Icon(Icons.Rounded.Delete, contentDescription = null, modifier = Modifier.size(14.dp))
+                                        Icon(RhythmIcons.Delete, contentDescription = null, modifier = Modifier.size(14.dp))
                                         Text("Clear All", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold))
                                     }
                                 }
@@ -338,7 +336,7 @@ fun UniversalSearchScreen(
                         item(key = "history_list") {
                             val historyItems = searchHistory.take(8).map { item ->
                                 Material3SettingsItem(
-                                    icon = Icons.Rounded.History,
+                                    icon = MaterialSymbolIcon("history", filled = true),
                                     iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     iconBackgroundTint = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.16f),
                                     iconShape = RoundedCornerShape(12.dp),
@@ -354,7 +352,7 @@ fun UniversalSearchScreen(
                                                 .size(32.dp)
                                                 .background(MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape)
                                         ) {
-                                            Icon(Icons.Rounded.Clear, contentDescription = "Remove search", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
+                                            Icon(MaterialSymbolIcon("clear", filled = true), contentDescription = "Remove search", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
                                         }
                                     },
                                     onClick = {
@@ -553,7 +551,7 @@ fun UniversalSearchScreen(
                                                     )
                                                 }
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                                    imageVector = RhythmIcons.Back,
                                                     contentDescription = "View all",
                                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                                     modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = 180f }
@@ -638,7 +636,7 @@ fun UniversalSearchScreen(
                                 val playlistItems = allPlaylists.map { (info, action) ->
                                     val (mode, title, subtitle) = info
                                     Material3SettingsItem(
-                                        icon = if (mode == "STREAMING") Icons.Rounded.Cloud else RhythmIcons.Playlist,
+                                        icon = if (mode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Playlist,
                                         scope = if (mode == "STREAMING") SettingScope.STREAMING else SettingScope.LOCAL,
                                         iconBackgroundTint = if (mode == "STREAMING") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
                                         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -700,7 +698,7 @@ fun UniversalSearchScreen(
                     color = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
                     IconButton(onClick = handleBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(RhythmIcons.Back, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 }
 
@@ -736,7 +734,7 @@ fun UniversalSearchScreen(
                                 HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
                                 query = ""
                             }, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Rounded.Clear, contentDescription = "Clear", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Icon(MaterialSymbolIcon("clear", filled = true), contentDescription = "Clear", modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -751,7 +749,7 @@ fun UniversalSearchScreen(
                         showFilters = !showFilters
                     }) {
                         Icon(
-                            Icons.Rounded.FilterList,
+                            RhythmIcons.FilterList,
                             contentDescription = "Filters",
                             tint = if (showFilters) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                         )
@@ -1164,7 +1162,7 @@ fun UniversalSearchSongItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
-                            imageVector = if (mode == "STREAMING") Icons.Rounded.Cloud else Icons.Rounded.Folder,
+                            imageVector = if (mode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
                             contentDescription = null,
                             modifier = Modifier.size(12.dp),
                             tint = if (mode == "STREAMING")
@@ -1196,7 +1194,7 @@ fun UniversalSearchSongItem(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.MoreVert,
+                    imageVector = RhythmIcons.More,
                     contentDescription = "More options",
                     modifier = Modifier.size(18.dp)
                 )
@@ -1313,7 +1311,7 @@ private fun SearchGridCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = if (item.mode == "STREAMING") Icons.Rounded.Cloud else Icons.Rounded.Folder,
+                        imageVector = if (item.mode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
                         contentDescription = null,
                         modifier = Modifier.size(12.dp),
                         tint = if (item.mode == "STREAMING")
@@ -1505,7 +1503,7 @@ fun UniversalSongOptionsBottomSheet(
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             UniversalSongOptionGridItem(
-                                icon = Icons.Rounded.SkipNext,
+                                icon = RhythmIcons.SkipNext,
                                 text = "Play next",
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -1547,7 +1545,7 @@ fun UniversalSongOptionsBottomSheet(
                         }
                         Box(modifier = Modifier.weight(1f)) {
                             UniversalSongOptionGridItem(
-                                icon = if (isFavorite) RhythmIcons.Favorite else Icons.Rounded.FavoriteBorder,
+                                icon = if (isFavorite) RhythmIcons.Favorite else RhythmIcons.Favorite,
                                 text = if (isFavorite) "Remove from favorites" else "Add to favorites",
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -1595,7 +1593,7 @@ fun UniversalSongOptionsBottomSheet(
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             UniversalSongOptionGridItem(
-                                icon = Icons.Rounded.Info,
+                                icon = RhythmIcons.Info,
                                 text = "Song info",
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -1609,7 +1607,7 @@ fun UniversalSongOptionsBottomSheet(
                         if (isLocal) {
                             Box(modifier = Modifier.weight(1f)) {
                                 UniversalSongOptionGridItem(
-                                    icon = Icons.Rounded.Block,
+                                    icon = RhythmIcons.Block,
                                     text = "Add to blacklist",
                                     containerColor = MaterialTheme.colorScheme.errorContainer,
                                     iconColor = MaterialTheme.colorScheme.error,
@@ -1726,7 +1724,7 @@ private fun UniversalSongOptionsHeader(
 
 @Composable
 private fun UniversalSongOptionGridItem(
-    icon: ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     text: String,
     containerColor: Color,
     iconColor: Color,
@@ -1812,7 +1810,7 @@ private fun UniversalGenreBrowseSection(
             modifier = Modifier.padding(horizontal = 4.dp).padding(bottom = 16.dp)
         ) {
             Icon(
-                imageVector = Icons.Rounded.AutoAwesome,
+                imageVector = RhythmIcons.AutoAwesome,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.size(32.dp)
@@ -1930,10 +1928,10 @@ private fun UniversalGenreBrowseItemCard(
     }
 }
 
-private fun universalGenreIconFor(genre: String): ImageVector {
+private fun universalGenreIconFor(genre: String): chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon {
     val normalized = genre.lowercase()
     return when {
-        normalized.contains("hip hop") || normalized.contains("hip-hop") || normalized.contains("rap") || normalized.contains("trap") -> Icons.Default.Mic
+        normalized.contains("hip hop") || normalized.contains("hip-hop") || normalized.contains("rap") || normalized.contains("trap") -> MaterialSymbolIcon("mic")
         normalized.contains("rock") || normalized.contains("metal") || normalized.contains("punk") || normalized.contains("grunge") -> RhythmIcons.Music.Audiotrack
         normalized.contains("electronic") || normalized.contains("edm") || normalized.contains("house") || normalized.contains("techno") || normalized.contains("trance") || normalized.contains("synth") -> RhythmIcons.Player.Equalizer
         normalized.contains("classical") || normalized.contains("instrumental") || normalized.contains("orchestra") || normalized.contains("opera") -> RhythmIcons.Music.Album

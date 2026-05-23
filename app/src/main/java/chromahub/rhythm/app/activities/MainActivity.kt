@@ -63,10 +63,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.WavingHand // New import for Welcome screen icon
-import androidx.compose.material.icons.filled.DarkMode // New import for Dark Mode icon
 import chromahub.rhythm.app.shared.presentation.navigation.RhythmNavigation
 import chromahub.rhythm.app.ui.theme.RhythmTheme
 import chromahub.rhythm.app.ui.theme.festive.FestiveOverlayFromSettings
@@ -116,18 +112,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import chromahub.rhythm.app.shared.data.model.AppSettings // Import AppSettings
 import java.util.Locale // Import Locale
-import androidx.compose.material.icons.filled.Public // Import Public icon
-import androidx.compose.material.icons.filled.BugReport // Import BugReport icon
-import androidx.compose.material.icons.filled.Check // Import Check icon
-import androidx.compose.material.icons.filled.MusicNote // Import MusicNote icon
-import androidx.compose.material.icons.filled.Palette // Import Palette icon
-import androidx.compose.material.icons.filled.Security // New import for Security icon
-import androidx.compose.material.icons.filled.SystemUpdate // Import SystemUpdate icon
-import androidx.compose.material.icons.filled.KeyboardArrowDown // Import KeyboardArrowDown icon
-import androidx.compose.material.icons.filled.FormatListNumbered // Import FormatListNumbered icon
-import androidx.compose.material.icons.filled.SortByAlpha // Import SortByAlpha icon
-import androidx.compose.material.icons.filled.AccessTime // Import AccessTime icon
-import androidx.compose.material.icons.filled.GridView // Import GridView icon
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.rememberCoroutineScope

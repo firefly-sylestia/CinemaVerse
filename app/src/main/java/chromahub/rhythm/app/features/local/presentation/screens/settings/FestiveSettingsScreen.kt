@@ -1,11 +1,13 @@
 package chromahub.rhythm.app.features.local.presentation.screens.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -67,7 +69,7 @@ fun FestiveSettingsScreen(
                 ) {
                     Column {
                         FestiveSettingRow(
-                            icon = Icons.Default.Celebration,
+                            icon = MaterialSymbolIcon("celebration"),
                             title = "Enable Festive Theme",
                             description = "Show festive decorations across the app",
                             checked = festiveEnabled,
@@ -84,7 +86,7 @@ fun FestiveSettingsScreen(
                             )
                             
                             FestiveSettingRow(
-                                icon = Icons.Default.EventAvailable,
+                                icon = MaterialSymbolIcon("event_available"),
                                 title = "Auto-Detect Holidays",
                                 description = "Automatically show decorations for holidays",
                                 checked = festiveAutoDetect,
@@ -119,7 +121,7 @@ fun FestiveSettingsScreen(
                     ) {
                         Column {
                             FestiveTypeOption(
-                                icon = Icons.Default.AcUnit,
+                                icon = MaterialSymbolIcon("ac_unit"),
                                 title = "Christmas",
                                 description = "Snowfall decorations",
                                 selected = festiveType == "CHRISTMAS",
@@ -135,7 +137,7 @@ fun FestiveSettingsScreen(
                             )
                             
                             FestiveTypeOption(
-                                icon = Icons.Default.Celebration,
+                                icon = MaterialSymbolIcon("celebration"),
                                 title = "New Year",
                                 description = "Festive snowfall and sparkles",
                                 selected = festiveType == "NEW_YEAR",
@@ -227,7 +229,7 @@ fun FestiveSettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Info,
+                            imageVector = RhythmIcons.Info,
                             contentDescription = null,
                             
                             modifier = Modifier.size(24.dp)
@@ -256,7 +258,7 @@ fun FestiveSettingsScreen(
 
 @Composable
 private fun FestiveSettingRow(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     checked: Boolean,
@@ -304,7 +306,7 @@ private fun FestiveSettingRow(
 
 @Composable
 private fun FestiveTypeOption(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     selected: Boolean,
@@ -361,7 +363,7 @@ private fun FestiveTypeOption(
             }
             if (selected) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    imageVector = RhythmIcons.Check,
                     contentDescription = "Selected",
                     
                     modifier = Modifier.size(24.dp)

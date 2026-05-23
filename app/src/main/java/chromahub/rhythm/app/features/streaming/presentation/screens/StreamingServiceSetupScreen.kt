@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.features.streaming.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -145,7 +145,7 @@ fun StreamingServiceSetupScreen(
                                 modifier = Modifier.size(48.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.CloudQueue,
+                                    imageVector = MaterialSymbolIcon("cloud_queue", filled = true),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .padding(12.dp)

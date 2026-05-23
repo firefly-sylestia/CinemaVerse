@@ -2,6 +2,9 @@
 
 package chromahub.rhythm.app.activities
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
@@ -36,14 +39,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -272,7 +269,7 @@ private fun RhythmGuardTimeoutScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Security,
+                            imageVector = RhythmIcons.Security,
                             contentDescription = "Rhythm Guard",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(40.dp)
@@ -342,7 +339,7 @@ private fun RhythmGuardTimeoutScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.AccessTime,
+                                        imageVector = RhythmIcons.AccessTime,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(28.dp)
@@ -441,7 +438,7 @@ private fun RhythmGuardTimeoutScreen(
                         shape = RoundedCornerShape(32.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.AccessTime,
+                            imageVector = RhythmIcons.AccessTime,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -483,7 +480,7 @@ private fun RhythmGuardTimeoutScreen(
                             shape = RoundedCornerShape(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                imageVector = RhythmIcons.ExitToApp,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -523,7 +520,7 @@ private fun RhythmGuardTimeoutScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                imageVector = RhythmIcons.Forward,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )

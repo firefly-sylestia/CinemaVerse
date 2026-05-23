@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -10,9 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,7 +52,7 @@ fun WidgetSettingsScreen(
     var showCornerRadiusSheet by remember { mutableStateOf(false) }
 
     fun buildToggleSettingsItem(
-        icon: androidx.compose.ui.graphics.vector.ImageVector,
+        icon: MaterialSymbolIcon,
         title: String,
         description: String,
         checked: Boolean,
@@ -108,7 +109,7 @@ fun WidgetSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -135,7 +136,7 @@ fun WidgetSettingsScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Refresh,
+                                imageVector = RhythmIcons.Refresh,
                                 contentDescription = null
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -150,7 +151,7 @@ fun WidgetSettingsScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 val displayItems = listOf(
                     buildToggleSettingsItem(
-                        icon = Icons.Default.Image,
+                        icon = RhythmIcons.Image,
                         title = "Show Album Art",
                         description = "Display album artwork in widget",
                         checked = showAlbumArt,
@@ -160,7 +161,7 @@ fun WidgetSettingsScreen(
                         }
                     ),
                     buildToggleSettingsItem(
-                        icon = Icons.Default.Person,
+                        icon = RhythmIcons.Artist,
                         title = "Show Artist Name",
                         description = "Display artist information",
                         checked = showArtist,
@@ -170,7 +171,7 @@ fun WidgetSettingsScreen(
                         }
                     ),
                     buildToggleSettingsItem(
-                        icon = Icons.Default.Album,
+                        icon = RhythmIcons.Album,
                         title = "Show Album Name",
                         description = "Display album information",
                         checked = showAlbum,
@@ -180,7 +181,7 @@ fun WidgetSettingsScreen(
                         }
                     ),
                     buildToggleSettingsItem(
-                        icon = Icons.Default.Favorite,
+                        icon = RhythmIcons.FavoriteFilled,
                         title = "Show Favorite Button",
                         description = "Display favorite toggle on large widgets",
                         checked = showFavoriteButton,
@@ -205,12 +206,12 @@ fun WidgetSettingsScreen(
                     title = "Appearance",
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Default.RoundedCorner,
+                            icon = MaterialSymbolIcon("rounded_corner"),
                             title = { Text("Corner Radius") },
                             description = { Text("${cornerRadius}dp (Glance widgets only)") },
                             trailingContent = {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    imageVector = RhythmIcons.Forward,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -232,7 +233,7 @@ fun WidgetSettingsScreen(
                     title = "Behavior",
                     items = listOf(
                         buildToggleSettingsItem(
-                            icon = Icons.Default.AutoMode,
+                            icon = MaterialSymbolIcon("auto_mode"),
                             title = "Auto Update",
                             description = "Automatically update widget when song changes",
                             checked = autoUpdate,
@@ -260,7 +261,7 @@ fun WidgetSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -276,19 +277,19 @@ fun WidgetSettingsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         
                         WidgetTipItem(
-                            icon = Icons.Default.Apps,
+                            icon = MaterialSymbolIcon("apps"),
                             text = "Rhythm uses Material 3 Expressive design with dynamic colors"
                         )
                         WidgetTipItem(
-                            icon = Icons.Default.Widgets,
+                            icon = MaterialSymbolIcon("widgets"),
                             text = "Widget adapts from 1x1 play button to 5x5+ full layout"
                         )
                         WidgetTipItem(
-                            icon = Icons.Default.TouchApp,
+                            icon = MaterialSymbolIcon("touch_app"),
                             text = "Tap the widget to open the app, buttons control playback"
                         )
                         WidgetTipItem(
-                            icon = Icons.Default.GridOn,
+                            icon = MaterialSymbolIcon("grid_on"),
                             text = "Long-press and resize for different expressive layouts"
                         )
                     }
@@ -385,7 +386,7 @@ fun WidgetSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.size(20.dp)
@@ -408,7 +409,7 @@ fun WidgetSettingsScreen(
 
 @Composable
 private fun WidgetTipItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(

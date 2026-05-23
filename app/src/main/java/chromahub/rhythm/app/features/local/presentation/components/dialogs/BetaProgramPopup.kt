@@ -1,13 +1,14 @@
 package chromahub.rhythm.app.features.local.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Message
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import chromahub.rhythm.app.R
 
 data class BetaFeature(
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val title: String,
     val description: String
 )
@@ -37,17 +38,17 @@ fun BetaProgramPopup(onDismiss: () -> Unit) {
 
     val betaFeatures = listOf(
         BetaFeature(
-            icon = Icons.Rounded.FlightTakeoff,
+            icon = MaterialSymbolIcon("flight_takeoff", filled = true),
             title = "Early Access",
             description = "Try new features before official release"
         ),
         BetaFeature(
-            icon = Icons.Rounded.EditNote,
+            icon = MaterialSymbolIcon("edit_note", filled = true),
             title = "Shape the Future",
             description = "Your feedback directly influences development"
         ),
         BetaFeature(
-            icon = Icons.AutoMirrored.Rounded.Message,
+            icon = MaterialSymbolIcon("message", filled = true),
             title = "Direct Feedback",
             description = "Communicate directly with the development team"
         ),
@@ -128,7 +129,7 @@ fun BetaProgramPopup(onDismiss: () -> Unit) {
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.PlayArrow,
+                                    imageVector = RhythmIcons.Play,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -302,7 +303,7 @@ fun BetaProgramPopup(onDismiss: () -> Unit) {
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.PlayArrow,
+                                imageVector = RhythmIcons.Play,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )

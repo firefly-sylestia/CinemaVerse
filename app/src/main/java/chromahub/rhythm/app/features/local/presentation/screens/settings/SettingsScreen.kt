@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -41,7 +45,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.LaunchedEffect
 import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
 import chromahub.rhythm.app.shared.presentation.navigation.RhythmGuardRiskLevel
@@ -51,45 +54,13 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Api
-import androidx.compose.material.icons.filled.BatteryChargingFull
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Equalizer
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Lyrics
-import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Reorder
-import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
@@ -121,23 +92,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.ui.utils.LazyListStateSaver
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.features.local.presentation.components.settings.LanguageSwitcherDialog
 import android.content.Context
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.material.icons.filled.AutoGraph
-import androidx.compose.material.icons.filled.Gesture
-import androidx.compose.material.icons.filled.Interests
-import androidx.compose.material.icons.filled.LensBlur
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.PlayCircleFilled
-import androidx.compose.material.icons.filled.PlaylistAddCheckCircle
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -186,7 +146,7 @@ object SettingsRoutes {
 }
 
 data class SettingItem(
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val title: String,
     val description: String? = null,
     val onClick: (() -> Unit)? = null,
@@ -268,18 +228,18 @@ fun SettingsScreen(
             SettingGroup(
                 title = context.getString(R.string.settings_section_appearance),
                 items = buildList {
-                    add(SettingItem(Icons.Default.Palette, context.getString(R.string.settings_theme_customization), context.getString(R.string.settings_theme_customization_desc), onClick = { onNavigateTo(SettingsRoutes.THEME_CUSTOMIZATION) }))
-                    add(SettingItem(Icons.Default.Interests, context.getString(R.string.settings_shapes), context.getString(R.string.settings_shapes_desc), onClick = { onNavigateTo(SettingsRoutes.EXPRESSIVE_SHAPES) }))
-                    add(SettingItem(Icons.Default.MusicNote, context.getString(R.string.settings_player_customization), context.getString(R.string.settings_player_customization_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYER_CUSTOMIZATION) }))
-                    add(SettingItem(Icons.Default.PlayCircleFilled, context.getString(R.string.settings_miniplayer_customization), context.getString(R.string.settings_miniplayer_customization_desc), onClick = { onNavigateTo(SettingsRoutes.MINIPLAYER_CUSTOMIZATION) }))
+                    add(SettingItem(RhythmIcons.Palette, context.getString(R.string.settings_theme_customization), context.getString(R.string.settings_theme_customization_desc), onClick = { onNavigateTo(SettingsRoutes.THEME_CUSTOMIZATION) }))
+                    add(SettingItem(MaterialSymbolIcon("interests"), context.getString(R.string.settings_shapes), context.getString(R.string.settings_shapes_desc), onClick = { onNavigateTo(SettingsRoutes.EXPRESSIVE_SHAPES) }))
+                    add(SettingItem(RhythmIcons.MusicNote, context.getString(R.string.settings_player_customization), context.getString(R.string.settings_player_customization_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYER_CUSTOMIZATION) }))
+                    add(SettingItem(MaterialSymbolIcon("play_circle_filled"), context.getString(R.string.settings_miniplayer_customization), context.getString(R.string.settings_miniplayer_customization_desc), onClick = { onNavigateTo(SettingsRoutes.MINIPLAYER_CUSTOMIZATION) }))
                 }
             ),
             // 2. Home & Widgets - only show in LOCAL mode
             if (appMode == "LOCAL") SettingGroup(
                 title = context.getString(R.string.settings_section_home_widgets),
                 items = listOf(
-                    SettingItem(Icons.Default.Home, context.getString(R.string.settings_home_customization), context.getString(R.string.settings_home_customization_desc), onClick = { onNavigateTo(SettingsRoutes.HOME_SCREEN) }),
-                    SettingItem(Icons.Default.Widgets, context.getString(R.string.settings_widget), context.getString(R.string.settings_widget_desc), onClick = { onNavigateTo(SettingsRoutes.WIDGET) })
+                    SettingItem(RhythmIcons.Home, context.getString(R.string.settings_home_customization), context.getString(R.string.settings_home_customization_desc), onClick = { onNavigateTo(SettingsRoutes.HOME_SCREEN) }),
+                    SettingItem(MaterialSymbolIcon("widgets"), context.getString(R.string.settings_widget), context.getString(R.string.settings_widget_desc), onClick = { onNavigateTo(SettingsRoutes.WIDGET) })
                 )
             ) else null,
             // 3. Navigation & Controls
@@ -287,29 +247,29 @@ fun SettingsScreen(
                 title = context.getString(R.string.settings_section_user_interface),
                 items = buildList {
                     add(SettingItem(
-                        Icons.Default.Home,
+                        RhythmIcons.Home,
                         context.getString(R.string.settings_default_screen),
                         if (defaultScreen == "library") context.getString(R.string.library) else context.getString(R.string.home),
                         onClick = { showDefaultScreenDialog = true }
                     ))
                     add(SettingItem(
-                        Icons.Default.Public,
+                        RhythmIcons.Public,
                         context.getString(R.string.settings_language),
                         context.getString(R.string.settings_language_desc),
                         onClick = { showLanguageSwitcher = true }
                     ))
                     if (appMode == "LOCAL") {
-                        //add(SettingItem(Icons.Default.Reorder, context.getString(R.string.settings_library_tab_order), context.getString(R.string.settings_library_tab_order_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_TAB_ORDER) }))
+                        //add(SettingItem(MaterialSymbolIcon("reorder"), context.getString(R.string.settings_library_tab_order), context.getString(R.string.settings_library_tab_order_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_TAB_ORDER) }))
                     }
                     add(SettingItem(
-                        Icons.Default.TouchApp, 
+                        MaterialSymbolIcon("touch_app"), 
                         context.getString(R.string.settings_haptic_feedback), 
                         context.getString(R.string.settings_haptic_feedback_desc), 
                         toggleState = hapticFeedbackEnabled,
                         onToggleChange = { appSettings.setHapticFeedbackEnabled(it) }
                     ))
                     add(SettingItem(
-                        Icons.Default.Gesture,
+                        MaterialSymbolIcon("gesture"),
                         context.getString(R.string.settings_gestures),
                         context.getString(R.string.settings_gestures_desc),
                         onClick = { onNavigateTo(SettingsRoutes.GESTURES) }
@@ -322,7 +282,7 @@ fun SettingsScreen(
                         onToggleChange = { appSettings.setShowKeyboardOnSearchOpen(it) }
                     ))
                     add(SettingItem(
-                        Icons.Default.Lightbulb,
+                        MaterialSymbolIcon("lightbulb"),
                         "Settings Suggestions",
                         "Show contextual suggestions at the top",
                         toggleState = showSettingsSuggestions,
@@ -334,9 +294,9 @@ fun SettingsScreen(
             SettingGroup(
                 title = context.getString(R.string.settings_section_queue_playback),
                 items = buildList {
-                    add(SettingItem(Icons.AutoMirrored.Filled.QueueMusic, context.getString(R.string.settings_queue_playback_title), context.getString(R.string.settings_queue_playback_desc), onClick = { onNavigateTo(SettingsRoutes.QUEUE_PLAYBACK) }))
+                    add(SettingItem(RhythmIcons.Queue, context.getString(R.string.settings_queue_playback_title), context.getString(R.string.settings_queue_playback_desc), onClick = { onNavigateTo(SettingsRoutes.QUEUE_PLAYBACK) }))
                     // Sleep Timer is available in both LOCAL and STREAMING modes
-                    add(SettingItem(Icons.Default.AccessTime, context.getString(R.string.sleep_timer), context.getString(R.string.sleep_timer_set_control), onClick = { onNavigateTo(SettingsRoutes.SLEEP_TIMER) }))
+                    add(SettingItem(RhythmIcons.AccessTime, context.getString(R.string.sleep_timer), context.getString(R.string.sleep_timer_set_control), onClick = { onNavigateTo(SettingsRoutes.SLEEP_TIMER) }))
                 }
             ),
             // 5. Audio & Lyrics
@@ -357,18 +317,18 @@ fun SettingsScreen(
                         toggleState = resumeOnDeviceReconnect,
                         onToggleChange = { appSettings.setResumeOnDeviceReconnect(it) }
                     ))
-                    //add(SettingItem(Icons.Default.GraphicEq, context.getString(R.string.audio_normalization), context.getString(R.string.audio_normalization_desc), toggleState = audioNormalization, onToggleChange = { appSettings.setAudioNormalization(it) }))
-                    //add(SettingItem(Icons.Default.GraphicEq, context.getString(R.string.replay_gain), context.getString(R.string.replay_gain_desc), toggleState = replayGain, onToggleChange = { appSettings.setReplayGain(it) }))
+                    //add(SettingItem(MaterialSymbolIcon("graphic_eq"), context.getString(R.string.audio_normalization), context.getString(R.string.audio_normalization_desc), toggleState = audioNormalization, onToggleChange = { appSettings.setAudioNormalization(it) }))
+                    //add(SettingItem(MaterialSymbolIcon("graphic_eq"), context.getString(R.string.replay_gain), context.getString(R.string.replay_gain_desc), toggleState = replayGain, onToggleChange = { appSettings.setReplayGain(it) }))
                     // Equalizer is available in both LOCAL and STREAMING modes
-                    add(SettingItem(Icons.Default.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
+                    add(SettingItem(RhythmIcons.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
                     add(SettingItem(
-                        icon = Icons.Default.BatteryChargingFull,
+                        icon = MaterialSymbolIcon("battery_charging_full"),
                         title = "Battery Saver",
                         description = "Optimize haptics, decoding, and marquee for power consumption",
                         onClick = { onNavigateTo(SettingsRoutes.BATTERY_SAVER) }
                     ))
                     add(SettingItem(
-                        icon = Icons.Default.Bolt,
+                        icon = MaterialSymbolIcon("bolt"),
                         title = "Audio Offload",
                         description = "Hardware-accelerated audio decoding to save device power",
                         toggleState = audioOffloadEnabled,
@@ -380,19 +340,19 @@ fun SettingsScreen(
             if (appMode == "LOCAL") SettingGroup(
                 title = context.getString(R.string.settings_section_library_content),
                 items = listOf(
-                    SettingItem(Icons.Default.Folder, context.getString(R.string.settings_media_scan_title), context.getString(R.string.settings_media_scan_desc), onClick = { onNavigateTo(SettingsRoutes.MEDIA_SCAN) }),
-                    SettingItem(Icons.Default.Person, context.getString(R.string.settings_artist_parsing), context.getString(R.string.settings_artist_parsing_desc), onClick = { onNavigateTo(SettingsRoutes.ARTIST_SEPARATORS) }),
-                    SettingItem(Icons.Default.PlaylistAddCheckCircle, context.getString(R.string.settings_playlists_title), context.getString(R.string.settings_playlists_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYLISTS) }),
-                    SettingItem(Icons.Default.LibraryMusic, context.getString(R.string.settings_library_settings), context.getString(R.string.settings_library_settings_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_SETTINGS) })
+                    SettingItem(RhythmIcons.Folder, context.getString(R.string.settings_media_scan_title), context.getString(R.string.settings_media_scan_desc), onClick = { onNavigateTo(SettingsRoutes.MEDIA_SCAN) }),
+                    SettingItem(RhythmIcons.Artist, context.getString(R.string.settings_artist_parsing), context.getString(R.string.settings_artist_parsing_desc), onClick = { onNavigateTo(SettingsRoutes.ARTIST_SEPARATORS) }),
+                    SettingItem(MaterialSymbolIcon("playlist_add_check_circle"), context.getString(R.string.settings_playlists_title), context.getString(R.string.settings_playlists_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYLISTS) }),
+                    SettingItem(RhythmIcons.Library, context.getString(R.string.settings_library_settings), context.getString(R.string.settings_library_settings_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_SETTINGS) })
                 )
             ) else null,
             // 6. Notifications & Services
             SettingGroup(
                 title = context.getString(R.string.settings_section_notifications_services),
                 items = buildList {
-                    add(SettingItem(Icons.Default.Notifications, context.getString(R.string.settings_notifications), context.getString(R.string.settings_notifications_desc), onClick = { onNavigateTo(SettingsRoutes.NOTIFICATIONS) }))
+                    add(SettingItem(RhythmIcons.Notifications, context.getString(R.string.settings_notifications), context.getString(R.string.settings_notifications_desc), onClick = { onNavigateTo(SettingsRoutes.NOTIFICATIONS) }))
                     // API Management/Integrations is available in both LOCAL and STREAMING modes
-                    add(SettingItem(Icons.Default.Api, context.getString(R.string.settings_api_management), context.getString(R.string.settings_api_management_desc), onClick = { onNavigateTo(SettingsRoutes.API_MANAGEMENT) }))
+                    add(SettingItem(MaterialSymbolIcon("api"), context.getString(R.string.settings_api_management), context.getString(R.string.settings_api_management_desc), onClick = { onNavigateTo(SettingsRoutes.API_MANAGEMENT) }))
                 }
             ),
             // 7. Data & Storage - split into shared and local-only items
@@ -400,12 +360,12 @@ fun SettingsScreen(
                 title = context.getString(R.string.settings_section_storage_data),
                 items = buildList {
                     // Listening Stats and Rhythm Guard are shared across LOCAL and STREAMING modes
-                    add(SettingItem(Icons.Default.AutoGraph, context.getString(R.string.settings_rhythm_stats), context.getString(R.string.settings_rhythm_stats_desc), onClick = { onNavigateTo(SettingsRoutes.LISTENING_STATS) }))
-                    add(SettingItem(Icons.Default.Security, context.getString(R.string.settings_rhythm_guard), context.getString(R.string.settings_rhythm_guard_list_desc), onClick = { onNavigateTo(SettingsRoutes.RHYTHM_GUARD) }))
+                    add(SettingItem(MaterialSymbolIcon("auto_graph"), context.getString(R.string.settings_rhythm_stats), context.getString(R.string.settings_rhythm_stats_desc), onClick = { onNavigateTo(SettingsRoutes.LISTENING_STATS) }))
+                    add(SettingItem(RhythmIcons.Security, context.getString(R.string.settings_rhythm_guard), context.getString(R.string.settings_rhythm_guard_list_desc), onClick = { onNavigateTo(SettingsRoutes.RHYTHM_GUARD) }))
                     // Cache and Backup are LOCAL-only
                     if (appMode == "LOCAL") {
-                        add(SettingItem(Icons.Default.Storage, context.getString(R.string.settings_cache_management_title), context.getString(R.string.settings_cache_management_desc), onClick = { onNavigateTo(SettingsRoutes.CACHE_MANAGEMENT) }))
-                        add(SettingItem(Icons.Default.Backup, context.getString(R.string.settings_backup_restore_title), context.getString(R.string.settings_backup_restore_desc), onClick = { onNavigateTo(SettingsRoutes.BACKUP_RESTORE) }))
+                        add(SettingItem(RhythmIcons.Storage, context.getString(R.string.settings_cache_management_title), context.getString(R.string.settings_cache_management_desc), onClick = { onNavigateTo(SettingsRoutes.CACHE_MANAGEMENT) }))
+                        add(SettingItem(MaterialSymbolIcon("backup"), context.getString(R.string.settings_backup_restore_title), context.getString(R.string.settings_backup_restore_desc), onClick = { onNavigateTo(SettingsRoutes.BACKUP_RESTORE) }))
                     }
                 }
             ),
@@ -414,22 +374,22 @@ fun SettingsScreen(
                 title = context.getString(R.string.settings_section_updates_info),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Update,
+                        RhythmIcons.Update,
                         context.getString(R.string.settings_updates_title),
                         context.getString(R.string.settings_updates_desc),
                         toggleState = updatesEnabled,
                         onToggleChange = { appSettings.setUpdatesEnabled(it) },
                         onClick = { onNavigateTo(SettingsRoutes.UPDATES) }
                     ),
-                    SettingItem(Icons.Default.Info, context.getString(R.string.settings_about_title), context.getString(R.string.settings_about_desc), onClick = { onNavigateTo(SettingsRoutes.ABOUT) })
+                    SettingItem(RhythmIcons.Info, context.getString(R.string.settings_about_title), context.getString(R.string.settings_about_desc), onClick = { onNavigateTo(SettingsRoutes.ABOUT) })
                 )
             ),
             // 9. Advanced
             SettingGroup(
                 title = context.getString(R.string.settings_section_advanced),
                 items = listOf(
-                    SettingItem(Icons.Default.BugReport, context.getString(R.string.settings_crash_log_history), context.getString(R.string.settings_crash_log_history_desc), onClick = { onNavigateTo(SettingsRoutes.CRASH_LOG_HISTORY) }),
-                    SettingItem(Icons.Default.Science, context.getString(R.string.settings_experimental_features), context.getString(R.string.settings_experimental_features_desc), onClick = { onNavigateTo(SettingsRoutes.EXPERIMENTAL_FEATURES) })
+                    SettingItem(RhythmIcons.BugReport, context.getString(R.string.settings_crash_log_history), context.getString(R.string.settings_crash_log_history_desc), onClick = { onNavigateTo(SettingsRoutes.CRASH_LOG_HISTORY) }),
+                    SettingItem(MaterialSymbolIcon("science"), context.getString(R.string.settings_experimental_features), context.getString(R.string.settings_experimental_features_desc), onClick = { onNavigateTo(SettingsRoutes.EXPERIMENTAL_FEATURES) })
                 )
             )
         ).filterNotNull() // Filter out null groups (for streaming mode)
@@ -497,7 +457,7 @@ fun SettingsScreen(
                                         {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                                    imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                                                     contentDescription = null,
                                                     modifier = Modifier
                                                         .size(18.dp)
@@ -538,7 +498,7 @@ fun SettingsScreen(
                                     item.onClick != null -> {
                                         {
                                             Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                                imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -670,7 +630,7 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Home,
+                                imageVector = RhythmIcons.Home,
                                 contentDescription = null,
                                 tint = if (defaultScreen == "home") 
                                     MaterialTheme.colorScheme.onPrimaryContainer
@@ -703,7 +663,7 @@ fun SettingsScreen(
                             
                             if (defaultScreen == "home") {
                                 Icon(
-                                    imageVector = Icons.Default.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(24.dp)
@@ -770,7 +730,7 @@ fun SettingsScreen(
                             
                             if (defaultScreen == "library") {
                                 Icon(
-                                    imageVector = Icons.Default.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(24.dp)
@@ -918,7 +878,7 @@ fun SettingRow(item: SettingItem) {
 
         if (item.toggleState != null && item.onClick != null) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                 contentDescription = "Navigate",
                 modifier = Modifier
                     .size(18.dp)
@@ -942,7 +902,7 @@ fun SettingRow(item: SettingItem) {
             )
         } else if (item.onClick != null) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                 contentDescription = "Navigate",
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1301,7 +1261,7 @@ private fun AnimatedSwitch(
 
 data class SettingsTipData(
     val id: String,
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val title: String,
     val text: String,
     val route: String? = null,
@@ -1404,7 +1364,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "rhythm_guard",
-                        icon = Icons.Default.Security,
+                        icon = RhythmIcons.Security,
                         title = "Rhythm Guard",
                         text = desc,
                         route = SettingsRoutes.RHYTHM_GUARD,
@@ -1423,7 +1383,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "theme",
-                        icon = Icons.Default.Palette,
+                        icon = RhythmIcons.Palette,
                         title = "Personalization",
                         text = descs.random(random),
                         route = SettingsRoutes.THEME_CUSTOMIZATION
@@ -1439,7 +1399,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "gestures",
-                        icon = Icons.Default.Gesture,
+                        icon = MaterialSymbolIcon("gesture"),
                         title = context.getString(R.string.settings_gestures),
                         text = descs.random(random),
                         route = SettingsRoutes.GESTURES
@@ -1455,7 +1415,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "media_scan",
-                        icon = Icons.Default.Folder,
+                        icon = RhythmIcons.Folder,
                         title = "Library Focus",
                         text = descs.random(random),
                         route = SettingsRoutes.MEDIA_SCAN
@@ -1470,7 +1430,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "sleep_timer",
-                        icon = Icons.Default.AccessTime,
+                        icon = RhythmIcons.AccessTime,
                         title = "Sleep Timer",
                         text = descs.random(random),
                         route = SettingsRoutes.SLEEP_TIMER
@@ -1485,7 +1445,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "equalizer",
-                        icon = Icons.Default.Equalizer,
+                        icon = RhythmIcons.Equalizer,
                         title = "Audio Equalizer",
                         text = descs.random(random),
                         route = SettingsRoutes.EQUALIZER
@@ -1507,7 +1467,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "backup_restore",
-                        icon = Icons.Default.Backup,
+                        icon = MaterialSymbolIcon("backup"),
                         title = "Backup & Restore",
                         text = descs.random(random),
                         route = SettingsRoutes.BACKUP_RESTORE
@@ -1529,7 +1489,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "updates",
-                        icon = Icons.Default.Update,
+                        icon = RhythmIcons.Update,
                         title = "App Updates",
                         text = descs.random(random),
                         route = SettingsRoutes.UPDATES
@@ -1551,7 +1511,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "queue_playback",
-                        icon = Icons.AutoMirrored.Filled.QueueMusic,
+                        icon = RhythmIcons.Queue,
                         title = "Queue Playback",
                         text = descs.random(random),
                         route = SettingsRoutes.QUEUE_PLAYBACK
@@ -1573,7 +1533,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "player_controls",
-                        icon = Icons.Default.MusicNote,
+                        icon = RhythmIcons.MusicNote,
                         title = "Player Controls",
                         text = descs.random(random),
                         route = SettingsRoutes.PLAYER_CUSTOMIZATION
@@ -1595,7 +1555,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "miniplayer",
-                        icon = Icons.Default.PlayCircleFilled,
+                        icon = MaterialSymbolIcon("play_circle_filled"),
                         title = "Mini Player",
                         text = descs.random(random),
                         route = SettingsRoutes.MINIPLAYER_CUSTOMIZATION
@@ -1617,7 +1577,7 @@ fun SettingsTipsRow(
                 add(
                     SettingsTipData(
                         id = "library_settings",
-                        icon = Icons.Default.LibraryMusic,
+                        icon = RhythmIcons.Library,
                         title = "Library Settings",
                         text = descs.random(random),
                         route = SettingsRoutes.LIBRARY_SETTINGS
@@ -1713,7 +1673,7 @@ fun SettingsTipCard(
                             .background(MaterialTheme.colorScheme.surface.copy(alpha = if (isPrimary) 0.55f else 0.44f))
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = RhythmIcons.Close,
                             contentDescription = "Dismiss",
                             tint = contentColor,
                             modifier = Modifier.size(16.dp)

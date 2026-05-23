@@ -3055,9 +3055,8 @@
     <string name="settings_header_title">Settings</string>
     <string name="settings_shapes">Shapes</string>
     <string name="settings_shapes_desc">Expressive Shapes</string>
-    <string name="settings_bit_perfect_mode">High-Resolution Audio Mode</string>
-    <string name="settings_bit_perfect_mode_desc_dac">Preserve native sample rate and bit depth via DAC/USB. Restart required.</string>
-    <string name="settings_bit_perfect_mode_desc_native">Preserve native sample rate and bit depth, no resampling. Restart required.</string>
+    <string name="settings_skip_silence">Skip Silence</string>
+    <string name="settings_skip_silence_desc">Automatically skip silent intervals in tracks.</string>
     <string name="settings_song_ratings">Song Ratings</string>
     <string name="settings_song_ratings_desc">Rate songs with stars to improve stats and sorting</string>
     <!-- Gestures Search Strings -->

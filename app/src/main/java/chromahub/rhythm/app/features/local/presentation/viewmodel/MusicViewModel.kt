@@ -96,7 +96,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         private const val BULK_REPLACE_THRESHOLD = 80
 
         // SharedPreferences keys
-        private const val PREF_HIGH_QUALITY_AUDIO = "high_quality_audio"
         private const val PREF_GAPLESS_PLAYBACK = "gapless_playback"
         private const val PREF_CROSSFADE = "crossfade"
         private const val PREF_CROSSFADE_DURATION = "crossfade_duration"
@@ -174,12 +173,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     val clearCacheOnExit = appSettings.clearCacheOnExit
     
     // Playback settings
-    val enableHighQualityAudio = appSettings.highQualityAudio
     val enableGaplessPlayback = appSettings.gaplessPlayback
     val enableCrossfade = appSettings.crossfade
     val crossfadeDuration = appSettings.crossfadeDuration
     val enableAudioNormalization = appSettings.audioNormalization
     val enableReplayGain = appSettings.replayGain
+    val skipSilenceEnabled = appSettings.skipSilenceEnabled
     
     // Queue & Shuffle behavior settings
     val shuffleUsesExoplayer = appSettings.shuffleUsesExoplayer
@@ -5959,7 +5958,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         Log.d(TAG, "Loading settings from SharedPreferences")
         // Settings are now handled by AppSettings, verify they are loaded
         Log.d(TAG, "Loaded settings: " +
-                "HQ Audio=${enableHighQualityAudio.value}, " +
                 "Gapless=${enableGaplessPlayback.value}, " +
                 "Crossfade=${enableCrossfade.value} (${crossfadeDuration.value}s), " +
                 "Normalization=${enableAudioNormalization.value}, " +
@@ -6302,13 +6300,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Playback settings functions
-    fun setHighQualityAudio(enable: Boolean) {
-        appSettings.setHighQualityAudio(enable)
-        applyPlaybackSettings()
-    }
     
     fun setGaplessPlayback(enable: Boolean) {
         appSettings.setGaplessPlayback(enable)
+        applyPlaybackSettings()
+    }
+    
+    fun setSkipSilenceEnabled(enable: Boolean) {
+        appSettings.setSkipSilenceEnabled(enable)
         applyPlaybackSettings()
     }
     
@@ -6336,7 +6335,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         // Apply settings to the media player
         mediaController?.let { controller ->
             Log.d(TAG, "Applied playback settings: " +
-                    "HQ Audio=${enableHighQualityAudio.value}, " +
                     "Gapless=${enableGaplessPlayback.value}, " +
                     "Crossfade=${enableCrossfade.value} (${crossfadeDuration.value}s), " +
                     "Normalization=${enableAudioNormalization.value}, " +

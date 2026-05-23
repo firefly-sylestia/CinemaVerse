@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -34,11 +38,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.Button
@@ -49,7 +48,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -85,13 +83,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.rounded.Collections
-import androidx.compose.material.icons.rounded.VideoLibrary
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.shared.presentation.components.common.DragDropLazyColumn
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveClickableSurface
@@ -528,7 +522,7 @@ private fun QueueHeader(
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = RhythmIcons.Delete,
                         contentDescription = "Clear queue",
                         modifier = Modifier.size(20.dp)
                     )
@@ -810,7 +804,7 @@ private fun QueueItem(
                 )
                 
                 Icon(
-                    imageVector = Icons.Default.DragHandle,
+                    imageVector = RhythmIcons.DragHandle,
                     contentDescription = "Drag to reorder",
                     tint = if (isDragging)
                         MaterialTheme.colorScheme.onSecondaryContainer
@@ -857,7 +851,7 @@ private fun QueueItem(
                     }
                 ) {
                 Icon(
-                    imageVector = Icons.Default.Clear,
+                    imageVector = MaterialSymbolIcon("clear"),
                     contentDescription = "Remove from queue",
                     modifier = Modifier.size(18.dp)
                 )
@@ -925,7 +919,7 @@ private fun QueueSettingsInfo(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Warning,
+                        imageVector = RhythmIcons.Warning,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onTertiaryContainer,
                         modifier = Modifier.size(16.dp)
@@ -1060,7 +1054,7 @@ private fun EmptyQueueContent(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = RhythmIcons.Add,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -1147,7 +1141,7 @@ private fun EmptyUpNextContent(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = RhythmIcons.Add,
                         contentDescription = null,
                         
                         modifier = Modifier.size(20.dp)

@@ -2,6 +2,11 @@
 
 package chromahub.rhythm.app.features.local.presentation.screens.settings
 
+
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -40,12 +45,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.automirrored.rounded.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.LinearWavyProgressIndicator
@@ -102,7 +101,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupSty
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveScrollBar
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
 import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
 import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
@@ -269,7 +267,7 @@ fun TunerSettingRow(item: SettingItem) {
 
         if (item.toggleState != null && item.onClick != null) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                 contentDescription = context.getString(R.string.cd_navigate),
                 modifier = Modifier
                     .size(18.dp)
@@ -297,7 +295,7 @@ fun TunerSettingRow(item: SettingItem) {
             )
         } else if (item.onClick != null) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                 contentDescription = context.getString(R.string.cd_navigate),
                 modifier = Modifier.size(20.dp),
                 tint = if (item.enabled) {
@@ -385,7 +383,7 @@ fun TunerAnimatedSwitch(
                 label = "tuner_switch_icon"
             ) { isChecked ->
                 Icon(
-                    imageVector = if (isChecked) Icons.Default.Check else Icons.Default.Close,
+                    imageVector = if (isChecked) RhythmIcons.Check else RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),
                     tint = iconTint
@@ -399,7 +397,7 @@ fun TunerAnimatedSwitch(
 private fun TunerSettingCard(
     title: String,
     description: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     checked: Boolean? = null,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     onClick: (() -> Unit)? = null
@@ -459,7 +457,7 @@ private fun TunerSettingCard(
             } else if (onClick != null) {
                 val context = LocalContext.current
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                     contentDescription = context.getString(R.string.cd_navigate),
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -483,7 +481,7 @@ private fun toMaterial3SettingsItem(
             {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                         contentDescription = context.getString(R.string.cd_navigate),
                         modifier = Modifier
                             .size(16.dp)
@@ -520,7 +518,7 @@ private fun toMaterial3SettingsItem(
         } else if (item.onClick != null) {
             {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                     contentDescription = context.getString(R.string.cd_navigate),
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -666,7 +664,7 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_notifications_updates_group),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Update,
+                        RhythmIcons.Update,
                         context.getString(R.string.settings_update_notifications),
                         context.getString(R.string.settings_update_notifications_merged_desc),
                         toggleState = mergedUpdateNotificationsEnabled,
@@ -681,14 +679,14 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_notifications_rhythm_guard_group),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Warning,
+                        RhythmIcons.Warning,
                         context.getString(R.string.settings_rhythm_guard_alert_notifications),
                         context.getString(R.string.settings_rhythm_guard_alert_notifications_desc),
                         toggleState = rhythmGuardAlertNotificationsEnabled,
                         onToggleChange = { appSettings.setRhythmGuardAlertNotificationsEnabled(it) }
                     ),
                     SettingItem(
-                        Icons.Default.Schedule,
+                        RhythmIcons.AccessTime,
                         context.getString(R.string.settings_rhythm_guard_timer_notifications),
                         context.getString(R.string.settings_rhythm_guard_timer_notifications_desc),
                         toggleState = rhythmGuardTimerNotificationsEnabled,
@@ -700,14 +698,14 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_notifications_rhythm_pulse_group),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Celebration,
+                        MaterialSymbolIcon("celebration"),
                         context.getString(R.string.settings_rhythm_pulse_notifications),
                         context.getString(R.string.settings_rhythm_pulse_notifications_desc),
                         toggleState = rhythmPulseNotificationsEnabled,
                         onToggleChange = { appSettings.setRhythmPulseNotificationsEnabled(it) }
                     ),
                     SettingItem(
-                        Icons.Default.Schedule,
+                        RhythmIcons.AccessTime,
                         context.getString(R.string.settings_rhythm_pulse_interval),
                         pulseIntervalLabel,
                         onClick = { showPulseIntervalDialog = true },
@@ -759,7 +757,7 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
             onDismissRequest = { showPulseIntervalDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Schedule,
+                    imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -805,7 +803,7 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
                                 )
                                 if (rhythmPulseNotificationIntervalHours == hours) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = context.getString(R.string.ui_selected),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -930,7 +928,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                     )
                     add(
                         SettingItem(
-                            Icons.AutoMirrored.Filled.Help,
+                            MaterialSymbolIcon("help", filled = true),
                             context.getString(R.string.settings_queue_action_dialog),
                             when {
                                 clearQueueOnNewSong -> context.getString(R.string.settings_queue_action_dialog_desc_disabled)
@@ -943,7 +941,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                     )
                     add(
                         SettingItem(
-                            androidx.compose.material.icons.Icons.AutoMirrored.Filled.QueueMusic,
+                            RhythmIcons.Queue,
                             context.getString(R.string.settings_playlist_action_dialog),
                             when (playlistClickBehavior) {
                                 "play_all" -> context.getString(R.string.settings_playlist_action_play_all)
@@ -955,7 +953,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                     )
                     add(
                         SettingItem(
-                            androidx.compose.material.icons.Icons.AutoMirrored.Rounded.Sort,
+                            RhythmIcons.Sort,
                             context.getString(R.string.settings_list_queue_action_dialog),
                             when (listQueueActionBehavior) {
                                 "ask" -> context.getString(R.string.settings_list_queue_action_ask)
@@ -993,7 +991,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                         onToggleChange = { appSettings.setQueuePersistenceEnabled(it) }
                     ),
                     SettingItem(
-                        androidx.compose.material.icons.Icons.Default.Stop,
+                        RhythmIcons.Stop,
                         context.getString(R.string.settings_stop_playback_on_close),
                         context.getString(R.string.settings_stop_playback_on_close_desc),
                         toggleState = stopPlaybackOnAppClose,
@@ -1005,7 +1003,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_audio_effects),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.GraphicEq,
+                        MaterialSymbolIcon("graphic_eq"),
                         context.getString(R.string.settings_gapless_playback),
                         context.getString(R.string.settings_gapless_playback_desc),
                         toggleState = gaplessEnabled,
@@ -1034,7 +1032,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_time_display),
                 items = listOf(
                     SettingItem(
-                        androidx.compose.material.icons.Icons.Default.AccessTime,
+                        RhythmIcons.AccessTime,
                         context.getString(R.string.settings_use_hours),
                         if (useHoursInTimeFormat) context.getString(R.string.settings_use_hours_enabled) else context.getString(R.string.settings_use_hours_disabled),
                         toggleState = useHoursInTimeFormat,
@@ -1150,7 +1148,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                         } else if (item.onClick != null) {
                             {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                                     contentDescription = context.getString(R.string.cd_navigate),
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1323,7 +1321,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.Help,
+                                        imageVector = MaterialSymbolIcon("help", filled = true),
                                         contentDescription = null,
                                         tint = if (playlistClickBehavior == "ask")
                                             MaterialTheme.colorScheme.onPrimary
@@ -1359,7 +1357,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
 
                             if (playlistClickBehavior == "ask") {
                                 Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = context.getString(R.string.ui_selected),
                                     
                                     modifier = Modifier.size(28.dp)
@@ -1410,7 +1408,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.QueueMusic,
+                                        imageVector = RhythmIcons.Queue,
                                         contentDescription = null,
                                         tint = if (playlistClickBehavior == "play_all")
                                             MaterialTheme.colorScheme.onPrimary
@@ -1446,7 +1444,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
 
                             if (playlistClickBehavior == "play_all") {
                                 Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(28.dp)
@@ -1533,7 +1531,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
 
                             if (playlistClickBehavior == "play_one") {
                                 Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(28.dp)
@@ -1626,12 +1624,12 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                         "replace" to Triple(
                             context.getString(R.string.list_queue_behavior_replace_title),
                             context.getString(R.string.list_queue_behavior_replace_desc),
-                            Icons.AutoMirrored.Filled.PlaylistPlay
+                            RhythmIcons.Playlist
                         ),
                         "ask" to Triple(
                             context.getString(R.string.list_queue_behavior_ask_title),
                             context.getString(R.string.list_queue_behavior_ask_desc),
-                            Icons.AutoMirrored.Filled.Help
+                            MaterialSymbolIcon("help", filled = true)
                         ),
                         "play_next" to Triple(
                             context.getString(R.string.list_queue_behavior_play_next_title),
@@ -1641,7 +1639,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                         "add_to_end" to Triple(
                             context.getString(R.string.list_queue_behavior_add_end_title),
                             context.getString(R.string.list_queue_behavior_add_end_desc),
-                            Icons.AutoMirrored.Filled.PlaylistAdd
+                            RhythmIcons.AddToPlaylist
                         )
                     )
 
@@ -1725,7 +1723,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
 
                                 if (isSelected) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = context.getString(R.string.ui_selected),
                                         modifier = Modifier.size(28.dp)
                                     )
@@ -1858,7 +1856,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.Help,
+                                        imageVector = MaterialSymbolIcon("help", filled = true),
                                         contentDescription = null,
                                         tint = if (showQueueDialog)
                                             MaterialTheme.colorScheme.onPrimary
@@ -1894,7 +1892,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
 
                             if (showQueueDialog) {
                                 Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(28.dp)
@@ -1945,7 +1943,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                        imageVector = RhythmIcons.AddToPlaylist,
                                         contentDescription = null,
                                         tint = if (!showQueueDialog)
                                             MaterialTheme.colorScheme.onPrimary
@@ -1981,7 +1979,7 @@ fun QueuePlaybackSettingsScreen(onBackClick: () -> Unit) {
 
                             if (!showQueueDialog) {
                                 Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(28.dp)
@@ -2067,7 +2065,7 @@ private fun ContextQueuePreferenceBottomSheet(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Filled.CheckCircle,
+                                imageVector = RhythmIcons.CheckCircle,
                                 contentDescription = context.getString(R.string.ui_selected),
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -2114,7 +2112,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             title = context.getString(R.string.settings_playlists_management),
             items = listOf(
                 SettingItem(
-                    Icons.Default.AddCircle,
+                    MaterialSymbolIcon("add_circle"),
                     context.getString(R.string.settings_create_new_playlist),
                     context.getString(R.string.settings_create_new_playlist_desc),
                     onClick = {
@@ -2123,7 +2121,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                     }
                 ),
                 SettingItem(
-                    Icons.Default.Upload,
+                    MaterialSymbolIcon("upload"),
                     context.getString(R.string.settings_import_playlists),
                     context.getString(R.string.settings_import_playlists_desc),
                     onClick = {
@@ -2132,7 +2130,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                     }
                 ),
                 SettingItem(
-                    Icons.Default.Download,
+                    RhythmIcons.Download,
                     context.getString(R.string.settings_export_all_playlists),
                     context.getString(R.string.settings_export_all_playlists_desc),
                     onClick = {
@@ -2142,7 +2140,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                 )
             ) + if (emptyPlaylists.isNotEmpty()) listOf(
                 SettingItem(
-                    Icons.Default.Delete,
+                    RhythmIcons.Delete,
                     context.getString(R.string.settings_cleanup_empty_playlists),
                     context.getString(R.string.settings_cleanup_empty_playlists_desc, emptyPlaylists.size, if (emptyPlaylists.size > 1) "s" else ""),
                     onClick = {
@@ -2156,7 +2154,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             title = context.getString(R.string.settings_default_playlists),
             items = listOf(
                 SettingItem(
-                    Icons.Default.LibraryMusic,
+                    RhythmIcons.Library,
                     context.getString(R.string.settings_enable_default_playlists),
                     context.getString(R.string.settings_enable_default_playlists_desc),
                     onClick = null,
@@ -2189,7 +2187,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             ) + if (defaultPlaylists.isNotEmpty()) {
                 defaultPlaylists.map { playlist ->
                     SettingItem(
-                        Icons.Default.MusicNote,
+                        RhythmIcons.MusicNote,
                         playlist.name,
                         "${playlist.songs.size} songs",
                         onClick = null, // No action for default playlists
@@ -2199,7 +2197,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             } else {
                 listOf(
                     SettingItem(
-                        Icons.Default.Info,
+                        RhythmIcons.Info,
                         context.getString(R.string.settings_no_default_playlists),
                         context.getString(R.string.settings_no_default_playlists_desc),
                         onClick = null
@@ -2212,7 +2210,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             items = if (userPlaylists.isNotEmpty()) {
                 userPlaylists.map { playlist ->
                     SettingItem(
-                        Icons.AutoMirrored.Filled.QueueMusic,
+                        RhythmIcons.Queue,
                         playlist.name,
                         "${playlist.songs.size} songs",
                         onClick = null, // No navigation
@@ -2222,7 +2220,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             } else {
                 listOf(
                     SettingItem(
-                        Icons.Default.Add,
+                        RhythmIcons.Add,
                         context.getString(R.string.settings_no_custom_playlists),
                         context.getString(R.string.settings_no_custom_playlists_desc),
                         onClick = {
@@ -2372,7 +2370,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                                             }
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.Delete,
+                                                imageVector = RhythmIcons.Delete,
                                                 contentDescription = context.getString(R.string.dialog_delete),
                                                 tint = MaterialTheme.colorScheme.error,
                                                 modifier = Modifier.size(20.dp)
@@ -2467,7 +2465,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             onDismissRequest = { showCleanupConfirmDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = RhythmIcons.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -2496,7 +2494,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = RhythmIcons.Delete,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2507,7 +2505,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             dismissButton = {
                 OutlinedButton(onClick = { showCleanupConfirmDialog = false }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2539,7 +2537,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             onDismissRequest = { playlistToDelete = null },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = RhythmIcons.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -2564,7 +2562,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = RhythmIcons.Delete,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2575,7 +2573,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
             dismissButton = {
                 OutlinedButton(onClick = { playlistToDelete = null }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2687,7 +2685,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
             title = context.getString(R.string.settings_mode_selection),
             items = listOf(
                 SettingItem(
-                    Icons.Default.Block,
+                    RhythmIcons.Block,
                     context.getString(R.string.settings_blacklist_mode),
                     context.getString(R.string.settings_blacklist_mode_desc),
                     toggleState = currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST,
@@ -2700,7 +2698,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     }
                 ),
                 SettingItem(
-                    Icons.Default.CheckCircle,
+                    RhythmIcons.CheckCircle,
                     context.getString(R.string.settings_whitelist_mode),
                     context.getString(R.string.settings_whitelist_mode_desc),
                     toggleState = currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST,
@@ -2718,7 +2716,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
             title = context.getString(R.string.settings_song_management),
             items = listOf(
                 SettingItem(
-                    Icons.AutoMirrored.Filled.QueueMusic,
+                    RhythmIcons.Queue,
                     context.getString(R.string.settings_manage_songs),
                     context.getString(R.string.settings_manage_songs_desc, filteredSongDetails.size, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
@@ -2727,7 +2725,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     }
                 ),
                 SettingItem(
-                    Icons.Default.Clear,
+                    MaterialSymbolIcon("clear"),
                     context.getString(R.string.settings_clear_all_songs),
                     context.getString(R.string.settings_clear_all_songs_desc, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
@@ -2745,7 +2743,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
             title = context.getString(R.string.settings_folder_management),
             items = listOf(
                 SettingItem(
-                    Icons.Default.Folder,
+                    RhythmIcons.Folder,
                     context.getString(R.string.settings_manage_folders),
                     context.getString(R.string.settings_manage_folders_desc, filteredFoldersList.size, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
@@ -2754,7 +2752,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     }
                 ),
                 SettingItem(
-                    Icons.Default.Add,
+                    RhythmIcons.Add,
                     context.getString(R.string.settings_add_folder),
                     context.getString(R.string.settings_add_folder_desc, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_block) else context.getString(R.string.settings_whitelist)),
                     onClick = {
@@ -2764,7 +2762,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     }
                 ),
                 SettingItem(
-                    Icons.Default.Clear,
+                    MaterialSymbolIcon("clear"),
                     context.getString(R.string.settings_clear_all_folders),
                     context.getString(R.string.settings_clear_all_folders_desc, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
@@ -2863,7 +2861,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         context = context,
                         hapticFeedback = haptic,
                         item = SettingItem(
-                            icon = Icons.Default.Visibility,
+                            icon = RhythmIcons.Visibility,
                             title = context.getString(R.string.settings_include_hidden_whitelisted_media),
                             description = context.getString(R.string.settings_include_hidden_whitelisted_media_desc),
                             toggleState = includeHiddenWhitelistedMedia,
@@ -2914,7 +2912,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -2930,15 +2928,15 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
 
                         MediaScanTipItem(
-                            icon = Icons.Default.Block,
+                            icon = RhythmIcons.Block,
                             text = context.getString(R.string.settings_quick_tip_blacklist)
                         )
                         MediaScanTipItem(
-                            icon = Icons.Default.CheckCircle,
+                            icon = RhythmIcons.CheckCircle,
                             text = context.getString(R.string.settings_quick_tip_whitelist)
                         )
                         MediaScanTipItem(
-                            icon = Icons.Default.Folder,
+                            icon = RhythmIcons.Folder,
                             text = context.getString(R.string.settings_quick_tip_folder)
                         )
                     }
@@ -3042,7 +3040,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) Icons.Default.Block else Icons.Default.CheckCircle,
+                                imageVector = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) RhythmIcons.Block else RhythmIcons.CheckCircle,
                                 contentDescription = null,
                                 tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                     MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
@@ -3077,7 +3075,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = Icons.Default.MusicNote,
+                                imageVector = RhythmIcons.MusicNote,
                                 contentDescription = null,
                                 
                                 modifier = Modifier.size(32.dp)
@@ -3138,7 +3136,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.MusicNote,
+                                        imageVector = RhythmIcons.MusicNote,
                                         contentDescription = null,
                                         tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.error
@@ -3183,7 +3181,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Close,
+                                        imageVector = RhythmIcons.Close,
                                         contentDescription = "Remove",
                                         tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
@@ -3212,7 +3210,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.DeleteSweep,
+                            imageVector = MaterialSymbolIcon("delete_sweep", filled = true),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -3313,7 +3311,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) Icons.Default.FolderOff else Icons.Default.Folder,
+                            imageVector = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) MaterialSymbolIcon("folder_off") else RhythmIcons.Folder,
                             contentDescription = null,
                             tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                 MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
@@ -3370,7 +3368,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Folder,
+                                        imageVector = RhythmIcons.Folder,
                                         contentDescription = null,
                                         tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
@@ -3414,7 +3412,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Close,
+                                        imageVector = RhythmIcons.Close,
                                         contentDescription = context.getString(R.string.cd_remove),
                                         tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
@@ -3443,7 +3441,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Add,
+                            imageVector = RhythmIcons.Add,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -3471,7 +3469,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.DeleteSweep,
+                                imageVector = MaterialSymbolIcon("delete_sweep", filled = true),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -3513,7 +3511,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.artist_multi_parsing),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Person,
+                        RhythmIcons.Artist,
                         context.getString(R.string.artist_enable_separation),
                         context.getString(R.string.artist_enable_separation_desc),
                         toggleState = artistSeparatorEnabled,
@@ -3523,7 +3521,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.Settings,
+                        RhythmIcons.Settings,
                         context.getString(R.string.artist_configure_delimiters),
                         context.getString(R.string.artist_current_delimiters, artistSeparatorDelimiters.toCharArray().joinToString(", ")),
                         onClick = {
@@ -3538,7 +3536,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.artist_library_organization),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Album,
+                        RhythmIcons.Album,
                         context.getString(R.string.artist_group_by_album_artist),
                         context.getString(R.string.artist_group_by_album_artist_desc),
                         toggleState = groupByAlbumArtist,
@@ -3610,7 +3608,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -3649,7 +3647,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb"),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.size(24.dp)
@@ -3976,7 +3974,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Refresh,
+                                imageVector = RhythmIcons.Refresh,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -4015,7 +4013,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -4044,7 +4042,7 @@ private fun ArtistSeparatorExampleItem(original: String, result: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.MusicNote,
+                imageVector = RhythmIcons.MusicNote,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f),
                 modifier = Modifier.size(16.dp)
@@ -4062,7 +4060,7 @@ private fun ArtistSeparatorExampleItem(original: String, result: String) {
             modifier = Modifier.padding(start = 24.dp, top = 2.dp)
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = RhythmIcons.Forward,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4f),
                 modifier = Modifier.size(14.dp)
@@ -4341,22 +4339,22 @@ fun AboutScreen(
 
                 val detailsItems = listOf(
                     Material3SettingsItem(
-                        icon = Icons.Default.Info,
+                        icon = RhythmIcons.Info,
                         title = { Text(context.getString(R.string.settings_about_version_label)) },
                         description = { Text(BuildConfig.VERSION_NAME) }
                     ),
                     Material3SettingsItem(
-                        icon = Icons.Default.Build,
+                        icon = MaterialSymbolIcon("build"),
                         title = { Text(context.getString(R.string.settings_about_build)) },
                         description = { Text("${BuildConfig.VERSION_CODE} • $buildVariant") }
                     ),
                     Material3SettingsItem(
-                        icon = Icons.Default.DeveloperMode,
+                        icon = MaterialSymbolIcon("developer_mode"),
                         title = { Text(context.getString(R.string.settings_about_target_sdk)) },
                         description = { Text(appInfo.targetSdkVersion.toString()) }
                     ),
                     Material3SettingsItem(
-                        icon = Icons.Default.Memory,
+                        icon = MaterialSymbolIcon("memory"),
                         title = { Text(context.getString(R.string.settings_about_architecture)) },
                         description = { Text(detectedAbis) }
                     )
@@ -4405,7 +4403,7 @@ fun AboutScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.LocalCafe,
+                                imageVector = MaterialSymbolIcon("local_cafe", filled = true),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -4583,7 +4581,7 @@ fun AboutScreen(
                         context = context,
                         hapticFeedback = haptics,
                         item = SettingItem(
-                            icon = Icons.Rounded.Language,
+                            icon = RhythmIcons.Language,
                             title = context.getString(R.string.settings_about_visit_website),
                             description = "rhythmweb.vercel.app",
                             onClick = { openUrl("https://rhythmweb.vercel.app/") }
@@ -4593,7 +4591,7 @@ fun AboutScreen(
                         context = context,
                         hapticFeedback = haptics,
                         item = SettingItem(
-                            icon = Icons.Rounded.Code,
+                            icon = RhythmIcons.Code,
                             title = context.getString(R.string.settings_about_view_github),
                             description = "github.com/cromaguy/Rhythm",
                             onClick = { openUrl("https://github.com/cromaguy/Rhythm") }
@@ -4603,7 +4601,7 @@ fun AboutScreen(
                         context = context,
                         hapticFeedback = haptics,
                         item = SettingItem(
-                            icon = Icons.Rounded.BugReport,
+                            icon = RhythmIcons.BugReport,
                             title = context.getString(R.string.settings_about_report_bug),
                             description = "github.com/cromaguy/Rhythm/issues",
                             onClick = { openUrl("https://github.com/cromaguy/Rhythm/issues") }
@@ -4623,7 +4621,7 @@ fun AboutScreen(
                         context = context,
                         hapticFeedback = haptics,
                         item = SettingItem(
-                            icon = Icons.AutoMirrored.Rounded.Chat,
+                            icon = MaterialSymbolIcon("chat", filled = true),
                             title = "Discord Community",
                             description = "discord.gg/XjPyUYPQYc",
                             onClick = { openUrl("https://discord.gg/XjPyUYPQYc") }
@@ -4633,7 +4631,7 @@ fun AboutScreen(
                         context = context,
                         hapticFeedback = haptics,
                         item = SettingItem(
-                            icon = Icons.AutoMirrored.Rounded.Send,
+                            icon = MaterialSymbolIcon("send", filled = true),
                             title = "Telegram Support",
                             description = "t.me/RhythmSupport",
                             onClick = { openUrl("https://t.me/RhythmSupport") }
@@ -4688,7 +4686,7 @@ private fun CommunityMember(
             .padding(10.dp)
     ) {
         // Avatar with fallback
-        val fallbackPainter = rememberVectorPainter(RhythmIcons.ArtistFilled)
+        val fallbackPainter = painterResource(id = chromahub.rhythm.app.R.drawable.ic_music_note)
 
         AsyncImage(
             model = ImageRequest.Builder(context)
@@ -4726,7 +4724,7 @@ private fun CommunityMember(
                 modifier = Modifier.padding(top = 4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Link,
+                    imageVector = RhythmIcons.Link,
                     contentDescription = null,
                     modifier = Modifier.size(12.dp),
                     tint = MaterialTheme.colorScheme.primary
@@ -4740,7 +4738,7 @@ private fun CommunityMember(
                 if (supportUrl != null) {
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
-                        imageVector = Icons.Rounded.LocalCafe,
+                        imageVector = MaterialSymbolIcon("local_cafe", filled = true),
                         contentDescription = "Support",
                         modifier = Modifier.size(12.dp),
                         tint = Color(0xFF13C3FF)
@@ -5031,12 +5029,12 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
 
     // Determine status components
     val statusIcon = when {
-        activeError != null -> Icons.Rounded.BugReport
-        activeDownloadedFile != null -> Icons.Rounded.CheckCircle
-        activeIsDownloading -> Icons.Rounded.Autorenew
+        activeError != null -> RhythmIcons.BugReport
+        activeDownloadedFile != null -> RhythmIcons.CheckCircle
+        activeIsDownloading -> MaterialSymbolIcon("autorenew", filled = true)
         activeUpdateAvailable -> RhythmIcons.Download
-        !updatesEnabled -> Icons.Rounded.UpdateDisabled
-        else -> Icons.Rounded.SystemUpdate
+        !updatesEnabled -> MaterialSymbolIcon("update_disabled", filled = true)
+        else -> RhythmIcons.SystemUpdate
     }
 
     val statusColor = when {
@@ -5096,7 +5094,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    imageVector = RhythmIcons.Back,
                                     contentDescription = "Back",
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
@@ -5288,7 +5286,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Close,
+                                            imageVector = RhythmIcons.Close,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -5337,7 +5335,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                         Icon(
                                             imageVector = if (!simulateEnabled && (error?.contains("unknown sources", ignoreCase = true) == true ||
                                                               error?.contains("install from unknown", ignoreCase = true) == true))
-                                                Icons.Rounded.Settings else Icons.Rounded.Refresh,
+                                                RhythmIcons.SettingsFilled else RhythmIcons.Refresh,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -5362,7 +5360,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                     shape = RoundedCornerShape(20.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.SystemUpdate,
+                                        imageVector = RhythmIcons.SystemUpdate,
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -5395,7 +5393,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                     shape = RoundedCornerShape(20.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Block,
+                                        imageVector = RhythmIcons.Block,
                                         contentDescription = null,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -5432,7 +5430,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = null,
                                         modifier = Modifier.size(22.dp)
                                     )
@@ -5512,7 +5510,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                             shape = RoundedCornerShape(20.dp)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Search,
+                                                imageVector = RhythmIcons.SearchFilled,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -5531,7 +5529,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                             border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Autorenew,
+                                                imageVector = MaterialSymbolIcon("autorenew", filled = true),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -5563,7 +5561,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Refresh,
+                                            imageVector = RhythmIcons.Refresh,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -5767,7 +5765,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 val updateSettingsItems = buildList {
                     add(
                         SettingItem(
-                            Icons.Default.SystemUpdate,
+                            RhythmIcons.SystemUpdate,
                             context.getString(R.string.updates_enable),
                             context.getString(R.string.updates_enable_updates),
                             toggleState = updatesEnabled,
@@ -5777,7 +5775,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                     if (updatesEnabled) {
                         add(
                             SettingItem(
-                                Icons.Default.Update,
+                                RhythmIcons.Update,
                                 context.getString(R.string.onboarding_periodic_check_title),
                                 context.getString(R.string.onboarding_periodic_check_desc),
                                 toggleState = autoCheckForUpdates,
@@ -5786,7 +5784,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                         )
                         add(
                             SettingItem(
-                                Icons.Default.CloudSync,
+                                MaterialSymbolIcon("cloud_sync"),
                                 context.getString(R.string.onboarding_smart_polling_title),
                                 context.getString(R.string.onboarding_smart_polling_desc),
                                 toggleState = useSmartUpdatePolling,
@@ -5795,7 +5793,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                         )
                         add(
                             SettingItem(
-                                Icons.Default.Category,
+                                RhythmIcons.Category,
                                 context.getString(R.string.updates_channel_title),
                                 "${updateChannel.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }} - Tap to change",
                                 onClick = { showChannelDialog = true }
@@ -5803,7 +5801,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                         )
                         add(
                             SettingItem(
-                                Icons.Default.Category,
+                                RhythmIcons.Category,
                                 context.getString(R.string.updates_source_title),
                                 getUpdateSourceLabel(context, updateSource),
                                 onClick = { showSourceDialog = true }
@@ -5811,7 +5809,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                         )
                         add(
                             SettingItem(
-                                Icons.Default.Schedule,
+                                RhythmIcons.AccessTime,
                                 context.getString(R.string.updates_check_interval_title),
                                 updateIntervalLabel,
                                 onClick = { showIntervalDialog = true }
@@ -5849,7 +5847,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.size(24.dp)
@@ -5899,7 +5897,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
 //                                horizontalArrangement = Arrangement.spacedBy(8.dp)
 //                            ) {
 //                                Icon(
-//                                    imageVector = Icons.Default.Science,
+//                                    imageVector = MaterialSymbolIcon("science"),
 //                                    contentDescription = null,
 //                                    tint = MaterialTheme.colorScheme.secondary,
 //                                    modifier = Modifier.size(24.dp)
@@ -6225,7 +6223,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
             onDismissRequest = { showChannelDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Category,
+                    imageVector = RhythmIcons.Category,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -6280,7 +6278,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 }
                                 if (updateChannel == channel) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -6293,7 +6291,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
             confirmButton = {
                 OutlinedButton(onClick = { showChannelDialog = false }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -6311,7 +6309,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
             onDismissRequest = { showIntervalDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Schedule,
+                    imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -6355,7 +6353,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 )
                                 if (updateCheckIntervalHours == hours) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -6368,7 +6366,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
             confirmButton = {
                 OutlinedButton(onClick = { showIntervalDialog = false }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -6385,7 +6383,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
             onDismissRequest = { showSourceDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Category,
+                    imageVector = RhythmIcons.Category,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -6444,7 +6442,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 }
                                 if (updateSource == source) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -6473,7 +6471,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
     val showLyrics by appSettings.showLyrics.collectAsState()
     val showLyricsTranslation by appSettings.showLyricsTranslation.collectAsState()
     val showLyricsRomanization by appSettings.showLyricsRomanization.collectAsState()
-    val bitPerfectMode by appSettings.bitPerfectMode.collectAsState()
+    val skipSilenceEnabled by appSettings.skipSilenceEnabled.collectAsState()
     val audioRoutingMode by appSettings.audioRoutingMode.collectAsState()
     val haptic = LocalHapticFeedback.current
     
@@ -6502,14 +6500,12 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                     title = context.getString(R.string.settings_audio_effects),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.HighQuality,
-                            context.getString(R.string.settings_bit_perfect_mode),
-                            if (audioRoutingMode == "app") context.getString(R.string.settings_bit_perfect_mode_desc_dac) else context.getString(R.string.settings_bit_perfect_mode_desc_native),
-                            toggleState = bitPerfectMode,
+                            MaterialSymbolIcon("hearing"),
+                            context.getString(R.string.settings_skip_silence),
+                            context.getString(R.string.settings_skip_silence_desc),
+                            toggleState = skipSilenceEnabled,
                             onToggleChange = {
-                                appSettings.setBitPerfectMode(it)
-                                showRestartDialog = true
-                                restartDialogMessage = "High-resolution audio mode changed. Restart the app to apply the new audio settings."
+                                appSettings.setSkipSilenceEnabled(it)
                             }
                         )
                     )
@@ -6522,14 +6518,14 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                     items = if (showLyrics) {
                         listOf(
                             SettingItem(
-                                Icons.Rounded.Translate,
+                                MaterialSymbolIcon("translate", filled = true),
                                 context.getString(R.string.settings_lyrics_show_translation),
                                 context.getString(R.string.settings_lyrics_show_translation_desc),
                                 toggleState = showLyricsTranslation,
                                 onToggleChange = { appSettings.setShowLyricsTranslation(it) }
                             ),
                             SettingItem(
-                                Icons.Rounded.Language,
+                                RhythmIcons.Language,
                                 context.getString(R.string.settings_lyrics_show_romanization),
                                 context.getString(R.string.settings_lyrics_show_romanization_desc),
                                 toggleState = showLyricsRomanization,
@@ -6539,7 +6535,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                     } else {
                         listOf(
                             SettingItem(
-                                Icons.Default.Info,
+                                RhythmIcons.Info,
                                 context.getString(R.string.settings_show_lyrics_player),
                                 context.getString(R.string.settings_show_lyrics_player_desc)
                             )
@@ -6554,40 +6550,40 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                     title = context.getString(R.string.exp_developer_debugging),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.Code,
+                            RhythmIcons.Code,
                             context.getString(R.string.exp_codec_monitoring),
                             context.getString(R.string.exp_codec_monitoring_desc),
                             toggleState = appSettings.codecMonitoringEnabled.collectAsState().value,
                             onToggleChange = { appSettings.setCodecMonitoringEnabled(it) }
                         ),
                         SettingItem(
-                            Icons.Default.Headphones,
+                            RhythmIcons.Headphones,
                             context.getString(R.string.exp_audio_device_logging),
                             context.getString(R.string.exp_audio_device_logging_desc),
                             toggleState = appSettings.audioDeviceLoggingEnabled.collectAsState().value,
                             onToggleChange = { appSettings.setAudioDeviceLoggingEnabled(it) }
                         ),
                         SettingItem(
-                            Icons.Default.RestartAlt,
+                            MaterialSymbolIcon("restart_alt"),
                             context.getString(R.string.exp_launch_onboarding),
                             context.getString(R.string.exp_launch_onboarding_desc),
                             onClick = { appSettings.setOnboardingCompleted(false) }
                         ),
                         SettingItem(
-                            Icons.Default.BugReport,
+                            RhythmIcons.BugReport,
                             context.getString(R.string.exp_test_crash),
                             context.getString(R.string.exp_test_crash_desc),
                             onClick = { chromahub.rhythm.app.util.CrashReporter.testCrash() }
                         ),
                         SettingItem(
-                            Icons.Default.Smartphone,
+                            MaterialSymbolIcon("smartphone"),
                             context.getString(R.string.exp_force_player_compact_mode),
                             context.getString(R.string.exp_force_player_compact_mode_desc),
                             toggleState = forcePlayerCompactMode,
                             onToggleChange = { appSettings.setForcePlayerCompactMode(it) }
                         ),
                         SettingItem(
-                            Icons.Default.CloudQueue,
+                            MaterialSymbolIcon("cloud_queue"),
                             context.getString(R.string.exp_go_mode),
                             context.getString(R.string.exp_go_mode_desc),
                             toggleState = appMode == "STREAMING",
@@ -6606,28 +6602,28 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                     title = context.getString(R.string.exp_third_party_integrations),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.MusicNote,
+                            RhythmIcons.MusicNote,
                             context.getString(R.string.scrobbling_enabled),
                             context.getString(R.string.scrobbling_desc),
                             toggleState = scrobblingEnabled,
                             onToggleChange = { appSettings.setScrobblingEnabled(it) }
                         ),
                         SettingItem(
-                            Icons.Default.Forum,
+                            MaterialSymbolIcon("forum"),
                             context.getString(R.string.discord_enabled),
                             context.getString(R.string.discord_desc),
                             toggleState = discordRichPresenceEnabled,
                             onToggleChange = { appSettings.setDiscordRichPresenceEnabled(it) }
                         ),
                         SettingItem(
-                            Icons.Default.Wifi,
+                            MaterialSymbolIcon("wifi"),
                             context.getString(R.string.broadcast_status_enabled),
                             context.getString(R.string.broadcast_status_desc),
                             toggleState = broadcastStatusEnabled,
                             onToggleChange = { appSettings.setBroadcastStatusEnabled(it) }
                         ),
                         SettingItem(
-                            Icons.Default.Lyrics,
+                            MaterialSymbolIcon("lyrics"),
                             context.getString(R.string.bluetooth_lyrics_enabled),
                             context.getString(R.string.bluetooth_lyrics_desc),
                             toggleState = bluetoothLyricsEnabled,
@@ -6697,7 +6693,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Headphones,
+                                        imageVector = RhythmIcons.Headphones,
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -6738,9 +6734,6 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                                     }
                                     1 -> {
                                         appSettings.setAudioRoutingMode("app")
-                                        if (!appSettings.bitPerfectMode.value) {
-                                            appSettings.setBitPerfectMode(true)
-                                        }
                                         showRestartDialog = true
                                         restartDialogMessage = "Audio routing changed to App mode. Restart the app to apply the changes."
                                     }
@@ -6783,7 +6776,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Science,
+                            imageVector = MaterialSymbolIcon("science"),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(24.dp)
@@ -6834,7 +6827,7 @@ private fun getUpdateSourceLabel(context: Context, source: String): String {
 private fun DecorationToggleCard(
     title: String,
     description: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     isEnabled: Boolean,
     onToggle: (Boolean) -> Unit
 ) {
@@ -6972,8 +6965,8 @@ private fun FestivalSelectionBottomSheet(
 
             // Festival Options
             val festivals = listOf(
-                Triple("CHRISTMAS", context.getString(R.string.settings_festival_christmas), Icons.Default.AcUnit),
-                Triple("NEW_YEAR", context.getString(R.string.settings_festival_new_year), Icons.Default.Celebration)
+                Triple("CHRISTMAS", context.getString(R.string.settings_festival_christmas), MaterialSymbolIcon("ac_unit")),
+                Triple("NEW_YEAR", context.getString(R.string.settings_festival_new_year), MaterialSymbolIcon("celebration"))
             )
 
             Column(
@@ -7039,7 +7032,7 @@ private fun FestivalSelectionBottomSheet(
 
                             if (isSelected) {
                                 Icon(
-                                    imageVector = Icons.Default.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = context.getString(R.string.ui_selected),
                                     
                                     modifier = Modifier.size(24.dp)
@@ -7067,7 +7060,7 @@ private fun FestivalSelectionBottomSheet(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = RhythmIcons.Info,
                         contentDescription = null,
                         
                         modifier = Modifier.size(20.dp)
@@ -7167,17 +7160,17 @@ fun LyricsSourceDialog(
                 chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.EMBEDDED_FIRST to Triple(
                     "Embedded First",
                     "Try audio file metadata → Online APIs → .lrc files",
-                    Icons.Default.MusicNote
+                    RhythmIcons.MusicNote
                 ),
                 chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.API_FIRST to Triple(
                     "API First",
                     "Try online services → Audio metadata → .lrc files",
-                    Icons.Default.CloudDownload
+                    RhythmIcons.CloudDownload
                 ),
                 chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.LOCAL_FIRST to Triple(
                     "Local .lrc First",
                     "Try .lrc files → Audio metadata → Online APIs",
-                    Icons.Default.Folder
+                    RhythmIcons.Folder
                 )
             )
 
@@ -7241,7 +7234,7 @@ fun LyricsSourceDialog(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Default.CheckCircle,
+                                imageVector = RhythmIcons.CheckCircle,
                                 contentDescription = "Selected",
                                 
                                 modifier = Modifier.size(24.dp)
@@ -7266,7 +7259,7 @@ fun LyricsSourceDialog(
                     verticalAlignment = Alignment.Top
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = RhythmIcons.Info,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(20.dp)
@@ -7315,20 +7308,20 @@ fun LibrarySettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_library_group_organization),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Star,
+                        MaterialSymbolIcon("star"),
                         context.getString(R.string.settings_song_ratings),
                         context.getString(R.string.settings_song_ratings_desc),
                         toggleState = enableRatingSystem,
                         onToggleChange = { appSettings.setEnableRatingSystem(it) }
                     ),
                     SettingItem(
-                        Icons.Default.Reorder,
+                        MaterialSymbolIcon("reorder"),
                         context.getString(R.string.settings_library_tab_order),
                         context.getString(R.string.settings_library_tab_order_desc),
                         onClick = { showLibraryTabOrderBottomSheet = true }
                     ),
                     SettingItem(
-                        Icons.Default.Album,
+                        RhythmIcons.Album,
                         context.getString(R.string.settings_library_combine_discs),
                         context.getString(R.string.settings_library_combine_discs_desc),
                         toggleState = libraryCombineDiscs,
@@ -7354,7 +7347,7 @@ fun LibrarySettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.MusicNote,
+                        RhythmIcons.MusicNote,
                         context.getString(R.string.settings_lossless_artwork),
                         context.getString(R.string.settings_lossless_artwork_desc),
                         toggleState = losslessArtwork,
@@ -7368,7 +7361,7 @@ fun LibrarySettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.LensBlur,
+                        MaterialSymbolIcon("lens_blur"),
                         context.getString(R.string.settings_album_bottom_sheet_gradient_blur),
                         context.getString(R.string.settings_album_bottom_sheet_gradient_blur_desc),
                         toggleState = albumBottomSheetGradientBlur,
@@ -7692,7 +7685,7 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
                         value = formattedTotalExposure,
                         subtitle = "/$formattedDailyTarget",
                         progress = (totalExposureMinutes / maxOf(effectiveExposureLimitMinutes, 1).toFloat()).coerceIn(0f, 1f),
-                        icon = Icons.Default.Schedule,
+                        icon = RhythmIcons.AccessTime,
                         isWarning = showExposureWarning,
                         modifier = Modifier.weight(1f)
                     )
@@ -7702,7 +7695,7 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
                         value = "$currentVolumePercent%",
                         subtitle = "of ${activeThresholdPercent}%",
                         progress = (currentSystemVolume / maxOf(activeVolumeThreshold, 0.01f)).coerceIn(0f, 1f),
-                        icon = Icons.Default.GraphicEq,
+                        icon = MaterialSymbolIcon("graphic_eq"),
                         isWarning = showVolumeWarning,
                         modifier = Modifier.weight(1f)
                     )
@@ -7732,7 +7725,7 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Security,
+                                        imageVector = RhythmIcons.Security,
                                         contentDescription = null,
                                         modifier = Modifier.size(24.dp),
                                         tint = guardStatusAccentColor
@@ -7841,7 +7834,7 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
             item {
                 val outputSettingItems = listOf(
                     SettingItem(
-                        Icons.Default.Speaker,
+                        RhythmIcons.Speaker,
                         context.getString(R.string.settings_rhythm_guard_device_controls_speaker_limit_title),
                         context.getString(R.string.settings_rhythm_guard_device_controls_speaker_limit_desc),
                         toggleState = rhythmGuardApplyVolumeLimitOnSpeaker,
@@ -8118,14 +8111,14 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
                 item {
                     val manualSettingItems = listOf(
                         SettingItem(
-                            Icons.Default.Warning,
+                            RhythmIcons.Warning,
                             context.getString(R.string.settings_rhythm_guard_manual_warning_toggle),
                             context.getString(R.string.settings_rhythm_guard_manual_warning_toggle_desc),
                             toggleState = manualWarningsEnabled,
                             onToggleChange = { appSettings.setRhythmGuardManualWarningsEnabled(it) }
                         ),
                         SettingItem(
-                            Icons.Default.Stop,
+                            RhythmIcons.Stop,
                             context.getString(R.string.settings_stop_playback_on_zero_volume),
                             context.getString(R.string.settings_stop_playback_on_zero_volume_desc),
                             toggleState = stopPlaybackOnZeroVolume,
@@ -8380,7 +8373,7 @@ private fun RhythmGuardOverviewGauge(
     value: String,
     progress: Float,
     isWarning: Boolean,
-    icon: ImageVector
+    icon: MaterialSymbolIcon
 ) {
     val progressValue = progress.coerceIn(0f, 1f)
     val progressPercent = (progressValue * 100f).toInt()
@@ -8590,7 +8583,7 @@ private fun RhythmGuardHeroCard(
     value: String,
     subtitle: String,
     progress: Float,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     isWarning: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -8908,7 +8901,7 @@ private fun RhythmGuardOverallHealthCard(
                 trackColor = Color.Transparent
             )
             Icon(
-                imageVector = Icons.Default.Security,
+                imageVector = RhythmIcons.Security,
                 contentDescription = null,
                 tint = indicatorColor,
                 modifier = Modifier.size(46.dp)
@@ -9051,7 +9044,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.PieChart,
+                                imageVector = MaterialSymbolIcon("pie_chart", filled = true),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -9160,7 +9153,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Filled.DataUsage,
+                                icon = MaterialSymbolIcon("data_usage", filled = true),
                                 title = context.getString(R.string.cache_max_size),
                                 description = "${String.format("%.1f", maxCacheSize / (1024f * 1024f))} MB",
                                 onClick = { showCacheSizeDialog = true }
@@ -9170,7 +9163,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Filled.AutoDelete,
+                                icon = MaterialSymbolIcon("auto_delete", filled = true),
                                 title = context.getString(R.string.cache_clear_on_exit),
                                 description = context.getString(R.string.settings_cache_clear_on_exit_desc),
                                 toggleState = clearCacheOnExit,
@@ -9197,7 +9190,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Filled.MusicNote,
+                                icon = RhythmIcons.MusicNote,
                                 title = context.getString(R.string.settings_clear_lyrics_cache),
                                 description = context.getString(R.string.settings_clear_lyrics_cache_desc),
                                 onClick = {
@@ -9218,7 +9211,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             )
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Filled.DeleteSweep,
+                            icon = MaterialSymbolIcon("delete_sweep", filled = true),
                             title = { Text(context.getString(R.string.settings_clear_all_cache)) },
                             description = { Text(context.getString(R.string.settings_clear_all_cache_desc)) },
                             trailingContent = {
@@ -9230,7 +9223,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                     )
                                 } else {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                                         contentDescription = context.getString(R.string.cd_navigate),
                                         modifier = Modifier.size(16.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -9280,7 +9273,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                 Material3SettingsGroup(
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Filled.TableChart,
+                            icon = MaterialSymbolIcon("table_chart", filled = true),
                             title = { Text(context.getString(R.string.settings_storage_room_stats)) },
                             description = {
                                 Text(
@@ -9296,7 +9289,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Filled.Sync,
+                                icon = MaterialSymbolIcon("sync", filled = true),
                                 title = context.getString(R.string.settings_storage_rebuild_room),
                                 description = context.getString(R.string.settings_storage_rebuild_room_desc),
                                 onClick = {
@@ -9353,7 +9346,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.padding(bottom = 12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -9377,7 +9370,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                 modifier = Modifier.padding(vertical = 6.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.FiberManualRecord,
+                                    imageVector = MaterialSymbolIcon("fiber_manual_record", filled = true),
                                     contentDescription = null,
                                     modifier = Modifier.size(8.dp),
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
@@ -9578,7 +9571,7 @@ fun CacheSizeDialog(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Save,
+                    imageVector = MaterialSymbolIcon("save", filled = true),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -9589,7 +9582,7 @@ fun CacheSizeDialog(
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -9604,7 +9597,7 @@ fun CacheSizeDialog(
 // BackupInfoItem composable for displaying backup information
 @Composable
 private fun BackupInfoItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -9848,7 +9841,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = if (lastBackupTimestamp > 0) Icons.Filled.CheckCircle else Icons.Filled.Warning,
+                                imageVector = if (lastBackupTimestamp > 0) RhythmIcons.CheckCircle else RhythmIcons.Warning,
                                 contentDescription = null,
                                 tint = if (lastBackupTimestamp > 0)
                                     MaterialTheme.colorScheme.onPrimaryContainer
@@ -9896,7 +9889,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = if (autoBackupEnabled) Icons.Filled.Autorenew else Icons.Filled.Schedule,
+                                imageVector = if (autoBackupEnabled) MaterialSymbolIcon("autorenew", filled = true) else RhythmIcons.AccessTime,
                                 contentDescription = null,
                                 tint = if (autoBackupEnabled)
                                     MaterialTheme.colorScheme.onTertiaryContainer
@@ -9940,7 +9933,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Folder,
+                                imageVector = RhythmIcons.Folder,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.size(16.dp)
@@ -9963,7 +9956,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                     title = context.getString(R.string.settings_backup_settings),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.Autorenew,
+                            MaterialSymbolIcon("autorenew"),
                             context.getString(R.string.settings_auto_backup),
                             context.getString(R.string.settings_auto_backup_desc),
                             toggleState = autoBackupEnabled,
@@ -9979,7 +9972,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                     title = context.getString(R.string.settings_backup_actions),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.Save,
+                            MaterialSymbolIcon("save"),
                             context.getString(R.string.settings_create_backup),
                             context.getString(R.string.settings_create_backup_desc),
                             onClick = {
@@ -9996,7 +9989,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                     title = context.getString(R.string.settings_restore_actions),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.ContentCopy,
+                            RhythmIcons.ContentCopy,
                             context.getString(R.string.settings_restore_clipboard),
                             context.getString(R.string.settings_restore_clipboard_desc),
                             onClick = {
@@ -10007,7 +10000,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                             }
                         ),
                         SettingItem(
-                            Icons.Default.FolderOpen,
+                            RhythmIcons.FolderOpen,
                             context.getString(R.string.settings_restore_file),
                             context.getString(R.string.settings_restore_file_desc),
                             onClick = {
@@ -10057,7 +10050,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -10073,15 +10066,15 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
 
                         BackupInfoItem(
-                            icon = Icons.Filled.Save,
+                            icon = MaterialSymbolIcon("save", filled = true),
                             text = context.getString(R.string.backup_all_settings_placeholder)
                         )
                         BackupInfoItem(
-                            icon = Icons.Filled.RestoreFromTrash,
+                            icon = MaterialSymbolIcon("restore_from_trash", filled = true),
                             text = context.getString(R.string.backup_restore_tap_placeholder)
                         )
                         BackupInfoItem(
-                            icon = Icons.Filled.Security,
+                            icon = RhythmIcons.Security,
                             text = context.getString(R.string.backup_local_storage_placeholder)
                         )
                     }
@@ -10097,7 +10090,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
             title = "Choose Backup Sections",
             subtitle = "Select what to include in this backup file.",
             confirmLabel = context.getString(R.string.settings_backup_action_short),
-            confirmIcon = Icons.Default.Backup,
+            confirmIcon = MaterialSymbolIcon("backup"),
             sections = backupSections,
             isProcessing = isCreatingBackup,
             onSectionsChange = { backupSections = it },
@@ -10129,7 +10122,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
             title = "Choose Restore Sections",
             subtitle = "Select which sections from the backup should be restored.",
             confirmLabel = context.getString(R.string.settings_restore_action_short),
-            confirmIcon = Icons.Default.SystemUpdateAlt,
+            confirmIcon = MaterialSymbolIcon("system_update_alt"),
             sections = restoreSections,
             isProcessing = isPreparingRestore,
             onSectionsChange = { restoreSections = it },
@@ -10183,7 +10176,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
     title: String,
     subtitle: String,
     confirmLabel: String,
-    confirmIcon: ImageVector,
+    confirmIcon: MaterialSymbolIcon,
     sections: AppSettings.BackupRestoreSections,
     isProcessing: Boolean,
     onSectionsChange: (AppSettings.BackupRestoreSections) -> Unit,
@@ -10264,7 +10257,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.Default.Tune,
+                                    imageVector = RhythmIcons.Tune,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.size(20.dp)
@@ -10327,7 +10320,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 BackupRestoreSectionRow(
-                    icon = Icons.Default.Settings,
+                    icon = RhythmIcons.Settings,
                     title = "General Settings",
                     description = "Theme, player, UI, API, and app preferences.",
                     checked = sections.includeGeneralSettings,
@@ -10336,7 +10329,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
                 )
 
                 BackupRestoreSectionRow(
-                    icon = Icons.Default.LibraryMusic,
+                    icon = RhythmIcons.Library,
                     title = "Library Data",
                     description = "Playlists, favorites, blacklist/whitelist, pinned folders.",
                     checked = sections.includeLibraryData,
@@ -10345,7 +10338,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
                 )
 
                 BackupRestoreSectionRow(
-                    icon = Icons.Default.AutoGraph,
+                    icon = MaterialSymbolIcon("auto_graph"),
                     title = "Stats & Rhythm Guard",
                     description = "Play counts, daily stats, genres, and Rhythm Guard configuration.",
                     checked = sections.includeStatsAndRhythmGuard,
@@ -10369,7 +10362,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
                     isStart = true
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -10406,7 +10399,7 @@ private fun BackupRestoreSectionPickerBottomSheet(
 
 @Composable
 private fun BackupRestoreSectionRow(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     checked: Boolean,
@@ -10575,7 +10568,7 @@ private fun BackupRestoreResultBottomSheet(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = if (state.isError) Icons.Default.Close else Icons.Default.Check,
+                                imageVector = if (state.isError) RhythmIcons.Close else RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = if (state.isError) {
                                     MaterialTheme.colorScheme.onError
@@ -10614,7 +10607,7 @@ private fun BackupRestoreResultBottomSheet(
                         isStart = true
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = RhythmIcons.Close,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -10629,9 +10622,9 @@ private fun BackupRestoreResultBottomSheet(
                     ) {
                         Icon(
                             imageVector = if (state.isError) {
-                                Icons.Default.Refresh
+                                RhythmIcons.Refresh
                             } else {
-                                Icons.Default.Check
+                                RhythmIcons.Check
                             },
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
@@ -10654,7 +10647,7 @@ private fun BackupRestoreResultBottomSheet(
                         isEnd = true
                     ) {
                         Icon(
-                            imageVector = Icons.Default.RestartAlt,
+                            imageVector = MaterialSymbolIcon("restart_alt"),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -10680,13 +10673,13 @@ fun LibraryTabOrderSettingsScreen(onBackClick: () -> Unit) {
     var reorderableList by remember { mutableStateOf(tabOrder.toList()) }
 
     // Helper function to get display name and icon for tab
-    fun getTabInfo(tabId: String): Pair<String, ImageVector> {
+    fun getTabInfo(tabId: String): Pair<String, MaterialSymbolIcon> {
         return when (tabId) {
             "SONGS" -> Pair("Songs", RhythmIcons.Relax)
             "PLAYLISTS" -> Pair("Playlists", RhythmIcons.PlaylistFilled)
             "ALBUMS" -> Pair("Albums", RhythmIcons.Music.Album)
             "ARTISTS" -> Pair("Artists", RhythmIcons.Artist)
-            "EXPLORER" -> Pair("Explorer", Icons.Default.Folder)
+            "EXPLORER" -> Pair("Explorer", RhythmIcons.Folder)
             else -> Pair(tabId, RhythmIcons.Music.Song)
         }
     }
@@ -10799,7 +10792,7 @@ fun LibraryTabOrderSettingsScreen(onBackClick: () -> Unit) {
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowUpward,
+                                    imageVector = RhythmIcons.ArrowUpward,
                                     contentDescription = context.getString(R.string.settings_move_up),
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -10826,7 +10819,7 @@ fun LibraryTabOrderSettingsScreen(onBackClick: () -> Unit) {
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
+                                    imageVector = RhythmIcons.ArrowDownward,
                                     contentDescription = context.getString(R.string.settings_move_down),
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -10856,7 +10849,7 @@ fun LibraryTabOrderSettingsScreen(onBackClick: () -> Unit) {
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.RestartAlt,
+                            imageVector = MaterialSymbolIcon("restart_alt"),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -10875,7 +10868,7 @@ fun LibraryTabOrderSettingsScreen(onBackClick: () -> Unit) {
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Check,
+                            imageVector = RhythmIcons.Check,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -10919,7 +10912,7 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
 
                 val miniPlayerItems = listOf(
                     SettingItem(
-                        Icons.Rounded.Swipe,
+                        MaterialSymbolIcon("swipe", filled = true),
                         "Swipe Gestures",
                         "Swipe up/down to open/dismiss, left/right to skip tracks",
                         toggleState = miniPlayerSwipeGestures,
@@ -10945,7 +10938,7 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
 
                 val playerGestureItems = listOf(
                     SettingItem(
-                        Icons.Rounded.SwipeDown,
+                        MaterialSymbolIcon("swipe_down", filled = true),
                         "Swipe Down to Dismiss",
                         "Close player by swiping down on the screen",
                         toggleState = gesturePlayerSwipeDismiss,
@@ -10955,7 +10948,7 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Rounded.SwipeLeft,
+                        MaterialSymbolIcon("swipe_left", filled = true),
                         "Swipe Artwork for Tracks",
                         "Swipe left/right on album artwork to skip tracks",
                         toggleState = gesturePlayerSwipeTracks,
@@ -10965,7 +10958,7 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Rounded.TouchApp,
+                        MaterialSymbolIcon("touch_app", filled = true),
                         "Double Tap Artwork",
                         "Double tap on album art to play/pause",
                         toggleState = gestureArtworkDoubleTap,
@@ -11002,7 +10995,7 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -11018,19 +11011,19 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
 
                         GestureTipItem(
-                            icon = Icons.Default.SwipeVertical,
+                            icon = MaterialSymbolIcon("swipe_vertical"),
                             text = context.getString(R.string.settings_swipe_up_open)
                         )
                         GestureTipItem(
-                            icon = Icons.Default.SwipeDown,
+                            icon = MaterialSymbolIcon("swipe_down"),
                             text = context.getString(R.string.settings_swipe_down_dismiss_tip)
                         )
                         GestureTipItem(
-                            icon = Icons.Default.TouchApp,
+                            icon = MaterialSymbolIcon("touch_app"),
                             text = context.getString(R.string.settings_double_tap_artwork_tip)
                         )
                         GestureTipItem(
-                            icon = Icons.Default.Speed,
+                            icon = MaterialSymbolIcon("speed"),
                             text = context.getString(R.string.settings_disable_unused_gestures)
                         )
                     }
@@ -11044,7 +11037,7 @@ fun GesturesSettingsScreen(onBackClick: () -> Unit) {
 
 @Composable
 private fun GestureTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -11155,7 +11148,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Visibility,
+                                icon = RhythmIcons.Visibility,
                                 title = context.getString(R.string.settings_show_progress),
                                 description = context.getString(R.string.settings_show_progress_desc),
                                 toggleState = miniPlayerShowProgress,
@@ -11170,7 +11163,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Default.ChangeCircle,
+                                    icon = MaterialSymbolIcon("change_circle"),
                                     title = context.getString(R.string.settings_progress_mode),
                                     description = context.getString(R.string.settings_choose_progress_style)
                                 ),
@@ -11206,7 +11199,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                     context = context,
                                     hapticFeedback = haptics,
                                     item = SettingItem(
-                                        icon = Icons.Default.LinearScale,
+                                        icon = MaterialSymbolIcon("linear_scale"),
                                         title = "Progress Style",
                                         description = miniPlayerProgressStyle.lowercase().replaceFirstChar { it.uppercase() },
                                         onClick = { showMiniPlayerProgressStyleSheet = true }
@@ -11238,7 +11231,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Album,
+                                icon = RhythmIcons.Album,
                                 title = context.getString(R.string.settings_show_artwork),
                                 description = context.getString(R.string.settings_show_artwork_desc),
                                 toggleState = miniPlayerShowArtwork,
@@ -11249,7 +11242,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.PhotoSizeSelectLarge,
+                                icon = MaterialSymbolIcon("photo_size_select_large"),
                                 title = "Artwork Size",
                                 description = "${miniPlayerArtworkSize}dp",
                                 onClick = { showMiniPlayerArtworkSizeSheet = true }
@@ -11260,13 +11253,13 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             hapticFeedback = haptics,
                             item = if (expressiveShapesEnabled) {
                                 SettingItem(
-                                    icon = Icons.Default.RoundedCorner,
+                                    icon = MaterialSymbolIcon("rounded_corner"),
                                     title = "Corner Radius",
                                     description = "Managed by Expressive Shapes"
                                 )
                             } else {
                                 SettingItem(
-                                    icon = Icons.Default.RoundedCorner,
+                                    icon = MaterialSymbolIcon("rounded_corner"),
                                     title = "Corner Radius",
                                     description = "${miniPlayerCornerRadius}dp",
                                     onClick = { showMiniPlayerCornerRadiusSheet = true }
@@ -11293,7 +11286,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Timer,
+                                icon = MaterialSymbolIcon("timer"),
                                 title = context.getString(R.string.settings_show_time),
                                 description = context.getString(R.string.settings_show_time_desc),
                                 toggleState = miniPlayerShowTime,
@@ -11304,7 +11297,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Tablet,
+                                icon = MaterialSymbolIcon("tablet"),
                                 title = context.getString(R.string.settings_tablet_layout),
                                 description = context.getString(R.string.settings_tablet_layout_desc),
                                 toggleState = miniPlayerAlwaysShowTablet,
@@ -11334,7 +11327,7 @@ fun MiniPlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -11583,7 +11576,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Reorder,
+                                icon = MaterialSymbolIcon("reorder"),
                                 title = context.getString(R.string.settings_chip_order),
                                 description = context.getString(R.string.settings_chip_order_desc),
                                 onClick = { showChipOrderBottomSheet = true }
@@ -11609,7 +11602,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Gradient,
+                                icon = MaterialSymbolIcon("gradient"),
                                 title = context.getString(R.string.settings_artwork_overlay),
                                 description = context.getString(R.string.settings_artwork_overlay_desc),
                                 toggleState = playerShowGradientOverlay,
@@ -11620,7 +11613,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Info,
+                                icon = RhythmIcons.Info,
                                 title = context.getString(R.string.settings_song_info_artwork),
                                 description = context.getString(R.string.settings_song_info_artwork_desc),
                                 toggleState = playerShowSongInfoOnArtwork,
@@ -11631,7 +11624,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.HighQuality,
+                                icon = MaterialSymbolIcon("high_quality"),
                                 title = context.getString(R.string.settings_audio_quality_badges),
                                 description = context.getString(R.string.settings_audio_quality_badges_desc),
                                 toggleState = playerShowAudioQualityBadges,
@@ -11659,7 +11652,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Rounded.Lyrics,
+                                icon = MaterialSymbolIcon("lyrics", filled = true),
                                 title = context.getString(R.string.settings_show_lyrics),
                                 description = context.getString(R.string.settings_show_lyrics_desc),
                                 toggleState = showLyrics,
@@ -11674,7 +11667,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Default.Lyrics,
+                                    icon = MaterialSymbolIcon("lyrics"),
                                     title = context.getString(R.string.lyrics_source_priority),
                                     description = context.getString(R.string.playback_lyrics_priority_desc),
                                     onClick = { showLyricsSourceDialog = true }
@@ -11686,7 +11679,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.LightMode,
+                                    icon = MaterialSymbolIcon("light_mode", filled = true),
                                     title = context.getString(R.string.settings_keep_screen_on_lyrics),
                                     description = context.getString(R.string.settings_keep_screen_on_lyrics_desc),
                                     toggleState = keepScreenOnLyrics,
@@ -11699,7 +11692,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Default.Animation,
+                                    icon = MaterialSymbolIcon("animation"),
                                     title = context.getString(R.string.settings_lyrics_transition),
                                     description = "Art ↔ Lyrics switch animation"
                                 ),
@@ -11733,7 +11726,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Default.FormatSize,
+                                    icon = MaterialSymbolIcon("format_size"),
                                     title = context.getString(R.string.settings_lyrics_text_size),
                                     description = "Size: ${(playerLyricsTextSize * 100).toInt()}%"
                                 ),
@@ -11771,7 +11764,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Default.FormatAlignCenter,
+                                    icon = MaterialSymbolIcon("format_align_center"),
                                     title = "Lyrics Alignment",
                                     description = context.getString(R.string.settings_lyrics_alignment_desc)
                                 ),
@@ -11813,7 +11806,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptics,
                                 item = SettingItem(
-                                    icon = Icons.Default.Image,
+                                    icon = RhythmIcons.Image,
                                     title = context.getString(R.string.settings_show_art_below_lyrics),
                                     description = context.getString(R.string.settings_show_art_below_lyrics_desc),
                                     toggleState = playerShowArtBelowLyrics,
@@ -11843,7 +11836,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.Forward10,
+                                icon = RhythmIcons.Forward10,
                                 title = context.getString(R.string.settings_seek_buttons),
                                 description = context.getString(R.string.settings_seek_buttons_desc),
                                 toggleState = playerShowSeekButtons,
@@ -11854,7 +11847,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.FormatAlignCenter,
+                                icon = MaterialSymbolIcon("format_align_center"),
                                 title = context.getString(R.string.settings_text_alignment),
                                 description = when(playerTextAlignment) {
                                     "START" -> context.getString(R.string.settings_left_aligned)
@@ -11909,7 +11902,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.LinearScale,
+                                icon = MaterialSymbolIcon("linear_scale"),
                                 title = "Progress Style",
                                 description = playerProgressStyle.lowercase().replaceFirstChar { it.uppercase() },
                                 onClick = { showPlayerProgressStyleSheet = true }
@@ -11919,7 +11912,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptics,
                             item = SettingItem(
-                                icon = Icons.Default.TouchApp,
+                                icon = MaterialSymbolIcon("touch_app"),
                                 title = context.getString(R.string.settings_thumb_style),
                                 description = playerProgressThumbStyle.lowercase().replaceFirstChar { it.uppercase() },
                                 onClick = { showPlayerThumbStyleSheet = true }
@@ -11946,13 +11939,13 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             hapticFeedback = haptics,
                             item = if (expressiveShapesEnabled) {
                                 SettingItem(
-                                    icon = Icons.Default.RoundedCorner,
+                                    icon = MaterialSymbolIcon("rounded_corner"),
                                     title = "Corner Radius",
                                     description = "Managed by Expressive Shapes"
                                 )
                             } else {
                                 SettingItem(
-                                    icon = Icons.Default.RoundedCorner,
+                                    icon = MaterialSymbolIcon("rounded_corner"),
                                     title = "Corner Radius",
                                     description = "${playerArtworkCornerRadius}dp",
                                     onClick = { showCornerRadiusSheet = true }
@@ -11982,7 +11975,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -11996,15 +11989,15 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         PlayerTipItem(
-                            icon = Icons.Default.SwipeDown,
+                            icon = MaterialSymbolIcon("swipe_down"),
                             text = context.getString(R.string.settings_swipe_down_dismiss_tip)
                         )
                         PlayerTipItem(
-                            icon = Icons.Default.TouchApp,
+                            icon = MaterialSymbolIcon("touch_app"),
                             text = context.getString(R.string.settings_double_tap_artwork_tip)
                         )
                         PlayerTipItem(
-                            icon = Icons.Default.Speed,
+                            icon = MaterialSymbolIcon("speed"),
                             text = context.getString(R.string.settings_disable_unused_gestures)
                         )
                     }
@@ -12053,9 +12046,9 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 listOf(
-                    Triple("START", "Left", Icons.AutoMirrored.Filled.AlignHorizontalLeft),
-                    Triple("CENTER", "Center", Icons.Default.FormatAlignCenter),
-                    Triple("END", "Right", Icons.AutoMirrored.Filled.AlignHorizontalRight)
+                    Triple("START", "Left", MaterialSymbolIcon("align_horizontal_left", filled = true)),
+                    Triple("CENTER", "Center", MaterialSymbolIcon("format_align_center")),
+                    Triple("END", "Right", MaterialSymbolIcon("align_horizontal_right", filled = true))
                 ).forEach { (value, label, icon) ->
                     val isSelected = playerTextAlignment == value
                     Card(
@@ -12103,7 +12096,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             Spacer(modifier = Modifier.weight(1f))
                             if (isSelected) {
                                 Icon(
-                                    imageVector = Icons.Default.Check,
+                                    imageVector = RhythmIcons.Check,
                                     contentDescription = "Selected",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -12234,7 +12227,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Info,
+                            imageVector = RhythmIcons.Info,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(20.dp)
@@ -12256,7 +12249,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
 @Composable
 private fun SettingRow(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     description: String,
     onClick: (() -> Unit)? = null,
@@ -12312,7 +12305,7 @@ private fun SettingRow(
             )
         } else if (onClick != null) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                 contentDescription = "Navigate",
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -12323,7 +12316,7 @@ private fun SettingRow(
 
 @Composable
 private fun PlayerTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -12360,14 +12353,14 @@ private fun ProgressStyleBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val progressStyles = listOf(
-        ProgressStyleOption("NORMAL", "Normal", Icons.Default.LinearScale, "Standard progress bar"),
-        ProgressStyleOption("WAVY", "Wavy", Icons.Default.GraphicEq, "Animated wavy line"),
-        ProgressStyleOption("ROUNDED", "Rounded", Icons.Default.RoundedCorner, "Pill-shaped progress"),
-        ProgressStyleOption("THIN", "Thin", Icons.Default.Remove, "Thin elegant line"),
-        ProgressStyleOption("THICK", "Thick", Icons.Default.DragHandle, "Bold thick bar"),
-        ProgressStyleOption("GRADIENT", "Gradient", Icons.Default.Gradient, "Multi-color gradient"),
-        ProgressStyleOption("SEGMENTED", "Segmented", Icons.Default.MoreHoriz, "Segmented blocks"),
-        ProgressStyleOption("DOTS", "Dots", Icons.Default.FiberManualRecord, "Dot indicators")
+        ProgressStyleOption("NORMAL", "Normal", MaterialSymbolIcon("linear_scale"), "Standard progress bar"),
+        ProgressStyleOption("WAVY", "Wavy", MaterialSymbolIcon("graphic_eq"), "Animated wavy line"),
+        ProgressStyleOption("ROUNDED", "Rounded", MaterialSymbolIcon("rounded_corner"), "Pill-shaped progress"),
+        ProgressStyleOption("THIN", "Thin", RhythmIcons.Remove, "Thin elegant line"),
+        ProgressStyleOption("THICK", "Thick", RhythmIcons.DragHandle, "Bold thick bar"),
+        ProgressStyleOption("GRADIENT", "Gradient", MaterialSymbolIcon("gradient"), "Multi-color gradient"),
+        ProgressStyleOption("SEGMENTED", "Segmented", MaterialSymbolIcon("more_horiz"), "Segmented blocks"),
+        ProgressStyleOption("DOTS", "Dots", MaterialSymbolIcon("fiber_manual_record"), "Dot indicators")
     )
 
     ModalBottomSheet(
@@ -12504,7 +12497,7 @@ private fun ProgressStyleBottomSheet(
                             if (isSelected) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Icon(
-                                    imageVector = Icons.Default.Check,
+                                    imageVector = RhythmIcons.Check,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(16.dp)
@@ -12526,7 +12519,7 @@ private fun ProgressStyleBottomSheet(
 private data class ProgressStyleOption(
     val id: String,
     val label: String,
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val description: String
 )
 
@@ -12536,7 +12529,7 @@ private data class ProgressStyleOption(
 private data class ThumbStyleOption(
     val id: String,
     val label: String,
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val description: String
 )
 
@@ -12556,15 +12549,15 @@ private fun ThumbStyleBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val thumbStyles = listOf(
-        ThumbStyleOption("NONE", "None", Icons.Default.VisibilityOff, "No thumb indicator"),
-        ThumbStyleOption("CIRCLE", "Circle", Icons.Default.FiberManualRecord, "Circular with highlight"),
-        ThumbStyleOption("PILL", "Pill", Icons.Default.RoundedCorner, "Vertical pill shape"),
-        ThumbStyleOption("DIAMOND", "Diamond", Icons.Default.ChangeHistory, "Diamond rhombus"),
-        ThumbStyleOption("LINE", "Line", Icons.Default.Remove, "Thin vertical line"),
-        ThumbStyleOption("SQUARE", "Square", Icons.Default.CropSquare, "Rounded square"),
-        ThumbStyleOption("GLOW", "Glow", Icons.Default.Flare, "Glowing circle"),
-        ThumbStyleOption("ARROW", "Arrow", Icons.Default.PlayArrow, "Arrow pointer"),
-        ThumbStyleOption("DOT", "Dot", Icons.Default.Adjust, "Small dot with ring")
+        ThumbStyleOption("NONE", "None", RhythmIcons.VisibilityOff, "No thumb indicator"),
+        ThumbStyleOption("CIRCLE", "Circle", MaterialSymbolIcon("fiber_manual_record"), "Circular with highlight"),
+        ThumbStyleOption("PILL", "Pill", MaterialSymbolIcon("rounded_corner"), "Vertical pill shape"),
+        ThumbStyleOption("DIAMOND", "Diamond", MaterialSymbolIcon("change_history"), "Diamond rhombus"),
+        ThumbStyleOption("LINE", "Line", RhythmIcons.Remove, "Thin vertical line"),
+        ThumbStyleOption("SQUARE", "Square", MaterialSymbolIcon("crop_square"), "Rounded square"),
+        ThumbStyleOption("GLOW", "Glow", MaterialSymbolIcon("flare"), "Glowing circle"),
+        ThumbStyleOption("ARROW", "Arrow", RhythmIcons.Play, "Arrow pointer"),
+        ThumbStyleOption("DOT", "Dot", MaterialSymbolIcon("adjust"), "Small dot with ring")
     )
 
     ModalBottomSheet(
@@ -12704,7 +12697,7 @@ private fun ThumbStyleBottomSheet(
                             if (isSelected) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Icon(
-                                    imageVector = Icons.Default.Check,
+                                    imageVector = RhythmIcons.Check,
                                     contentDescription = "Selected",
                                     
                                     modifier = Modifier.size(16.dp)
@@ -12736,15 +12729,15 @@ data class FontOption(
     val description: String
 )
 
-enum class ColorSource(val displayName: String, val description: String, val icon: ImageVector) {
-    ALBUM_ART("Album Art", "Extract colors from currently playing album artwork", Icons.Filled.Image),
-    MONET("System Colors", "Use Material You colors from your wallpaper", Icons.Filled.ColorLens),
-    CUSTOM("Custom Scheme", "Choose from predefined color schemes", Icons.Filled.Palette)
+enum class ColorSource(val displayName: String, val description: String, val icon: MaterialSymbolIcon) {
+    ALBUM_ART("Album Art", "Extract colors from currently playing album artwork", RhythmIcons.Image),
+    MONET("System Colors", "Use Material You colors from your wallpaper", MaterialSymbolIcon("color_lens", filled = true)),
+    CUSTOM("Custom Scheme", "Choose from predefined color schemes", RhythmIcons.Palette)
 }
 
-enum class FontSource(val displayName: String, val description: String, val icon: ImageVector) {
-    SYSTEM("System Font", "Use the device's default font", Icons.Filled.PhoneAndroid),
-    CUSTOM("Custom Font", "Import and use a custom font file", Icons.Filled.TextFields)
+enum class FontSource(val displayName: String, val description: String, val icon: MaterialSymbolIcon) {
+    SYSTEM("System Font", "Use the device's default font", MaterialSymbolIcon("phone_android", filled = true)),
+    CUSTOM("Custom Font", "Import and use a custom font file", MaterialSymbolIcon("text_fields", filled = true))
 }
 
 // HSL Color conversion utilities
@@ -13143,7 +13136,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                 items = listOf(
                     // Display Mode Button Group
                     SettingItem(
-                        Icons.Default.Settings,
+                        RhythmIcons.Settings,
                         context.getString(R.string.settings_theme_mode),
                         context.getString(R.string.settings_theme_mode_desc),
                         onClick = {
@@ -13152,7 +13145,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                     ),
                     // AMOLED Theme - always in list, rendered conditionally via AnimatedVisibility
                     SettingItem(
-                        Icons.Default.Brightness2,
+                        MaterialSymbolIcon("brightness2"),
                         context.getString(R.string.settings_amoled_theme),
                         context.getString(R.string.settings_amoled_theme_desc),
                         toggleState = amoledTheme,
@@ -13164,7 +13157,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_color_customization),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.Palette,
+                        RhythmIcons.Palette,
                         context.getString(R.string.settings_color_source),
                         when (selectedColorSource) {
                             ColorSource.ALBUM_ART -> context.getString(R.string.settings_color_source_album)
@@ -13177,7 +13170,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.ColorLens,
+                        MaterialSymbolIcon("color_lens"),
                         context.getString(R.string.settings_color_schemes),
                         if (selectedColorSource == ColorSource.CUSTOM)
                             context.getString(R.string.settings_color_schemes_desc)
@@ -13189,7 +13182,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.Brush,
+                        MaterialSymbolIcon("brush"),
                         context.getString(R.string.settings_custom_colors),
                         if (selectedColorSource == ColorSource.CUSTOM)
                             context.getString(R.string.settings_custom_colors_desc)
@@ -13206,7 +13199,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                 title = context.getString(R.string.settings_font_customization),
                 items = listOf(
                     SettingItem(
-                        Icons.Default.TextFields,
+                        MaterialSymbolIcon("text_fields"),
                         context.getString(R.string.settings_font_source),
                         when (selectedFontSource) {
                             FontSource.SYSTEM -> context.getString(R.string.settings_font_source_system, currentFont)
@@ -13221,7 +13214,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.TextFields,
+                        MaterialSymbolIcon("text_fields"),
                         context.getString(R.string.settings_font_selection),
                         if (selectedFontSource == FontSource.SYSTEM)
                             context.getString(R.string.settings_font_selection_desc)
@@ -13233,7 +13226,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         }
                     ),
                     SettingItem(
-                        Icons.Default.FileUpload,
+                        MaterialSymbolIcon("file_upload"),
                         context.getString(R.string.settings_import_custom_font),
                         if (customFontPath != null)
                             context.getString(R.string.settings_font_imported_name, customFontFamily)
@@ -13255,7 +13248,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                 items = buildList {
                     add(
                         SettingItem(
-                            Icons.Default.Celebration,
+                            MaterialSymbolIcon("celebration"),
                             context.getString(R.string.settings_enable_festive),
                             context.getString(R.string.settings_enable_festive_desc),
                             toggleState = festiveThemeEnabled,
@@ -13265,7 +13258,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                     if (festiveThemeEnabled) {
                         add(
                             SettingItem(
-                                Icons.Default.EventAvailable,
+                                MaterialSymbolIcon("event_available"),
                                 context.getString(R.string.settings_auto_detect_holidays),
                                 context.getString(R.string.settings_auto_detect_holidays_desc),
                                 toggleState = festiveThemeAutoDetect,
@@ -13275,7 +13268,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         if (!festiveThemeAutoDetect) {
                             add(
                                 SettingItem(
-                                    Icons.Default.AutoAwesome,
+                                    RhythmIcons.AutoAwesome,
                                     context.getString(R.string.settings_select_festival),
                                     getFestivalDisplayName(festiveThemeType),
                                     onClick = {
@@ -13303,7 +13296,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                     buildList {
                         add(
                             Material3SettingsItem(
-                                icon = Icons.Default.Settings,
+                                icon = RhythmIcons.Settings,
                                 title = { Text(context.getString(R.string.settings_theme_mode)) },
                                 description = {
                                     Column {
@@ -13385,7 +13378,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -13401,15 +13394,15 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
 
                         ThemeTipItem(
-                            icon = Icons.Filled.Palette,
+                            icon = RhythmIcons.Palette,
                             text = context.getString(R.string.theme_tip_album_art)
                         )
                         ThemeTipItem(
-                            icon = Icons.Filled.Wallpaper,
+                            icon = MaterialSymbolIcon("wallpaper", filled = true),
                             text = context.getString(R.string.theme_tip_material_you)
                         )
                         ThemeTipItem(
-                            icon = Icons.Filled.FontDownload,
+                            icon = MaterialSymbolIcon("font_download", filled = true),
                             text = context.getString(R.string.theme_tip_custom_fonts)
                         )
                     }
@@ -13596,7 +13589,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                         )
                                         if (isSelected) {
                                             Icon(
-                                                imageVector = Icons.Filled.CheckCircle,
+                                                imageVector = RhythmIcons.CheckCircle,
                                                 contentDescription = context.getString(R.string.ui_selected),
                                                 modifier = Modifier.size(24.dp)
                                             )
@@ -13718,28 +13711,28 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             DecorationToggleCard(
                                 title = context.getString(R.string.settings_snowfall),
                                 description = context.getString(R.string.settings_snowfall_desc),
-                                icon = Icons.Rounded.AcUnit,
+                                icon = MaterialSymbolIcon("ac_unit", filled = true),
                                 isEnabled = festiveShowSnowfall,
                                 onToggle = { appSettings.setFestiveShowSnowfall(it) }
                             )
                             DecorationToggleCard(
                                 title = context.getString(R.string.settings_top_lights),
                                 description = context.getString(R.string.settings_top_lights_desc),
-                                icon = Icons.Rounded.Lightbulb,
+                                icon = MaterialSymbolIcon("lightbulb", filled = true),
                                 isEnabled = festiveShowTopLights,
                                 onToggle = { appSettings.setFestiveShowTopLights(it) }
                             )
                             DecorationToggleCard(
                                 title = context.getString(R.string.settings_side_garland),
                                 description = context.getString(R.string.settings_side_garland_desc),
-                                icon = Icons.Rounded.Park,
+                                icon = MaterialSymbolIcon("park", filled = true),
                                 isEnabled = festiveShowSideGarland,
                                 onToggle = { appSettings.setFestiveShowSideGarland(it) }
                             )
                             DecorationToggleCard(
                                 title = context.getString(R.string.settings_snow_pile),
                                 description = context.getString(R.string.settings_snow_pile_desc),
-                                icon = Icons.Rounded.Terrain,
+                                icon = MaterialSymbolIcon("terrain", filled = true),
                                 isEnabled = festiveShowBottomSnow,
                                 onToggle = { appSettings.setFestiveShowBottomSnow(it) }
                             )
@@ -13931,7 +13924,7 @@ private fun ColorSourceDialog(
 
                                 if (isSelected) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
                                         
                                         modifier = Modifier.size(28.dp)
@@ -14123,7 +14116,7 @@ private fun FontSourceDialog(
 
                                 if (isSelected) {
                                     Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
+                                        imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
                                         
                                         modifier = Modifier.size(28.dp)
@@ -14180,7 +14173,7 @@ private fun FontSourceDialog(
 //
 //                                if (isSelected) {
 //                                    Icon(
-//                                        imageVector = Icons.Filled.CheckCircle,
+//                                        imageVector = RhythmIcons.CheckCircle,
 //                                        contentDescription = "Selected",
 //                                        
 //                                        modifier = Modifier.size(24.dp)
@@ -14298,7 +14291,7 @@ private fun ColorSchemesDialog(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 
                                 modifier = Modifier.size(48.dp)
@@ -14466,7 +14459,7 @@ private fun ColorSchemeCard(
 
             if (isSelected) {
                 Icon(
-                    imageVector = Icons.Filled.CheckCircle,
+                    imageVector = RhythmIcons.CheckCircle,
                     contentDescription = "Selected",
                     
                     modifier = Modifier.size(28.dp)
@@ -14586,7 +14579,7 @@ private fun CustomColorsDialog(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Filled.Info,
+                                            imageVector = RhythmIcons.Info,
                                             contentDescription = null,
                                             
                                             modifier = Modifier.size(48.dp)
@@ -14778,7 +14771,7 @@ private fun CustomColorsDialog(
                                     shape = RoundedCornerShape(16.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Close,
+                                        imageVector = RhythmIcons.Close,
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -14804,7 +14797,7 @@ private fun CustomColorsDialog(
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Check,
+                                        imageVector = RhythmIcons.Check,
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -14926,7 +14919,7 @@ private fun ExpressiveColorPickerControls(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Palette,
+                                imageVector = RhythmIcons.Palette,
                                 contentDescription = null,
                                 tint = if (color.luminance() > 0.5f) Color.Black.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.9f),
                                 modifier = Modifier.size(20.dp)
@@ -15185,7 +15178,7 @@ private fun ExpressiveColorPickerControls(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Filled.Tune,
+                        imageVector = RhythmIcons.Tune,
                         contentDescription = null,
                         
                         modifier = Modifier.size(20.dp)
@@ -15440,7 +15433,7 @@ private fun ColorPickerControls(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Palette,
+                            imageVector = RhythmIcons.Palette,
                             contentDescription = null,
                             tint = if (color.luminance() > 0.5f) Color.Black.copy(alpha = 0.7f) else Color.White.copy(alpha = 0.9f),
                             modifier = Modifier.size(20.dp)
@@ -15875,7 +15868,7 @@ private fun FontSelectionDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            imageVector = RhythmIcons.Info,
                             contentDescription = null,
                             
                             modifier = Modifier.size(48.dp)
@@ -15974,7 +15967,7 @@ private fun FontCard(
 
                 if (isSelected) {
                     Icon(
-                        imageVector = Icons.Filled.CheckCircle,
+                        imageVector = RhythmIcons.CheckCircle,
                         contentDescription = "Selected",
                         
                         modifier = Modifier.size(28.dp)
@@ -16054,7 +16047,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = hapticFeedback,
                                 item = SettingItem(
-                                    icon = Icons.Default.Public,
+                                    icon = RhythmIcons.Public,
                                     title = "Deezer",
                                     description = "Free artist images and album artwork - no setup needed",
                                     toggleState = deezerApiEnabled,
@@ -16127,7 +16120,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.padding(bottom = 12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 
                                 modifier = Modifier.size(24.dp)
@@ -16198,7 +16191,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
                             verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.CheckCircle,
+                                imageVector = RhythmIcons.CheckCircle,
                                 contentDescription = "No crashes",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(64.dp)
@@ -16217,7 +16210,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
                 item {
                     val crashLogItems = crashLogHistory.map { entry ->
                         Material3SettingsItem(
-                            icon = Icons.Filled.Error,
+                            icon = MaterialSymbolIcon("error", filled = true),
                             title = { Text("Crashed on: ${dateFormat.format(Date(entry.timestamp))}") },
                             description = {
                                 Text(
@@ -16249,7 +16242,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
                             context = context,
                             hapticFeedback = hapticFeedback,
                             item = SettingItem(
-                                icon = Icons.Filled.DeleteSweep,
+                                icon = MaterialSymbolIcon("delete_sweep", filled = true),
                                 title = context.getString(R.string.settings_clear_all_logs),
                                 description = "Remove all stored crash reports",
                                 enabled = crashLogHistory.isNotEmpty(),
@@ -16269,7 +16262,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
             onDismissRequest = { showLogDetailDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.BugReport,
+                    imageVector = RhythmIcons.BugReport,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -16296,7 +16289,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.ContentCopy,
+                        imageVector = RhythmIcons.ContentCopy,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -16307,7 +16300,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
             dismissButton = {
                 OutlinedButton(onClick = { showLogDetailDialog = false }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -16322,7 +16315,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
 
 @Composable
 private fun ThemeTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -16346,7 +16339,7 @@ private fun ThemeTipItem(
 
 @Composable
 private fun MediaScanTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -16411,21 +16404,21 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
                 )
             }
 
-            val sourceOptions = listOf<Pair<chromahub.rhythm.app.shared.data.model.LyricsSourcePreference, Triple<String, String, androidx.compose.ui.graphics.vector.ImageVector>>>(
+            val sourceOptions = listOf<Pair<chromahub.rhythm.app.shared.data.model.LyricsSourcePreference, Triple<String, String, MaterialSymbolIcon>>>(
                 chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.EMBEDDED_FIRST to Triple(
                     "Embedded First",
                     "Prefer lyrics embedded in audio files, fallback to online APIs",
-                    Icons.Default.MusicNote
+                    RhythmIcons.MusicNote
                 ),
                 chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.API_FIRST to Triple(
                     "Online First",
                     "Prefer online APIs (Rhythm word-by-word, LRCLib), fallback to embedded",
-                    Icons.Default.CloudQueue
+                    MaterialSymbolIcon("cloud_queue")
                 ),
                 chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.LOCAL_FIRST to Triple(
                     "Local First",
                     "Prefer local .lrc files, then embedded lyrics, then online APIs",
-                    Icons.Default.Storage
+                    RhythmIcons.Storage
                 )
             )
 
@@ -16512,7 +16505,7 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Filled.CheckCircle,
+                                imageVector = RhythmIcons.CheckCircle,
                                 contentDescription = "Selected",
                                 
                                 modifier = Modifier.size(28.dp)
@@ -16538,7 +16531,7 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.padding(bottom = 12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = RhythmIcons.Info,
                                 contentDescription = null,
                                 
                                 modifier = Modifier.size(24.dp)
@@ -16661,7 +16654,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptic,
                             item = SettingItem(
-                                icon = Icons.Rounded.UnfoldLess,
+                                icon = MaterialSymbolIcon("unfold_less", filled = true),
                                 title = context.getString(R.string.settings_always_start_collapsed),
                                 description = context.getString(R.string.settings_start_collapsed),
                                 toggleState = collapseBehavior == 1,
@@ -16675,7 +16668,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptic,
                             item = SettingItem(
-                                icon = Icons.Rounded.Stars,
+                                icon = MaterialSymbolIcon("stars", filled = true),
                                 title = context.getString(R.string.settings_header_display),
                                 description = context.getString(R.string.settings_choose_header_content)
                             ),
@@ -16711,7 +16704,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptic,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.Visibility,
+                                    icon = RhythmIcons.Visibility,
                                     title = context.getString(R.string.settings_visibility),
                                     description = "When to show $displayLabel in header"
                                 ),
@@ -16767,7 +16760,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             context = context,
                             hapticFeedback = haptic,
                             item = SettingItem(
-                                icon = Icons.Filled.Reorder,
+                                icon = MaterialSymbolIcon("reorder", filled = true),
                                 title = context.getString(R.string.settings_reorder_toggle_sections),
                                 description = context.getString(R.string.settings_customize_home_layout),
                                 onClick = {
@@ -16790,7 +16783,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptic,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.History,
+                                    icon = MaterialSymbolIcon("history", filled = true),
                                     title = "Recently Played",
                                     description = "$recentlyPlayedCount songs"
                                 ),
@@ -16828,7 +16821,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptic,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.People,
+                                    icon = MaterialSymbolIcon("people", filled = true),
                                     title = "Top Artists",
                                     description = "$artistsCount artists"
                                 ),
@@ -16866,7 +16859,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptic,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.NewReleases,
+                                    icon = MaterialSymbolIcon("new_releases", filled = true),
                                     title = "New Releases",
                                     description = "$newReleasesCount albums"
                                 ),
@@ -16904,7 +16897,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptic,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.LibraryAdd,
+                                    icon = MaterialSymbolIcon("library_add", filled = true),
                                     title = "Recently Added",
                                     description = "$recentlyAddedCount albums"
                                 ),
@@ -16942,7 +16935,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 context = context,
                                 hapticFeedback = haptic,
                                 item = SettingItem(
-                                    icon = Icons.Rounded.Recommend,
+                                    icon = MaterialSymbolIcon("recommend", filled = true),
                                     title = "Recommended",
                                     description = "$recommendedCount songs"
                                 ),
@@ -17021,7 +17014,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         val discoverToggleItems = buildList {
                             add(
                             SettingItem(
-                                Icons.Rounded.Album,
+                                RhythmIcons.AlbumFilled,
                                 "Album Name",
                                 "Show album title on card",
                                 toggleState = discoverShowAlbumName,
@@ -17031,7 +17024,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
                             add(
                             SettingItem(
-                                Icons.Rounded.Person,
+                                RhythmIcons.ArtistFilled,
                                 "Artist Name",
                                 "Show artist name on card",
                                 toggleState = discoverShowArtistName,
@@ -17041,7 +17034,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
                             add(
                             SettingItem(
-                                Icons.Rounded.CalendarToday,
+                                MaterialSymbolIcon("calendar_today", filled = true),
                                 "Release Year",
                                 "Show album release year",
                                 toggleState = discoverShowYear,
@@ -17051,7 +17044,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
                             add(
                             SettingItem(
-                                Icons.Rounded.PlayArrow,
+                                RhythmIcons.Play,
                                 "Play Button",
                                 "Show quick play button",
                                 toggleState = discoverShowPlayButton,
@@ -17061,7 +17054,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
                             add(
                             SettingItem(
-                                Icons.Rounded.Gradient,
+                                MaterialSymbolIcon("gradient", filled = true),
                                 "Gradient Overlay",
                                 "Show gradient behind text",
                                 toggleState = discoverShowGradient,
@@ -17082,7 +17075,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                     context = context,
                                     hapticFeedback = haptic,
                                     item = SettingItem(
-                                        icon = Icons.Rounded.ViewCarousel,
+                                        icon = MaterialSymbolIcon("view_carousel", filled = true),
                                         title = "Album Count",
                                         description = "$discoverItemCount albums"
                                     ),
@@ -17142,7 +17135,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 
@@ -17159,19 +17152,19 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
 
                         HomeScreenTipItem(
-                            icon = Icons.Default.Visibility,
+                            icon = RhythmIcons.Visibility,
                             text = "Toggle widgets to customize your home screen"
                         )
                         HomeScreenTipItem(
-                            icon = Icons.Default.Speed,
+                            icon = MaterialSymbolIcon("speed"),
                             text = "Disable unused sections for faster loading"
                         )
                         HomeScreenTipItem(
-                            icon = Icons.Default.Album,
+                            icon = RhythmIcons.Album,
                             text = "Discover carousel showcases featured albums"
                         )
                         HomeScreenTipItem(
-                            icon = Icons.AutoMirrored.Filled.TrendingUp,
+                            icon = RhythmIcons.TrendingUp,
                             text = "Statistics update based on listening habits"
                         )
                     }
@@ -17185,7 +17178,7 @@ fun HomeScreenCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
 @Composable
 private fun HomeScreenTipItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String
 ) {
     Row(
@@ -17243,7 +17236,7 @@ private fun CarouselStyleSelector(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.ViewCarousel,
+                            imageVector = MaterialSymbolIcon("view_carousel", filled = true),
                             contentDescription = null,
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -17296,8 +17289,8 @@ private fun CarouselStyleSelector(
                         ) {
                             Icon(
                                 imageVector = when (style) {
-                                    0 -> Icons.Rounded.ViewColumn
-                                    else -> Icons.Rounded.CenterFocusWeak
+                                    0 -> MaterialSymbolIcon("view_column", filled = true)
+                                    else -> MaterialSymbolIcon("center_focus_weak", filled = true)
                                 },
                                 contentDescription = null,
                                 tint = if (isSelected)
@@ -17504,7 +17497,7 @@ private data class PresetOption(
     val id: String,
     val displayName: String,
     val description: String,
-    val icon: ImageVector
+    val icon: MaterialSymbolIcon
 )
 
 /**
@@ -17536,15 +17529,15 @@ fun ExpressiveShapesSettingsScreen(onBackClick: () -> Unit) {
     // Define presets
     val presets = remember {
         listOf(
-            PresetOption("DEFAULT", "Default", "Gentle expressive shapes for all ages", Icons.Default.RadioButtonUnchecked),
-            PresetOption("FRIENDLY", "Friendly", "Warm and approachable shapes", Icons.Default.Favorite),
-            PresetOption("CHEERFUL", "Cheerful", "Bright and expressive shapes", Icons.Default.WbSunny),
-            PresetOption("MODERN", "Modern", "Contemporary expressive design", Icons.Default.Star),
-            PresetOption("PLAYFUL", "Playful", "Fun and expressive shapes", Icons.Default.Celebration),
-            PresetOption("ORGANIC", "Organic", "Nature-inspired shapes", Icons.Default.Park),
-            PresetOption("GEOMETRIC", "Geometric", "Clean and modern shapes", Icons.Default.Category),
-            PresetOption("RETRO", "Retro", "Pixelated nostalgic shapes", Icons.Default.Gamepad),
-            PresetOption("CUSTOM", "Custom", "Your personalized selection", Icons.Default.Tune)
+            PresetOption("DEFAULT", "Default", "Gentle expressive shapes for all ages", RhythmIcons.RadioButtonUnchecked),
+            PresetOption("FRIENDLY", "Friendly", "Warm and approachable shapes", RhythmIcons.FavoriteFilled),
+            PresetOption("CHEERFUL", "Cheerful", "Bright and expressive shapes", MaterialSymbolIcon("wb_sunny")),
+            PresetOption("MODERN", "Modern", "Contemporary expressive design", MaterialSymbolIcon("star")),
+            PresetOption("PLAYFUL", "Playful", "Fun and expressive shapes", MaterialSymbolIcon("celebration")),
+            PresetOption("ORGANIC", "Organic", "Nature-inspired shapes", MaterialSymbolIcon("park")),
+            PresetOption("GEOMETRIC", "Geometric", "Clean and modern shapes", RhythmIcons.Category),
+            PresetOption("RETRO", "Retro", "Pixelated nostalgic shapes", MaterialSymbolIcon("gamepad")),
+            PresetOption("CUSTOM", "Custom", "Your personalized selection", RhythmIcons.Tune)
         )
     }
     
@@ -17680,7 +17673,7 @@ fun ExpressiveShapesSettingsScreen(onBackClick: () -> Unit) {
                         .padding(20.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Interests,
+                        imageVector = MaterialSymbolIcon("interests"),
                         contentDescription = null,
                         tint = if (expressiveShapesEnabled) {
                             MaterialTheme.colorScheme.primary
@@ -17736,7 +17729,7 @@ fun ExpressiveShapesSettingsScreen(onBackClick: () -> Unit) {
                                     context = context,
                                     hapticFeedback = haptic,
                                     item = SettingItem(
-                                        Icons.Default.Style,
+                                        MaterialSymbolIcon("style"),
                                         "Shape Preset",
                                         presets.find { it.id == currentPreset }?.displayName ?: "Default",
                                         onClick = {
@@ -17845,7 +17838,7 @@ fun ExpressiveShapesSettingsScreen(onBackClick: () -> Unit) {
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Shuffle,
+                                imageVector = RhythmIcons.Shuffle,
                                 contentDescription = "Randomize shapes",
                                 modifier = Modifier.size(22.dp),
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer
@@ -17886,14 +17879,14 @@ fun ExpressiveShapesSettingsScreen(onBackClick: () -> Unit) {
                                 hapticFeedback = haptic,
                                 item = SettingItem(
                                     icon = when (targetId) {
-                                        "ALBUM_ART" -> Icons.Default.Album
-                                        "PLAYER_ART" -> Icons.Default.MusicNote
-                                        "SONG_ART" -> Icons.Default.AudioFile
-                                        "PLAYLIST_ART" -> Icons.AutoMirrored.Filled.QueueMusic
-                                        "ARTIST_ART" -> Icons.Default.Person
-                                        "PLAYER_CONTROLS" -> Icons.Default.PlayCircle
-                                        "MINI_PLAYER" -> Icons.Default.MusicNote
-                                        else -> Icons.Default.Category
+                                        "ALBUM_ART" -> RhythmIcons.Album
+                                        "PLAYER_ART" -> RhythmIcons.MusicNote
+                                        "SONG_ART" -> MaterialSymbolIcon("audio_file")
+                                        "PLAYLIST_ART" -> RhythmIcons.Queue
+                                        "ARTIST_ART" -> RhythmIcons.Artist
+                                        "PLAYER_CONTROLS" -> MaterialSymbolIcon("play_circle")
+                                        "MINI_PLAYER" -> RhythmIcons.MusicNote
+                                        else -> RhythmIcons.Category
                                     },
                                     title = targetName,
                                     description = currentShapeName,
@@ -17923,7 +17916,7 @@ fun ExpressiveShapesSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Lightbulb,
+                                imageVector = MaterialSymbolIcon("lightbulb", filled = true),
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -18350,7 +18343,7 @@ private fun ColorPreviewItem(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = "Selected",
                         tint = if (color.luminance() > 0.5f) Color.Black else Color.White,
                         modifier = Modifier.size(20.dp)
@@ -18445,7 +18438,7 @@ fun PlaceholderSettingsScreen() {
                 verticalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Lightbulb,
+                    imageVector = MaterialSymbolIcon("lightbulb"),
                     contentDescription = null,
                     
                     modifier = Modifier.size(48.dp)
@@ -18512,7 +18505,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            imageVector = Icons.Default.BatteryChargingFull,
+                            imageVector = MaterialSymbolIcon("battery_charging_full"),
                             contentDescription = null,
                             tint = if (batterySaverEnabled) {
                                 MaterialTheme.colorScheme.primary
@@ -18582,7 +18575,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.TouchApp,
+                                            icon = MaterialSymbolIcon("touch_app"),
                                             title = "Disable Haptics",
                                             description = "All physical haptic feedback is disabled to conserve battery.",
                                             toggleState = true,
@@ -18594,7 +18587,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.Bolt,
+                                            icon = MaterialSymbolIcon("bolt"),
                                             title = "Enable Audio Offload",
                                             description = "Forced hardware DSP decoding to minimize CPU workload.",
                                             toggleState = true,
@@ -18606,7 +18599,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.Slideshow,
+                                            icon = MaterialSymbolIcon("slideshow"),
                                             title = "Disable Text Marquee",
                                             description = "Sliding animations are paused to reduce display refresh cycles.",
                                             toggleState = true,
@@ -18618,7 +18611,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.Image,
+                                            icon = RhythmIcons.Image,
                                             title = "Disable Lossless Artwork",
                                             description = "Lossless artwork is disabled to reduce data decoding and memory overhead.",
                                             toggleState = true,
@@ -18637,7 +18630,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.TouchApp,
+                                            icon = MaterialSymbolIcon("touch_app"),
                                             title = "Disable Haptics",
                                             description = "Disable touch vibrations to extend battery life",
                                             toggleState = batterySaverDisableHaptics,
@@ -18648,7 +18641,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.Bolt,
+                                            icon = MaterialSymbolIcon("bolt"),
                                             title = "Enable Audio Offload",
                                             description = "Use hardware DSP decoding under Battery Saver",
                                             toggleState = batterySaverEnableOffload,
@@ -18659,7 +18652,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.Slideshow,
+                                            icon = MaterialSymbolIcon("slideshow"),
                                             title = "Disable Text Marquee",
                                             description = "Pause title sliding animations to save screen power",
                                             toggleState = batterySaverDisableMarquee,
@@ -18670,7 +18663,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         context = context,
                                         hapticFeedback = haptic,
                                         item = SettingItem(
-                                            icon = Icons.Default.Image,
+                                            icon = RhythmIcons.Image,
                                             title = "Disable Lossless Artwork",
                                             description = "Use standard artwork instead of lossless under Battery Saver",
                                             toggleState = batterySaverDisableLosslessArtwork,

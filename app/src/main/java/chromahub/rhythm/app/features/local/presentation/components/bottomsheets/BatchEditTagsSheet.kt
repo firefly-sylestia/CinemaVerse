@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,22 +25,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Album
-import androidx.compose.material.icons.rounded.Category
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -272,7 +264,7 @@ fun BatchEditTagsSheet(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.AutoAwesome,
+                                imageVector = RhythmIcons.AutoAwesome,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
@@ -308,7 +300,7 @@ fun BatchEditTagsSheet(
 
                             BatchEditField(
                                 label = "Artist",
-                                icon = Icons.Rounded.Person,
+                                icon = RhythmIcons.ArtistFilled,
                                 enabled = editArtist,
                                 value = artist,
                                 onEnabledChange = { editArtist = it },
@@ -317,7 +309,7 @@ fun BatchEditTagsSheet(
 
                             BatchEditField(
                                 label = "Album",
-                                icon = Icons.Rounded.Album,
+                                icon = RhythmIcons.AlbumFilled,
                                 enabled = editAlbum,
                                 value = album,
                                 onEnabledChange = { editAlbum = it },
@@ -326,7 +318,7 @@ fun BatchEditTagsSheet(
 
                             BatchEditField(
                                 label = "Genre",
-                                icon = Icons.Rounded.Category,
+                                icon = RhythmIcons.Category,
                                 enabled = editGenre,
                                 value = genre,
                                 onEnabledChange = { editGenre = it },
@@ -335,7 +327,7 @@ fun BatchEditTagsSheet(
 
                             BatchEditField(
                                 label = "Year",
-                                icon = Icons.Rounded.DateRange,
+                                icon = RhythmIcons.DateRange,
                                 enabled = editYear,
                                 value = year,
                                 onEnabledChange = { editYear = it },
@@ -374,7 +366,7 @@ fun BatchEditTagsSheet(
                                 label = { Text("Artwork") },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = Icons.Rounded.Image,
+                                        imageVector = RhythmIcons.Image,
                                         contentDescription = null,
                                         tint = if (editArtwork) MaterialTheme.colorScheme.primary
                                         else MaterialTheme.colorScheme.onSurfaceVariant
@@ -436,7 +428,7 @@ fun BatchEditTagsSheet(
                                             modifier = Modifier.weight(1f)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Image,
+                                                imageVector = RhythmIcons.Image,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -455,7 +447,7 @@ fun BatchEditTagsSheet(
                                             )
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Delete,
+                                                imageVector = RhythmIcons.Delete,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -506,7 +498,7 @@ fun BatchEditTagsSheet(
                     isStart = true
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -521,7 +513,7 @@ fun BatchEditTagsSheet(
                     isEnd = true
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -538,7 +530,7 @@ fun BatchEditTagsSheet(
 @Composable
 private fun BatchEditField(
     label: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     enabled: Boolean,
     value: String,
     onEnabledChange: (Boolean) -> Unit,

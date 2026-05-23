@@ -5,6 +5,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import kotlin.math.abs
 
 import android.widget.Toast
@@ -28,12 +32,6 @@ import androidx.compose.foundation.layout.*
 import kotlin.collections.sortedBy
 import kotlin.collections.mutableListOf
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.automirrored.rounded.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
@@ -96,11 +94,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
@@ -127,7 +120,6 @@ import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import chromahub.rhythm.app.ui.UiConstants
 import chromahub.rhythm.app.ui.theme.MusicDimensions
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
@@ -231,10 +223,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.material.icons.rounded.ArrowCircleDown
-import androidx.compose.material.icons.rounded.ArrowCircleUp
 import androidx.compose.ui.text.font.FontFamily
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.player.PlayingEqIcon
 import chromahub.rhythm.app.shared.presentation.components.common.ContentLoadingIndicator
 import chromahub.rhythm.app.shared.presentation.components.common.DataProcessingLoader
@@ -790,7 +779,7 @@ fun LibraryScreen(
                                     }
                             ) {
                                 Icon(
-                                    imageVector = if (albumViewType == AlbumViewType.LIST) Icons.Default.GridView else Icons.AutoMirrored.Rounded.ViewList,
+                                    imageVector = if (albumViewType == AlbumViewType.LIST) RhythmIcons.GridView else MaterialSymbolIcon("view_list", filled = true),
                                     contentDescription = if (albumViewType == AlbumViewType.LIST) "Switch to Grid View" else "Switch to List View",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -828,7 +817,7 @@ fun LibraryScreen(
                                     }
                             ) {
                                 Icon(
-                                    imageVector = if (artistViewType == ArtistViewType.LIST) Icons.Default.GridView else Icons.AutoMirrored.Rounded.ViewList,
+                                    imageVector = if (artistViewType == ArtistViewType.LIST) RhythmIcons.GridView else MaterialSymbolIcon("view_list", filled = true),
                                     contentDescription = if (artistViewType == ArtistViewType.LIST) "Switch to Grid View" else "Switch to List View",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -866,7 +855,7 @@ fun LibraryScreen(
                                     }
                             ) {
                                 Icon(
-                                    imageVector = if (playlistViewType == PlaylistViewType.LIST) Icons.Default.GridView else Icons.AutoMirrored.Rounded.ViewList,
+                                    imageVector = if (playlistViewType == PlaylistViewType.LIST) RhythmIcons.GridView else MaterialSymbolIcon("view_list", filled = true),
                                     contentDescription = if (playlistViewType == PlaylistViewType.LIST) "Switch to Grid View" else "Switch to List View",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -913,7 +902,7 @@ fun LibraryScreen(
                             }
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.Sort,
+                                imageVector = RhythmIcons.Sort,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -937,8 +926,8 @@ fun LibraryScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             
                             val sortArrowIcon = when (sortOrder) {
-                                MusicViewModel.SortOrder.TITLE_ASC, MusicViewModel.SortOrder.ARTIST_ASC, MusicViewModel.SortOrder.DATE_ADDED_ASC, MusicViewModel.SortOrder.DATE_MODIFIED_ASC -> Icons.Default.ArrowUpward
-                                MusicViewModel.SortOrder.TITLE_DESC, MusicViewModel.SortOrder.ARTIST_DESC, MusicViewModel.SortOrder.DATE_ADDED_DESC, MusicViewModel.SortOrder.DATE_MODIFIED_DESC -> Icons.Default.ArrowDownward
+                                MusicViewModel.SortOrder.TITLE_ASC, MusicViewModel.SortOrder.ARTIST_ASC, MusicViewModel.SortOrder.DATE_ADDED_ASC, MusicViewModel.SortOrder.DATE_MODIFIED_ASC -> RhythmIcons.ArrowUpward
+                                MusicViewModel.SortOrder.TITLE_DESC, MusicViewModel.SortOrder.ARTIST_DESC, MusicViewModel.SortOrder.DATE_ADDED_DESC, MusicViewModel.SortOrder.DATE_MODIFIED_DESC -> RhythmIcons.ArrowDownward
                             }
                             
                             Icon(
@@ -986,10 +975,10 @@ fun LibraryScreen(
                                         leadingIcon = {
                                             Icon(
                                                 imageVector = when (order) {
-                                                    MusicViewModel.SortOrder.TITLE_ASC, MusicViewModel.SortOrder.TITLE_DESC -> Icons.Filled.SortByAlpha
-                                                    MusicViewModel.SortOrder.ARTIST_ASC, MusicViewModel.SortOrder.ARTIST_DESC -> Icons.Filled.Person
-                                                    MusicViewModel.SortOrder.DATE_ADDED_ASC, MusicViewModel.SortOrder.DATE_ADDED_DESC -> Icons.Filled.DateRange
-                                                    MusicViewModel.SortOrder.DATE_MODIFIED_ASC, MusicViewModel.SortOrder.DATE_MODIFIED_DESC -> Icons.Filled.EditCalendar
+                                                    MusicViewModel.SortOrder.TITLE_ASC, MusicViewModel.SortOrder.TITLE_DESC -> RhythmIcons.SortByAlpha
+                                                    MusicViewModel.SortOrder.ARTIST_ASC, MusicViewModel.SortOrder.ARTIST_DESC -> RhythmIcons.ArtistFilled
+                                                    MusicViewModel.SortOrder.DATE_ADDED_ASC, MusicViewModel.SortOrder.DATE_ADDED_DESC -> RhythmIcons.DateRange
+                                                    MusicViewModel.SortOrder.DATE_MODIFIED_ASC, MusicViewModel.SortOrder.DATE_MODIFIED_DESC -> MaterialSymbolIcon("edit_calendar", filled = true)
                                                 },
                                                 contentDescription = null,
                                                 tint = if (isSelected)
@@ -1002,14 +991,14 @@ fun LibraryScreen(
                                             when (order) {
                                                 MusicViewModel.SortOrder.TITLE_ASC, MusicViewModel.SortOrder.ARTIST_ASC, MusicViewModel.SortOrder.DATE_ADDED_ASC, MusicViewModel.SortOrder.DATE_MODIFIED_ASC -> {
                                                     Icon(
-                                                        imageVector = Icons.Default.ArrowUpward,
+                                                        imageVector = RhythmIcons.ArrowUpward,
                                                         contentDescription = "Ascending",
                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
                                                 MusicViewModel.SortOrder.TITLE_DESC, MusicViewModel.SortOrder.ARTIST_DESC, MusicViewModel.SortOrder.DATE_ADDED_DESC, MusicViewModel.SortOrder.DATE_MODIFIED_DESC -> {
                                                     Icon(
-                                                        imageVector = Icons.Default.ArrowDownward,
+                                                        imageVector = RhythmIcons.ArrowDownward,
                                                         contentDescription = "Descending",
                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
@@ -1073,7 +1062,7 @@ fun LibraryScreen(
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.Sort,
+                                    imageVector = RhythmIcons.Sort,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -1095,7 +1084,7 @@ fun LibraryScreen(
                                 
                                 Spacer(modifier = Modifier.width(4.dp))
                                 
-                                val sortArrowIcon = if (playlistSortOrder.name.endsWith("_ASC")) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+                                val sortArrowIcon = if (playlistSortOrder.name.endsWith("_ASC")) RhythmIcons.ArrowUpward else RhythmIcons.ArrowDownward
                                 
                                 Icon(
                                     imageVector = sortArrowIcon,
@@ -1141,9 +1130,9 @@ fun LibraryScreen(
                                             leadingIcon = {
                                                 Icon(
                                                     imageVector = when (order) {
-                                                        LibraryPlaylistSortOrder.NAME_ASC, LibraryPlaylistSortOrder.NAME_DESC -> Icons.Filled.SortByAlpha
-                                                        LibraryPlaylistSortOrder.DATE_CREATED_ASC, LibraryPlaylistSortOrder.DATE_CREATED_DESC -> Icons.Filled.DateRange
-                                                        LibraryPlaylistSortOrder.SONG_COUNT_ASC, LibraryPlaylistSortOrder.SONG_COUNT_DESC -> Icons.Filled.MusicNote
+                                                        LibraryPlaylistSortOrder.NAME_ASC, LibraryPlaylistSortOrder.NAME_DESC -> RhythmIcons.SortByAlpha
+                                                        LibraryPlaylistSortOrder.DATE_CREATED_ASC, LibraryPlaylistSortOrder.DATE_CREATED_DESC -> RhythmIcons.DateRange
+                                                        LibraryPlaylistSortOrder.SONG_COUNT_ASC, LibraryPlaylistSortOrder.SONG_COUNT_DESC -> RhythmIcons.MusicNote
                                                     },
                                                     contentDescription = null,
                                                     tint = if (isSelected)
@@ -1154,7 +1143,7 @@ fun LibraryScreen(
                                             },
                                             trailingIcon = {
                                                 Icon(
-                                                    imageVector = if (order.name.endsWith("_ASC")) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                                                    imageVector = if (order.name.endsWith("_ASC")) RhythmIcons.ArrowUpward else RhythmIcons.ArrowDownward,
                                                     contentDescription = if (order.name.endsWith("_ASC")) "Ascending" else "Descending",
                                                     tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -1262,7 +1251,7 @@ fun LibraryScreen(
                                             "PLAYLISTS" -> RhythmIcons.PlaylistFilled
                                             "ALBUMS" -> RhythmIcons.Music.Album
                                             "ARTISTS" -> RhythmIcons.Artist
-                                            "EXPLORER" -> Icons.Default.Folder
+                                            "EXPLORER" -> RhythmIcons.Folder
                                             else -> RhythmIcons.Music.Song
                                         },
                                         contentDescription = null,
@@ -1301,7 +1290,7 @@ fun LibraryScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Edit,
+                                        imageVector = RhythmIcons.Edit,
                                         contentDescription = "Reorder tabs",
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -1384,11 +1373,11 @@ fun LibraryScreen(
 //
 //                        Icon(
 //                            imageVector = when {
-//                                isMediaScanning -> Icons.Default.Refresh
-//                                isExtractingMetadata -> Icons.Default.Analytics
-//                                isFetchingArtwork -> Icons.Default.Image
-//                                !isGenreDetectionRunning -> Icons.Default.Category
-//                                else -> Icons.Default.Sync
+//                                isMediaScanning -> RhythmIcons.Refresh
+//                                isExtractingMetadata -> MaterialSymbolIcon("analytics")
+//                                isFetchingArtwork -> RhythmIcons.Image
+//                                !isGenreDetectionRunning -> RhythmIcons.Category
+//                                else -> MaterialSymbolIcon("sync")
 //                            },
 //                            contentDescription = null,
 //                            
@@ -1761,7 +1750,7 @@ fun LibraryScreen(
             onDismissRequest = { operationError = null },
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.Error,
+                    imageVector = MaterialSymbolIcon("error", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -1771,7 +1760,7 @@ fun LibraryScreen(
             confirmButton = {
                 Button(onClick = { operationError = null }) {
                     Icon(
-                        imageVector = Icons.Filled.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -1789,7 +1778,7 @@ fun LibraryScreen(
             onDismissRequest = { showImportResultDialog = false; importResult = null },
             icon = {
                 Icon(
-                    imageVector = Icons.Rounded.RestartAlt,
+                    imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -1807,7 +1796,7 @@ fun LibraryScreen(
                     AppRestarter.restartApp(context)
                 }) {
                     Icon(
-                        imageVector = Icons.Rounded.RestartAlt,
+                        imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -1822,7 +1811,7 @@ fun LibraryScreen(
                     importResult = null
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2359,7 +2348,7 @@ fun SingleCardSongsContent(
                                             modifier = Modifier.size(48.dp)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Close,
+                                                imageVector = RhythmIcons.Close,
                                                 contentDescription = "Clear selection"
                                             )
                                         }
@@ -2428,7 +2417,7 @@ fun SingleCardSongsContent(
                                                 )
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.Shuffle,
+                                                    imageVector = RhythmIcons.Shuffle,
                                                     contentDescription = context.getString(R.string.cd_shuffle),
                                                     modifier = Modifier.size(22.dp)
                                                 )
@@ -2466,7 +2455,7 @@ fun SingleCardSongsContent(
                                             modifier = Modifier.weight(1f)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.PlayArrow,
+                                                imageVector = RhythmIcons.Play,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -2489,7 +2478,7 @@ fun SingleCardSongsContent(
                                             isEnd = true
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Shuffle,
+                                                imageVector = RhythmIcons.Shuffle,
                                                 contentDescription = "Shuffle selected",
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -2513,7 +2502,7 @@ fun SingleCardSongsContent(
                                     ) {
                                         val allAreLiked = selectedSongs.all { favoriteSongs.contains(it.id) }
                                         Icon(
-                                            imageVector = if (allAreLiked) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                                            imageVector = if (allAreLiked) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
                                             contentDescription = if (allAreLiked) "Unlike all" else "Like all",
                                             tint = if (allAreLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSecondaryContainer
                                         )
@@ -2527,7 +2516,7 @@ fun SingleCardSongsContent(
                                         modifier = Modifier.size(48.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.MoreVert,
+                                            imageVector = RhythmIcons.More,
                                             contentDescription = "More actions"
                                         )
                                     }
@@ -3136,7 +3125,7 @@ fun SingleCardAlbumsContent(
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Shuffle,
+                                        imageVector = RhythmIcons.Shuffle,
                                         contentDescription = context.getString(R.string.cd_shuffle),
                                         modifier = Modifier.size(22.dp)
                                     )
@@ -3242,7 +3231,7 @@ fun SingleCardAlbumsContent(
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Shuffle,
+                                        imageVector = RhythmIcons.Shuffle,
                                         contentDescription = context.getString(R.string.cd_shuffle),
                                         modifier = Modifier.size(22.dp)
                                     )
@@ -3668,7 +3657,7 @@ fun LibrarySongItem(
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Rounded.CheckCircle,
+                                imageVector = RhythmIcons.CheckCircle,
                                 contentDescription = "Selected",
                                 tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(28.dp)
@@ -3766,7 +3755,7 @@ fun LibrarySongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.SkipNext,
+                                    imageVector = RhythmIcons.SkipNext,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -3846,7 +3835,7 @@ fun LibrarySongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                                    imageVector = if (isFavorite) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
                                     contentDescription = null,
                                     
                                     modifier = Modifier
@@ -3887,7 +3876,7 @@ fun LibrarySongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                    imageVector = RhythmIcons.AddToPlaylist,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -3927,7 +3916,7 @@ fun LibrarySongItem(
                 //                 modifier = Modifier.size(32.dp)
                 //             ) {
                 //                 Icon(
-                //                     imageVector = Icons.Rounded.Person,
+                //                     imageVector = RhythmIcons.ArtistFilled,
                 //                     contentDescription = null,
                 //                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 //                     modifier = Modifier
@@ -3968,7 +3957,7 @@ fun LibrarySongItem(
                 //                 modifier = Modifier.size(32.dp)
                 //             ) {
                 //                 Icon(
-                //                     imageVector = Icons.Rounded.Album,
+                //                     imageVector = RhythmIcons.AlbumFilled,
                 //                     contentDescription = null,
                 //                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 //                     modifier = Modifier
@@ -4014,7 +4003,7 @@ fun LibrarySongItem(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Filled.Star,
+                                            imageVector = MaterialSymbolIcon("star", filled = true),
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                             modifier = Modifier
@@ -4072,7 +4061,7 @@ fun LibrarySongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Info,
+                                    imageVector = RhythmIcons.Info,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier
@@ -4113,7 +4102,7 @@ fun LibrarySongItem(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.Block,
+                                    imageVector = RhythmIcons.Block,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
                                     modifier = Modifier
@@ -4389,7 +4378,7 @@ fun PlaylistItem(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.AccessTime,
+                                    imageVector = RhythmIcons.AccessTime,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                     modifier = Modifier.size(12.dp)
@@ -4417,7 +4406,7 @@ fun PlaylistItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        imageVector = RhythmIcons.Forward,
                         contentDescription = "Open playlist",
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(20.dp)
@@ -4730,7 +4719,7 @@ fun LibraryAlbumItem(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.DateRange,
+                                    imageVector = RhythmIcons.DateRange,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                     modifier = Modifier.size(12.dp)
@@ -4772,7 +4761,7 @@ fun LibraryAlbumItem(
 @Composable
 fun EmptyState(
     message: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     onRefresh: (() -> Unit)? = null
 ) {
     Box(
@@ -5215,7 +5204,7 @@ fun AlbumGridItem(
                                 horizontalArrangement = Arrangement.spacedBy(3.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.DateRange,
+                                    imageVector = RhythmIcons.DateRange,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                     modifier = Modifier.size(10.dp)
@@ -5920,7 +5909,7 @@ fun PlaylistFabMenuContent(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.FileUpload,
+                    imageVector = MaterialSymbolIcon("file_upload"),
                     contentDescription = "Export playlists",
                     modifier = Modifier.size(20.dp)
                 )
@@ -5989,7 +5978,7 @@ fun PlaylistFabMenu(
                 Triple("Import playlist", RhythmIcons.Actions.Download, it)
             },
             onExportPlaylists?.let {
-                Triple("Export playlists", Icons.Default.FileUpload, it)
+                Triple("Export playlists", MaterialSymbolIcon("file_upload"), it)
             }
         )
     }
@@ -6014,14 +6003,14 @@ fun PlaylistFabMenu(
                 val imageVector by remember {
                     derivedStateOf {
                         if (checkedProgress > 0.5f) {
-                            Icons.Default.Close
+                            RhythmIcons.Close
                         } else {
                             RhythmIcons.Add
                         }
                     }
                 }
                 Icon(
-                    painter = rememberVectorPainter(imageVector),
+                    imageVector = imageVector,
                     contentDescription = if (expanded) "Close playlist menu" else "Open playlist menu",
                     modifier = Modifier.animateIcon({ checkedProgress })
                 )
@@ -6065,7 +6054,7 @@ fun PlaylistFabMenu(
 @Composable
 fun FabMenuItem(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: MaterialSymbolIcon,
     contentDescription: String,
     containerColor: Color, // Added containerColor
     contentColor: Color,   // Added contentColor

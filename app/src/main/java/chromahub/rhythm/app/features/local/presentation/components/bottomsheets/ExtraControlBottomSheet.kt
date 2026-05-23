@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,25 +23,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Album
-import androidx.compose.material.icons.filled.Cast
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.rounded.AccessTime
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Lyrics
-import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -61,13 +50,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import chromahub.rhythm.app.shared.data.model.LyricsData
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private data class ControlAction(
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val label: String,
     val containerColor: Color,
     val iconColor: Color,
@@ -143,7 +131,7 @@ fun ExtraControlBottomSheet(
 
         if ("FAVORITE" !in hiddenChips) {
             add(ControlAction(
-                icon = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                icon = if (isFavorite) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
                 label = if (isFavorite) "Unfavorite" else "Favorite",
                 containerColor = if (isFavorite) errorContainer else primary,
                 iconColor = if (isFavorite) error else onPrimary,
@@ -156,7 +144,7 @@ fun ExtraControlBottomSheet(
 
         if ("SPEED" !in hiddenChips) {
             add(ControlAction(
-                icon = Icons.Filled.Speed,
+                icon = MaterialSymbolIcon("speed", filled = true),
                 label = "Speed",
                 containerColor = secondary,
                 iconColor = onSecondary,
@@ -169,7 +157,7 @@ fun ExtraControlBottomSheet(
 
         if ("PITCH" !in hiddenChips) {
             add(ControlAction(
-                icon = Icons.Filled.GraphicEq,
+                icon = MaterialSymbolIcon("graphic_eq", filled = true),
                 label = "Pitch",
                 containerColor = secondary,
                 iconColor = onSecondary,
@@ -182,7 +170,7 @@ fun ExtraControlBottomSheet(
 
         if ("EQUALIZER" !in hiddenChips) {
             add(ControlAction(
-                icon = Icons.Filled.GraphicEq,
+                icon = MaterialSymbolIcon("graphic_eq", filled = true),
                 label = if (equalizerEnabled) "EQ (ON)" else "Equalizer",
                 containerColor = if (equalizerEnabled) tertiary else secondary,
                 iconColor = if (equalizerEnabled) onTertiary else onSecondary,
@@ -200,7 +188,7 @@ fun ExtraControlBottomSheet(
                 "${m}:${s.toString().padStart(2, '0')}"
             } else "Sleep Timer"
             add(ControlAction(
-                icon = if (sleepTimerActive) Icons.Rounded.AccessTime else Icons.Filled.AccessTime,
+                icon = if (sleepTimerActive) RhythmIcons.AccessTime else RhythmIcons.AccessTime,
                 label = sleepLabel,
                 containerColor = if (sleepTimerActive) tertiary else secondary,
                 iconColor = if (sleepTimerActive) onTertiary else onSecondary,
@@ -214,7 +202,7 @@ fun ExtraControlBottomSheet(
         if ("LYRICS" !in hiddenChips) {
             val hasLyrics = lyrics?.getBestLyrics()?.isNotEmpty() == true
             add(ControlAction(
-                icon = if (hasLyrics) Icons.Rounded.Edit else Icons.Rounded.Lyrics,
+                icon = if (hasLyrics) RhythmIcons.Edit else MaterialSymbolIcon("lyrics", filled = true),
                 label = if (hasLyrics) "Edit Lyrics" else "Add Lyrics",
                 containerColor = secondary,
                 iconColor = onSecondary,
@@ -227,7 +215,7 @@ fun ExtraControlBottomSheet(
 
         if ("ALBUM" !in hiddenChips) {
             add(ControlAction(
-                icon = Icons.Filled.Album,
+                icon = RhythmIcons.AlbumFilled,
                 label = "Go to Album",
                 containerColor = secondary,
                 iconColor = onSecondary,
@@ -240,7 +228,7 @@ fun ExtraControlBottomSheet(
 
         if ("ARTIST" !in hiddenChips) {
             add(ControlAction(
-                icon = Icons.Filled.Person,
+                icon = RhythmIcons.ArtistFilled,
                 label = "Go to Artist",
                 containerColor = secondary,
                 iconColor = onSecondary,
@@ -253,7 +241,7 @@ fun ExtraControlBottomSheet(
 
         if ("CAST" !in hiddenChips) {
             add(ControlAction(
-                icon = Icons.Filled.Cast,
+                icon = RhythmIcons.Cast,
                 label = "Cast",
                 containerColor = secondary,
                 iconColor = onSecondary,
@@ -266,7 +254,7 @@ fun ExtraControlBottomSheet(
 
         // Song Info (always shown)
         add(ControlAction(
-            icon = Icons.Rounded.Info,
+            icon = RhythmIcons.Info,
             label = "Song Info",
             containerColor = secondary,
             iconColor = onSecondary,
@@ -278,7 +266,7 @@ fun ExtraControlBottomSheet(
 
         // Share File (always shown)
         add(ControlAction(
-            icon = Icons.Rounded.Share,
+            icon = RhythmIcons.Share,
             label = "Share File",
             containerColor = secondary,
             iconColor = onSecondary,
@@ -381,7 +369,7 @@ fun ExtraControlBottomSheet(
 
 @Composable
 private fun ControlGridItem(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     text: String,
     containerColor: Color,
     iconColor: Color,

@@ -1,11 +1,11 @@
 package chromahub.rhythm.app.shared.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +31,7 @@ fun SwitchModeDialog(
         onDismissRequest = onDismissRequest,
         icon = {
             Icon(
-                imageVector = if (targetMode == "STREAMING") Icons.Rounded.Cloud else Icons.Rounded.Folder,
+                imageVector = if (targetMode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
@@ -68,7 +68,7 @@ fun SwitchModeDialog(
                         .height(52.dp)
                 ) {
                     Icon(
-                        imageVector = if (targetMode == "STREAMING") Icons.Rounded.Cloud else Icons.Rounded.Folder,
+                        imageVector = if (targetMode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -85,7 +85,7 @@ fun SwitchModeDialog(
                         .height(52.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )

@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.features.local.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,16 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -43,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 
 @Composable
@@ -145,7 +142,7 @@ fun CreatePlaylistDialog(
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -172,7 +169,7 @@ fun QueueActionDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                imageVector = RhythmIcons.Playlist,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -219,7 +216,7 @@ fun QueueActionDialog(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                                    imageVector = RhythmIcons.Playlist,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(20.dp)
@@ -264,7 +261,7 @@ fun QueueActionDialog(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                    imageVector = RhythmIcons.AddToPlaylist,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondary,
                                     modifier = Modifier.size(20.dp)
@@ -298,7 +295,7 @@ fun QueueActionDialog(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -327,7 +324,7 @@ fun QueueListActionDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                imageVector = RhythmIcons.Playlist,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -379,7 +376,7 @@ fun QueueListActionDialog(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                                    imageVector = RhythmIcons.Playlist,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(20.dp)
@@ -467,7 +464,7 @@ fun QueueListActionDialog(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                    imageVector = RhythmIcons.AddToPlaylist,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onTertiary,
                                     modifier = Modifier.size(20.dp)
@@ -501,7 +498,7 @@ fun QueueListActionDialog(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )

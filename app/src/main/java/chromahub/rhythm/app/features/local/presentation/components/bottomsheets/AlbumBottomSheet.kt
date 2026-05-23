@@ -2,6 +2,9 @@
 
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -13,10 +16,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.runtime.*
@@ -54,7 +53,6 @@ import chromahub.rhythm.app.shared.data.model.Album
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.player.PlayingEqIcon
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
@@ -468,7 +466,7 @@ fun AlbumBottomSheet(
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Filled.Album,
+                                                    imageVector = RhythmIcons.AlbumFilled,
                                                     contentDescription = null,
                                                     tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(
                                                         alpha = 0.7f
@@ -715,7 +713,7 @@ fun AlbumBottomSheet(
                                                             overflow = TextOverflow.Ellipsis
                                                         )
                                                         Icon(
-                                                            imageVector = Icons.Filled.ArrowDropDown,
+                                                            imageVector = RhythmIcons.ArrowDropDown,
                                                             contentDescription = context.getString(R.string.bottomsheet_disc_filter)
                                                         )
                                                     }
@@ -799,9 +797,9 @@ fun AlbumBottomSheet(
                                                                 leadingIcon = {
                                                                     Icon(
                                                                         imageVector = when (order) {
-                                                                            AlbumSortOrder.TRACK_NUMBER -> Icons.Filled.FormatListNumbered
-                                                                            AlbumSortOrder.TITLE_ASC, AlbumSortOrder.TITLE_DESC -> Icons.Filled.SortByAlpha
-                                                                            AlbumSortOrder.DURATION_ASC, AlbumSortOrder.DURATION_DESC -> Icons.Filled.AccessTime
+                                                                            AlbumSortOrder.TRACK_NUMBER -> RhythmIcons.FormatListNumbered
+                                                                            AlbumSortOrder.TITLE_ASC, AlbumSortOrder.TITLE_DESC -> RhythmIcons.SortByAlpha
+                                                                            AlbumSortOrder.DURATION_ASC, AlbumSortOrder.DURATION_DESC -> RhythmIcons.AccessTime
                                                                         },
                                                                         contentDescription = null,
                                                                         tint = if (isSelected)
@@ -814,7 +812,7 @@ fun AlbumBottomSheet(
                                                                     when (order) {
                                                                         AlbumSortOrder.TITLE_ASC, AlbumSortOrder.DURATION_ASC -> {
                                                                             Icon(
-                                                                                imageVector = Icons.Default.ArrowUpward,
+                                                                                imageVector = RhythmIcons.ArrowUpward,
                                                                                 contentDescription = "Ascending",
                                                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                             )
@@ -822,7 +820,7 @@ fun AlbumBottomSheet(
 
                                                                         AlbumSortOrder.TITLE_DESC, AlbumSortOrder.DURATION_DESC -> {
                                                                             Icon(
-                                                                                imageVector = Icons.Default.ArrowDownward,
+                                                                                imageVector = RhythmIcons.ArrowDownward,
                                                                                 contentDescription = "Descending",
                                                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                             )
@@ -861,7 +859,7 @@ fun AlbumBottomSheet(
                                                 modifier = Modifier.size(44.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Filled.Close,
+                                                    imageVector = RhythmIcons.Close,
                                                     contentDescription = "Close",
                                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -1033,7 +1031,7 @@ fun AlbumBottomSheet(
                                                     ) {
                                                         Box(contentAlignment = Alignment.Center) {
                                                             Icon(
-                                                                imageVector = Icons.Filled.MusicOff,
+                                                                imageVector = RhythmIcons.MusicOff,
                                                                 contentDescription = null,
                                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                                                     alpha = 0.6f
@@ -1213,7 +1211,7 @@ fun AlbumBottomSheet(
 //                    ) {
 //                        Box(contentAlignment = Alignment.Center) {
 //                            Icon(
-//                                imageVector = Icons.Filled.Close,
+//                                imageVector = RhythmIcons.Close,
 //                                contentDescription = "Close",
 //                                tint = MaterialTheme.colorScheme.onSurface,
 //                                modifier = Modifier.size(22.dp)
@@ -1291,7 +1289,7 @@ fun AlbumBottomSheet(
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Filled.Album,
+                                                    imageVector = RhythmIcons.AlbumFilled,
                                                     contentDescription = null,
                                                     tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(
                                                         alpha = 0.7f
@@ -1642,7 +1640,7 @@ fun AlbumBottomSheet(
                                                     overflow = TextOverflow.Ellipsis
                                                 )
                                                 Icon(
-                                                    imageVector = Icons.Filled.ArrowDropDown,
+                                                    imageVector = RhythmIcons.ArrowDropDown,
                                                     contentDescription = context.getString(R.string.bottomsheet_disc_filter)
                                                 )
                                             }
@@ -1753,9 +1751,9 @@ fun AlbumBottomSheet(
                                                         leadingIcon = {
                                                             Icon(
                                                                 imageVector = when (order) {
-                                                                    AlbumSortOrder.TRACK_NUMBER -> Icons.Filled.FormatListNumbered
-                                                                    AlbumSortOrder.TITLE_ASC, AlbumSortOrder.TITLE_DESC -> Icons.Filled.SortByAlpha
-                                                                    AlbumSortOrder.DURATION_ASC, AlbumSortOrder.DURATION_DESC -> Icons.Filled.AccessTime
+                                                                    AlbumSortOrder.TRACK_NUMBER -> RhythmIcons.FormatListNumbered
+                                                                    AlbumSortOrder.TITLE_ASC, AlbumSortOrder.TITLE_DESC -> RhythmIcons.SortByAlpha
+                                                                    AlbumSortOrder.DURATION_ASC, AlbumSortOrder.DURATION_DESC -> RhythmIcons.AccessTime
                                                                 },
                                                                 contentDescription = null,
                                                                 tint = if (isSelected)
@@ -1768,7 +1766,7 @@ fun AlbumBottomSheet(
                                                             when (order) {
                                                                 AlbumSortOrder.TITLE_ASC, AlbumSortOrder.DURATION_ASC -> {
                                                                     Icon(
-                                                                        imageVector = Icons.Default.ArrowUpward,
+                                                                        imageVector = RhythmIcons.ArrowUpward,
                                                                         contentDescription = "Ascending",
                                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                     )
@@ -1776,7 +1774,7 @@ fun AlbumBottomSheet(
 
                                                                 AlbumSortOrder.TITLE_DESC, AlbumSortOrder.DURATION_DESC -> {
                                                                     Icon(
-                                                                        imageVector = Icons.Default.ArrowDownward,
+                                                                        imageVector = RhythmIcons.ArrowDownward,
                                                                         contentDescription = "Descending",
                                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                     )
@@ -1975,7 +1973,7 @@ fun AlbumBottomSheet(
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
                                             Icon(
-                                                imageVector = Icons.Filled.MusicOff,
+                                                imageVector = RhythmIcons.MusicOff,
                                                 contentDescription = null,
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                                     alpha = 0.6f
@@ -2210,7 +2208,7 @@ fun ExpressiveSongItem(
                         exit = scaleOut() + fadeOut()
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Favorite,
+                            imageVector = RhythmIcons.FavoriteFilled,
                             contentDescription = "Favorite",
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(14.dp)
@@ -2307,7 +2305,7 @@ fun ExpressiveSongItem(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.SkipNext,
+                                            imageVector = RhythmIcons.SkipNext,
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -2389,7 +2387,7 @@ fun ExpressiveSongItem(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Rounded.FavoriteBorder,
+                                            imageVector = if (isFavorite) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -2430,7 +2428,7 @@ fun ExpressiveSongItem(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                            imageVector = RhythmIcons.AddToPlaylist,
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -2471,7 +2469,7 @@ fun ExpressiveSongItem(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Info,
+                                            imageVector = RhythmIcons.Info,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                             modifier = Modifier
@@ -2513,7 +2511,7 @@ fun ExpressiveSongItem(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Block,
+                                            imageVector = RhythmIcons.Block,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onErrorContainer,
                                             modifier = Modifier
@@ -2577,7 +2575,7 @@ private fun DiscFilterDropdownMenu(
                 leadingIcon = {
                     if (selectedDisc == 0) {
                         Icon(
-                            imageVector = Icons.Filled.Check,
+                            imageVector = RhythmIcons.Check,
                             contentDescription = null,
                             tint = selectedTextColor
                         )
@@ -2611,13 +2609,13 @@ private fun DiscFilterDropdownMenu(
                     leadingIcon = {
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Filled.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = selectedTextColor
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Filled.MusicNote,
+                                imageVector = RhythmIcons.MusicNote,
                                 contentDescription = null,
                                 tint = defaultIconColor,
                                 modifier = Modifier.size(18.dp)

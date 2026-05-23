@@ -1,13 +1,13 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
 import chromahub.rhythm.app.shared.presentation.viewmodel.AppVersion
 import chromahub.rhythm.app.util.HapticUtils
@@ -266,7 +265,7 @@ fun UpdateBottomSheet(
                         when {
                             downloadedFile != null -> {
                                 Icon(
-                                    imageVector = Icons.Filled.CheckCircle,
+                                    imageVector = RhythmIcons.CheckCircle,
                                     contentDescription = "Install",
                                     tint = MaterialTheme.colorScheme.onTertiary
                                 )
@@ -281,7 +280,7 @@ fun UpdateBottomSheet(
                             }
                             else -> {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                                    imageVector = RhythmIcons.Forward,
                                     contentDescription = "Update",
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )

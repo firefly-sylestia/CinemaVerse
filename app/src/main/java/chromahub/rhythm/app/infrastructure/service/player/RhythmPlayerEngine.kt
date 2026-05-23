@@ -24,8 +24,7 @@ import chromahub.rhythm.app.shared.data.model.AppSettings
 import android.net.Uri
 import chromahub.rhythm.app.features.streaming.di.StreamingMusicModule
 import kotlinx.coroutines.runBlocking
-import chromahub.rhythm.app.infrastructure.audio.BitPerfectRenderersFactory
-import chromahub.rhythm.app.infrastructure.audio.BitPerfectAudioSink
+import androidx.media3.datasource.cache.CacheDataSource
 import chromahub.rhythm.app.infrastructure.audio.RhythmBassBoostProcessor
 import chromahub.rhythm.app.infrastructure.audio.RhythmSpatializationProcessor
 import chromahub.rhythm.app.shared.data.model.TransitionSettings
@@ -52,7 +51,6 @@ import kotlinx.coroutines.launch
 @OptIn(UnstableApi::class)
 class RhythmPlayerEngine(
     private val context: Context,
-    private val bitPerfectMode: Boolean = false,
     private val bassBoostProcessor: RhythmBassBoostProcessor? = null,
     private val spatializationProcessor: RhythmSpatializationProcessor? = null
 ) {
@@ -123,15 +121,7 @@ class RhythmPlayerEngine(
         }
         
         override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
-            if (bitPerfectMode) {
-                // Log the current audio format for bit-perfect playback
-                val audioTrack = tracks.groups
-                    .firstOrNull { it.type == C.TRACK_TYPE_AUDIO && it.isSelected }
-                if (audioTrack != null && audioTrack.length > 0) {
-                    val format = audioTrack.getTrackFormat(0)
-                    BitPerfectAudioSink.logPlaybackFormat(format)
-                }
-            }
+            Log.d(TAG, "Tracks changed")
         }
     }
 
@@ -171,7 +161,7 @@ class RhythmPlayerEngine(
         _activeAudioSessionId.value = playerA.audioSessionId
 
         isReleased = false
-        Log.d(TAG, "RhythmPlayerEngine initialized. SessionA=${playerA.audioSessionId}, BitPerfect=$bitPerfectMode")
+        Log.d(TAG, "RhythmPlayerEngine initialized. SessionA=${playerA.audioSessionId}")
     }
 
     private fun requestAudioFocus() {
@@ -209,20 +199,32 @@ class RhythmPlayerEngine(
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
 
-        val renderersFactory = if (bitPerfectMode || bassBoostProcessor != null || spatializationProcessor != null) {
-            // Use BitPerfectRenderersFactory if bit-perfect mode is enabled OR if Rhythm processors are available
-            Log.d(TAG, "Using BitPerfectRenderersFactory (bit-perfect: $bitPerfectMode, processors: ${bassBoostProcessor != null || spatializationProcessor != null})")
-            BitPerfectRenderersFactory(
-                context, 
-                enableBitPerfect = bitPerfectMode,
-                bassBoostProcessor = bassBoostProcessor,
-                spatializationProcessor = spatializationProcessor
-            )
-        } else {
-            Log.d(TAG, "Using DefaultRenderersFactory")
-            DefaultRenderersFactory(context).apply {
-                setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        val renderersFactory = object : DefaultRenderersFactory(context) {
+            override fun buildAudioSink(
+                context: Context,
+                enableFloatOutput: Boolean,
+                enableAudioTrackPlaybackParams: Boolean
+            ): androidx.media3.exoplayer.audio.AudioSink? {
+                val processors = mutableListOf<androidx.media3.common.audio.AudioProcessor>()
+                if (bassBoostProcessor != null) {
+                    processors.add(bassBoostProcessor)
+                }
+                if (spatializationProcessor != null) {
+                    processors.add(spatializationProcessor)
+                }
+                
+                return if (processors.isNotEmpty()) {
+                    androidx.media3.exoplayer.audio.DefaultAudioSink.Builder(context)
+                        .setEnableFloatOutput(enableFloatOutput)
+                        .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
+                        .setAudioProcessors(processors.toTypedArray())
+                        .build()
+                } else {
+                    super.buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams)
+                }
             }
+        }.apply {
+            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
 
         val audioAttributes = AudioAttributes.Builder()
@@ -230,8 +232,14 @@ class RhythmPlayerEngine(
             .setUsage(C.USAGE_MEDIA)
             .build()
 
+        val baseDataSourceFactory = DefaultDataSource.Factory(context, DefaultHttpDataSource.Factory())
+        val cacheDataSourceFactory = CacheDataSource.Factory()
+            .setCache(AudioCacheManager.getCache(context))
+            .setUpstreamDataSourceFactory(baseDataSourceFactory)
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+
         val resolvingDataSourceFactory = ResolvingDataSource.Factory(
-            DefaultDataSource.Factory(context, DefaultHttpDataSource.Factory()),
+            cacheDataSourceFactory,
             object : ResolvingDataSource.Resolver {
                 override fun resolveDataSpec(dataSpec: DataSpec): DataSpec {
                     if (dataSpec.uri.scheme == "streaming") {
@@ -277,7 +285,7 @@ class RhythmPlayerEngine(
                 setAudioAttributes(audioAttributes, handleAudioFocus)
                 setHandleAudioBecomingNoisy(true)
                 setWakeMode(C.WAKE_MODE_LOCAL)
-                setSkipSilenceEnabled(false)
+                setSkipSilenceEnabled(appSettings.skipSilenceEnabled.value)
                 playWhenReady = false
             }
     }
@@ -298,6 +306,16 @@ class RhythmPlayerEngine(
             playerB.pauseAtEndOfMediaItems = !enabled
         }
         Log.d(TAG, "Gapless playback ${if (enabled) "enabled" else "disabled"}")
+    }
+
+    fun setSkipSilenceEnabled(enabled: Boolean) {
+        if (::playerA.isInitialized) {
+            playerA.skipSilenceEnabled = enabled
+        }
+        if (::playerB.isInitialized) {
+            playerB.skipSilenceEnabled = enabled
+        }
+        Log.d(TAG, "Skip silence ${if (enabled) "enabled" else "disabled"}")
     }
 
     /**

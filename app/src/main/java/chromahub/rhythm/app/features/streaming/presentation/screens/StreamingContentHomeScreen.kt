@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.streaming.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.background
 import chromahub.rhythm.app.shared.presentation.components.common.rhythmMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -27,41 +31,12 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoGraph
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Recommend
-import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.WavingHand
-import androidx.compose.material.icons.rounded.CloudOff
-import androidx.compose.material.icons.rounded.Album
-import androidx.compose.material.icons.rounded.Headphones
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.NewReleases
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
-import androidx.compose.material.icons.rounded.Reorder
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -136,7 +111,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFill
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.M3ImageUtils
 import kotlinx.coroutines.delay
@@ -356,8 +330,9 @@ fun StreamingContentHomeScreen(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Reorder,
-                        contentDescription = stringResource(id = R.string.cd_reorder_home_sections)
+                        imageVector = MaterialSymbolIcon("reorder", filled = true),
+                        contentDescription = stringResource(id = R.string.cd_reorder_home_sections),
+                        modifier = Modifier.size(25.dp)
                     )
                 }
             }
@@ -375,7 +350,8 @@ fun StreamingContentHomeScreen(
             ) {
                 Icon(
                     imageVector = RhythmIcons.Settings,
-                    contentDescription = stringResource(id = R.string.home_settings_cd)
+                    contentDescription = stringResource(id = R.string.home_settings_cd),
+                    modifier = Modifier.size(25.dp)
                 )
             }
         }
@@ -412,7 +388,7 @@ fun StreamingContentHomeScreen(
                                 id = R.string.streaming_home_connect_selected_service,
                                 selectedServiceName
                             ),
-                            icon = Icons.Rounded.CloudOff,
+                            icon = MaterialSymbolIcon("cloud_off", filled = true),
                             iconContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f),
                             iconTint = MaterialTheme.colorScheme.onErrorContainer,
                             actionText = stringResource(id = R.string.streaming_manage_service),
@@ -447,7 +423,7 @@ fun StreamingContentHomeScreen(
                             StreamingHomeStateCard(
                                 title = stringResource(id = R.string.streaming_library_syncing),
                                 subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint),
-                                icon = Icons.Filled.History,
+                                icon = MaterialSymbolIcon("history", filled = true),
                                 iconContainerColor = MaterialTheme.colorScheme.primaryContainer,
                                 iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 showProgressIndicator = true,
@@ -464,7 +440,7 @@ fun StreamingContentHomeScreen(
                         StreamingHomeStateCard(
                             title = stringResource(id = R.string.streaming_home_selected_service_unavailable),
                             subtitle = homeErrorMessage,
-                            icon = Icons.Rounded.Info,
+                            icon = RhythmIcons.Info,
                             iconContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f),
                             iconTint = MaterialTheme.colorScheme.onErrorContainer,
                             actionText = stringResource(id = R.string.streaming_manage_service),
@@ -499,7 +475,7 @@ fun StreamingContentHomeScreen(
                             StreamingHomeStateCard(
                                 title = stringResource(id = R.string.streaming_home_no_content_title),
                                 subtitle = stringResource(id = R.string.streaming_home_no_content_hint),
-                                icon = Icons.Filled.Home,
+                                icon = RhythmIcons.HomeFilled,
                                 iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 actionText = stringResource(id = R.string.streaming_manage_service),
@@ -532,7 +508,7 @@ fun StreamingContentHomeScreen(
 
                                     if (recommendationWidgetSongs.isEmpty()) {
                                     StreamingSectionEmptyCard(
-                                        icon = Icons.Rounded.Headphones,
+                                        icon = RhythmIcons.HeadphonesFilled,
                                         title = stringResource(id = R.string.streaming_home_widget_recommended_empty),
                                         subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint)
                                     )
@@ -591,7 +567,7 @@ fun StreamingContentHomeScreen(
 
                                     if (streamingArtists.isEmpty()) {
                                         StreamingSectionEmptyCard(
-                                            icon = Icons.Rounded.Person,
+                                            icon = RhythmIcons.ArtistFilled,
                                             title = stringResource(id = R.string.home_no_artists),
                                             subtitle = stringResource(id = R.string.home_no_artists_desc)
                                         )
@@ -670,7 +646,7 @@ fun StreamingContentHomeScreen(
 
                                     if (recentSongsForSelectedService.isEmpty()) {
                                     StreamingSectionEmptyCard(
-                                        icon = Icons.Default.History,
+                                        icon = MaterialSymbolIcon("history"),
                                         title = stringResource(id = R.string.home_no_recent_activity),
                                         subtitle = stringResource(id = R.string.home_no_recent_activity_desc)
                                     )
@@ -714,7 +690,7 @@ fun StreamingContentHomeScreen(
 
                                     if (newReleases.isEmpty()) {
                                     StreamingSectionEmptyCard(
-                                        icon = Icons.Rounded.NewReleases,
+                                        icon = MaterialSymbolIcon("new_releases", filled = true),
                                         title = stringResource(id = R.string.streaming_home_widget_new_releases_empty),
                                         subtitle = stringResource(id = R.string.streaming_home_widget_empty_hint)
                                     )
@@ -803,7 +779,7 @@ fun StreamingContentHomeScreen(
 private fun StreamingHomeStateCard(
     title: String,
     subtitle: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     iconContainerColor: Color,
     iconTint: Color,
     showProgressIndicator: Boolean = false,
@@ -882,7 +858,7 @@ private fun StreamingDisconnectedStateCard(
             id = R.string.streaming_home_connect_selected_service,
             selectedServiceName
         ),
-        icon = Icons.Rounded.CloudOff,
+        icon = MaterialSymbolIcon("cloud_off", filled = true),
         iconContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f),
         iconTint = MaterialTheme.colorScheme.onErrorContainer,
         actionText = stringResource(id = R.string.streaming_manage_service),
@@ -943,7 +919,7 @@ private fun StreamingWidgetSectionTitle(
                         isEnd = true
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Shuffle,
+                            imageVector = RhythmIcons.Shuffle,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -1114,7 +1090,7 @@ private fun StreamingGreetingWidgetCard(
                         modifier = Modifier.size(46.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Search,
+                            imageVector = RhythmIcons.SearchFilled,
                             contentDescription = context.getString(R.string.cd_search),
                             modifier = Modifier.size(24.dp)
                         )
@@ -1169,7 +1145,7 @@ private fun StreamingRhythmGuardCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Security,
+                    imageVector = RhythmIcons.Security,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -1464,7 +1440,7 @@ private fun StreamingLoadingCard(modifier: Modifier = Modifier) {
 
 @Composable
 private fun StreamingSectionEmptyCard(
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     title: String,
     subtitle: String
 ) {
@@ -1571,7 +1547,7 @@ private fun StreamingSongWidgetCard(
             }
 
             Icon(
-                imageVector = Icons.Rounded.PlayArrow,
+                imageVector = RhythmIcons.Play,
                 contentDescription = stringResource(id = R.string.cd_play),
                 modifier = Modifier.size(16.dp)
             )
@@ -1633,7 +1609,7 @@ private fun StreamingAlbumWidgetCard(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.PlayArrow,
+                            imageVector = RhythmIcons.Play,
                             contentDescription = stringResource(id = R.string.cd_play_album),
                             modifier = Modifier.size(20.dp)
                         )
@@ -1723,7 +1699,7 @@ private fun StreamingArtistWidgetCard(
                     .padding(4.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.PlayArrow,
+                    imageVector = RhythmIcons.Play,
                     contentDescription = stringResource(id = R.string.cd_play_artist, artist.name),
                     modifier = Modifier.size(20.dp)
                 )
@@ -1864,14 +1840,14 @@ private fun streamingGroupedBottomSheetItemShape(index: Int, totalCount: Int): R
     }
 }
 
-private fun streamingSectionIcon(sectionId: String): ImageVector {
+private fun streamingSectionIcon(sectionId: String): MaterialSymbolIcon {
     return when (sectionId) {
-        STREAMING_SECTION_GREETING -> Icons.Default.WavingHand
-        STREAMING_SECTION_DISCOVER -> Icons.Default.Recommend
-        STREAMING_SECTION_RHYTHM_GUARD -> Icons.Default.Security
-        STREAMING_SECTION_RHYTHM_STATS -> Icons.Default.AutoGraph
-        STREAMING_SECTION_RECENTLY_PLAYED -> Icons.Default.History
-        STREAMING_SECTION_NEW_RELEASES -> Icons.Rounded.NewReleases
+        STREAMING_SECTION_GREETING -> RhythmIcons.WavingHand
+        STREAMING_SECTION_DISCOVER -> MaterialSymbolIcon("recommend")
+        STREAMING_SECTION_RHYTHM_GUARD -> RhythmIcons.Security
+        STREAMING_SECTION_RHYTHM_STATS -> MaterialSymbolIcon("auto_graph")
+        STREAMING_SECTION_RECENTLY_PLAYED -> MaterialSymbolIcon("history")
+        STREAMING_SECTION_NEW_RELEASES -> MaterialSymbolIcon("new_releases", filled = true)
         else -> RhythmIcons.Music.Song
     }
 }

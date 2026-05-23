@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.components.lyrics
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -33,18 +37,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.FileOpen
-import androidx.compose.material.icons.rounded.MusicNote
-import androidx.compose.material.icons.rounded.Remove
-import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -341,7 +337,7 @@ fun LyricsEditorBottomSheet(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Rounded.Sync,
+                                imageVector = MaterialSymbolIcon("sync", filled = true),
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                                 tint = if (hasSyncedLyrics) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -432,7 +428,7 @@ fun LyricsEditorBottomSheet(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Remove,
+                                    imageVector = RhythmIcons.Remove,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -480,7 +476,7 @@ fun LyricsEditorBottomSheet(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Remove,
+                                    imageVector = RhythmIcons.Remove,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -528,7 +524,7 @@ fun LyricsEditorBottomSheet(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Add,
+                                    imageVector = RhythmIcons.Add,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -576,7 +572,7 @@ fun LyricsEditorBottomSheet(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Add,
+                                    imageVector = RhythmIcons.Add,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -670,7 +666,7 @@ fun LyricsEditorBottomSheet(
                     isStart = true
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.FileOpen,
+                        imageVector = MaterialSymbolIcon("file_open", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -691,7 +687,7 @@ fun LyricsEditorBottomSheet(
                     isEnd = true
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Save,
+                        imageVector = MaterialSymbolIcon("save", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -722,7 +718,7 @@ fun LyricsEditorBottomSheet(
                     isEnd = true
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.MusicNote,
+                        imageVector = RhythmIcons.MusicNote,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )

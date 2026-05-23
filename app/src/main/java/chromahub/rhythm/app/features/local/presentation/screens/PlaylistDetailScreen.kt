@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import androidx.compose.ui.focus.FocusRequester
 import chromahub.rhythm.app.features.local.presentation.screens.settings.SettingsSearchBar
@@ -27,8 +31,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,7 +41,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -102,7 +103,6 @@ import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.Playlist
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.features.local.presentation.components.player.MiniPlayer
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Search
 import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
 import chromahub.rhythm.app.ui.UiConstants
@@ -138,8 +138,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.runtime.collectAsState
 import chromahub.rhythm.app.features.local.presentation.components.player.PlayingEqIcon
 import androidx.compose.ui.graphics.Color
@@ -147,10 +145,6 @@ import androidx.room.util.copy
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Share
 
 // Playlist sort order enum
 enum class PlaylistSortOrder {
@@ -272,7 +266,7 @@ fun PlaylistDetailScreen(
             },
             icon = {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.QueueMusic,
+                    imageVector = RhythmIcons.Queue,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -327,7 +321,7 @@ fun PlaylistDetailScreen(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.QueueMusic,
+                                        imageVector = RhythmIcons.Queue,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onPrimary,
                                         modifier = Modifier.size(20.dp)
@@ -409,7 +403,7 @@ fun PlaylistDetailScreen(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -426,7 +420,7 @@ fun PlaylistDetailScreen(
             onDismissRequest = { showRenameDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.Edit,
+                    imageVector = RhythmIcons.Edit,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -450,7 +444,7 @@ fun PlaylistDetailScreen(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Save,
+                        imageVector = MaterialSymbolIcon("save", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -464,7 +458,7 @@ fun PlaylistDetailScreen(
                     showRenameDialog = false
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -481,7 +475,7 @@ fun PlaylistDetailScreen(
             onDismissRequest = { showDeleteDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.DeleteForever,
+                    imageVector = MaterialSymbolIcon("delete_forever", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -500,7 +494,7 @@ fun PlaylistDetailScreen(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.DeleteForever,
+                        imageVector = MaterialSymbolIcon("delete_forever", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -514,7 +508,7 @@ fun PlaylistDetailScreen(
                     showDeleteDialog = false
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -532,7 +526,7 @@ fun PlaylistDetailScreen(
             onDismissRequest = { showBulkDeleteDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.DeleteSweep,
+                    imageVector = MaterialSymbolIcon("delete_sweep", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -558,7 +552,7 @@ fun PlaylistDetailScreen(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.DeleteSweep,
+                        imageVector = MaterialSymbolIcon("delete_sweep", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -572,7 +566,7 @@ fun PlaylistDetailScreen(
                     showBulkDeleteDialog = false
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -755,7 +749,7 @@ fun PlaylistDetailScreen(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.Sort,
+                        imageVector = RhythmIcons.Sort,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
@@ -781,8 +775,8 @@ fun PlaylistDetailScreen(
                     
                     val sortArrowIcon = when (currentPlaylistSort) {
                         PlaylistSortOrder.TITLE_ASC, PlaylistSortOrder.ARTIST_ASC, PlaylistSortOrder.ALBUM_ASC, 
-                        PlaylistSortOrder.DURATION_ASC, PlaylistSortOrder.DATE_ADDED_ASC -> Icons.Default.ArrowUpward
-                        else -> Icons.Default.ArrowDownward
+                        PlaylistSortOrder.DURATION_ASC, PlaylistSortOrder.DATE_ADDED_ASC -> RhythmIcons.ArrowUpward
+                        else -> RhythmIcons.ArrowDownward
                     }
                     
                     Icon(
@@ -844,7 +838,7 @@ fun PlaylistDetailScreen(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = if (isReorderMode) Icons.Default.Check else Icons.Default.Reorder,
+                                            imageVector = if (isReorderMode) RhythmIcons.Check else MaterialSymbolIcon("reorder"),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -891,7 +885,7 @@ fun PlaylistDetailScreen(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = if (isMultiSelectMode) Icons.Default.Close else Icons.Default.CheckBox,
+                                            imageVector = if (isMultiSelectMode) RhythmIcons.Close else MaterialSymbolIcon("check_box"),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -939,7 +933,7 @@ fun PlaylistDetailScreen(
                                         modifier = Modifier.size(32.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.FileUpload,
+                                            imageVector = MaterialSymbolIcon("file_upload"),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -1126,11 +1120,11 @@ fun PlaylistDetailScreen(
                                 leadingIcon = {
                                     Icon(
                                         imageVector = when (sortOrder) {
-                                            PlaylistSortOrder.TITLE_ASC, PlaylistSortOrder.TITLE_DESC -> Icons.Filled.SortByAlpha
-                                            PlaylistSortOrder.ARTIST_ASC, PlaylistSortOrder.ARTIST_DESC -> Icons.Filled.Person
+                                            PlaylistSortOrder.TITLE_ASC, PlaylistSortOrder.TITLE_DESC -> RhythmIcons.SortByAlpha
+                                            PlaylistSortOrder.ARTIST_ASC, PlaylistSortOrder.ARTIST_DESC -> RhythmIcons.ArtistFilled
                                             PlaylistSortOrder.ALBUM_ASC, PlaylistSortOrder.ALBUM_DESC -> RhythmIcons.Music.Album
-                                            PlaylistSortOrder.DURATION_ASC, PlaylistSortOrder.DURATION_DESC -> Icons.Filled.Timer
-                                            PlaylistSortOrder.DATE_ADDED_ASC, PlaylistSortOrder.DATE_ADDED_DESC -> Icons.Filled.DateRange
+                                            PlaylistSortOrder.DURATION_ASC, PlaylistSortOrder.DURATION_DESC -> MaterialSymbolIcon("timer", filled = true)
+                                            PlaylistSortOrder.DATE_ADDED_ASC, PlaylistSortOrder.DATE_ADDED_DESC -> RhythmIcons.DateRange
                                         },
                                         contentDescription = null,
                                         tint = if (isSelected)
@@ -1144,14 +1138,14 @@ fun PlaylistDetailScreen(
                                         PlaylistSortOrder.TITLE_ASC, PlaylistSortOrder.ARTIST_ASC, PlaylistSortOrder.ALBUM_ASC, 
                                         PlaylistSortOrder.DURATION_ASC, PlaylistSortOrder.DATE_ADDED_ASC -> {
                                             Icon(
-                                                imageVector = Icons.Default.ArrowUpward,
+                                                imageVector = RhythmIcons.ArrowUpward,
                                                 contentDescription = "Ascending",
                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
                                         else -> {
                                             Icon(
-                                                imageVector = Icons.Default.ArrowDownward,
+                                                imageVector = RhythmIcons.ArrowDownward,
                                                 contentDescription = "Descending",
                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -2021,7 +2015,7 @@ fun PlaylistDetailScreen(
                                         )
                                     ) {
                                         Icon(
-                                            imageVector = if (isMultiSelectMode) Icons.Default.Close else Icons.Default.CheckBox,
+                                            imageVector = if (isMultiSelectMode) RhythmIcons.Close else MaterialSymbolIcon("check_box"),
                                             contentDescription = if (isMultiSelectMode) "Cancel selection" else "Select songs",
                                             modifier = Modifier.size(24.dp)
                                         )
@@ -2222,7 +2216,7 @@ fun PlaylistDetailScreen(
                                             }
                                         ) {
                                             Icon(
-                                                imageVector = if (selectedSongs.size == filteredSongs.size) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                                                imageVector = if (selectedSongs.size == filteredSongs.size) MaterialSymbolIcon("check_box") else MaterialSymbolIcon("check_box_outline_blank"),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -2249,7 +2243,7 @@ fun PlaylistDetailScreen(
                                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Default.DeleteSweep,
+                                                    imageVector = MaterialSymbolIcon("delete_sweep"),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(18.dp)
                                                 )
@@ -2270,7 +2264,7 @@ fun PlaylistDetailScreen(
                                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.Check,
+                                                imageVector = RhythmIcons.Check,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -2305,7 +2299,7 @@ fun PlaylistDetailScreen(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Reorder,
+                                            imageVector = MaterialSymbolIcon("reorder"),
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -2327,7 +2321,7 @@ fun PlaylistDetailScreen(
                                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Check,
+                                            imageVector = RhythmIcons.Check,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -2568,7 +2562,7 @@ fun PlaylistDetailScreen(
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = if (isMultiSelectMode) Icons.Default.Close else Icons.Default.DeleteSweep,
+                                        imageVector = if (isMultiSelectMode) RhythmIcons.Close else MaterialSymbolIcon("delete_sweep"),
                                         contentDescription = if (isMultiSelectMode) "Cancel" else "Remove",
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -2765,7 +2759,7 @@ fun PlaylistSongItem(
             onDismissRequest = { showRemoveDialog = false },
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.RemoveCircleOutline,
+                    imageVector = MaterialSymbolIcon("remove_circle_outline", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -2784,7 +2778,7 @@ fun PlaylistSongItem(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.RemoveCircleOutline,
+                        imageVector = MaterialSymbolIcon("remove_circle_outline", filled = true),
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2798,7 +2792,7 @@ fun PlaylistSongItem(
                     showRemoveDialog = false
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = RhythmIcons.Close,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
@@ -2991,7 +2985,7 @@ fun PlaylistSongItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.DragHandle,
+                            imageVector = RhythmIcons.DragHandle,
                             contentDescription = "Drag to reorder",
                             tint = if (isDragging) {
                                 MaterialTheme.colorScheme.onPrimaryContainer

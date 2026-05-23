@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.components.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -19,21 +23,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Reorder
-import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +55,6 @@ import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.launch
 
@@ -90,13 +83,13 @@ fun LibraryTabOrderBottomSheet(
     val scope = rememberCoroutineScope()
     
     // Helper function to get display name and icon for tab
-    fun getTabInfo(tabId: String): Pair<String, ImageVector> {
+    fun getTabInfo(tabId: String): Pair<String, MaterialSymbolIcon> {
         return when (tabId) {
             "SONGS" -> Pair("Songs", RhythmIcons.Relax)
             "PLAYLISTS" -> Pair("Playlists", RhythmIcons.PlaylistFilled)
             "ALBUMS" -> Pair("Albums", RhythmIcons.Music.Album)
             "ARTISTS" -> Pair("Artists", RhythmIcons.Artist)
-            "EXPLORER" -> Pair("Explorer", Icons.Default.Folder)
+            "EXPLORER" -> Pair("Explorer", RhythmIcons.Folder)
             else -> Pair(tabId, RhythmIcons.Music.Song)
         }
     }
@@ -243,7 +236,7 @@ fun LibraryTabOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (isHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    imageVector = if (isHidden) RhythmIcons.VisibilityOff else RhythmIcons.Visibility,
                                     contentDescription = if (isHidden) "Show tab" else "Hide tab",
                                     tint = if (isHidden) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
@@ -271,7 +264,7 @@ fun LibraryTabOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowUpward,
+                                    imageVector = RhythmIcons.ArrowUpward,
                                     contentDescription = "Move up",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -298,7 +291,7 @@ fun LibraryTabOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
+                                    imageVector = RhythmIcons.ArrowDownward,
                                     contentDescription = "Move down",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -330,7 +323,7 @@ fun LibraryTabOrderBottomSheet(
                         isStart = true
                     ) {
                         Icon(
-                            imageVector = Icons.Default.RestartAlt,
+                            imageVector = MaterialSymbolIcon("restart_alt"),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -357,7 +350,7 @@ fun LibraryTabOrderBottomSheet(
                         isEnd = true
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Check,
+                            imageVector = RhythmIcons.Check,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )

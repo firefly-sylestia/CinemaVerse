@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.shared.presentation.components.common
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -8,13 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Album
-import androidx.compose.material.icons.filled.AudioFile
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -80,11 +77,11 @@ fun M3Placeholder(
     }
     
     val icon = when (type) {
-        M3PlaceholderType.ALBUM -> Icons.Filled.Album
-        M3PlaceholderType.ARTIST -> Icons.Filled.Person
-        M3PlaceholderType.TRACK -> Icons.Filled.MusicNote
-        M3PlaceholderType.PLAYLIST -> Icons.AutoMirrored.Filled.QueueMusic
-        M3PlaceholderType.GENERAL -> Icons.Filled.AudioFile
+        M3PlaceholderType.ALBUM -> RhythmIcons.AlbumFilled
+        M3PlaceholderType.ARTIST -> RhythmIcons.ArtistFilled
+        M3PlaceholderType.TRACK -> RhythmIcons.MusicNote
+        M3PlaceholderType.PLAYLIST -> RhythmIcons.Queue
+        M3PlaceholderType.GENERAL -> MaterialSymbolIcon("audio_file", filled = true)
     }
     
     val containerColor = getColorForName(name, MaterialTheme.colorScheme.surfaceVariant)

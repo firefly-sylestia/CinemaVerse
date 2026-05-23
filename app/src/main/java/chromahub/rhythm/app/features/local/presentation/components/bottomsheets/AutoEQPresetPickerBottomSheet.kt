@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -10,8 +13,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -153,7 +154,7 @@ fun AutoEQPresetPickerBottomSheet(
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.FilterList, // Changed icon here
+                                imageVector = RhythmIcons.FilterList, // Changed icon here
                                 contentDescription = "Toggle filters",
                                 modifier = Modifier.size(20.dp)
                             )
@@ -298,7 +299,7 @@ fun AutoEQPresetPickerBottomSheet(
                                 trailingContent = {
                                     if (isCurrentlyActive) {
                                         Icon(
-                                            imageVector = Icons.Filled.Check,
+                                            imageVector = RhythmIcons.Check,
                                             contentDescription = "Currently active",
                                             tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                             modifier = Modifier.size(24.dp)
@@ -369,7 +370,7 @@ fun AutoEQPresetPickerBottomSheet(
                                     trailingContent = {
                                         if (isCurrentlyActive) {
                                             Icon(
-                                                imageVector = Icons.Filled.Check,
+                                                imageVector = RhythmIcons.Check,
                                                 contentDescription = "Currently active",
                                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                                 modifier = Modifier.size(24.dp)
@@ -455,7 +456,7 @@ private fun FilterSection(
                     leadingIcon = if (isSelected) {
                         {
                             Icon(
-                                imageVector = Icons.Filled.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 modifier = Modifier.size(FilterChipDefaults.IconSize)
                             )

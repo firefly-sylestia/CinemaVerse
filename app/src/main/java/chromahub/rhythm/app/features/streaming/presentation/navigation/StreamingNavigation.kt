@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.streaming.presentation.navigation
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.Activity
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
@@ -43,9 +47,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -75,8 +77,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
-import androidx.compose.material.icons.filled.AutoGraph
-import androidx.compose.material.icons.outlined.AutoGraph
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -125,7 +125,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.rememberModalBottomSheetState
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.SongPickerBottomSheet
 import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
 import chromahub.rhythm.app.ui.UiConstants
@@ -2150,8 +2149,8 @@ private fun StreamingNavigationRail(
                     StreamingNavRailItem(
                         route = StreamingScreen.RhythmStats.route,
                         title = context.getString(R.string.rhythm_stats),
-                        selectedIcon = Icons.Filled.AutoGraph,
-                        unselectedIcon = Icons.Outlined.AutoGraph,
+                        selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
+                        unselectedIcon = MaterialSymbolIcon("auto_graph"),
                         onClick = { navigateToTopLevel(StreamingScreen.RhythmStats.route) }
                     ),
                     StreamingNavRailItem(
@@ -2192,8 +2191,8 @@ private fun StreamingNavigationRail(
 private data class StreamingNavRailItem(
     val route: String,
     val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
+    val selectedIcon: MaterialSymbolIcon,
+    val unselectedIcon: MaterialSymbolIcon,
     val onClick: () -> Unit
 )
 

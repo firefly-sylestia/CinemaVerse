@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.shared.presentation.components
 
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -7,10 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -83,7 +82,7 @@ fun RatingStars(
             )
             
             Icon(
-                imageVector = if (isFilled) Icons.Filled.Star else Icons.Outlined.Star,
+                imageVector = if (isFilled) MaterialSymbolIcon("star", filled = true) else MaterialSymbolIcon("star"),
                 contentDescription = "${starRating} stars",
                 tint = starColor,
                 modifier = Modifier
@@ -125,7 +124,7 @@ fun RatingStarsDisplay(
         repeat(5) { index ->
             val isFilled = (index + 1) <= rating
             Icon(
-                imageVector = if (isFilled) Icons.Filled.Star else Icons.Outlined.Star,
+                imageVector = if (isFilled) MaterialSymbolIcon("star", filled = true) else MaterialSymbolIcon("star"),
                 contentDescription = null,
                 tint = if (isFilled) filledColor else emptyColor,
                 modifier = Modifier.size(size)

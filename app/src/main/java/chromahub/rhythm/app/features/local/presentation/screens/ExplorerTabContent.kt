@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -20,12 +24,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,7 +51,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ContentLoading
 import chromahub.rhythm.app.shared.presentation.components.common.DataProcessingLoader
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -202,7 +199,7 @@ fun SingleCardExplorerContent(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Default.Folder,
+                                imageVector = RhythmIcons.Folder,
                                 contentDescription = null,
                                 modifier = Modifier.size(36.dp)
                             )
@@ -256,7 +253,7 @@ fun SingleCardExplorerContent(
                         )
                     ) {
                         Icon(
-                            imageVector = if (hasStoragePermission) Icons.Default.Check else Icons.Default.Lock,
+                            imageVector = if (hasStoragePermission) RhythmIcons.Check else MaterialSymbolIcon("lock"),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -280,7 +277,7 @@ fun SingleCardExplorerContent(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Info,
+                                    imageVector = RhythmIcons.Info,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(20.dp)
@@ -495,7 +492,7 @@ fun SingleCardExplorerContent(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Default.Folder,
+                                        imageVector = RhythmIcons.Folder,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onPrimary,
                                         modifier = Modifier.size(24.dp)
@@ -541,7 +538,7 @@ fun SingleCardExplorerContent(
                                         modifier = Modifier.size(44.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                            imageVector = RhythmIcons.Back,
                                             contentDescription = "Go back",
                                             modifier = Modifier.size(22.dp)
                                         )
@@ -561,7 +558,7 @@ fun SingleCardExplorerContent(
                                             modifier = Modifier.size(44.dp)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Shuffle,
+                                                imageVector = RhythmIcons.Shuffle,
                                                 contentDescription = context.getString(R.string.cd_shuffle),
                                                 modifier = Modifier.size(22.dp)
                                             )
@@ -634,7 +631,7 @@ fun SingleCardExplorerContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Storage,
+                            imageVector = RhythmIcons.Storage,
                             contentDescription = "Storage",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(22.dp)
@@ -905,14 +902,14 @@ fun SingleCardExplorerContent(
                                 ) {}
 
                                 Icon(
-                                    imageVector = Icons.Default.FolderOff,
+                                    imageVector = MaterialSymbolIcon("folder_off"),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                                     modifier = Modifier.size(48.dp)
                                 )
 
                                 Icon(
-                                    imageVector = Icons.Default.MusicNote,
+                                    imageVector = RhythmIcons.MusicNote,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
                                     modifier = Modifier
@@ -922,7 +919,7 @@ fun SingleCardExplorerContent(
                                 )
 
                                 Icon(
-                                    imageVector = Icons.Default.LibraryMusic,
+                                    imageVector = RhythmIcons.Library,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
                                     modifier = Modifier
@@ -966,7 +963,7 @@ fun SingleCardExplorerContent(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Info,
+                                            imageVector = RhythmIcons.Info,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.size(16.dp)
@@ -993,7 +990,7 @@ fun SingleCardExplorerContent(
                                     )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                        imageVector = RhythmIcons.Back,
                                         contentDescription = null,
                                         modifier = Modifier.size(16.dp)
                                     )
@@ -1028,7 +1025,7 @@ fun SingleCardExplorerContent(
             },
             icon = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                    imageVector = RhythmIcons.AddToPlaylist,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp)
                 )
@@ -1136,7 +1133,7 @@ fun SingleCardExplorerContent(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                            imageVector = RhythmIcons.AddToPlaylist,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -1155,7 +1152,7 @@ fun SingleCardExplorerContent(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = RhythmIcons.Close,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
@@ -1909,7 +1906,7 @@ fun FolderItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Folder,
+                        imageVector = RhythmIcons.Folder,
                         contentDescription = "Folder",
                         tint = MaterialTheme.colorScheme.onTertiaryContainer,
                         modifier = Modifier.size(36.dp)
@@ -1962,7 +1959,7 @@ fun FolderItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        imageVector = RhythmIcons.Forward,
                         contentDescription = "Open folder",
                         modifier = Modifier.size(22.dp)
                     )
@@ -2050,7 +2047,7 @@ fun ExplorerBreadcrumb(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Home,
+                        imageVector = RhythmIcons.Home,
                         contentDescription = "Home",
                         modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -2069,7 +2066,7 @@ fun ExplorerBreadcrumb(
 
             item {
                 Icon(
-                    imageVector = Icons.Default.ChevronRight,
+                    imageVector = MaterialSymbolIcon("chevron_right"),
                     contentDescription = "Navigate",
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
@@ -2126,7 +2123,7 @@ fun ExplorerBreadcrumb(
                     ) {
                         if (isLastSegment) {
                             Icon(
-                                imageVector = Icons.Default.Folder,
+                                imageVector = RhythmIcons.Folder,
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
@@ -2148,7 +2145,7 @@ fun ExplorerBreadcrumb(
 
                         if (isLastSegment) {
                             Icon(
-                                imageVector = Icons.Default.LocationOn,
+                                imageVector = RhythmIcons.Location,
                                 contentDescription = "Current location",
                                 modifier = Modifier.size(12.dp),
                                 tint = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
@@ -2216,8 +2213,8 @@ fun ExplorerItemCard(
                         ) {
                             Icon(
                                 imageVector = when (item.name) {
-                                    "Internal Storage" -> Icons.Default.Storage
-                                    else -> Icons.Default.SdStorage
+                                    "Internal Storage" -> RhythmIcons.Storage
+                                    else -> MaterialSymbolIcon("sd_storage")
                                 },
                                 contentDescription = "${item.name} icon",
                                 modifier = Modifier.size(36.dp)
@@ -2253,7 +2250,7 @@ fun ExplorerItemCard(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                                imageVector = RhythmIcons.Forward,
                                 contentDescription = "Browse storage",
                                 modifier = Modifier.size(22.dp)
                             )
@@ -2291,7 +2288,7 @@ fun ExplorerItemCard(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Default.Folder,
+                                imageVector = RhythmIcons.Folder,
                                 contentDescription = "Folder icon",
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.size(28.dp)
@@ -2361,7 +2358,7 @@ fun ExplorerItemCard(
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.MoreVert,
+                                        imageVector = RhythmIcons.More,
                                         contentDescription = "Folder options",
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         modifier = Modifier.size(20.dp)
@@ -2384,7 +2381,7 @@ fun ExplorerItemCard(
                                             },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Default.PlaylistAdd,
+                                                    imageVector = RhythmIcons.AddToPlaylist,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -2402,7 +2399,7 @@ fun ExplorerItemCard(
                                             },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Default.QueueMusic,
+                                                    imageVector = RhythmIcons.Queue,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )

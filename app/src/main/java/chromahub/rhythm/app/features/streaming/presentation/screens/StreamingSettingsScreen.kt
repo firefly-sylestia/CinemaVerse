@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.streaming.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -14,21 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoGraph
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CloudQueue
-import androidx.compose.material.icons.filled.HighQuality
-import androidx.compose.material.icons.filled.MobileFriendly
-import androidx.compose.material.icons.filled.OfflineBolt
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -171,7 +163,7 @@ fun StreamingSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Warning,
+                                imageVector = RhythmIcons.Warning,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(24.dp)
@@ -207,7 +199,7 @@ fun StreamingSettingsScreen(
                     title = stringResource(id = R.string.streaming_settings_group_services),
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Default.CloudQueue,
+                            icon = MaterialSymbolIcon("cloud_queue"),
                             title = { Text(text = stringResource(id = R.string.exp_go_mode)) },
                             description = { Text(text = stringResource(id = R.string.exp_go_mode_desc)) },
                             onClick = {
@@ -225,7 +217,7 @@ fun StreamingSettingsScreen(
                     title = stringResource(id = R.string.streaming_settings_group_wellbeing),
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Default.AutoGraph,
+                            icon = MaterialSymbolIcon("auto_graph"),
                             title = {
                                 Text(text = stringResource(id = R.string.settings_rhythm_stats))
                             },
@@ -237,7 +229,7 @@ fun StreamingSettingsScreen(
                             onClick = onOpenGlobalSettings
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Default.Security,
+                            icon = RhythmIcons.Security,
                             title = {
                                 Text(text = stringResource(id = R.string.settings_rhythm_guard))
                             },
@@ -257,7 +249,7 @@ fun StreamingSettingsScreen(
                     title = stringResource(id = R.string.streaming_settings_group_actions),
                     items = listOf(
                         Material3SettingsItem(
-                            icon = Icons.Default.Settings,
+                            icon = RhythmIcons.Settings,
                             title = {
                                 Text(text = stringResource(id = R.string.streaming_open_full_settings))
                             },
@@ -267,7 +259,7 @@ fun StreamingSettingsScreen(
                             onClick = onOpenGlobalSettings
                         ),
                         Material3SettingsItem(
-                            icon = Icons.Default.SwapHoriz,
+                            icon = MaterialSymbolIcon("swap_horiz"),
                             title = {
                                 Text(text = stringResource(id = R.string.streaming_switch_to_local_mode))
                             },
@@ -356,7 +348,7 @@ private fun StreamingStatusCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.CloudQueue,
+                    imageVector = MaterialSymbolIcon("cloud_queue"),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
@@ -489,7 +481,7 @@ private fun ServiceSelectionBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.CloudQueue,
+                            imageVector = MaterialSymbolIcon("cloud_queue"),
                             contentDescription = null,
                             tint = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
@@ -529,7 +521,7 @@ private fun ServiceSelectionBottomSheet(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(20.dp)
@@ -607,7 +599,7 @@ private fun QualitySelectionBottomSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.HighQuality,
+                            imageVector = MaterialSymbolIcon("high_quality"),
                             contentDescription = null,
                             tint = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
@@ -643,7 +635,7 @@ private fun QualitySelectionBottomSheet(
 
                         if (isSelected) {
                             Icon(
-                                imageVector = Icons.Default.Check,
+                                imageVector = RhythmIcons.Check,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(20.dp)

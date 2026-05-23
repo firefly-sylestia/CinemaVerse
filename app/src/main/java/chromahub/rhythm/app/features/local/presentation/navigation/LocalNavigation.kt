@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.navigation
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -34,13 +38,10 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -112,7 +113,6 @@ import chromahub.rhythm.app.features.local.presentation.components.dialogs.Queue
 import chromahub.rhythm.app.features.local.presentation.components.dialogs.QueueListActionDialog
 import chromahub.rhythm.app.features.local.presentation.components.player.MiniPlayer
 import chromahub.rhythm.app.features.local.presentation.components.player.SleepTimerBottomSheetNew
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.screens.LibraryScreen
 import chromahub.rhythm.app.features.local.presentation.screens.HomeScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
@@ -186,10 +186,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.rememberLazyListState // Redundant, but ensuring it's there
 import androidx.compose.material3.OutlinedTextField // Redundant, but ensuring it's there
 import androidx.compose.foundation.shape.CircleShape // Redundant, but ensuring it's there
-import androidx.compose.material.icons.outlined.AutoGraph
-import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.text.style.TextAlign // Redundant, but ensuring it's there
 
 sealed class Screen(val route: String) {
@@ -956,7 +952,7 @@ private fun LocalNavigationContent(
                                         ),
                                         Triple(
                                             libraryRoute, "Library",
-                                            Pair(Icons.Filled.LibraryMusic, RhythmIcons.Library)
+                                            Pair(RhythmIcons.Library, RhythmIcons.Library)
                                         )
                                     )
 
@@ -2546,7 +2542,7 @@ private fun LocalNavigationContent(
                                     },
                                     icon = {
                                         Icon(
-                                            imageVector = Icons.Filled.Info,
+                                            imageVector = RhythmIcons.Info,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary
                                         )
@@ -2559,7 +2555,7 @@ private fun LocalNavigationContent(
                                             navigateBackOrToLanding()
                                         }) {
                                             Icon(
-                                                imageVector = Icons.Filled.CheckCircle,
+                                                imageVector = RhythmIcons.CheckCircle,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -2785,8 +2781,8 @@ private fun LocalNavigationRail(
                 LocalNavRailItem(
                     route = libraryRoute,
                     title = "Library",
-                    selectedIcon = Icons.Filled.LibraryMusic,
-                    unselectedIcon = RhythmIcons.Library,
+                    selectedIcon = RhythmIcons.Navigation.Library,
+                    unselectedIcon = RhythmIcons.Navigation.LibraryOutlined,
                     onClick = {
                         navigateToTopLevel(libraryRoute)
                     }
@@ -2794,8 +2790,8 @@ private fun LocalNavigationRail(
                 LocalNavRailItem(
                     route = Screen.ListeningStats.route,
                     title = "Stats",
-                    selectedIcon = Icons.Filled.AutoGraph,
-                    unselectedIcon = Icons.Outlined.AutoGraph,
+                    selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
+                    unselectedIcon = MaterialSymbolIcon("auto_graph"),
                     onClick = {
                         navigateToTopLevel(Screen.ListeningStats.route)
                     }
@@ -2803,8 +2799,8 @@ private fun LocalNavigationRail(
                 LocalNavRailItem(
                     route = Screen.Search.route,
                     title = "Search",
-                    selectedIcon = Icons.Filled.Search,
-                    unselectedIcon = Icons.Outlined.Search,
+                    selectedIcon = RhythmIcons.SearchFilled,
+                    unselectedIcon = RhythmIcons.Search,
                     onClick = {
                         navigateToTopLevel(Screen.Search.route)
                     }
@@ -2812,8 +2808,8 @@ private fun LocalNavigationRail(
                 LocalNavRailItem(
                     route = Screen.Settings.route,
                     title = "Settings",
-                    selectedIcon = Icons.Filled.Settings,
-                    unselectedIcon = Icons.Outlined.Settings,
+                    selectedIcon = RhythmIcons.SettingsFilled,
+                    unselectedIcon = RhythmIcons.Settings,
                     onClick = {
                         navigateToTopLevel(Screen.Settings.route)
                     }
@@ -2846,8 +2842,8 @@ private fun LocalNavigationRail(
 private data class LocalNavRailItem(
     val route: String,
     val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
+    val selectedIcon: MaterialSymbolIcon,
+    val unselectedIcon: MaterialSymbolIcon,
     val onClick: () -> Unit
 )
 

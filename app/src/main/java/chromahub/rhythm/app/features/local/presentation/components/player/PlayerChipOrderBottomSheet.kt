@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.components.player
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -19,24 +23,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.rounded.Lyrics
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -63,7 +54,6 @@ import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.launch
 
@@ -101,18 +91,18 @@ fun PlayerChipOrderBottomSheet(
     val scope = rememberCoroutineScope()
     
     // Helper function to get display name and icon for chip
-    fun getChipInfo(chipId: String): Pair<String, ImageVector> {
+    fun getChipInfo(chipId: String): Pair<String, MaterialSymbolIcon> {
         return when (chipId) {
             "FAVORITE" -> Pair("Favorite", RhythmIcons.FavoriteFilled)
-            "SPEED" -> Pair("Speed", Icons.Filled.Speed)
-            "PITCH" -> Pair("Pitch", Icons.Filled.GraphicEq)
-            "EQUALIZER" -> Pair("Equalizer", Icons.Filled.GraphicEq)
-            "SLEEP_TIMER" -> Pair("Sleep Timer", Icons.Filled.AccessTime)
-            "LYRICS" -> Pair("Lyrics", Icons.Rounded.Lyrics)
+            "SPEED" -> Pair("Speed", MaterialSymbolIcon("speed", filled = true))
+            "PITCH" -> Pair("Pitch", MaterialSymbolIcon("graphic_eq", filled = true))
+            "EQUALIZER" -> Pair("Equalizer", MaterialSymbolIcon("graphic_eq", filled = true))
+            "SLEEP_TIMER" -> Pair("Sleep Timer", RhythmIcons.AccessTime)
+            "LYRICS" -> Pair("Lyrics", MaterialSymbolIcon("lyrics", filled = true))
             "ALBUM" -> Pair("Album", RhythmIcons.Music.Album)
             "ARTIST" -> Pair("Artist", RhythmIcons.Music.Artist)
             "CAST" -> Pair("Cast", RhythmIcons.Devices.Cast)
-            else -> Pair(chipId, Icons.Rounded.Edit)
+            else -> Pair(chipId, RhythmIcons.Edit)
         }
     }
     
@@ -260,7 +250,7 @@ fun PlayerChipOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (isHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    imageVector = if (isHidden) RhythmIcons.VisibilityOff else RhythmIcons.Visibility,
                                     contentDescription = if (isHidden) "Show chip" else "Hide chip",
                                     tint = if (isHidden) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
@@ -291,7 +281,7 @@ fun PlayerChipOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowUpward,
+                                    imageVector = RhythmIcons.ArrowUpward,
                                     contentDescription = "Move up",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -321,7 +311,7 @@ fun PlayerChipOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
+                                    imageVector = RhythmIcons.ArrowDownward,
                                     contentDescription = "Move down",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -359,7 +349,7 @@ fun PlayerChipOrderBottomSheet(
                             isEnd = true
                         ) {
                             Icon(
-                                imageVector = Icons.Default.RestartAlt,
+                                imageVector = MaterialSymbolIcon("restart_alt"),
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp)
                             )

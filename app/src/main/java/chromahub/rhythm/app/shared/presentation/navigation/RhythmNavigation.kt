@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.shared.presentation.navigation
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -41,23 +45,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CloudQueue
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.CloudQueue
-import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -864,7 +856,7 @@ private fun RhythmGuardWarningHost(
             textContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.Warning,
+                    imageVector = RhythmIcons.Warning,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -919,7 +911,7 @@ private fun RhythmGuardWarningHost(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Check,
+                        imageVector = RhythmIcons.Check,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -930,7 +922,7 @@ private fun RhythmGuardWarningHost(
             dismissButton = {
                 OutlinedButton(onClick = { volumeDialogState = null }) {
                     Icon(
-                        imageVector = Icons.Filled.Settings,
+                        imageVector = RhythmIcons.SettingsFilled,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -960,7 +952,7 @@ private fun RhythmGuardWarningHost(
             textContentColor = MaterialTheme.colorScheme.onSurface,
             icon = {
                 Icon(
-                    imageVector = Icons.Filled.Schedule,
+                    imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.secondary
                 )
@@ -1025,7 +1017,7 @@ private fun RhythmGuardWarningHost(
                             }
                             OutlinedButton(onClick = { showBreakDurationPicker = true }) {
                                 Icon(
-                                    imageVector = Icons.Filled.AccessTime,
+                                    imageVector = RhythmIcons.AccessTime,
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -1051,7 +1043,7 @@ private fun RhythmGuardWarningHost(
                             .height(52.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Pause,
+                            imageVector = RhythmIcons.Pause,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -1066,7 +1058,7 @@ private fun RhythmGuardWarningHost(
                             .height(52.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.AccessTime,
+                            imageVector = RhythmIcons.AccessTime,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
@@ -1447,7 +1439,7 @@ private fun RhythmGuardResumeCountdownBubble(
                     indicatorColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.AccessTime,
+                        imageVector = RhythmIcons.AccessTime,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(16.dp)
@@ -1607,7 +1599,7 @@ fun ModeSelectorScreen(
             ModeCard(
                 title = "Local",
                 description = "Play music stored on your device",
-                icon = if (currentMode == AppMode.LOCAL) Icons.Filled.MusicNote else Icons.Outlined.MusicNote,
+                icon = if (currentMode == AppMode.LOCAL) RhythmIcons.MusicNote else RhythmIcons.MusicNote,
                 isSelected = currentMode == AppMode.LOCAL,
                 onClick = { onModeSelected(AppMode.LOCAL) },
                 modifier = Modifier.weight(1f)
@@ -1617,7 +1609,7 @@ fun ModeSelectorScreen(
             ModeCard(
                 title = "Streaming",
                 description = "Stream from Spotify and more",
-                icon = if (currentMode == AppMode.STREAMING) Icons.Filled.CloudQueue else Icons.Outlined.CloudQueue,
+                icon = if (currentMode == AppMode.STREAMING) MaterialSymbolIcon("cloud_queue", filled = true) else MaterialSymbolIcon("cloud_queue"),
                 isSelected = currentMode == AppMode.STREAMING,
                 onClick = { onModeSelected(AppMode.STREAMING) },
                 modifier = Modifier.weight(1f)
@@ -1633,7 +1625,7 @@ fun ModeSelectorScreen(
 private fun ModeCard(
     title: String,
     description: String,
-    icon: ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -1769,7 +1761,7 @@ fun CompactModeSwitcher(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.MusicNote,
+                        imageVector = RhythmIcons.MusicNote,
                         contentDescription = "Local",
                         modifier = Modifier.size(16.dp),
                         tint = if (currentMode == AppMode.LOCAL) {
@@ -1804,7 +1796,7 @@ fun CompactModeSwitcher(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.CloudQueue,
+                        imageVector = MaterialSymbolIcon("cloud_queue"),
                         contentDescription = "Streaming",
                         modifier = Modifier.size(16.dp),
                         tint = if (currentMode == AppMode.STREAMING) {

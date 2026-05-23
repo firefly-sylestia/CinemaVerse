@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.streaming.presentation.components.settings
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -18,28 +22,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Recommend
-import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.WavingHand
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.rounded.AutoGraph
-import androidx.compose.material.icons.rounded.NewReleases
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -139,15 +126,15 @@ fun StreamingHomeSectionOrderBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    fun getSectionInfo(sectionId: String): Pair<String, ImageVector> {
+    fun getSectionInfo(sectionId: String): Pair<String, MaterialSymbolIcon> {
         return when (sectionId) {
-            STREAMING_SECTION_DISCOVER -> context.getString(R.string.home_section_discover) to Icons.Default.Recommend
-            STREAMING_SECTION_ARTISTS -> context.getString(R.string.home_top_artists) to Icons.Rounded.Person
-            STREAMING_SECTION_RHYTHM_GUARD -> context.getString(R.string.settings_rhythm_guard) to Icons.Default.Security
-            STREAMING_SECTION_RHYTHM_STATS -> context.getString(R.string.settings_rhythm_stats) to Icons.Rounded.AutoGraph
-            STREAMING_SECTION_RECENTLY_PLAYED -> context.getString(R.string.home_section_recently_played) to Icons.Default.History
-            STREAMING_SECTION_NEW_RELEASES -> context.getString(R.string.home_section_new_releases) to Icons.Rounded.NewReleases
-            else -> sectionId to Icons.Default.Recommend
+            STREAMING_SECTION_DISCOVER -> context.getString(R.string.home_section_discover) to MaterialSymbolIcon("recommend")
+            STREAMING_SECTION_ARTISTS -> context.getString(R.string.home_top_artists) to RhythmIcons.ArtistFilled
+            STREAMING_SECTION_RHYTHM_GUARD -> context.getString(R.string.settings_rhythm_guard) to RhythmIcons.Security
+            STREAMING_SECTION_RHYTHM_STATS -> context.getString(R.string.settings_rhythm_stats) to MaterialSymbolIcon("auto_graph", filled = true)
+            STREAMING_SECTION_RECENTLY_PLAYED -> context.getString(R.string.home_section_recently_played) to MaterialSymbolIcon("history")
+            STREAMING_SECTION_NEW_RELEASES -> context.getString(R.string.home_section_new_releases) to MaterialSymbolIcon("new_releases", filled = true)
+            else -> sectionId to MaterialSymbolIcon("recommend")
         }
     }
 
@@ -238,7 +225,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Icon(
-                                            imageVector = Icons.Default.PushPin,
+                                            imageVector = RhythmIcons.Pushpin,
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -277,7 +264,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                                 modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    imageVector = if (isVisible) RhythmIcons.Visibility else RhythmIcons.VisibilityOff,
                                     contentDescription = if (isVisible) "Hide section" else "Show section",
                                     tint = if (isVisible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     modifier = Modifier.size(20.dp)
@@ -367,7 +354,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                                     modifier = Modifier.size(40.dp)
                                 ) {
                                     Icon(
-                                        imageVector = if (isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        imageVector = if (isVisible) RhythmIcons.Visibility else RhythmIcons.VisibilityOff,
                                         contentDescription = if (isVisible) "Hide section" else "Show section",
                                         tint = if (isVisible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
@@ -394,7 +381,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                                     modifier = Modifier.size(40.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowUpward,
+                                        imageVector = RhythmIcons.ArrowUpward,
                                         contentDescription = "Move up",
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -420,7 +407,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                                     modifier = Modifier.size(40.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowDownward,
+                                        imageVector = RhythmIcons.ArrowDownward,
                                         contentDescription = "Move down",
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -460,7 +447,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                         isStart = true
                     ) {
                         Icon(
-                            imageVector = Icons.Default.RestartAlt,
+                            imageVector = MaterialSymbolIcon("restart_alt"),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -493,7 +480,7 @@ fun StreamingHomeSectionOrderBottomSheet(
                         isEnd = true
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Check,
+                            imageVector = RhythmIcons.Check,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )

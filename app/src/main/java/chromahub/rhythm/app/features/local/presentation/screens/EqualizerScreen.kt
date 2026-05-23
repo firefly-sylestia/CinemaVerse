@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -32,10 +36,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -79,7 +79,6 @@ import coil.request.ImageRequest
 import kotlin.system.exitProcess
 import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.ArcProgressSlider
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
 import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
 import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
@@ -217,13 +216,9 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ShowChart
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -275,7 +270,6 @@ import chromahub.rhythm.app.features.local.presentation.components.dialogs.Queue
 import chromahub.rhythm.app.features.local.presentation.components.player.MiniPlayer
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Delete
 import chromahub.rhythm.app.features.local.presentation.screens.LibraryScreen
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Delete
 import chromahub.rhythm.app.features.local.presentation.screens.HomeScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
 import chromahub.rhythm.app.features.local.presentation.screens.PlayerScreen
@@ -335,7 +329,7 @@ import chromahub.rhythm.app.shared.data.model.AutoEQProfile
 // Equalizer Preset Data Class
 data class EqualizerPreset(
     val name: String,
-    val icon: ImageVector,
+    val icon: MaterialSymbolIcon,
     val bands: List<Float>
 )
 
@@ -406,18 +400,18 @@ fun EqualizerScreen(
     // Preset definitions - Updated to 10 bands with AutoEQ-style precision values
     // Bands: 31Hz, 62Hz, 125Hz, 250Hz, 500Hz, 1kHz, 2kHz, 4kHz, 8kHz, 16kHz
     val presets = listOf(
-        EqualizerPreset("Flat", Icons.Rounded.LinearScale, listOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)),
-        EqualizerPreset("Rock", Icons.Rounded.MusicNote, listOf(4.5f, 3.8f, 2.5f, 0.5f, -1.5f, -0.8f, 2.2f, 3.5f, 5.5f, 4.0f)),
-        EqualizerPreset("Pop", Icons.Rounded.Star, listOf(-1.5f, 0.5f, 2.8f, 4.2f, 3.5f, 2.0f, 0.5f, 1.5f, 2.5f, 1.0f)),
-        EqualizerPreset("Jazz", Icons.Rounded.Piano, listOf(3.5f, 2.8f, 1.5f, 0.5f, -1.5f, -0.5f, 1.8f, 2.5f, 4.0f, 3.0f)),
-        EqualizerPreset("Classical", Icons.Rounded.LibraryMusic, listOf(3.0f, 1.5f, -0.5f, -1.5f, -2.0f, -1.5f, 0.5f, 2.5f, 3.5f, 2.5f)),
-        EqualizerPreset("Electronic", Icons.Rounded.GraphicEq, listOf(5.5f, 4.8f, 3.5f, 1.5f, 0.5f, 0f, 2.5f, 4.5f, 5.0f, 4.5f)),
-        EqualizerPreset("Hip Hop", Icons.Rounded.GraphicEq, listOf(6.5f, 5.5f, 3.5f, 1.5f, -0.5f, -0.8f, 1.8f, 3.5f, 4.5f, 3.5f)),
-        EqualizerPreset("Vocal", Icons.Rounded.RecordVoiceOver, listOf(-1.0f, 0.5f, 1.5f, 2.8f, 4.5f, 5.0f, 4.0f, 2.5f, 1.5f, 0.5f)),
-        EqualizerPreset("Bass Boost", Icons.Rounded.Speaker, listOf(6.0f, 5.0f, 3.5f, 1.5f, 0f, 0f, 0f, 0f, 0f, 0f)),
-        EqualizerPreset("Treble Boost", Icons.Rounded.Waves, listOf(0f, 0f, 0f, 0f, 0f, 0.5f, 1.5f, 3.0f, 5.0f, 6.0f)),
-        EqualizerPreset("V-Shape", Icons.AutoMirrored.Rounded.ShowChart, listOf(5.5f, 4.0f, 1.5f, -1.0f, -2.5f, -2.5f, -0.5f, 2.0f, 4.5f, 5.5f)),
-        EqualizerPreset("Harman", Icons.Rounded.Headphones, listOf(3.5f, 2.0f, 0.5f, -1.0f, 0f, 0.5f, 1.5f, 2.0f, 2.5f, 1.0f))
+        EqualizerPreset("Flat", MaterialSymbolIcon("linear_scale", filled = true), listOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)),
+        EqualizerPreset("Rock", RhythmIcons.MusicNote, listOf(4.5f, 3.8f, 2.5f, 0.5f, -1.5f, -0.8f, 2.2f, 3.5f, 5.5f, 4.0f)),
+        EqualizerPreset("Pop", MaterialSymbolIcon("star", filled = true), listOf(-1.5f, 0.5f, 2.8f, 4.2f, 3.5f, 2.0f, 0.5f, 1.5f, 2.5f, 1.0f)),
+        EqualizerPreset("Jazz", MaterialSymbolIcon("piano", filled = true), listOf(3.5f, 2.8f, 1.5f, 0.5f, -1.5f, -0.5f, 1.8f, 2.5f, 4.0f, 3.0f)),
+        EqualizerPreset("Classical", RhythmIcons.Library, listOf(3.0f, 1.5f, -0.5f, -1.5f, -2.0f, -1.5f, 0.5f, 2.5f, 3.5f, 2.5f)),
+        EqualizerPreset("Electronic", MaterialSymbolIcon("graphic_eq", filled = true), listOf(5.5f, 4.8f, 3.5f, 1.5f, 0.5f, 0f, 2.5f, 4.5f, 5.0f, 4.5f)),
+        EqualizerPreset("Hip Hop", MaterialSymbolIcon("graphic_eq", filled = true), listOf(6.5f, 5.5f, 3.5f, 1.5f, -0.5f, -0.8f, 1.8f, 3.5f, 4.5f, 3.5f)),
+        EqualizerPreset("Vocal", MaterialSymbolIcon("record_voice_over", filled = true), listOf(-1.0f, 0.5f, 1.5f, 2.8f, 4.5f, 5.0f, 4.0f, 2.5f, 1.5f, 0.5f)),
+        EqualizerPreset("Bass Boost", RhythmIcons.SpeakerFilled, listOf(6.0f, 5.0f, 3.5f, 1.5f, 0f, 0f, 0f, 0f, 0f, 0f)),
+        EqualizerPreset("Treble Boost", MaterialSymbolIcon("waves", filled = true), listOf(0f, 0f, 0f, 0f, 0f, 0.5f, 1.5f, 3.0f, 5.0f, 6.0f)),
+        EqualizerPreset("V-Shape", MaterialSymbolIcon("show_chart", filled = true), listOf(5.5f, 4.0f, 1.5f, -1.0f, -2.5f, -2.5f, -0.5f, 2.0f, 4.5f, 5.5f)),
+        EqualizerPreset("Harman", RhythmIcons.HeadphonesFilled, listOf(3.5f, 2.0f, 0.5f, -1.0f, 0f, 0.5f, 1.5f, 2.0f, 2.5f, 1.0f))
     )
 
     val frequencyLabels = listOf("31Hz", "62Hz", "125Hz", "250Hz", "500Hz", "1kHz", "2kHz", "4kHz", "8kHz", "16kHz")
@@ -534,7 +528,7 @@ fun EqualizerScreen(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.AutoMode,
+                                    imageVector = MaterialSymbolIcon("auto_mode", filled = true),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -574,7 +568,7 @@ fun EqualizerScreen(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.DeviceHub,
+                                    imageVector = MaterialSymbolIcon("device_hub", filled = true),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -614,7 +608,7 @@ fun EqualizerScreen(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Equalizer,
+                                    imageVector = RhythmIcons.Equalizer,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -653,7 +647,7 @@ fun EqualizerScreen(
                         .padding(20.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Equalizer,
+                        imageVector = RhythmIcons.Equalizer,
                         contentDescription = null,
                         tint = if (isEqualizerEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(32.dp)
@@ -723,7 +717,7 @@ fun EqualizerScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Tune,
+                                    imageVector = RhythmIcons.Tune,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -756,7 +750,7 @@ fun EqualizerScreen(
                                         )
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Refresh,
+                                            imageVector = RhythmIcons.Refresh,
                                             contentDescription = "Reset to Flat",
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -841,7 +835,7 @@ fun EqualizerScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Equalizer,
+                                    imageVector = RhythmIcons.Equalizer,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -1166,7 +1160,7 @@ fun EqualizerScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Tune,
+                                imageVector = RhythmIcons.Tune,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -1189,7 +1183,7 @@ fun EqualizerScreen(
                             val secondaryColor = MaterialTheme.colorScheme.secondary
                             EffectArcCard(
                                 title = "Bass Boost",
-                                icon = Icons.Rounded.Speaker,
+                                icon = RhythmIcons.SpeakerFilled,
                                 value = bassBoostStrength,
                                 valueRange = 0f..1000f,
                                 isEnabled = isBassBoostEnabled && isBassBoostAvailableState,
@@ -1219,7 +1213,7 @@ fun EqualizerScreen(
                             val tertiaryColor = MaterialTheme.colorScheme.tertiary
                             EffectArcCard(
                                 title = "Spatial Audio",
-                                icon = Icons.Rounded.Headphones,
+                                icon = RhythmIcons.HeadphonesFilled,
                                 value = virtualizerStrength,
                                 valueRange = 0f..1000f,
                                 isEnabled = isVirtualizerEnabled && isSpatializationAvailable,
@@ -1279,7 +1273,7 @@ fun EqualizerScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.AutoMode,
+                                        imageVector = MaterialSymbolIcon("auto_mode", filled = true),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -1311,7 +1305,7 @@ fun EqualizerScreen(
                                     contentPadding = PaddingValues(16.dp)
                                 ) {
 //                                    Icon(
-//                                        imageVector = Icons.Rounded.AutoMode,
+//                                        imageVector = MaterialSymbolIcon("auto_mode", filled = true),
 //                                        contentDescription = null,
 //                                        modifier = Modifier.size(20.dp)
 //                                    )
@@ -1345,7 +1339,7 @@ fun EqualizerScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.DeviceHub,
+                                        imageVector = MaterialSymbolIcon("device_hub", filled = true),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -1377,7 +1371,7 @@ fun EqualizerScreen(
                                     contentPadding = PaddingValues(16.dp)
                                 ) {
 //                                    Icon(
-//                                        imageVector = Icons.Rounded.ManageAccounts,
+//                                        imageVector = MaterialSymbolIcon("manage_accounts", filled = true),
 //                                        contentDescription = null,
 //                                        modifier = Modifier.size(20.dp)
 //                                    )
@@ -1411,7 +1405,7 @@ fun EqualizerScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.ArrowOutward,
+                                        imageVector = MaterialSymbolIcon("arrow_outward", filled = true),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -1444,7 +1438,7 @@ fun EqualizerScreen(
                                     contentPadding = PaddingValues(16.dp)
                                 ) {
 //                                    Icon(
-//                                        imageVector = Icons.Rounded.Settings,
+//                                        imageVector = RhythmIcons.SettingsFilled,
 //                                        contentDescription = null,
 //                                        modifier = Modifier.size(20.dp)
 //                                    )
@@ -1487,7 +1481,7 @@ fun EqualizerScreen(
 @Composable
 private fun EffectArcCard(
     title: String,
-    icon: ImageVector,
+    icon: MaterialSymbolIcon,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     isEnabled: Boolean,

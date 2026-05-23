@@ -1,14 +1,13 @@
 package chromahub.rhythm.app.features.local.presentation.components.dialogs
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.SyncAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,7 +49,7 @@ fun PlaybackPitchDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.GraphicEq,
+                    imageVector = MaterialSymbolIcon("graphic_eq", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -92,7 +91,7 @@ fun PlaybackPitchDialog(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.SyncAlt,
+                                    imageVector = MaterialSymbolIcon("sync_alt", filled = true),
                                     contentDescription = null,
                                     tint = if (syncEnabled) MaterialTheme.colorScheme.onPrimaryContainer
                                            else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -226,7 +225,7 @@ fun PlaybackPitchDialog(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Check,
+                    imageVector = RhythmIcons.Check,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
@@ -242,7 +241,7 @@ fun PlaybackPitchDialog(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Close,
+                    imageVector = RhythmIcons.Close,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )

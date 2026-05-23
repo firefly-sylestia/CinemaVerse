@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -13,8 +17,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.*
@@ -36,7 +38,6 @@ import kotlinx.coroutines.launch
 import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.Playlist
 import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.util.HapticUtils
@@ -143,9 +144,9 @@ fun AddToPlaylistScreen(
                     ) {
                         Icon(
                             imageVector = if (selectedSongs.size == filteredSongs.size) {
-                                Icons.Filled.Deselect
+                                MaterialSymbolIcon("deselect", filled = true)
                             } else {
-                                Icons.Filled.SelectAll
+                                RhythmIcons.SelectAll
                             },
                             contentDescription = if (selectedSongs.size == filteredSongs.size) {
                                 "Deselect all"
@@ -208,7 +209,7 @@ fun AddToPlaylistScreen(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Checklist,
+                            imageVector = MaterialSymbolIcon("checklist", filled = true),
                             contentDescription = "Toggle multi-select",
                             modifier = Modifier.size(20.dp)
                         )
@@ -276,7 +277,7 @@ fun AddToPlaylistScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Info,
+                            imageVector = RhythmIcons.Info,
                             contentDescription = null,
                             
                             modifier = Modifier.size(24.dp)
@@ -473,7 +474,7 @@ private fun SongSelectionItem(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = Icons.Filled.Add,
+                            imageVector = RhythmIcons.Add,
                             contentDescription = "Add song",
                             
                             modifier = Modifier.size(20.dp)

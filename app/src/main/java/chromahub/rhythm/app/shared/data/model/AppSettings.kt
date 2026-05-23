@@ -80,14 +80,13 @@ class AppSettings private constructor(context: Context) {
         private const val PREFS_NAME = "rhythm_preferences"
         
         // Playback Settings
-        private const val KEY_HIGH_QUALITY_AUDIO = "high_quality_audio"
         private const val KEY_GAPLESS_PLAYBACK = "gapless_playback"
         private const val KEY_CROSSFADE = "crossfade"
         private const val KEY_CROSSFADE_DURATION = "crossfade_duration"
         private const val KEY_CROSSFADE_REPEAT_ONE = "crossfade_repeat_one"
         private const val KEY_AUDIO_NORMALIZATION = "audio_normalization"
         private const val KEY_REPLAY_GAIN = "replay_gain"
-        private const val KEY_BIT_PERFECT_MODE = "bit_perfect_mode"
+        private const val KEY_SKIP_SILENCE = "skip_silence_enabled"
         private const val KEY_AUDIO_ROUTING_MODE = "audio_routing_mode" // "default", "app", "system"
         private const val KEY_RESUME_ON_DEVICE_RECONNECT = "resume_on_device_reconnect"
         private const val KEY_AUDIO_OFFLOAD_ENABLED = "audio_offload_enabled"
@@ -552,9 +551,6 @@ class AppSettings private constructor(context: Context) {
     }
     
     // Playback Settings
-    private val _highQualityAudio = MutableStateFlow(prefs.getBoolean(KEY_HIGH_QUALITY_AUDIO, true))
-    val highQualityAudio: StateFlow<Boolean> = _highQualityAudio.asStateFlow()
-    
     private val _audioOffloadEnabled = MutableStateFlow(prefs.getBoolean(KEY_AUDIO_OFFLOAD_ENABLED, true))
     val audioOffloadEnabled: StateFlow<Boolean> = _audioOffloadEnabled.asStateFlow()
     
@@ -582,8 +578,8 @@ class AppSettings private constructor(context: Context) {
     private val _replayGain = MutableStateFlow(prefs.getBoolean(KEY_REPLAY_GAIN, false))
     val replayGain: StateFlow<Boolean> = _replayGain.asStateFlow()
     
-    private val _bitPerfectMode = MutableStateFlow(prefs.getBoolean(KEY_BIT_PERFECT_MODE, false))
-    val bitPerfectMode: StateFlow<Boolean> = _bitPerfectMode.asStateFlow()
+    private val _skipSilenceEnabled = MutableStateFlow(prefs.getBoolean(KEY_SKIP_SILENCE, false))
+    val skipSilenceEnabled: StateFlow<Boolean> = _skipSilenceEnabled.asStateFlow()
     
     private val _audioRoutingMode = MutableStateFlow(prefs.getString(KEY_AUDIO_ROUTING_MODE, "default") ?: "default")
     val audioRoutingMode: StateFlow<String> = _audioRoutingMode.asStateFlow()
@@ -1778,11 +1774,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _preloadLimit.value = limit
     }
 
-    fun setHighQualityAudio(enable: Boolean) {
-        prefs.edit().putBoolean(KEY_HIGH_QUALITY_AUDIO, enable).apply()
-        _highQualityAudio.value = enable
-    }
-    
+
     fun setGaplessPlayback(enable: Boolean) {
         prefs.edit().putBoolean(KEY_GAPLESS_PLAYBACK, enable).apply()
         _gaplessPlayback.value = enable
@@ -1812,10 +1804,10 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _crossfadeRepeatOne.value = enabled
     }
     
-    fun setBitPerfectMode(enable: Boolean) {
-        prefs.edit().putBoolean(KEY_BIT_PERFECT_MODE, enable).apply()
-        _bitPerfectMode.value = enable
-        Log.d("AppSettings", "High-resolution audio mode ${if (enable) "enabled" else "disabled"} - audio will be output at native sample rate")
+    fun setSkipSilenceEnabled(enable: Boolean) {
+        prefs.edit().putBoolean(KEY_SKIP_SILENCE, enable).apply()
+        _skipSilenceEnabled.value = enable
+        Log.d("AppSettings", "Skip silence ${if (enable) "enabled" else "disabled"}")
     }
     
     fun setAudioRoutingMode(mode: String) {
@@ -4181,7 +4173,6 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
      */
     private fun refreshAllStateFlows() {
         // Playback Settings
-        _highQualityAudio.value = prefs.getBoolean(KEY_HIGH_QUALITY_AUDIO, true)
         _gaplessPlayback.value = prefs.getBoolean(KEY_GAPLESS_PLAYBACK, true)
         _crossfade.value = prefs.getBoolean(KEY_CROSSFADE, true)
         _crossfadeDuration.value = prefs.getFloat(KEY_CROSSFADE_DURATION, 4f)
@@ -4189,6 +4180,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _audioNormalization.value = prefs.getBoolean(KEY_AUDIO_NORMALIZATION, true)
         _replayGain.value = prefs.getBoolean(KEY_REPLAY_GAIN, false)
         _audioOffloadEnabled.value = prefs.getBoolean(KEY_AUDIO_OFFLOAD_ENABLED, true)
+        _skipSilenceEnabled.value = prefs.getBoolean(KEY_SKIP_SILENCE, false)
         _batterySaverEnabled.value = prefs.getBoolean(KEY_BATTERY_SAVER_ENABLED, false)
         _batterySaverMode.value = prefs.getString(KEY_BATTERY_SAVER_MODE, "auto") ?: "auto"
         _batterySaverDisableHaptics.value = prefs.getBoolean(KEY_BATTERY_SAVER_DISABLE_HAPTICS, true)

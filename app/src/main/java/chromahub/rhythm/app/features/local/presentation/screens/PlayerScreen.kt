@@ -1,5 +1,9 @@
 package chromahub.rhythm.app.features.local.presentation.screens
 
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -58,29 +62,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.FileOpen
-import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material.icons.rounded.FolderOpen
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Lyrics
-import androidx.compose.material.icons.rounded.SyncAlt
 import androidx.compose.material3.Switch
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -107,7 +89,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -175,7 +156,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ThumbStyle
 import chromahub.rhythm.app.shared.presentation.components.common.M3CircularLoader
 import chromahub.rhythm.app.shared.presentation.components.common.M3LinearLoader
 import chromahub.rhythm.app.shared.presentation.components.common.FixedHeaderScreen
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.components.common.AutoScrollingTextOnDemand
 import chromahub.rhythm.app.features.local.presentation.components.player.PlayingEqIcon
 import chromahub.rhythm.app.shared.presentation.components.common.ShimmerBox
@@ -204,7 +184,6 @@ import chromahub.rhythm.app.features.local.presentation.components.lyrics.Synced
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.material.icons.rounded.AccessTime
 import chromahub.rhythm.app.features.local.presentation.components.player.formatDuration
 import java.util.concurrent.TimeUnit // Import TimeUnit for duration formatting
 import chromahub.rhythm.app.shared.presentation.components.common.PlaybackBufferingLoader
@@ -1378,7 +1357,7 @@ fun PlayerScreen(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Info,
+                    imageVector = RhythmIcons.Info,
                     contentDescription = "Song info",
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(20.dp)
@@ -2093,7 +2072,7 @@ fun PlayerScreen(
                                                                         isEnd = false
                                                                     ) {
                                                                         Icon(
-                                                                            imageVector = Icons.Rounded.Refresh,
+                                                                            imageVector = RhythmIcons.Refresh,
                                                                             contentDescription = null,
                                                                             modifier = Modifier.size(18.dp)
                                                                         )
@@ -2115,7 +2094,7 @@ fun PlayerScreen(
                                                                         isEnd = false
                                                                     ) {
                                                                         Icon(
-                                                                            imageVector = Icons.Rounded.Lyrics,
+                                                                            imageVector = MaterialSymbolIcon("lyrics", filled = true),
                                                                             contentDescription = null,
                                                                             modifier = Modifier.size(18.dp)
                                                                         )
@@ -2146,7 +2125,7 @@ fun PlayerScreen(
                                                                         isEnd = true
                                                                     ) {
                                                                         Icon(
-                                                                            imageVector = Icons.Rounded.FileOpen,
+                                                                            imageVector = MaterialSymbolIcon("file_open", filled = true),
                                                                             contentDescription = null,
                                                                             modifier = Modifier.size(18.dp)
                                                                         )
@@ -2762,7 +2741,7 @@ fun PlayerScreen(
                                         )
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.KeyboardArrowUp,
+                                        imageVector = MaterialSymbolIcon("keyboard_arrow_up"),
                                         contentDescription = "Show actions",
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(24.dp)
@@ -2994,7 +2973,7 @@ fun PlayerScreen(
                                                     },
                                                     leadingIcon = {
                                                         Icon(
-                                                            imageVector = Icons.Filled.Speed,
+                                                            imageVector = MaterialSymbolIcon("speed", filled = true),
                                                             contentDescription = "Playback speed",
                                                             modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp)
                                                         )
@@ -3066,7 +3045,7 @@ fun PlayerScreen(
                                                     },
                                                     leadingIcon = {
                                                         Icon(
-                                                            imageVector = Icons.Filled.GraphicEq,
+                                                            imageVector = MaterialSymbolIcon("graphic_eq", filled = true),
                                                             contentDescription = "Playback pitch",
                                                             modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp)
                                                         )
@@ -3111,7 +3090,7 @@ fun PlayerScreen(
                                                     },
                                                     leadingIcon = {
                                                         Icon(
-                                                            imageVector = if (equalizerEnabled) Icons.Default.GraphicEq else Icons.Default.GraphicEq,
+                                                            imageVector = if (equalizerEnabled) MaterialSymbolIcon("graphic_eq") else MaterialSymbolIcon("graphic_eq"),
                                                             contentDescription = if (equalizerEnabled) "Equalizer enabled" else "Equalizer disabled",
                                                             modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp),
                                                             tint = if (equalizerEnabled)
@@ -3214,7 +3193,7 @@ fun PlayerScreen(
                                                     },
                                                     leadingIcon = {
                                                         Icon(
-                                                            imageVector = if (sleepTimerActive) Icons.Rounded.AccessTime else Icons.Default.AccessTime,
+                                                            imageVector = if (sleepTimerActive) RhythmIcons.AccessTime else RhythmIcons.AccessTime,
                                                             contentDescription = if (sleepTimerActive) "Active sleep timer" else "Set sleep timer",
                                                             modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp)
                                                         )
@@ -3281,7 +3260,7 @@ fun PlayerScreen(
                                                     },
                                                     leadingIcon = {
                                                         Icon(
-                                                            imageVector = if (hasLyrics) Icons.Rounded.Edit else Icons.Rounded.Lyrics,
+                                                            imageVector = if (hasLyrics) RhythmIcons.Edit else MaterialSymbolIcon("lyrics", filled = true),
                                                             contentDescription = if (hasLyrics) "Edit lyrics" else "Add lyrics",
                                                             modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp)
                                                         )
@@ -3555,7 +3534,7 @@ fun PlayerScreen(
                                             },
                                             leadingIcon = {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.Edit,
+                                                    imageVector = RhythmIcons.Edit,
                                                     contentDescription = "Reorder chips",
                                                     modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp)
                                                 )
@@ -3736,7 +3715,7 @@ fun PlayerScreen(
                                     }
                                     
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(20.dp)
@@ -3781,7 +3760,7 @@ fun PlayerScreen(
                                             modifier = Modifier.fillMaxSize()
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.KeyboardArrowUp,
+                                                imageVector = MaterialSymbolIcon("keyboard_arrow_up"),
                                                 contentDescription = "Show actions",
                                                 
                                                 modifier = Modifier.size(if (isCompactHeight) 20.dp else 22.dp)
@@ -3893,7 +3872,7 @@ fun PlayerScreen(
                                     }
                                     
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        imageVector = MaterialSymbolIcon("arrow_forward_ios", filled = true),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(20.dp)

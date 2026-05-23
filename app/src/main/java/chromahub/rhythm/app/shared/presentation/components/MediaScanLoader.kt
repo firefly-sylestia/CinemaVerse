@@ -31,7 +31,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -397,7 +398,7 @@ private fun MediaScanStats(
 
 @Composable
 private fun StatItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     count: Int,
     label: String,
     color: Color
