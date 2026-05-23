@@ -268,7 +268,8 @@ fun GoSettingsScreen(
                 Icon(
                     imageVector = MaterialSymbolIcon("cloud_queue"),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {

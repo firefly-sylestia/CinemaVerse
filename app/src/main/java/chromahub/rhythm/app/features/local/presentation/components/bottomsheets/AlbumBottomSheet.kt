@@ -802,6 +802,7 @@ fun AlbumBottomSheet(
                                                                             AlbumSortOrder.DURATION_ASC, AlbumSortOrder.DURATION_DESC -> RhythmIcons.AccessTime
                                                                         },
                                                                         contentDescription = null,
+                                                                        modifier = Modifier.size(18.dp),
                                                                         tint = if (isSelected)
                                                                             MaterialTheme.colorScheme.onPrimaryContainer
                                                                         else
@@ -814,6 +815,7 @@ fun AlbumBottomSheet(
                                                                             Icon(
                                                                                 imageVector = RhythmIcons.ArrowUpward,
                                                                                 contentDescription = "Ascending",
+                                                                                modifier = Modifier.size(18.dp),
                                                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                             )
                                                                         }
@@ -822,6 +824,7 @@ fun AlbumBottomSheet(
                                                                             Icon(
                                                                                 imageVector = RhythmIcons.ArrowDownward,
                                                                                 contentDescription = "Descending",
+                                                                                modifier = Modifier.size(18.dp),
                                                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                             )
                                                                         }
@@ -1756,6 +1759,7 @@ fun AlbumBottomSheet(
                                                                     AlbumSortOrder.DURATION_ASC, AlbumSortOrder.DURATION_DESC -> RhythmIcons.AccessTime
                                                                 },
                                                                 contentDescription = null,
+                                                                modifier = Modifier.size(18.dp),
                                                                 tint = if (isSelected)
                                                                     MaterialTheme.colorScheme.onPrimaryContainer
                                                                 else
@@ -1768,6 +1772,7 @@ fun AlbumBottomSheet(
                                                                     Icon(
                                                                         imageVector = RhythmIcons.ArrowUpward,
                                                                         contentDescription = "Ascending",
+                                                                        modifier = Modifier.size(18.dp),
                                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                     )
                                                                 }
@@ -1776,6 +1781,7 @@ fun AlbumBottomSheet(
                                                                     Icon(
                                                                         imageVector = RhythmIcons.ArrowDownward,
                                                                         contentDescription = "Descending",
+                                                                        modifier = Modifier.size(18.dp),
                                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                                     )
                                                                 }

@@ -952,7 +952,7 @@ private fun LocalNavigationContent(
                                         ),
                                         Triple(
                                             libraryRoute, "Library",
-                                            Pair(RhythmIcons.Library, RhythmIcons.Library)
+                                            Pair(RhythmIcons.Navigation.Library, RhythmIcons.Navigation.LibraryOutlined)
                                         )
                                     )
 
@@ -2544,7 +2544,8 @@ private fun LocalNavigationContent(
                                         Icon(
                                             imageVector = RhythmIcons.Info,
                                             contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(24.dp)
                                         )
                                     },
                                     title = { Text("No Songs Available") },

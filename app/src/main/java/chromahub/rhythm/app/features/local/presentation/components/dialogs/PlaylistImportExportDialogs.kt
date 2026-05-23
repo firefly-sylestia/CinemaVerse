@@ -52,7 +52,8 @@ fun AppRestartDialog(
             Icon(
                 imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {
@@ -147,7 +148,8 @@ fun PlaylistExportDialog(
             Icon(
                 imageVector = MaterialSymbolIcon("file_upload", filled = true),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {
@@ -299,7 +301,8 @@ fun BulkPlaylistExportDialog(
             Icon(
                 imageVector = MaterialSymbolIcon("folder_zip", filled = true),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {
@@ -464,7 +467,8 @@ fun PlaylistImportDialog(
             Icon(
                 imageVector = RhythmIcons.Download,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {
@@ -649,7 +653,8 @@ fun PlaylistOperationResultDialog(
             Icon(
                 imageVector = if (isError) MaterialSymbolIcon("error", filled = true) else RhythmIcons.CheckCircle,
                 contentDescription = null,
-                tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {

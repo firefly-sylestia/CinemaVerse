@@ -1630,6 +1630,7 @@ private fun StreamingSortMenuItem(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
+                    modifier = Modifier.size(18.dp),
                     tint = if (selected) {
                         MaterialTheme.colorScheme.onPrimaryContainer
                     } else {
@@ -1642,6 +1643,7 @@ private fun StreamingSortMenuItem(
                     selected -> Icon(
                         imageVector = RhythmIcons.Check,
                         contentDescription = null,
+                        modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
 
@@ -1652,6 +1654,7 @@ private fun StreamingSortMenuItem(
                             RhythmIcons.ArrowDownward
                         },
                         contentDescription = null,
+                        modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

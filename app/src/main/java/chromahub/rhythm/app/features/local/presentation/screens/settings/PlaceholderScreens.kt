@@ -759,7 +759,8 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.settings_rhythm_pulse_interval_dialog_title)) },
@@ -2467,7 +2468,8 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = RhythmIcons.Delete,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {
@@ -2539,7 +2541,8 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = RhythmIcons.Delete,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {
@@ -6225,7 +6228,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = RhythmIcons.Category,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.updates_channel_title)) },
@@ -6311,7 +6315,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.updates_check_interval_title)) },
@@ -6385,7 +6390,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 Icon(
                     imageVector = RhythmIcons.Category,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.updates_source_title)) },
@@ -16264,7 +16270,8 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
                 Icon(
                     imageVector = RhythmIcons.BugReport,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.settings_crash_log_details)) },

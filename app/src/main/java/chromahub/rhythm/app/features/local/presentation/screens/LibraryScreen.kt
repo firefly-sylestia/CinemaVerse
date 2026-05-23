@@ -981,6 +981,7 @@ fun LibraryScreen(
                                                     MusicViewModel.SortOrder.DATE_MODIFIED_ASC, MusicViewModel.SortOrder.DATE_MODIFIED_DESC -> MaterialSymbolIcon("edit_calendar", filled = true)
                                                 },
                                                 contentDescription = null,
+                                                modifier = Modifier.size(18.dp),
                                                 tint = if (isSelected)
                                                     MaterialTheme.colorScheme.onPrimaryContainer
                                                 else
@@ -993,6 +994,7 @@ fun LibraryScreen(
                                                     Icon(
                                                         imageVector = RhythmIcons.ArrowUpward,
                                                         contentDescription = "Ascending",
+                                                        modifier = Modifier.size(18.dp),
                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
@@ -1000,6 +1002,7 @@ fun LibraryScreen(
                                                     Icon(
                                                         imageVector = RhythmIcons.ArrowDownward,
                                                         contentDescription = "Descending",
+                                                        modifier = Modifier.size(18.dp),
                                                         tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
@@ -1135,6 +1138,7 @@ fun LibraryScreen(
                                                         LibraryPlaylistSortOrder.SONG_COUNT_ASC, LibraryPlaylistSortOrder.SONG_COUNT_DESC -> RhythmIcons.MusicNote
                                                     },
                                                     contentDescription = null,
+                                                    modifier = Modifier.size(18.dp),
                                                     tint = if (isSelected)
                                                         MaterialTheme.colorScheme.onPrimaryContainer
                                                     else
@@ -1145,6 +1149,7 @@ fun LibraryScreen(
                                                 Icon(
                                                     imageVector = if (order.name.endsWith("_ASC")) RhythmIcons.ArrowUpward else RhythmIcons.ArrowDownward,
                                                     contentDescription = if (order.name.endsWith("_ASC")) "Ascending" else "Descending",
+                                                    modifier = Modifier.size(18.dp),
                                                     tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
                                             },
@@ -1752,7 +1757,8 @@ fun LibraryScreen(
                 Icon(
                     imageVector = MaterialSymbolIcon("error", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text("Error") },
@@ -1780,7 +1786,8 @@ fun LibraryScreen(
                 Icon(
                     imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text("Import Complete") },
@@ -6012,7 +6019,9 @@ fun PlaylistFabMenu(
                 Icon(
                     imageVector = imageVector,
                     contentDescription = if (expanded) "Close playlist menu" else "Open playlist menu",
-                    modifier = Modifier.animateIcon({ checkedProgress })
+                    modifier = Modifier
+                        .size(24.dp)
+                        .animateIcon({ checkedProgress })
                 )
             }
         }
@@ -6041,7 +6050,8 @@ fun PlaylistFabMenu(
                 icon = {
                     Icon(
                         imageVector = item.second,
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
                     )
                 },
                 text = { Text(text = item.first) }

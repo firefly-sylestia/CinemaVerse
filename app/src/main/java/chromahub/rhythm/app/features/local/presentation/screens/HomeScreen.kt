@@ -44,6 +44,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -148,11 +149,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -183,7 +187,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGrou
 import chromahub.rhythm.app.shared.presentation.components.common.ActionProgressLoader
 import chromahub.rhythm.app.shared.presentation.components.common.NetworkOperationLoader
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveAnimatedCounter
-import chromahub.rhythm.app.shared.presentation.components.common.MarqueeText
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.AlbumBottomSheet
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.AddToPlaylistBottomSheet
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.SongInfoBottomSheet
@@ -2529,16 +2532,13 @@ private fun ModernRecommendedSection(
                         .padding(24.dp)
                 ) {
                     // 1. Dynamic Resizing Artist Name in Upper-Left
-                    MarqueeText(
-                        text = artistName,
-                        style = artistNameStyle.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = onCardBgColor
-                        ),
-                        gradientEdgeColor = cardBgColor,
+                    RecommendedArtistHeadline(
+                        artistName = artistName,
+                        style = artistNameStyle,
+                        color = onCardBgColor,
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .fillMaxWidth(0.48f) // Prevents overlapping with the image
+                            .fillMaxWidth()
                     )
                     
                     // 2. Large Artist Image in Center-Right (using Artist expressive shape!)
@@ -2622,6 +2622,66 @@ private fun ModernRecommendedSection(
                 subtitle = context.getString(R.string.home_no_recommendations_desc),
                 iconSize = 48.dp
             )
+        }
+    }
+}
+
+@Composable
+private fun RecommendedArtistHeadline(
+    artistName: String,
+    style: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    val textMeasurer = rememberTextMeasurer()
+
+    BoxWithConstraints(modifier = modifier) {
+        val fullWidthPx = with(LocalDensity.current) { maxWidth.roundToPx() }
+
+        val firstLineEnd = remember(artistName, style, fullWidthPx) {
+            if (artistName.isBlank() || fullWidthPx <= 0) {
+                0
+            } else {
+                val layout = textMeasurer.measure(
+                    text = AnnotatedString(artistName),
+                    style = style.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    softWrap = true,
+                    constraints = Constraints(maxWidth = fullWidthPx)
+                )
+                layout.getLineEnd(0, visibleEnd = true).coerceIn(0, artistName.length)
+            }
+        }
+
+        val headlineFirstLine = remember(artistName, firstLineEnd) {
+            artistName.take(firstLineEnd).trimEnd()
+        }
+        val headlineRemainder = remember(artistName, firstLineEnd) {
+            artistName.drop(firstLineEnd).trimStart()
+        }
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = if (headlineFirstLine.isNotBlank()) headlineFirstLine else artistName,
+                style = style,
+                fontWeight = FontWeight.Bold,
+                color = color,
+                maxLines = 1
+            )
+
+            if (headlineRemainder.isNotBlank()) {
+                Text(
+                    text = headlineRemainder,
+                    style = style,
+                    fontWeight = FontWeight.Bold,
+                    color = color,
+                    modifier = Modifier.fillMaxWidth(0.48f),
+                    maxLines = 6,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

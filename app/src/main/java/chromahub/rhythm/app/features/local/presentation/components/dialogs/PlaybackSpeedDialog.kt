@@ -51,7 +51,8 @@ fun PlaybackSpeedDialog(
                 Icon(
                     imageVector = MaterialSymbolIcon("speed", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
                 Text(
                     text = context.getString(R.string.player_speed_label),

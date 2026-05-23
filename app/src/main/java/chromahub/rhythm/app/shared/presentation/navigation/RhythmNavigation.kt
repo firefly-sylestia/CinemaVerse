@@ -858,7 +858,8 @@ private fun RhythmGuardWarningHost(
                 Icon(
                     imageVector = RhythmIcons.Warning,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {
@@ -954,7 +955,8 @@ private fun RhythmGuardWarningHost(
                 Icon(
                     imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {

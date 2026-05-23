@@ -459,7 +459,8 @@ fun DeviceConfigurationBottomSheet(
                 Icon(
                     imageVector = RhythmIcons.Delete,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text("Delete Device") },
@@ -530,7 +531,8 @@ fun DeviceConfigurationBottomSheet(
                 Icon(
                     imageVector = RhythmIcons.Download,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {
@@ -722,7 +724,8 @@ fun DeviceConfigurationBottomSheet(
                 Icon(
                     imageVector = MaterialSymbolIcon("file_upload"),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = {
@@ -1042,7 +1045,8 @@ private fun AddEditDeviceDialog(
             Icon(
                 imageVector = if (isEditing) RhythmIcons.Edit else RhythmIcons.Add,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {

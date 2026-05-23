@@ -268,7 +268,8 @@ fun PlaylistDetailScreen(
                 Icon(
                     imageVector = RhythmIcons.Queue,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { 
@@ -422,7 +423,8 @@ fun PlaylistDetailScreen(
                 Icon(
                     imageVector = RhythmIcons.Edit,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.playlist_rename_title)) },
@@ -477,7 +479,8 @@ fun PlaylistDetailScreen(
                 Icon(
                     imageVector = MaterialSymbolIcon("delete_forever", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text(context.getString(R.string.playlist_delete_title)) },
@@ -528,7 +531,8 @@ fun PlaylistDetailScreen(
                 Icon(
                     imageVector = MaterialSymbolIcon("delete_sweep", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text("Remove ${selectedSongs.size} Songs") },
@@ -1127,6 +1131,7 @@ fun PlaylistDetailScreen(
                                             PlaylistSortOrder.DATE_ADDED_ASC, PlaylistSortOrder.DATE_ADDED_DESC -> RhythmIcons.DateRange
                                         },
                                         contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
                                         tint = if (isSelected)
                                             MaterialTheme.colorScheme.onPrimaryContainer
                                         else
@@ -1140,6 +1145,7 @@ fun PlaylistDetailScreen(
                                             Icon(
                                                 imageVector = RhythmIcons.ArrowUpward,
                                                 contentDescription = "Ascending",
+                                                modifier = Modifier.size(18.dp),
                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
@@ -1147,6 +1153,7 @@ fun PlaylistDetailScreen(
                                             Icon(
                                                 imageVector = RhythmIcons.ArrowDownward,
                                                 contentDescription = "Descending",
+                                                modifier = Modifier.size(18.dp),
                                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
@@ -2761,7 +2768,8 @@ fun PlaylistSongItem(
                 Icon(
                     imageVector = MaterialSymbolIcon("remove_circle_outline", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
                 )
             },
             title = { Text("Remove Song") },

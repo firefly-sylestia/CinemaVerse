@@ -61,7 +61,8 @@ fun CreatePlaylistDialog(
             Icon(
                 imageVector = RhythmIcons.AddToPlaylist,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {
@@ -171,7 +172,8 @@ fun QueueActionDialog(
             Icon(
                 imageVector = RhythmIcons.Playlist,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {
@@ -326,7 +328,8 @@ fun QueueListActionDialog(
             Icon(
                 imageVector = RhythmIcons.Playlist,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
         },
         title = {

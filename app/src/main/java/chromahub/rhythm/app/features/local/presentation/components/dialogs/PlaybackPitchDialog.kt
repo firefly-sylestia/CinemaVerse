@@ -51,7 +51,8 @@ fun PlaybackPitchDialog(
                 Icon(
                     imageVector = MaterialSymbolIcon("graphic_eq", filled = true),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
                 Text(
                     text = context.getString(R.string.player_pitch_label),

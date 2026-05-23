@@ -3,7 +3,6 @@ package chromahub.rhythm.app.features.local.presentation.components.bottomsheets
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,20 +16,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -38,8 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.util.HapticUtils
 
@@ -51,6 +46,241 @@ fun LicensesBottomSheet(
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
+
+    val licenseItems = listOf(
+        licenseItem(
+            name = "AutoEQ",
+            description = "Automatic headphone equalization from frequency responses",
+            license = "MIT License",
+            url = "https://github.com/jaakkopasanen/AutoEq",
+            icon = RhythmIcons.Connectivity.OpenInNew,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Jetpack Compose",
+            description = "Android's modern toolkit for building native UI",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/compose",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Material 3 Components",
+            description = "Material Design 3 components for Android",
+            license = "Apache License 2.0",
+            url = "https://m3.material.io/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Media3 ExoPlayer",
+            description = "Modern media playback library for Android",
+            license = "Apache License 2.0",
+            url = "https://github.com/androidx/media",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Kotlin Coroutines",
+            description = "Asynchronous programming framework for Kotlin",
+            license = "Apache License 2.0",
+            url = "https://github.com/Kotlin/kotlinx.coroutines",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Coil",
+            description = "Image loading library for Android backed by Kotlin Coroutines",
+            license = "Apache License 2.0",
+            url = "https://coil-kt.github.io/coil/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Retrofit",
+            description = "Type-safe HTTP client for Android and Java",
+            license = "Apache License 2.0",
+            url = "https://square.github.io/retrofit/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "OkHttp",
+            description = "HTTP client for Android, Kotlin, and Java",
+            license = "Apache License 2.0",
+            url = "https://square.github.io/okhttp/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Gson",
+            description = "Java serialization/deserialization library for JSON",
+            license = "Apache License 2.0",
+            url = "https://github.com/google/gson",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "AndroidX Navigation",
+            description = "Navigation components for Android apps",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/guide/navigation",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Accompanist Permissions",
+            description = "Compose utilities for permissions handling",
+            license = "Apache License 2.0",
+            url = "https://google.github.io/accompanist/permissions/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "AndroidX Palette",
+            description = "Library to extract prominent colors from images",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/androidx/releases/palette",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "JAudioTagger",
+            description = "Audio metadata editing library for Java",
+            license = "LGPL v2.1",
+            url = "https://github.com/Borewit/jaudiotagger",
+            icon = RhythmIcons.Connectivity.OpenInNew,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "AndroidX Fragment",
+            description = "Modular UI components for Android",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/androidx/releases/fragment",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "AndroidX MediaRouter",
+            description = "Media routing support for Android",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/androidx/releases/mediarouter",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Glance AppWidget",
+            description = "Modern reactive widgets framework with Material 3",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/androidx/releases/glance",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "WorkManager",
+            description = "Deferrable, asynchronous task management library",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/androidx/releases/work",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Material Icons Extended",
+            description = "Extended set of Material Design icons",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/compose/resources/material-icons",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Ktor",
+            description = "Asynchronous framework for creating microservices and web applications",
+            license = "Apache License 2.0",
+            url = "https://ktor.io/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "LeakCanary",
+            description = "Memory leak detection library for Android (debug builds only)",
+            license = "Apache License 2.0",
+            url = "https://square.github.io/leakcanary/",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Desugar JDK Libs",
+            description = "Allows using newer Java language APIs on older Android versions",
+            license = "Apache License 2.0",
+            url = "https://github.com/google/desugar_jdk_libs",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Media3 FFmpeg Decoder",
+            description = "FFmpeg-based decoder for Media3, enabling additional audio/video formats",
+            license = "Apache License 2.0",
+            url = "https://github.com/androidx/media",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Room",
+            description = "SQLite object mapping library that provides local data persistence",
+            license = "Apache License 2.0",
+            url = "https://developer.android.com/jetpack/androidx/releases/room",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        ),
+        licenseItem(
+            name = "Geom Font",
+            description = "Modern, clean sans-serif typeface from Google Fonts",
+            license = "SIL Open Font License 1.1",
+            url = "https://fonts.google.com/specimen/Geom",
+            icon = RhythmIcons.Actions.Info,
+            context = context,
+            haptic = haptic
+        )
+    )
+
+    val licenseInfoItems = listOf(
+        Material3SettingsItem(
+            icon = RhythmIcons.Actions.Info,
+            title = {
+                Text(
+                    text = context.getString(R.string.licenses_apache),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            description = {
+                Text(context.getString(R.string.licenses_attribution))
+            },
+            enabled = false
+        )
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -70,384 +300,77 @@ fun LicensesBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header with improved layout matching particle intensity
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 0.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = context.getString(R.string.licenses_title),
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    androidx.compose.foundation.layout.Box(
-                        modifier = Modifier
-                            .padding(top = 6.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            style = MaterialTheme.typography.labelLarge,
-                            text = context.getString(R.string.licenses_desc),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
+            Text(
+                text = context.getString(R.string.licenses_title),
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = context.getString(R.string.licenses_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Libraries Card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                ),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                LicenseSheetItem(
-                    name = "AutoEQ",
-                    description = "Automatic headphone equalization from frequency responses by Jaakko Pasanen",
-                    license = "MIT License",
-                    url = "https://github.com/jaakkopasanen/AutoEq",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Jetpack Compose",
-                    description = "Android's modern toolkit for building native UI",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/compose",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Material 3 Components",
-                    description = "Material Design 3 components for Android",
-                    license = "Apache License 2.0",
-                    url = "https://m3.material.io/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Media3 ExoPlayer",
-                    description = "Modern media playback library for Android",
-                    license = "Apache License 2.0",
-                    url = "https://github.com/androidx/media",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Kotlin Coroutines",
-                    description = "Asynchronous programming framework for Kotlin",
-                    license = "Apache License 2.0",
-                    url = "https://github.com/Kotlin/kotlinx.coroutines",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Coil",
-                    description = "Image loading library for Android backed by Kotlin Coroutines",
-                    license = "Apache License 2.0",
-                    url = "https://coil-kt.github.io/coil/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Retrofit",
-                    description = "Type-safe HTTP client for Android and Java",
-                    license = "Apache License 2.0",
-                    url = "https://square.github.io/retrofit/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "OkHttp",
-                    description = "HTTP client for Android, Kotlin, and Java",
-                    license = "Apache License 2.0",
-                    url = "https://square.github.io/okhttp/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Gson",
-                    description = "Java serialization/deserialization library for JSON",
-                    license = "Apache License 2.0",
-                    url = "https://github.com/google/gson",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "AndroidX Navigation",
-                    description = "Navigation components for Android apps",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/guide/navigation",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Accompanist Permissions",
-                    description = "Compose utilities for permissions handling",
-                    license = "Apache License 2.0",
-                    url = "https://google.github.io/accompanist/permissions/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "AndroidX Palette",
-                    description = "Library to extract prominent colors from images",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/androidx/releases/palette",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "JAudioTagger",
-                    description = "Audio metadata editing library for Java",
-                    license = "LGPL v2.1",
-                    url = "https://github.com/Borewit/jaudiotagger-android",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "AndroidX Fragment",
-                    description = "Modular UI components for Android",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/androidx/releases/fragment",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "AndroidX MediaRouter",
-                    description = "Media routing support for Android",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/androidx/releases/mediarouter",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Glance AppWidget",
-                    description = "Modern reactive widgets framework with Material 3",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/androidx/releases/glance",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "WorkManager",
-                    description = "Deferrable, asynchronous task management library",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/androidx/releases/work",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Material Icons Extended",
-                    description = "Extended set of Material Design icons",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/compose/resources/material-icons",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Ktor",
-                    description = "Asynchronous framework for creating microservices and web applications",
-                    license = "Apache License 2.0",
-                    url = "https://ktor.io/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "LeakCanary",
-                    description = "Memory leak detection library for Android (debug builds only)",
-                    license = "Apache License 2.0",
-                    url = "https://square.github.io/leakcanary/",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Desugar JDK Libs",
-                    description = "Allows using newer Java language APIs on older Android versions",
-                    license = "Apache License 2.0",
-                    url = "https://github.com/google/desugar_jdk_libs",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Media3 FFmpeg Decoder",
-                    description = "FFmpeg-based decoder for Media3, enabling additional audio/video formats",
-                    license = "Apache License 2.0",
-                    url = "https://github.com/androidx/media",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Room",
-                    description = "SQLite object mapping library that provides local data persistence",
-                    license = "Apache License 2.0",
-                    url = "https://developer.android.com/jetpack/androidx/releases/room",
-                    context = context,
-                    haptic = haptic
-                )
-                
-                LicenseSheetItem(
-                    name = "Geom Font",
-                    description = "Modern, clean sans-serif typeface from Google Fonts",
-                    license = "SIL Open Font License 1.1",
-                    url = "https://fonts.google.com/specimen/Geom",
-                    context = context,
-                    haptic = haptic
-                )
-                }
-            }
+            Material3SettingsGroup(
+                title = "Open Source Libraries",
+                items = licenseItems,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // License info card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
-                ),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        imageVector = RhythmIcons.Actions.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = context.getString(R.string.licenses_apache),
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = context.getString(R.string.licenses_attribution),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            Material3SettingsGroup(
+                title = "License Notes",
+                items = licenseInfoItems,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
-@Composable
-private fun LicenseSheetItem(
+private fun licenseItem(
     name: String,
     description: String,
     license: String,
     url: String,
+    icon: Any,
     context: android.content.Context,
     haptic: androidx.compose.ui.hapticfeedback.HapticFeedback
-) {
-    Card(
-        onClick = {
-            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+): Material3SettingsItem {
+    return Material3SettingsItem(
+        icon = icon,
+        title = {
+            Text(
+                text = name,
+                fontWeight = FontWeight.SemiBold
+            )
         },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                ) {
-                    Text(
-                        text = license,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            }
-
+        description = {
+            Text("$description • $license")
+        },
+        trailingContent = {
             Icon(
                 imageVector = RhythmIcons.Forward,
-                contentDescription = "View License",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp)
             )
+        },
+        onClick = {
+            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addCategory(Intent.CATEGORY_BROWSABLE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
         }
-    }
+    )
 }

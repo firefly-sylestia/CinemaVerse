@@ -63,7 +63,7 @@ fun Material3SettingsGroup(
                 text = it,
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp, top = 18.dp)
             )
         }
 

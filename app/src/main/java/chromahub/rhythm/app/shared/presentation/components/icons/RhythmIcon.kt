@@ -122,7 +122,7 @@ fun Icon(
         contentAlignment = Alignment.Center
     ) {
         val slotSize = if (maxWidth != Dp.Infinity && maxHeight != Dp.Infinity) {
-            minOf(maxWidth, maxHeight, size)
+            minOf(maxWidth, maxHeight)
         } else {
             size
         }

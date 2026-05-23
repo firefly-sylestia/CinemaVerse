@@ -14,11 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -233,7 +229,7 @@ fun AudioQualityBadges(
 }
 
 /**
- * Material 3 Expressive Badge with gradient, animation, and dynamic colors
+ * Material 3 Expressive Badge with flat container colors and no visual chrome
  */
 @Composable
 private fun QualityBadge(
@@ -242,123 +238,57 @@ private fun QualityBadge(
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {
-    // Entrance animation
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         visible = true
     }
-    
-    // Pulsing animation for excellent quality
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (qualityLevel == QualityLevel.EXCELLENT) 1.05f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-    
-    // Shimmer effect for premium badges (EXCELLENT level)
-    val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
-    val shimmerTranslate by shimmerTransition.animateFloat(
-        initialValue = -300f,
-        targetValue = 600f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmerTranslate"
-    )
-    
-    val shimmerBrush = Brush.linearGradient(
-        colors = listOf(
-            Color.White.copy(alpha = 0f),
-            Color.White.copy(alpha = 0.22f),
-            Color.White.copy(alpha = 0f)
-        ),
-        start = Offset(shimmerTranslate, 0f),
-        end = Offset(shimmerTranslate + 120f, 120f)
-    )
-    
-    // Premium custom gradient palettes & content colors
-    val (gradientColors, contentColor) = when (qualityLevel) {
-        QualityLevel.EXCELLENT -> listOf(
-            Color(0xFFF2C94C), // Sunset Gold
-            Color(0xFFF2994A), // Vibrant Orange
-            Color(0xFFE25B45)  // Coral Red
-        ) to Color(0xFF2A1B0A) // Deep charcoal-gold for maximum legibility
-        
-        QualityLevel.GOOD -> listOf(
-            Color(0xFF00F2FE), // Cyber Cyan
-            Color(0xFF4FACFE)  // Electric Blue
-        ) to Color(0xFF031B33) // Deep navy for supreme legibility
-        
-        QualityLevel.STANDARD -> listOf(
-            Color(0xFF757F9A), // Slate Grey
-            Color(0xFFD7DDE8)  // Silver Grey
-        ) to Color(0xFF232B38) // Dark charcoal for clean minimal legibility
+    val (containerColor, contentColor) = when (qualityLevel) {
+        QualityLevel.EXCELLENT -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        QualityLevel.GOOD -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+        QualityLevel.STANDARD -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
     }
-    
-    val borderBrush = when (qualityLevel) {
-        QualityLevel.EXCELLENT -> Brush.horizontalGradient(listOf(Color(0xFFFFF099), Color(0xFFFFB366)))
-        QualityLevel.GOOD -> Brush.horizontalGradient(listOf(Color(0xFF80F9FF), Color(0xFF80C3FF)))
-        QualityLevel.STANDARD -> Brush.horizontalGradient(listOf(Color(0xFFB0B9C8), Color(0xFFECEFF5)))
-    }
+    val badgeShape = RoundedCornerShape(10.dp)
     
     AnimatedVisibility(
         visible = visible,
-        // enter = fadeIn(animationSpec = tween(300)) + scaleIn(animationSpec = spring(
-        //     dampingRatio = Spring.DampingRatioMediumBouncy,
-        //     stiffness = Spring.StiffnessLow
-        // )),
+        enter = fadeIn(animationSpec = tween(220)) + scaleIn(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessMedium
+            ),
+            initialScale = 0.94f
+        ),
         modifier = modifier
     ) {
         Surface(
             modifier = Modifier
-                .scale(scale)
                 .padding(horizontal = 4.dp),
-            shape = RoundedCornerShape(12.dp),
-            tonalElevation = 2.dp,
-            shadowElevation = if (qualityLevel == QualityLevel.EXCELLENT) 2.dp else 0.dp
+            shape = badgeShape,
+            color = containerColor,
+            contentColor = contentColor,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .background(
-                        brush = Brush.horizontalGradient(gradientColors)
-                    )
-                    .then(
-                        if (qualityLevel == QualityLevel.EXCELLENT) {
-                            Modifier.background(shimmerBrush)
-                        } else Modifier
-                    )
-                    .border(
-                        width = 1.dp,
-                        brush = borderBrush,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = contentColor
-                    )
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            letterSpacing = 0.8.sp
-                        ),
-                        color = contentColor
-                    )
-                }
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = contentColor
+                )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.6.sp
+                    ),
+                    color = contentColor
+                )
             }
         }
     }
