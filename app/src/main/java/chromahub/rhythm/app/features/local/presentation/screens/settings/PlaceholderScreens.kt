@@ -6473,7 +6473,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
     val showLyrics by appSettings.showLyrics.collectAsState()
     val showLyricsTranslation by appSettings.showLyricsTranslation.collectAsState()
     val showLyricsRomanization by appSettings.showLyricsRomanization.collectAsState()
-    val bitPerfectMode by appSettings.bitPerfectMode.collectAsState()
+    val skipSilenceEnabled by appSettings.skipSilenceEnabled.collectAsState()
     val audioRoutingMode by appSettings.audioRoutingMode.collectAsState()
     val haptic = LocalHapticFeedback.current
     
@@ -6502,14 +6502,12 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                     title = context.getString(R.string.settings_audio_effects),
                     items = listOf(
                         SettingItem(
-                            Icons.Default.HighQuality,
-                            context.getString(R.string.settings_bit_perfect_mode),
-                            if (audioRoutingMode == "app") context.getString(R.string.settings_bit_perfect_mode_desc_dac) else context.getString(R.string.settings_bit_perfect_mode_desc_native),
-                            toggleState = bitPerfectMode,
+                            Icons.Default.Hearing,
+                            context.getString(R.string.settings_skip_silence),
+                            context.getString(R.string.settings_skip_silence_desc),
+                            toggleState = skipSilenceEnabled,
                             onToggleChange = {
-                                appSettings.setBitPerfectMode(it)
-                                showRestartDialog = true
-                                restartDialogMessage = "High-resolution audio mode changed. Restart the app to apply the new audio settings."
+                                appSettings.setSkipSilenceEnabled(it)
                             }
                         )
                     )
@@ -6738,9 +6736,6 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                                     }
                                     1 -> {
                                         appSettings.setAudioRoutingMode("app")
-                                        if (!appSettings.bitPerfectMode.value) {
-                                            appSettings.setBitPerfectMode(true)
-                                        }
                                         showRestartDialog = true
                                         restartDialogMessage = "Audio routing changed to App mode. Restart the app to apply the changes."
                                     }

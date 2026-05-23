@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Hearing
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -1254,16 +1255,16 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
         
         // ======================== EXPERIMENTAL FEATURES SCREEN ========================
         
-        // High-Resolution Audio
+        // Skip Silence
         add(SearchableSettingItem(
-            id = "bit_perfect_mode",
-            title = context.getString(R.string.settings_bit_perfect_mode),
-            description = context.getString(R.string.settings_bit_perfect_mode_desc_native),
-            keywords = listOf("high-resolution", "hi-res", "bit perfect", "bit-perfect", "audio", "sample rate", "resampling", "hi-res", "quality", "lossless", "44.1khz", "48khz", "96khz", "192khz", "native", "dac", "exclusive", "exclusive usb", "usb-c", "otg"),
-            icon = Icons.Default.HighQuality,
+            id = "skip_silence",
+            title = context.getString(R.string.settings_skip_silence),
+            description = context.getString(R.string.settings_skip_silence_desc),
+            keywords = listOf("skip silence", "silence", "cut silence", "audio effects", "smart play", "gapless", "playback"),
+            icon = Icons.Default.Hearing,
             route = SettingsRoutes.EXPERIMENTAL_FEATURES,
             parentScreen = "Experimental",
-            settingKey = "bitPerfectMode"
+            settingKey = "skipSilenceEnabled"
         ))
         add(SearchableSettingItem(
             id = "audio_routing_mode",

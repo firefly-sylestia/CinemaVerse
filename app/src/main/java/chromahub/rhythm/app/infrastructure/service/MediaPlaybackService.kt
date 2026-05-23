@@ -171,7 +171,6 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         private const val SLEEP_TIMER_CHANNEL_ID = "RhythmSleepTimer"
 
         private const val PREF_NAME = "rhythm_preferences"
-        private const val PREF_HIGH_QUALITY_AUDIO = "high_quality_audio"
         private const val PREF_GAPLESS_PLAYBACK = "gapless_playback"
         private const val PREF_CROSSFADE = "crossfade"
         private const val PREF_CROSSFADE_DURATION = "crossfade_duration"
@@ -437,14 +436,11 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     
     private fun initializePlayer() {
         // Initialize RhythmPlayerEngine for crossfade support
-        // Enable bit-perfect when explicitly set OR when audio routing mode is "app" (direct DAC output)
         val audioRoutingMode = appSettings.audioRoutingMode.value
-        val bitPerfectEnabled = appSettings.bitPerfectMode.value || audioRoutingMode == "app"
         applyUsbExclusiveRoutingPreference()
-        Log.d(TAG, "Initializing player with bit-perfect mode: $bitPerfectEnabled (routing: $audioRoutingMode)")
+        Log.d(TAG, "Initializing player (routing: $audioRoutingMode)")
         rhythmPlayerEngine = RhythmPlayerEngine(
             this, 
-            bitPerfectMode = bitPerfectEnabled,
             bassBoostProcessor = rhythmBassBoostProcessor,
             spatializationProcessor = rhythmSpatializationProcessor
         )
@@ -1103,12 +1099,15 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         // Apply gapless playback setting
         rhythmPlayerEngine.setGaplessPlayback(appSettings.gaplessPlayback.value)
 
+        // Apply skip silence setting
+        rhythmPlayerEngine.setSkipSilenceEnabled(appSettings.skipSilenceEnabled.value)
+
         // Crossfade is now managed by TransitionController + RhythmPlayerEngine
         // Settings are read reactively from AppSettings by the controller
 
         Log.d(TAG, "Applied player settings: " +
-                "HQ Audio=${appSettings.highQualityAudio.value}, " +
                 "Gapless=${appSettings.gaplessPlayback.value}, " +
+                "SkipSilence=${appSettings.skipSilenceEnabled.value}, " +
                 "Crossfade=${appSettings.crossfade.value} (${appSettings.crossfadeDuration.value}s)")
                 // Normalization and ReplayGain removed as not implemented
     }
