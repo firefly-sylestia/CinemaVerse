@@ -460,7 +460,7 @@ fun DeviceConfigurationBottomSheet(
                     imageVector = RhythmIcons.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text("Delete Device") },
@@ -532,7 +532,7 @@ fun DeviceConfigurationBottomSheet(
                     imageVector = RhythmIcons.Download,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = {
@@ -725,7 +725,7 @@ fun DeviceConfigurationBottomSheet(
                     imageVector = MaterialSymbolIcon("file_upload"),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = {
@@ -1046,7 +1046,7 @@ private fun AddEditDeviceDialog(
                 imageVector = if (isEditing) RhythmIcons.Edit else RhythmIcons.Add,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {
@@ -1211,7 +1211,7 @@ private fun DeviceAutoEQSelector(
                     Icon(
                         imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }

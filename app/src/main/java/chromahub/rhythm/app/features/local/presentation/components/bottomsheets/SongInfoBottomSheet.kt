@@ -330,7 +330,7 @@ fun SongInfoBottomSheet(
                         imageVector = if (isBlacklisted) RhythmIcons.CheckCircle else RhythmIcons.Block,
                         contentDescription = null,
                         tint = if (isBlacklisted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(if (isBlacklisted) "Remove from Blacklist?" else "Add to Blacklist?")
@@ -408,7 +408,7 @@ fun SongInfoBottomSheet(
                         imageVector = if (isInBlacklistedFolder) RhythmIcons.CheckCircle else MaterialSymbolIcon("folder_off", filled = true),
                         contentDescription = null,
                         tint = if (isInBlacklistedFolder) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(if (isInBlacklistedFolder) "Remove Folder from Blacklist?" else "Blacklist Folder?")
@@ -2714,7 +2714,7 @@ private fun EditSongSheet(
                         imageVector = RhythmIcons.Warning,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Irreversible Changes")

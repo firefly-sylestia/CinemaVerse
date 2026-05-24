@@ -34,7 +34,7 @@ fun SwitchModeDialog(
                 imageVector = if (targetMode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {

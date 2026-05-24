@@ -760,7 +760,7 @@ fun NotificationsSettingsScreen(onBackClick: () -> Unit) {
                     imageVector = RhythmIcons.AccessTime,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text(context.getString(R.string.settings_rhythm_pulse_interval_dialog_title)) },
@@ -2469,7 +2469,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                     imageVector = RhythmIcons.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = {
@@ -2542,7 +2542,7 @@ fun PlaylistsSettingsScreen(onBackClick: () -> Unit) {
                     imageVector = RhythmIcons.Delete,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = {
@@ -3611,7 +3611,7 @@ fun ArtistSeparatorsSettingsScreen(onBackClick: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = RhythmIcons.Info,
+                                imageVector = RhythmIcons.MusicNote,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -5099,7 +5099,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                 Icon(
                                     imageVector = RhythmIcons.Back,
                                     contentDescription = "Back",
-                                    tint = MaterialTheme.colorScheme.onSurface
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(25.dp)
                                 )
                             }
                         }
@@ -5583,7 +5584,7 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            // 2. Build Info display (moved cleanly here above changelogs)
+            // 2. Build Info display
             item {
                 val isUpdateAvail = activeUpdateAvailable && activeLatestVersion != null
                 val displayVersionName = if (isUpdateAvail) activeLatestVersion.versionName else currentVersion.versionName
@@ -5597,9 +5598,9 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                             val tag = currentVersion.versionName
                             val releaseUrl = if (tag.startsWith("v", ignoreCase = true)) {
-                                "https://github.com/cromaguy/Rhythm/releases/tag/$tag"
+                                "https://github.com/cromaguy/Rhythm/releases/tag/$displayVersionName"
                             } else {
-                                "https://github.com/cromaguy/Rhythm/releases/tag/v$tag"
+                                "https://github.com/cromaguy/Rhythm/releases/tag/v$displayVersionName"
                             }
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(releaseUrl))
@@ -6284,7 +6285,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(28.dp)
                                     )
                                 }
                             }
@@ -6360,7 +6362,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(28.dp)
                                     )
                                 }
                             }
@@ -6450,7 +6453,8 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.CheckCircle,
                                         contentDescription = "Selected",
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(28.dp)
                                     )
                                 }
                             }
@@ -6459,7 +6463,13 @@ fun UpdatesSettingsScreen(onBackClick: () -> Unit) {
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showSourceDialog = false }) {
+                OutlinedButton(onClick = { showSourceDialog = false }) {
+                    Icon(
+                        imageVector = RhythmIcons.Close,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(context.getString(R.string.ui_close))
                 }
             },
@@ -13151,7 +13161,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
                     ),
                     // AMOLED Theme - always in list, rendered conditionally via AnimatedVisibility
                     SettingItem(
-                        MaterialSymbolIcon("brightness2"),
+                        RhythmIcons.DarkMode,
                         context.getString(R.string.settings_amoled_theme),
                         context.getString(R.string.settings_amoled_theme_desc),
                         toggleState = amoledTheme,
@@ -16271,7 +16281,7 @@ fun CrashLogHistorySettingsScreen(onBackClick: () -> Unit, appSettings: AppSetti
                     imageVector = RhythmIcons.BugReport,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text(context.getString(R.string.settings_crash_log_details)) },
@@ -18475,7 +18485,7 @@ fun PlaceholderSettingsScreen() {
 }
 
 @Composable
-fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
+fun PerformanceSettingsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
     val appSettings = remember { AppSettings.getInstance(context) }
     val haptic = LocalHapticFeedback.current
@@ -18490,7 +18500,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
     val batterySaverDisableLosslessArtwork by appSettings.batterySaverDisableLosslessArtwork.collectAsState()
 
     CollapsibleHeaderScreen(
-        title = "Battery Saver",
+        title = "Performance",
         showBackButton = true,
         onBackClick = onBackClick,
         headerContent = {
@@ -18650,7 +18660,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         item = SettingItem(
                                             icon = MaterialSymbolIcon("bolt"),
                                             title = "Enable Audio Offload",
-                                            description = "Use hardware DSP decoding under Battery Saver",
+                                            description = "Use hardware DSP decoding under Performance",
                                             toggleState = batterySaverEnableOffload,
                                             onToggleChange = { appSettings.setBatterySaverEnableOffload(it) }
                                         )
@@ -18672,7 +18682,7 @@ fun BatterySaverSettingsScreen(onBackClick: () -> Unit) {
                                         item = SettingItem(
                                             icon = RhythmIcons.Image,
                                             title = "Disable Lossless Artwork",
-                                            description = "Use standard artwork instead of lossless under Battery Saver",
+                                            description = "Use standard artwork instead of lossless under Performance",
                                             toggleState = batterySaverDisableLosslessArtwork,
                                             onToggleChange = { appSettings.setBatterySaverDisableLosslessArtwork(it) }
                                         )

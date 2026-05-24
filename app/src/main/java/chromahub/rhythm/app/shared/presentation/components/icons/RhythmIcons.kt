@@ -30,6 +30,7 @@ object RhythmIcons {
     // ═══════════════════════════════════════════════════
     object Player {
         val Play = MaterialSymbolIcon("play_arrow", defaultWeight = 500)
+        val PlayCircle = MaterialSymbolIcon("play_circle_filled", defaultWeight = 500)
         val Pause = MaterialSymbolIcon("pause", defaultWeight = 500)
         val SkipNext = MaterialSymbolIcon("skip_next", defaultWeight = 500)
         val SkipPrevious = MaterialSymbolIcon("skip_previous", defaultWeight = 500)
@@ -219,6 +220,7 @@ object RhythmIcons {
 
     // Player controls
     val Play = Player.Play
+    val PlayCircle = Player.PlayCircle
     val Pause = Player.Pause
     val SkipNext = Player.SkipNext
     val SkipPrevious = Player.SkipPrevious

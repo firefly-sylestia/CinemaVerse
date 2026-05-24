@@ -60,7 +60,7 @@ fun AutoEQSuggestionDialog(
                 imageVector = MaterialSymbolIcon("headset_mic", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {

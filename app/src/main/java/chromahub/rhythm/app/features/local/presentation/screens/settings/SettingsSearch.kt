@@ -283,7 +283,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
         ))
         add(SearchableSettingItem(
             id = "battery_saver",
-            title = "Battery Saver",
+            title = "Performance",
             description = "Optimize haptics, decoding, and marquee for power consumption",
             keywords = listOf("battery", "power", "saver", "offload", "haptics", "marquee", "optimize"),
             icon = MaterialSymbolIcon("battery_charging_full"),

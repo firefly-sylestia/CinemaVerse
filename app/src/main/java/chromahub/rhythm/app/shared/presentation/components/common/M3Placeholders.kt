@@ -6,6 +6,7 @@ import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -92,16 +93,17 @@ fun M3Placeholder(
         color = containerColor,
         tonalElevation = 1.dp
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
+            val minDim = minOf(maxWidth, maxHeight)
+            val iconSize = minOf(minDim * 0.42f, 28.dp)
+
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier
-                    .size(36.dp)
-                    .padding(4.dp),
+                modifier = Modifier.size(iconSize),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

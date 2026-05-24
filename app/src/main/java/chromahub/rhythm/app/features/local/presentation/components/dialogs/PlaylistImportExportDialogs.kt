@@ -53,7 +53,7 @@ fun AppRestartDialog(
                 imageVector = MaterialSymbolIcon("restart_alt", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {
@@ -149,7 +149,7 @@ fun PlaylistExportDialog(
                 imageVector = MaterialSymbolIcon("file_upload", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {
@@ -302,7 +302,7 @@ fun BulkPlaylistExportDialog(
                 imageVector = MaterialSymbolIcon("folder_zip", filled = true),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {
@@ -468,7 +468,7 @@ fun PlaylistImportDialog(
                 imageVector = RhythmIcons.Download,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {
@@ -654,7 +654,7 @@ fun PlaylistOperationResultDialog(
                 imageVector = if (isError) MaterialSymbolIcon("error", filled = true) else RhythmIcons.CheckCircle,
                 contentDescription = null,
                 tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {

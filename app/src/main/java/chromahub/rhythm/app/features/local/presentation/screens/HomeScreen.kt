@@ -594,8 +594,6 @@ private fun ModernScrollableContent(
     val windowSizeClass = calculateWindowSizeClass(context as android.app.Activity)
     val widthSizeClass = windowSizeClass.widthSizeClass
     val heightSizeClass = windowSizeClass.heightSizeClass
-    val isTablet = widthSizeClass == WindowWidthSizeClass.Medium ||
-            widthSizeClass == WindowWidthSizeClass.Expanded
     val scrollState = rememberScrollState()
     val allSongs by musicViewModel.filteredSongs.collectAsState()
 
@@ -672,7 +670,7 @@ private fun ModernScrollableContent(
             .toList()
     }
 
-    // Featured albums with auto-refresh - ensure proper count handling
+    // Featured albums with auto-refresh
     var currentFeaturedAlbums by remember(featuredContent, discoverItemCount) {
         mutableStateOf(
             if (featuredContent.isEmpty()) listOf()
@@ -680,46 +678,19 @@ private fun ModernScrollableContent(
         )
     }
 
-    // Auto-refresh featured content periodically - respect discoverItemCount setting
     LaunchedEffect(albums, discoverItemCount) {
         while (true) {
-            delay(45000) // 45 seconds for better user experience
+            delay(45000)
             if (albums.size > discoverItemCount) {
-                // Shuffle and take only the configured count
                 currentFeaturedAlbums = albums.shuffled().take(discoverItemCount)
             } else if (albums.isNotEmpty()) {
-                // If we have fewer albums than the count, use all available
                 currentFeaturedAlbums = albums.shuffled()
             }
         }
     }
 
-    // Get festive theme settings
-    val festiveEnabled by appSettings.festiveThemeEnabled.collectAsState()
-    val festiveTypeString by appSettings.festiveThemeType.collectAsState()
-    val festiveAutoDetect by appSettings.festiveThemeAutoDetect.collectAsState()
-
-    // Determine active festive theme
-    val activeFestiveTheme = remember(festiveEnabled, festiveTypeString, festiveAutoDetect) {
-        if (festiveEnabled) {
-            val festiveConfig = FestiveConfig(
-                enabled = festiveEnabled,
-                type = try {
-                    FestiveThemeType.valueOf(festiveTypeString)
-                } catch (e: IllegalArgumentException) {
-                    FestiveThemeType.NONE
-                },
-                autoDetect = festiveAutoDetect
-            )
-            FestiveThemeEngine.getActiveFestiveTheme(festiveConfig)
-        } else {
-            FestiveThemeType.NONE
-        }
-    }
-
     val lazyListState = rememberLazyListState()
 
-    // Determine padding to apply individually to non-full-bleed sections
     val horizontalPadding = when (widthSizeClass) {
         WindowWidthSizeClass.Compact -> 20.dp
         WindowWidthSizeClass.Medium -> 48.dp
@@ -736,27 +707,23 @@ private fun ModernScrollableContent(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(when (widthSizeClass) {
                 WindowWidthSizeClass.Compact -> when (heightSizeClass) {
-                    WindowHeightSizeClass.Compact -> 32.dp // Landscape phone - tighter spacing
-                    else -> 40.dp // Portrait phone
+                    WindowHeightSizeClass.Compact -> 32.dp
+                    else -> 40.dp
                 }
                 WindowWidthSizeClass.Medium -> when (heightSizeClass) {
-                    WindowHeightSizeClass.Compact -> 48.dp // Landscape tablet - more spacing
-                    else -> 56.dp // Portrait tablet - more spacing
+                    WindowHeightSizeClass.Compact -> 48.dp
+                    else -> 56.dp
                 }
                 WindowWidthSizeClass.Expanded -> when (heightSizeClass) {
-                    WindowHeightSizeClass.Compact -> 52.dp // Landscape large tablet
-                    else -> 64.dp // Portrait large tablet - generous spacing
+                    WindowHeightSizeClass.Compact -> 52.dp
+                    else -> 64.dp
                 }
                 else -> 40.dp
             }),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // Render sections dynamically based on sectionOrder
             sectionOrder.forEach { sectionId ->
                 when (sectionId) {
-                    "GREETING" -> {
-                        // Greeting widget is intentionally removed from home.
-                    }
                     "RECENTLY_PLAYED" -> {
                         if (showRecentlyPlayed) {
                             item(key = "section_recently_played") {
@@ -778,7 +745,6 @@ private fun ModernScrollableContent(
                             item(key = "section_discover") {
                                 Column {
                                     if (currentFeaturedAlbums.isNotEmpty()) {
-                                        // NO horizontal padding applied here to allow full-bleed hero layout!
                                         ModernFeaturedSection(
                                             albums = currentFeaturedAlbums,
                                             onAlbumClick = onAlbumClick,
@@ -1039,11 +1005,11 @@ private fun ModernScrollableContent(
                                     val recommendedSongs = remember(recentlyPlayed, songs, recommendedCount, favoriteSongsState.value) {
                                         val favoriteIds = favoriteSongsState.value
                                         val favoriteSongsList = songs.filter { it.id in favoriteIds }
-                                        
+
                                         var result = if (recentlyPlayed.isNotEmpty()) {
                                             val playedArtists = recentlyPlayed.map { it.artist }.distinct()
                                             val playedAlbums = recentlyPlayed.map { it.album }.distinct()
- 
+
                                             songs.filter { song ->
                                                 (song.artist in playedArtists || song.album in playedAlbums) &&
                                                         !recentlyPlayed.contains(song)
@@ -1051,7 +1017,7 @@ private fun ModernScrollableContent(
                                         } else {
                                             emptyList()
                                         }
-                                        
+
                                         if (result.isEmpty() && recentlyPlayed.isNotEmpty()) {
                                             val playedArtists = recentlyPlayed.map { it.artist }.distinct()
                                             val playedAlbums = recentlyPlayed.map { it.album }.distinct()
@@ -1059,15 +1025,15 @@ private fun ModernScrollableContent(
                                                 song.artist in playedArtists || song.album in playedAlbums
                                             }.shuffled()
                                         }
-                                        
+
                                         if (result.isEmpty()) {
                                             result = favoriteSongsList.shuffled()
                                         }
-                                        
+
                                         if (result.isEmpty()) {
                                             result = songs.shuffled()
                                         }
-                                        
+
                                         result.take(recommendedCount)
                                     }
 
@@ -1087,15 +1053,7 @@ private fun ModernScrollableContent(
                         if (showListeningStats) {
                             item(key = "section_stats") {
                                 Box(modifier = Modifier.padding(horizontal = horizontalPadding)) {
-                                    Column {
-                                        ModernSectionTitle(
-                                            title = context.getString(R.string.home_listening_stats),
-                                            subtitle = context.getString(R.string.home_listening_stats_subtitle),
-                                            viewAllAction = onNavigateToStats
-                                        )
-                                        Spacer(modifier = Modifier.height(20.dp))
-                                        ModernListeningStatsSection(onClick = onNavigateToStats, showHeader = false)
-                                    }
+                                    ModernListeningStatsSection(onClick = onNavigateToStats)
                                 }
                             }
                         }
@@ -1103,15 +1061,12 @@ private fun ModernScrollableContent(
                 }
             }
 
-            // Add some bottom padding for mini player
             item {
                 Spacer(modifier = Modifier.height(30.dp))
             }
         }
     }
 }
-
-// Modern Component Functions - Part 2
 
 @Composable
 private fun ModernWelcomeSection(
@@ -1124,29 +1079,6 @@ private fun ModernWelcomeSection(
     val recentlyPlayed by viewModel.recentlyPlayed.collectAsState()
     val haptic = LocalHapticFeedback.current
 
-    // Responsive font sizes
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val isCompactWidth = screenWidthDp < 400
-    val isTablet = screenWidthDp >= 600
-
-    val greetingFontSize = when {
-        isCompactWidth -> 28.sp
-        isTablet -> 36.sp
-        else -> 32.sp
-    }
-    val messageFontSize = when {
-        isCompactWidth -> 12.sp
-        isTablet -> 16.sp
-        else -> 14.sp
-    }
-    val quoteFontSize = when {
-        isCompactWidth -> 11.sp
-        isTablet -> 14.sp
-        else -> 12.sp
-    }
-
-    // Enhanced time-based quotes with proper time ranges
     val timeBasedQuote = remember {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         when {
@@ -1183,19 +1115,6 @@ private fun ModernWelcomeSection(
         }.random()
     }
 
-    val personalizedMessage = remember(recentlyPlayed) {
-        if (recentlyPlayed.isNotEmpty()) {
-            val recentSong = recentlyPlayed.firstOrNull()?.title
-            if (!recentSong.isNullOrBlank()) {
-                context.getString(R.string.home_continue_song, recentSong)
-            } else {
-                context.getString(R.string.home_adventure_continues)
-            }
-        } else {
-            context.getString(R.string.home_discover_next_favorite)
-        }
-    }
-
     val timeBasedTheme = remember(festiveTheme) {
         when (festiveTheme) {
             FestiveThemeType.CHRISTMAS -> Triple("🎄", "christmas", "🎅")
@@ -1205,11 +1124,11 @@ private fun ModernWelcomeSection(
             else -> {
                 val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
                 when {
-                    hour in 0..4 -> Triple("🌙", "late_night", "⭐")  // Late night
-                    hour in 5..11 -> Triple("☀️", "morning", "🌻")      // Morning
-                    hour in 12..16 -> Triple("🌤️", "afternoon", "⚡") // Afternoon
-                    hour in 17..20 -> Triple("🌅", "evening", "✨")    // Evening
-                    else -> Triple("🌙", "night", "🌟")                // Night
+                    hour in 0..4 -> Triple("🌙", "late_night", "⭐")
+                    hour in 5..11 -> Triple("☀️", "morning", "🌻")
+                    hour in 12..16 -> Triple("🌤️", "afternoon", "⚡")
+                    hour in 17..20 -> Triple("🌅", "evening", "✨")
+                    else -> Triple("🌙", "night", "🌟")
                 }
             }
         }
@@ -1228,7 +1147,6 @@ private fun ModernWelcomeSection(
         shape = ExpressiveShapes.ExtraLarge
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            // Decorative elements in background
             Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -1249,7 +1167,6 @@ private fun ModernWelcomeSection(
                     .fillMaxWidth()
                     .padding(24.dp)
             ) {
-                // Main greeting
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 0.dp)
@@ -1292,7 +1209,6 @@ private fun ModernWelcomeSection(
                         )
                     }
 
-                    // Modern search button with expressive design
                     ExpressiveFilledIconButton(
                         onClick = {
                             HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
@@ -1597,50 +1513,16 @@ private fun ModernSectionTitle(
                 }
             }
 
-            viewAllAction?.let {
-                var isPressed by remember { mutableStateOf(false) }
-                val scale by animateFloatAsState(
-                    targetValue = if (isPressed) 0.94f else 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium
-                    ),
-                    label = "viewAllScale"
-                )
-
-                ExpressiveOutlinedButton(
+            viewAllAction?.let { action ->
+                IconButton(
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                        it()
-                    },
-                    shape = ExpressiveShapes.Full,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                    modifier = Modifier
-                        .scale(scale)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onPress = {
-                                    isPressed = true
-                                    tryAwaitRelease()
-                                    isPressed = false
-                                }
-                            )
-                        }
+                        action()
+                    }
                 ) {
-                    Text(
-                        text = context.getString(R.string.ui_view_all),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
                     Icon(
-                        imageVector = RhythmIcons.Forward,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
+                        imageVector = MaterialSymbolIcon("arrow_forward", filled = true),
+                        contentDescription = context.getString(R.string.ui_view_all),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -1786,7 +1668,7 @@ private fun ModernFeaturedSection(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        
+
                         if (showPlayButton) {
                             Button(
                                 onClick = {
@@ -2233,8 +2115,7 @@ private fun ModernSongCard(
 
 @Composable
 private fun ModernListeningStatsSection(
-    onClick: () -> Unit = {},
-    showHeader: Boolean = true
+    onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
@@ -2260,217 +2141,121 @@ private fun ModernListeningStatsSection(
         statsSummary?.uniqueArtists ?: 0
     }
 
-    ExpressiveCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        shape = ExpressiveShapes.SquircleLarge
-    ) {
-        Column(
-            modifier = Modifier.padding(24.dp)
-        ) {
-            if (showHeader) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
-                                    )
-                                ),
-                                shape = ExpressiveShapes.SquircleMedium
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = RhythmIcons.BarChart,
-                            contentDescription = null,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = context.getString(R.string.home_listening_stats),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = context.getString(R.string.home_listening_stats_subtitle),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    ExpressiveLargeIconButton(
-                        onClick = onClick,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = MaterialSymbolIcon("keyboard_arrow_right", filled = true),
-                            contentDescription = context.getString(R.string.cd_view_detailed_stats),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                ExpressiveStatItem(
-                    modifier = Modifier.weight(1f),
-                    value = listeningTimeHours,
-                    suffix = if (listeningTimeHours < 1) "" else "h",
-                    label = if (listeningTimeHours < 1) context.getString(R.string.home_stat_listening_time_short) else context.getString(R.string.home_stat_listening_time),
-                    icon = RhythmIcons.Player.Timer,
-                    accentColor = MaterialTheme.colorScheme.primary
-                )
-
-                ExpressiveStatItem(
-                    modifier = Modifier.weight(1f),
-                    value = songsPlayed,
-                    label = context.getString(R.string.home_stat_songs_played),
-                    icon = RhythmIcons.Music.MusicNote,
-                    accentColor = MaterialTheme.colorScheme.secondary
-                )
-
-                ExpressiveStatItem(
-                    modifier = Modifier.weight(1f),
-                    value = uniqueArtistsCount,
-                    label = context.getString(R.string.home_stat_artists),
-                    icon = RhythmIcons.Artist,
-                    accentColor = MaterialTheme.colorScheme.tertiary
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExpressiveStatItem(
-    modifier: Modifier = Modifier,
-    value: Int,
-    suffix: String = "",
-    label: String,
-    icon: MaterialSymbolIcon,
-    accentColor: Color
-) {
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Surface(
-            shape = ExpressiveShapes.SquircleMedium,
-            color = accentColor.copy(alpha = 0.12f),
-            modifier = Modifier.size(48.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Text(
+                text = context.getString(R.string.home_listening_stats),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            IconButton(onClick = onClick) {
                 Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = accentColor,
-                    modifier = Modifier.size(24.dp)
+                    imageVector = MaterialSymbolIcon("arrow_forward", filled = true),
+                    contentDescription = "View all stats",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
 
-        ExpressiveAnimatedCounter(
-            value = value,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            ),
-            suffix = suffix
-        )
+        Surface(
+            modifier = Modifier.fillMaxWidth().clickable { onClick() },
+            shape = RoundedCornerShape(32.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    imageVector = RhythmIcons.Player.Timer,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(28.dp).padding(bottom = 8.dp)
+                )
+                Text(
+                    text = if (listeningTimeHours < 1) "< 1h" else "${listeningTimeHours}h",
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = "Total Listening Time",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                )
+            }
+        }
 
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            lineHeight = 16.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-private fun ModernStatCard(
-    value: String,
-    label: String,
-    icon: MaterialSymbolIcon,
-    backgroundColor: Color,
-    contentColor: Color
-) {
-    ExpressiveCard(
-        modifier = Modifier.width(100.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
-        ),
-        shape = ExpressiveShapes.Large
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Surface(
-                shape = CircleShape,
-                color = contentColor.copy(alpha = 0.2f),
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.weight(1f).clickable { onClick() },
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = icon,
+                        imageVector = RhythmIcons.Music.MusicNote,
                         contentDescription = null,
-                        tint = contentColor,
-                        modifier = Modifier.size(16.dp)
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(24.dp).padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "$songsPlayed",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = "Plays",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
                     )
                 }
             }
 
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = contentColor,
-                textAlign = TextAlign.Center
-            )
-
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = contentColor.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Surface(
+                modifier = Modifier.weight(1f).clickable { onClick() },
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.tertiaryContainer
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = RhythmIcons.Artist,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                        modifier = Modifier.size(24.dp).padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "$uniqueArtistsCount",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                    Text(
+                        text = "Artists",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
         }
     }
 }
@@ -2498,17 +2283,15 @@ private fun ModernRecommendedSection(
         if (recommendedSongs.isNotEmpty()) {
             val firstSong = recommendedSongs.firstOrNull()
             val artistName = firstSong?.artist ?: "Unknown Artist"
-            
-            // Find the corresponding Artist object to get the artworkUri
+
             val recommendedArtist = remember(artistName, artists) {
                 artists.find { it.name.equals(artistName, ignoreCase = true) }
             }
-            
+
             val artistArtworkUri = recommendedArtist?.artworkUri ?: firstSong?.artworkUri
             val cardBgColor = MaterialTheme.colorScheme.surfaceContainerHigh
             val onCardBgColor = MaterialTheme.colorScheme.onSurface
 
-            // Dynamic Font Sizing for long artist names to prevent card overflow
             val artistNameLength = artistName.length
             val artistNameStyle = when {
                 artistNameLength > 20 -> MaterialTheme.typography.titleLarge
@@ -2531,7 +2314,6 @@ private fun ModernRecommendedSection(
                         .fillMaxSize()
                         .padding(24.dp)
                 ) {
-                    // 1. Dynamic Resizing Artist Name in Upper-Left
                     RecommendedArtistHeadline(
                         artistName = artistName,
                         style = artistNameStyle,
@@ -2540,8 +2322,7 @@ private fun ModernRecommendedSection(
                             .align(Alignment.TopStart)
                             .fillMaxWidth()
                     )
-                    
-                    // 2. Large Artist Image in Center-Right (using Artist expressive shape!)
+
                     Box(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
@@ -2553,11 +2334,10 @@ private fun ModernRecommendedSection(
                             imageUrl = artistArtworkUri,
                             artistName = artistName,
                             modifier = Modifier.fillMaxSize(),
-                            applyExpressiveShape = true // Native Material 3 expressive artist shape
+                            applyExpressiveShape = true
                         )
                     }
-                    
-                    // 3. Bottom Row: Flat Album Covers Stack + PLAY button
+
                     Row(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
@@ -2565,7 +2345,6 @@ private fun ModernRecommendedSection(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Left Side: Flat overlapping covers (up to 4 songs, no static "+1" pill)
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy((-12).dp)
@@ -2577,7 +2356,7 @@ private fun ModernRecommendedSection(
                                         .size(46.dp)
                                         .border(
                                             width = 1.5.dp,
-                                            color = cardBgColor, // Dynamic border matches theme card background
+                                            color = cardBgColor,
                                             shape = RoundedCornerShape(12.dp)
                                         )
                                         .clip(RoundedCornerShape(12.dp))
@@ -2591,8 +2370,7 @@ private fun ModernRecommendedSection(
                                 }
                             }
                         }
-                        
-                        // Right Side: PLAY button (clean text only, no redundant icons)
+
                         Button(
                             onClick = {
                                 HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)

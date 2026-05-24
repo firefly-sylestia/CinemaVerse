@@ -231,7 +231,7 @@ fun SettingsScreen(
                     add(SettingItem(RhythmIcons.Palette, context.getString(R.string.settings_theme_customization), context.getString(R.string.settings_theme_customization_desc), onClick = { onNavigateTo(SettingsRoutes.THEME_CUSTOMIZATION) }))
                     add(SettingItem(MaterialSymbolIcon("interests"), context.getString(R.string.settings_shapes), context.getString(R.string.settings_shapes_desc), onClick = { onNavigateTo(SettingsRoutes.EXPRESSIVE_SHAPES) }))
                     add(SettingItem(RhythmIcons.MusicNote, context.getString(R.string.settings_player_customization), context.getString(R.string.settings_player_customization_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYER_CUSTOMIZATION) }))
-                    add(SettingItem(MaterialSymbolIcon("play_circle_filled"), context.getString(R.string.settings_miniplayer_customization), context.getString(R.string.settings_miniplayer_customization_desc), onClick = { onNavigateTo(SettingsRoutes.MINIPLAYER_CUSTOMIZATION) }))
+                    add(SettingItem(RhythmIcons.PlayCircle, context.getString(R.string.settings_miniplayer_customization), context.getString(R.string.settings_miniplayer_customization_desc), onClick = { onNavigateTo(SettingsRoutes.MINIPLAYER_CUSTOMIZATION) }))
                 }
             ),
             // 2. Home & Widgets - only show in LOCAL mode
@@ -323,7 +323,7 @@ fun SettingsScreen(
                     add(SettingItem(RhythmIcons.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
                     add(SettingItem(
                         icon = MaterialSymbolIcon("battery_charging_full"),
-                        title = "Battery Saver",
+                        title = "Performance",
                         description = "Optimize haptics, decoding, and marquee for power consumption",
                         onClick = { onNavigateTo(SettingsRoutes.BATTERY_SAVER) }
                     ))
@@ -1103,7 +1103,7 @@ fun SettingsScreenWrapper(
                         SettingsRoutes.EXPRESSIVE_SHAPES -> ExpressiveShapesSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.LIBRARY_SETTINGS -> LibrarySettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.RHYTHM_GUARD -> RhythmGuardSettingsScreen(onBackClick = { currentRoute = null })
-                        SettingsRoutes.BATTERY_SAVER -> BatterySaverSettingsScreen(onBackClick = { currentRoute = null })
+                        SettingsRoutes.BATTERY_SAVER -> PerformanceSettingsScreen(onBackClick = { currentRoute = null })
                         else -> PlaceholderSettingsScreen()
                     }
                 }
@@ -1226,7 +1226,7 @@ fun SettingsScreenWrapper(
                 SettingsRoutes.EXPRESSIVE_SHAPES -> ExpressiveShapesSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.LIBRARY_SETTINGS -> LibrarySettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.RHYTHM_GUARD -> RhythmGuardSettingsScreen(onBackClick = { currentRoute = null })
-                SettingsRoutes.BATTERY_SAVER -> BatterySaverSettingsScreen(onBackClick = { currentRoute = null })
+                SettingsRoutes.BATTERY_SAVER -> PerformanceSettingsScreen(onBackClick = { currentRoute = null })
                 else -> SettingsScreen(
                     onBackClick = handleBack,
                     onNavigateTo = onNavigateToSubsetting,

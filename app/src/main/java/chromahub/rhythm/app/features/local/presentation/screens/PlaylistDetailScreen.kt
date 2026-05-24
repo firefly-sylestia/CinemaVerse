@@ -269,7 +269,7 @@ fun PlaylistDetailScreen(
                     imageVector = RhythmIcons.Queue,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { 
@@ -424,7 +424,7 @@ fun PlaylistDetailScreen(
                     imageVector = RhythmIcons.Edit,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text(context.getString(R.string.playlist_rename_title)) },
@@ -480,7 +480,7 @@ fun PlaylistDetailScreen(
                     imageVector = MaterialSymbolIcon("delete_forever", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text(context.getString(R.string.playlist_delete_title)) },
@@ -532,7 +532,7 @@ fun PlaylistDetailScreen(
                     imageVector = MaterialSymbolIcon("delete_sweep", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text("Remove ${selectedSongs.size} Songs") },
@@ -2769,7 +2769,7 @@ fun PlaylistSongItem(
                     imageVector = MaterialSymbolIcon("remove_circle_outline", filled = true),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             },
             title = { Text("Remove Song") },

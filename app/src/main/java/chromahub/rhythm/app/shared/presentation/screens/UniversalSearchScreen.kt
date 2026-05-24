@@ -698,7 +698,12 @@ fun UniversalSearchScreen(
                     color = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
                     IconButton(onClick = handleBack) {
-                        Icon(RhythmIcons.Back, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(
+                            RhythmIcons.Back,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(25.dp)
+                        )
                     }
                 }
 
@@ -751,7 +756,8 @@ fun UniversalSearchScreen(
                         Icon(
                             RhythmIcons.FilterList,
                             contentDescription = "Filters",
-                            tint = if (showFilters) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                            tint = if (showFilters) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(25.dp)
                         )
                     }
                 }

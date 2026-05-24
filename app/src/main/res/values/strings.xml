@@ -1417,7 +1417,7 @@
     <string name="updates_download">Download Update</string>
     <string name="updates_install">Install Update</string>
     <string name="updates_cancel">Cancel Download</string>
-    <string name="updates_enable_auto_check">Enable Auto-check</string>
+    <string name="updates_enable_auto_check">Auto-check</string>
     <string name="updates_channel_title">Update Channel</string>
     <string name="updates_source_title">Update Source</string>
     <string name="updates_source_desc">Choose which release family Rhythm should use for OTA updates.</string>
@@ -2941,7 +2941,7 @@
     <string name="settings_display_mode">Display Mode</string>
     <string name="settings_theme_mode">Theme Mode</string>
     <string name="settings_theme_mode_desc">Choose your preferred theme</string>
-    <string name="settings_amoled_theme">AMOLED Theme</string>
+    <string name="settings_amoled_theme">OLED Theme</string>
     <string name="settings_amoled_theme_desc">Pure black theme for OLED displays</string>
     <string name="settings_color_customization">Color Customization</string>
     <string name="settings_color_source">Color Source</string>
@@ -3305,7 +3305,7 @@
     <string name="settings_home_screen">Home</string>
     <string name="settings_lyrics_source">Lyrics Source</string>
     <string name="settings_theme">Theme</string>
-    <string name="theme_amoled">AMOLED Theme</string>
+    <string name="theme_amoled">OLED Theme</string>
     <string name="theme_amoled_desc">Pure black theme for OLED displays</string>
     <string name="theme_auto_detect">Auto-Detect Holidays</string>
     <string name="theme_auto_detect_desc">Automatically show decorations for holidays</string>

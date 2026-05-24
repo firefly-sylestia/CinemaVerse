@@ -90,7 +90,7 @@ fun LanguageSwitcherDialog(
                 imageVector = RhythmIcons.Language,
                 contentDescription = "Language",
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         },
         title = {
