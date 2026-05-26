@@ -1,301 +1,264 @@
 package chromahub.rhythm.app.shared.presentation.components.common
 
-import androidx.compose.animation.core.Animatable
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
-import androidx.compose.ui.util.lerp
+import androidx.compose.ui.unit.lerp
+import kotlinx.coroutines.isActive
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import chromahub.rhythm.app.ui.theme.PlayerProgressColor
-import kotlin.math.PI
-import kotlin.math.sin
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WaveSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
-    onValueChangeFinished: (() -> Unit)? = null,
-    activeTrackColor: Color = PlayerProgressColor,
-    inactiveTrackColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     enabled: Boolean = true,
-    isPlaying: Boolean = true,
-    trackHeight: Dp = 6.dp,
-    thumbRadius: Dp = 8.dp,
-    waveAmplitudeWhenPlaying: Dp = 3.dp,
-    waveLength: Dp = 40.dp,
-    waveAnimationDuration: Int = 4000,
-    thumbLineHeightWhenInteracting: Dp = 24.dp,
-    hideInactiveTrackPortion: Boolean = true,
-    isWaveEligible: Boolean = true
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isDragged by interactionSource.collectIsDraggedAsState()
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val isInteracting = isDragged || isPressed
-    
-    val hapticFeedback = LocalHapticFeedback.current
-    val lastHapticStep = remember { mutableIntStateOf(-1) }
+    interactionSource: MutableInteractionSource? = null,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    onValueChangeFinished: (() -> Unit)? = null,
+    onValueCommit: ((Float) -> Unit)? = null,
+    activeTrackColor: Color = PlayerProgressColor,
+    inactiveTrackColor: Color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+    thumbColor: Color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
 
-    // Thumb morphing animation
+    isPlaying: Boolean = true,
+    strokeWidth: Dp = 5.dp,
+    thumbRadius: Dp = 8.dp,
+    trackEdgePadding: Dp = thumbRadius,
+    wavelength: Dp = WavyProgressIndicatorDefaults.LinearDeterminateWavelength,
+    waveSpeed: Dp = WavyProgressIndicatorDefaults.LinearDeterminateWavelength / 2f,
+
+    waveAmplitudeWhenPlaying: Dp = 4.dp,
+    thumbLineHeightWhenInteracting: Dp = 24.dp,
+    semanticsLabel: String? = null,
+    semanticsProgressStep: Float = 0.01f
+) {
+    val density = LocalDensity.current
+    val strokeWidthPx = with(density) { strokeWidth.toPx() }
+    val thumbRadiusPx = with(density) { thumbRadius.toPx() }
+    val trackEdgePaddingPx = with(density) { trackEdgePadding.coerceAtLeast(0.dp).toPx() }
+    val thumbLineHeightPx = with(density) { thumbLineHeightWhenInteracting.toPx() }
+
+    val stroke = remember(strokeWidthPx) { Stroke(width = strokeWidthPx, cap = StrokeCap.Round) }
+
+    val normalizedValue = if (valueRange.endInclusive == valueRange.start) 0f
+    else ((value - valueRange.start) / (valueRange.endInclusive - valueRange.start)).coerceIn(0f, 1f)
+
+    val safeSemanticsStep = semanticsProgressStep.coerceIn(0.005f, 0.25f)
+    val semanticNormalizedValue = remember(normalizedValue, safeSemanticsStep) {
+        ((normalizedValue / safeSemanticsStep).roundToInt() * safeSemanticsStep).coerceIn(0f, 1f)
+    }
+    val semanticSliderValue = remember(semanticNormalizedValue, valueRange) {
+        valueRange.start + semanticNormalizedValue * (valueRange.endInclusive - valueRange.start)
+    }
+    val latestOnValueChange by rememberUpdatedState(onValueChange)
+    val latestOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
+    val latestOnValueCommit by rememberUpdatedState(onValueCommit)
+    var isPointerSeeking by remember { mutableStateOf(false) }
+    val isInteracting = isPointerSeeking
+
     val thumbInteractionFraction by animateFloatAsState(
         targetValue = if (isInteracting) 1f else 0f,
         animationSpec = tween(250, easing = FastOutSlowInEasing),
         label = "ThumbInteractionAnim"
     )
-
-    // Wave only shows when playing, not interacting, and eligible
-    val shouldShowWave = isWaveEligible && isPlaying && !isInteracting
-
-    val animatedWaveAmplitude by androidx.compose.animation.core.animateDpAsState(
-        targetValue = if (shouldShowWave) waveAmplitudeWhenPlaying else 0.dp,
-        animationSpec = tween(300, easing = FastOutSlowInEasing),
-        label = "WaveAmplitudeAnim"
+    val animatedAmplitude by animateFloatAsState(
+        targetValue = if (enabled && isPlaying && !isInteracting) 1f else 0f,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+        label = "amplitude"
     )
 
-    // Conditional phase animation - only when wave should show
-    val phaseShiftAnim = remember { Animatable(0f) }
-    val phaseShift = phaseShiftAnim.value
-
-    LaunchedEffect(shouldShowWave, waveAnimationDuration) {
-        if (shouldShowWave && waveAnimationDuration > 0) {
-            val fullRotation = (2 * PI).toFloat()
-            while (shouldShowWave) {
-                val start = (phaseShiftAnim.value % fullRotation).let { 
-                    if (it < 0f) it + fullRotation else it 
-                }
-                phaseShiftAnim.snapTo(start)
-                phaseShiftAnim.animateTo(
-                    targetValue = start + fullRotation,
-                    animationSpec = tween(durationMillis = waveAnimationDuration, easing = LinearEasing)
-                )
-            }
+    val renderedNormalizedProgress = remember { mutableFloatStateOf(normalizedValue) }
+    var lastProgressUpdateNanos by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(normalizedValue, isInteracting, enabled) {
+        val target = normalizedValue.coerceIn(0f, 1f)
+        if (!enabled || isInteracting) {
+            renderedNormalizedProgress.floatValue = target
+            lastProgressUpdateNanos = System.nanoTime()
+            return@LaunchedEffect
         }
+
+        val nowNanos = System.nanoTime()
+        val intervalMs = if (lastProgressUpdateNanos == 0L) 180L
+        else ((nowNanos - lastProgressUpdateNanos) / 1_000_000L).coerceAtLeast(1L)
+        lastProgressUpdateNanos = nowNanos
+
+        val start = renderedNormalizedProgress.floatValue
+        if (abs(start - target) <= 0.0001f) {
+            renderedNormalizedProgress.floatValue = target
+            return@LaunchedEffect
+        }
+
+        val durationNanos = (intervalMs * 900_000L).coerceAtLeast(1_000_000L)
+        var startFrameNanos = 0L
+        while (isActive) {
+            val frameNanos = withFrameNanos { it }
+            if (startFrameNanos == 0L) startFrameNanos = frameNanos
+            val elapsedNanos = (frameNanos - startFrameNanos).coerceAtLeast(0L)
+            val fraction = (elapsedNanos.toDouble() / durationNanos.toDouble()).toFloat().coerceIn(0f, 1f)
+            renderedNormalizedProgress.floatValue = start + (target - start) * fraction
+            if (fraction >= 1f) break
+        }
+        renderedNormalizedProgress.floatValue = target
     }
 
-    val trackHeightPx = with(LocalDensity.current) { trackHeight.toPx() }
-    val thumbRadiusPx = with(LocalDensity.current) { thumbRadius.toPx() }
-    val waveAmplitudePx = with(LocalDensity.current) { animatedWaveAmplitude.toPx() }
-    val waveLengthPx = with(LocalDensity.current) { waveLength.toPx() }
-    val thumbLineHeightPx = with(LocalDensity.current) { thumbLineHeightWhenInteracting.toPx() }
-    val thumbGapPx = with(LocalDensity.current) { 4.dp.toPx() }
-    
-    val waveFrequency = if (waveLengthPx > 0f) {
-        ((2 * PI) / waveLengthPx).toFloat()
-    } else {
-        0f
-    }
+    val containerHeight = max(WavyProgressIndicatorDefaults.LinearContainerHeight, max(thumbRadius * 2, thumbLineHeightWhenInteracting))
 
-    val wavePath = remember { Path() }
-
-    val sliderVisualHeight = remember(trackHeight, thumbRadius, thumbLineHeightWhenInteracting) {
-        max(trackHeight * 2, max(thumbRadius * 2, thumbLineHeightWhenInteracting) + 8.dp)
-    }
-
-    BoxWithConstraints(modifier = modifier.clipToBounds()) {
-        Slider(
-            value = value,
-            onValueChange = { newValue ->
-                val currentStep = (newValue * 100).toInt()
-                if (currentStep != lastHapticStep.intValue) {
-                    try {
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    } catch (e: SecurityException) {
-                        // Permission not granted or other security issue
-                        android.util.Log.w("WaveSlider", "Haptic feedback failed due to security exception: ${e.message}")
-                    } catch (e: Exception) {
-                        // Handle any other exceptions that might occur
-                        android.util.Log.w("WaveSlider", "Haptic feedback failed: ${e.message}")
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(containerHeight)
+            .clearAndSetSemantics {
+                if (!semanticsLabel.isNullOrBlank()) contentDescription = semanticsLabel
+                progressBarRangeInfo = ProgressBarRangeInfo(current = semanticSliderValue, range = valueRange.start..valueRange.endInclusive, steps = 0)
+                if (enabled) {
+                    setProgress { requested ->
+                        val coerced = requested.coerceIn(valueRange.start, valueRange.endInclusive)
+                        latestOnValueChange(coerced)
+                        latestOnValueCommit?.invoke(coerced) ?: latestOnValueChangeFinished?.invoke()
+                        true
                     }
-                    lastHapticStep.intValue = currentStep
                 }
-                onValueChange(newValue)
             },
-            onValueChangeFinished = onValueChangeFinished,
+        contentAlignment = Alignment.Center
+    ) {
+        LinearWavyProgressIndicator(
+            progress = { renderedNormalizedProgress.floatValue },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(sliderVisualHeight),
-            enabled = enabled,
-            interactionSource = interactionSource,
-            colors = SliderDefaults.colors(
-                thumbColor = Color.Transparent,
-                activeTrackColor = Color.Transparent,
-                inactiveTrackColor = Color.Transparent
-            )
+                .padding(horizontal = trackEdgePadding.coerceAtLeast(0.dp))
+                .clearAndSetSemantics { },
+            color = activeTrackColor,
+            trackColor = inactiveTrackColor,
+            stroke = stroke,
+            trackStroke = stroke,
+            gapSize = thumbRadius + 4.dp,
+            stopSize = 3.dp,
+            amplitude = { progress -> if (progress > 0f) animatedAmplitude else 0f },
+            wavelength = wavelength,
+            waveSpeed = waveSpeed
         )
 
-        Spacer(
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val edgePaddingPx = trackEdgePaddingPx.coerceIn(0f, size.width / 2f)
+            val trackStart = edgePaddingPx
+            val trackEnd = size.width - edgePaddingPx
+            val trackWidth = (trackEnd - trackStart).coerceAtLeast(0f)
+            val thumbY = size.height / 2
+            val renderedProgress = renderedNormalizedProgress.floatValue
+
+            fun lerp(start: Float, stop: Float, fraction: Float): Float {
+                return start + (stop - start) * fraction
+            }
+
+            val currentWidth = lerp(thumbRadiusPx * 2f, strokeWidthPx * 1.2f, thumbInteractionFraction)
+            val currentHeight = lerp(thumbRadiusPx * 2f, thumbLineHeightPx, thumbInteractionFraction)
+            val rawThumbX = trackStart + (trackWidth * renderedProgress)
+            val minThumbCenter = (currentWidth / 2f).coerceAtMost(size.width / 2f)
+            val maxThumbCenter = (size.width - currentWidth / 2f).coerceAtLeast(minThumbCenter)
+            val thumbX = rawThumbX.coerceIn(minThumbCenter, maxThumbCenter)
+
+            drawRoundRect(
+                color = thumbColor,
+                topLeft = Offset(thumbX - currentWidth / 2f, thumbY - currentHeight / 2f),
+                size = Size(currentWidth, currentHeight),
+                cornerRadius = CornerRadius(currentWidth / 2f)
+            )
+        }
+
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(sliderVisualHeight)
-                .drawWithCache {
-                    val canvasWidth = size.width
-                    val localCenterY = size.height / 2f
-                    val localTrackStart = thumbRadiusPx
-                    val localTrackEnd = canvasWidth - thumbRadiusPx
-                    val localTrackWidth = (localTrackEnd - localTrackStart).coerceAtLeast(0f)
+                .fillMaxSize()
+                .pointerInput(enabled, valueRange, trackEdgePaddingPx) {
+                    if (!enabled) return@pointerInput
 
-                    val normalizedValue = value.coerceIn(0f, 1f)
-                    
-                    onDrawWithContent {
-                        val currentProgressPxEnd = localTrackStart + localTrackWidth * normalizedValue
+                    fun valueForX(rawX: Float): Float {
+                        val edgePadding = trackEdgePaddingPx.coerceIn(0f, size.width / 2f)
+                        val trackStart = edgePadding
+                        val trackEnd = size.width - edgePadding
+                        val trackWidth = (trackEnd - trackStart).coerceAtLeast(1f)
+                        val normalized = ((rawX - trackStart) / trackWidth).coerceIn(0f, 1f)
+                        return valueRange.start + normalized * (valueRange.endInclusive - valueRange.start)
+                    }
 
-                        // Draw inactive track
-                        if (hideInactiveTrackPortion) {
-                            if (currentProgressPxEnd < localTrackEnd) {
-                                drawLine(
-                                    color = inactiveTrackColor,
-                                    start = Offset(currentProgressPxEnd, localCenterY),
-                                    end = Offset(localTrackEnd, localCenterY),
-                                    strokeWidth = trackHeightPx,
-                                    cap = StrokeCap.Round
-                                )
-                            }
-                        } else {
-                            drawLine(
-                                color = inactiveTrackColor,
-                                start = Offset(localTrackStart, localCenterY),
-                                end = Offset(localTrackEnd, localCenterY),
-                                strokeWidth = trackHeightPx,
-                                cap = StrokeCap.Round
-                            )
-                        }
+                    awaitEachGesture {
+                        try {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            isPointerSeeking = true
+                            down.consume()
+                            var latestGestureValue = valueForX(down.position.x)
+                            latestOnValueChange(latestGestureValue)
 
-                        // Draw active track (wave or line)
-                        if (normalizedValue > 0f) {
-                            val activeTrackVisualEnd = currentProgressPxEnd - (thumbGapPx * thumbInteractionFraction)
+                            var pointerId = down.id
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull { it.id == pointerId }
+                                    ?: event.changes.firstOrNull { it.pressed }
+                                    ?: break
 
-                            if (waveAmplitudePx > 0.01f && waveFrequency > 0f) {
-                                wavePath.reset()
-                                val waveStartDrawX = localTrackStart
-                                val waveEndDrawX = activeTrackVisualEnd.coerceAtLeast(waveStartDrawX)
-                                if (waveEndDrawX > waveStartDrawX) {
-                                    val periodPx = ((2 * PI) / waveFrequency).toFloat()
-                                    val samplesPerCycle = 20f
-                                    val waveStep = (periodPx / samplesPerCycle)
-                                        .coerceAtLeast(1.2f)
-                                        .coerceAtMost(trackHeightPx)
-
-                                    fun yAt(x: Float): Float {
-                                        val s = sin(waveFrequency * x + phaseShift)
-                                        return (localCenterY + waveAmplitudePx * s)
-                                            .coerceIn(
-                                                localCenterY - waveAmplitudePx - trackHeightPx / 2f,
-                                                localCenterY + waveAmplitudePx + trackHeightPx / 2f
-                                            )
-                                    }
-
-                                    var prevX = waveStartDrawX
-                                    var prevY = yAt(prevX)
-                                    wavePath.moveTo(prevX, prevY)
-
-                                    var x = prevX + waveStep
-                                    while (x < waveEndDrawX) {
-                                        val y = yAt(x)
-                                        val midX = (prevX + x) * 0.5f
-                                        val midY = (prevY + y) * 0.5f
-                                        // Compose Path: quadraticBezierTo(controlX, controlY, endX, endY)
-                                        wavePath.quadraticTo(prevX, prevY, midX, midY)
-                                        prevX = x
-                                        prevY = y
-                                        x += waveStep
-                                    }
-                                    val endY = yAt(waveEndDrawX)
-                                    wavePath.quadraticTo(prevX, prevY, waveEndDrawX, endY)
-
-                                    drawPath(
-                                        path = wavePath,
-                                        color = activeTrackColor,
-                                        style = Stroke(
-                                            width = trackHeightPx,
-                                            cap = StrokeCap.Round,
-                                            join = StrokeJoin.Round, // <- important for smooth joins
-                                            miter = 1f
-                                        )
-                                    )
+                                pointerId = change.id
+                                if (!change.pressed) {
+                                    change.consume()
+                                    break
                                 }
-                            } else {
-                                // Draw straight line when paused
-                                if (activeTrackVisualEnd > localTrackStart) {
-                                    drawLine(
-                                        color = activeTrackColor,
-                                        start = Offset(localTrackStart, localCenterY),
-                                        end = Offset(activeTrackVisualEnd, localCenterY),
-                                        strokeWidth = trackHeightPx,
-                                        cap = StrokeCap.Round
-                                    )
+
+                                if (change.position != change.previousPosition) {
+                                    change.consume()
+                                    latestGestureValue = valueForX(change.position.x)
+                                    latestOnValueChange(latestGestureValue)
                                 }
                             }
+
+                            latestOnValueCommit?.invoke(latestGestureValue) ?: latestOnValueChangeFinished?.invoke()
+                        } finally {
+                            isPointerSeeking = false
                         }
-
-                        // Draw morphing thumb
-                        val currentThumbCenterX = localTrackStart + localTrackWidth * normalizedValue
-                        val thumbCurrentWidthPx = lerp(thumbRadiusPx * 2f, trackHeightPx * 1.2f, thumbInteractionFraction)
-                        val thumbCurrentHeightPx = lerp(thumbRadiusPx * 2f, thumbLineHeightPx, thumbInteractionFraction)
-
-                        drawRoundRect(
-                            color = activeTrackColor,
-                            topLeft = Offset(
-                                currentThumbCenterX - thumbCurrentWidthPx / 2f,
-                                localCenterY - thumbCurrentHeightPx / 2f
-                            ),
-                            size = Size(thumbCurrentWidthPx, thumbCurrentHeightPx),
-                            cornerRadius = CornerRadius(thumbCurrentWidthPx / 2f)
-                        )
                     }
                 }
         )

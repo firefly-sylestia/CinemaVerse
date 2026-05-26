@@ -82,7 +82,6 @@ fun ExtraControlBottomSheet(
     onLyricsEditor: () -> Unit,
     onAlbum: () -> Unit = {},
     onArtist: () -> Unit = {},
-    onCast: () -> Unit = {},
     onSongInfo: () -> Unit,
     onShareFile: () -> Unit = {},
     haptic: HapticFeedback,
@@ -235,19 +234,6 @@ fun ExtraControlBottomSheet(
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
                     dismissAndDo { onArtist() }
-                }
-            ))
-        }
-
-        if ("CAST" !in hiddenChips) {
-            add(ControlAction(
-                icon = RhythmIcons.Cast,
-                label = "Cast",
-                containerColor = secondary,
-                iconColor = onSecondary,
-                onClick = {
-                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                    dismissAndDo { onCast() }
                 }
             ))
         }

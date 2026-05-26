@@ -504,14 +504,7 @@ class AudioDeviceManager(private val context: Context) {
                     // Request audio focus to ensure our app controls audio routing
                     requestAudioFocus()
                     
-                    // Force audio to route through Bluetooth by setting a high volume
-                    try {
-                        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                        val targetVolume = (maxVolume * 0.8).toInt()
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error setting volume: ${e.message}", e)
-                    }
+                    Log.d(TAG, "Bluetooth route requested without changing user volume")
                 }
                 device.id == DEVICE_WIRED_HEADSET -> {
                     // For wired headset, we need to ensure it's the active device
@@ -615,14 +608,7 @@ class AudioDeviceManager(private val context: Context) {
                     // Request audio focus
                     requestAudioFocus()
                     
-                    // Force audio to route through wired headset by setting a high volume
-                    try {
-                        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                        val targetVolume = (maxVolume * 0.7).toInt()
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error setting volume: ${e.message}", e)
-                    }
+                    Log.d(TAG, "Wired headset route requested without changing user volume")
                 }
                 device.id == DEVICE_SPEAKER -> {
                     // For speaker, ensure speakerphone is on
@@ -693,14 +679,7 @@ class AudioDeviceManager(private val context: Context) {
                     // Request audio focus
                     requestAudioFocus()
                     
-                    // Set volume to a moderate level for speaker
-                    try {
-                        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                        val targetVolume = (maxVolume * 0.6).toInt()
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error setting volume: ${e.message}", e)
-                    }
+                    Log.d(TAG, "Speaker route requested without changing user volume")
                 }
             }
             
@@ -825,29 +804,6 @@ class AudioDeviceManager(private val context: Context) {
                 Log.d(TAG, "Audio focus request result (legacy): $result")
                 
                 focusGranted = result == android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-            }
-            
-            // If we got focus, try to set the stream volume to a reasonable level
-            if (focusGranted) {
-                try {
-                    // Get the max volume for music stream
-                    val maxVolume = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
-                    
-                    // Set volume to at least 80% of max if it's too low
-                    val currentVolume = audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC)
-                    val targetVolume = (maxVolume * 0.8).toInt()
-                    
-                    if (currentVolume < targetVolume) {
-                        audioManager.setStreamVolume(
-                            android.media.AudioManager.STREAM_MUSIC,
-                            targetVolume,
-                            0 // No flags
-                        )
-                        Log.d(TAG, "Increased volume from $currentVolume to $targetVolume (max: $maxVolume)")
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error adjusting volume: ${e.message}", e)
-                }
             }
             
             return focusGranted

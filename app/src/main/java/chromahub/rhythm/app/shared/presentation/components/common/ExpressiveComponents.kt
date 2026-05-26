@@ -1146,6 +1146,11 @@ fun ExpressiveGroupButton(
     enabled: Boolean = true,
     isStart: Boolean = false,
     isEnd: Boolean = false,
+    colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    ),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     content: @Composable RowScope.() -> Unit
 ) {
     val shape = when {
@@ -1160,11 +1165,8 @@ fun ExpressiveGroupButton(
         modifier = modifier,
         enabled = enabled,
         shape = shape,
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        colors = colors,
+        contentPadding = contentPadding,
         content = content
     )
 }

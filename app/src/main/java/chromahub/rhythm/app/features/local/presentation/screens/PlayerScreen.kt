@@ -204,7 +204,6 @@ import chromahub.rhythm.app.features.local.presentation.navigation.Screen
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import chromahub.rhythm.app.features.local.presentation.components.player.formatDuration
 import chromahub.rhythm.app.features.local.presentation.components.lyrics.WordByWordLyricsView
-import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.CastBottomSheet
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.ExtraControlBottomSheet
 import chromahub.rhythm.app.features.local.presentation.components.dialogs.PlaybackSpeedDialog
 import chromahub.rhythm.app.features.local.presentation.components.dialogs.PlaybackPitchDialog
@@ -525,7 +524,6 @@ fun PlayerScreen(
     var showPlaybackSpeedDialog by remember { mutableStateOf(false) }
     var showPlaybackPitchDialog by remember { mutableStateOf(false) }
     var showChipOrderBottomSheet by remember { mutableStateOf(false) }
-    var showCastBottomSheet by remember { mutableStateOf(false) }
     
     // Sleep timer state from ViewModel
     val sleepTimerActive by musicViewModel.sleepTimerActive.collectAsState()
@@ -926,6 +924,7 @@ fun PlayerScreen(
                 showQueueSheet = false
             },
             onToggleShuffle = onToggleShuffle,
+            onToggleRepeat = onToggleRepeat,
             sheetState = queueSheetState
         )
     }
@@ -1190,7 +1189,6 @@ fun PlayerScreen(
                     }
                 }
             },
-            onCast = { showCastBottomSheet = true },
             onSongInfo = { showSongInfoSheet = true },
             onShareFile = {
                 song?.let { currentSong ->
@@ -3440,67 +3438,6 @@ fun PlayerScreen(
                                                     border = null
                                                 )
                                             }
-                                            "CAST" -> {
-                                                var isPressed by remember { mutableStateOf(false) }
-                                                val scale by animateFloatAsState(
-                                                    targetValue = if (isPressed) 0.95f else 1f,
-                                                    animationSpec = spring(
-                                                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                                                        stiffness = Spring.StiffnessLow
-                                                    ),
-                                                    label = "castChipScale"
-                                                )
-                                                AssistChip(
-                                                    onClick = {
-                                                        HapticUtils.performHapticFeedback(
-                                                            context,
-                                                            haptic,
-                                                            HapticFeedbackType.LongPress
-                                                        )
-                                                        showCastBottomSheet = true
-                                                    },
-                                                    label = {
-                                                        Text(
-                                                            "Cast",
-                                                            style = MaterialTheme.typography.labelLarge.copy(
-                                                                fontSize = if (isExtraSmallWidth) 11.sp else 12.sp
-                                                            )
-                                                        )
-                                                    },
-                                                    leadingIcon = {
-                                                        Icon(
-                                                            imageVector = RhythmIcons.Cast,
-                                                            contentDescription = "Cast to device",
-                                                            modifier = Modifier.size(if (isExtraSmallWidth) 14.dp else 16.dp)
-                                                        )
-                                                    },
-                                                    modifier = Modifier
-                                                        .height(if (isExtraSmallWidth) 28.dp else 32.dp)
-                                                        .graphicsLayer {
-                                                            scaleX = scale
-                                                            scaleY = scale
-                                                        }
-                                                        .pointerInput(Unit) {
-                                                            detectTapGestures(
-                                                                onPress = {
-                                                                    isPressed = true
-                                                                    try {
-                                                                        awaitRelease()
-                                                                    } finally {
-                                                                        isPressed = false
-                                                                    }
-                                                                }
-                                                            )
-                                                        },
-                                                    shape = RoundedCornerShape(if (isExtraSmallWidth) 12.dp else 16.dp),
-                                                    colors = AssistChipDefaults.assistChipColors(
-                                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        leadingIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                                    ),
-                                                    border = null
-                                                )
-                                            }
                                         }
                                     }
 
@@ -3978,14 +3915,6 @@ fun PlayerScreen(
             onDismiss = { showChipOrderBottomSheet = false },
             appSettings = appSettings,
             haptics = haptic
-        )
-    }
-    
-    // Cast Bottom Sheet
-    if (showCastBottomSheet) {
-        CastBottomSheet(
-            musicViewModel = musicViewModel,
-            onDismiss = { showCastBottomSheet = false }
         )
     }
     

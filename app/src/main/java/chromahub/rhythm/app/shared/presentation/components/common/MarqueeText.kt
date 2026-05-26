@@ -41,14 +41,15 @@ fun AutoScrollingTextOnDemand(
     gradientEdgeColor: Color,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    respectGlobalSetting: Boolean = true
 ) {
     val context = LocalContext.current
     val appSettings = remember { AppSettings.getInstance(context) }
     val isMarqueeActive by appSettings.isMarqueeActive.collectAsState()
-    val effectivelyEnabled = enabled && isMarqueeActive
+    val effectivelyEnabled = enabled && (!respectGlobalSetting || isMarqueeActive)
 
-    var overflow by remember { mutableStateOf(false) }
+    var overflow by remember(text, effectivelyEnabled) { mutableStateOf(false) }
 
     // Use a measurement text on first composition to detect overflow
     if (!overflow || !effectivelyEnabled) {

@@ -92,13 +92,14 @@ import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.SongInfoBottomSheet
 import chromahub.rhythm.app.features.local.presentation.components.dialogs.CreatePlaylistDialog
 import chromahub.rhythm.app.features.local.presentation.components.player.MiniPlayer
+import chromahub.rhythm.app.features.local.presentation.components.player.RhythmMiniplayer
 import chromahub.rhythm.app.features.local.presentation.navigation.Screen
 import chromahub.rhythm.app.features.local.presentation.screens.AddToPlaylistScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ArtistDetailScreen
 import chromahub.rhythm.app.features.local.presentation.screens.EqualizerScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
 import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
-import chromahub.rhythm.app.features.local.presentation.screens.PlayerScreen
+import chromahub.rhythm.app.features.local.presentation.screens.RhythmPlayerScreen
 import chromahub.rhythm.app.features.local.presentation.screens.settings.RhythmGuardSettingsScreen
 import chromahub.rhythm.app.features.local.presentation.screens.settings.QueuePlaybackSettingsScreen
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel as LocalMusicViewModel
@@ -185,6 +186,7 @@ fun StreamingNavigation(
     val locations by localMusicViewModel.locations.collectAsState()
     val volume by localMusicViewModel.volume.collectAsState()
     val isMuted by localMusicViewModel.isMuted.collectAsState()
+    val useExperimentalPlayerUi by appSettings.useExperimentalPlayerUi.collectAsState()
     val isShuffleEnabled by localMusicViewModel.isShuffleEnabled.collectAsState()
     val repeatMode by localMusicViewModel.repeatMode.collectAsState()
     val isFavorite by localMusicViewModel.isFavorite.collectAsState()
@@ -260,17 +262,19 @@ fun StreamingNavigation(
             isSearchRoute
     
     // Calculate miniplayer padding for bottom content alignment
-    val miniPlayerPaddingValues = remember(showMiniPlayer, currentRoute) {
-        var totalPadding = 0.dp
-        
-        // Add MiniPlayer height if visible
-        if (showMiniPlayer) {
-            totalPadding += UiConstants.MiniPlayerHeight + 16.dp // Card height + spacing
-        }
-        
-        // Return padding values
-        PaddingValues(bottom = totalPadding)
-    }
+    val miniPlayerBottomPadding by animateDpAsState(
+        targetValue = if (showMiniPlayer) {
+            UiConstants.MiniPlayerHeight + 16.dp // Card height + spacing
+        } else {
+            0.dp
+        },
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "streaming_miniplayer_bottom_padding"
+    )
+    val miniPlayerPaddingValues = PaddingValues(bottom = miniPlayerBottomPadding.coerceAtLeast(0.dp))
 
     val tabletContentStartPadding by animateDpAsState(
         targetValue = if (showTabletNavigationRail) 96.dp else 0.dp,
@@ -512,26 +516,47 @@ fun StreamingNavigation(
                     ) {
                         // Only render MiniPlayer if currentSong is not null
                         currentSong?.let { song ->
-                            MiniPlayer(
-                                song = song,
-                                isPlaying = isPlaying,
-                                progress = { progress },
-                                onPlayPause = { localMusicViewModel.togglePlayPause() },
-                                onPlayerClick = {
-                                    onNavigateToPlayer()
-                                    navController.navigate(StreamingScreen.Player.route) {
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onSkipNext = { localMusicViewModel.skipToNext() },
-                                onSkipPrevious = { localMusicViewModel.skipToPrevious() },
-                                onDismiss = { 
-                                    isMiniPlayerDismissed = true
-                                    localMusicViewModel.clearCurrentSong()
-                                },
-                                isMediaLoading = isMediaLoading,
-                                modifier = Modifier.align(Alignment.BottomEnd)
-                            )
+                            if (useExperimentalPlayerUi) {
+                                RhythmMiniplayer(
+                                    song = song,
+                                    isPlaying = isPlaying,
+                                    progress = { progress },
+                                    onPlayPause = { localMusicViewModel.togglePlayPause() },
+                                    onPlayerClick = {
+                                        onNavigateToPlayer()
+                                        navController.navigate(StreamingScreen.Player.route) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onSkipNext = { localMusicViewModel.skipToNext() },
+                                    onSkipPrevious = { localMusicViewModel.skipToPrevious() },
+                                    onDismiss = {
+                                        isMiniPlayerDismissed = true
+                                    },
+                                    isMediaLoading = isMediaLoading,
+                                    modifier = Modifier.align(Alignment.BottomEnd)
+                                )
+                            } else {
+                                MiniPlayer(
+                                    song = song,
+                                    isPlaying = isPlaying,
+                                    progress = { progress },
+                                    onPlayPause = { localMusicViewModel.togglePlayPause() },
+                                    onPlayerClick = {
+                                        onNavigateToPlayer()
+                                        navController.navigate(StreamingScreen.Player.route) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onSkipNext = { localMusicViewModel.skipToNext() },
+                                    onSkipPrevious = { localMusicViewModel.skipToPrevious() },
+                                    onDismiss = {
+                                        isMiniPlayerDismissed = true
+                                    },
+                                    isMediaLoading = isMediaLoading,
+                                    modifier = Modifier.align(Alignment.BottomEnd)
+                                )
+                            }
                         }
                     }
                 }
@@ -1568,37 +1593,70 @@ fun StreamingNavigation(
                 route = StreamingScreen.Player.route,
                 enterTransition = {
                     slideInVertically(
-                        initialOffsetY = { it / 3 },
-                        animationSpec = tween(
-                            durationMillis = 350,
-                            easing = EaseInOutQuart
+                        initialOffsetY = { it },
+                        animationSpec = spring(
+                            dampingRatio = 0.75f,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    ) + scaleIn(
+                        initialScale = 0.85f,
+                        animationSpec = spring(
+                            dampingRatio = 0.75f,
+                            stiffness = Spring.StiffnessMediumLow
                         )
                     ) + fadeIn(
-                        animationSpec = tween(durationMillis = 300)
+                        animationSpec = tween(durationMillis = 200)
                     )
                 },
                 exitTransition = {
                     slideOutVertically(
-                        targetOffsetY = { it / 2 },
-                        animationSpec = tween(durationMillis = 250)
+                        targetOffsetY = { it },
+                        animationSpec = spring(
+                            dampingRatio = 0.8f,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                    ) + scaleOut(
+                        targetScale = 0.85f,
+                        animationSpec = spring(
+                            dampingRatio = 0.8f,
+                            stiffness = Spring.StiffnessMedium
+                        )
                     ) + fadeOut(
                         animationSpec = tween(durationMillis = 200)
                     )
                 },
                 popExitTransition = {
                     slideOutVertically(
-                        targetOffsetY = { it / 2 },
-                        animationSpec = tween(durationMillis = 250)
+                        targetOffsetY = { it },
+                        animationSpec = spring(
+                            dampingRatio = 0.8f,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                    ) + scaleOut(
+                        targetScale = 0.85f,
+                        animationSpec = spring(
+                            dampingRatio = 0.8f,
+                            stiffness = Spring.StiffnessMedium
+                        )
                     ) + fadeOut(
                         animationSpec = tween(durationMillis = 200)
                     )
                 },
                 popEnterTransition = {
                     slideInVertically(
-                        initialOffsetY = { it / 3 },
-                        animationSpec = tween(durationMillis = 350)
+                        initialOffsetY = { it },
+                        animationSpec = spring(
+                            dampingRatio = 0.75f,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    ) + scaleIn(
+                        initialScale = 0.85f,
+                        animationSpec = spring(
+                            dampingRatio = 0.75f,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
                     ) + fadeIn(
-                        animationSpec = tween(durationMillis = 300)
+                        animationSpec = tween(durationMillis = 200)
                     )
                 }
             ) {
@@ -1667,7 +1725,7 @@ fun StreamingNavigation(
                     savedPlaylists.map { it.toLibraryPlaylist() }
                 }
 
-                PlayerScreen(
+                RhythmPlayerScreen(
                     song = currentSong,
                     isPlaying = isPlaying,
                     progress = { progress },

@@ -17,8 +17,8 @@ android {
         applicationId = "chromahub.rhythm.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 493831016
-        versionName = "4.9.383.1016 Beta"
+        versionCode = 493861019
+        versionName = "4.9.386.1019 Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -195,7 +195,6 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer.dash)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.session)
-    implementation(libs.androidx.media3.cast)
     implementation(libs.androidx.media3.exoplayer.midi)
     
     // Icons - Material Symbols variable font (res/font/material_symbols_outlined.ttf)
@@ -221,12 +220,8 @@ dependencies {
     // Fragment
     implementation(libs.androidx.fragment.ktx)
     
-    // MediaRouter
+    // MediaRouter for Android media output switching
     implementation(libs.androidx.mediarouter)
-    
-    // Ktor for HTTP server (Cast media serving)
-    implementation(libs.io.ktor.server.core)
-    implementation(libs.io.ktor.server.netty)
     
     // Coil for image loading
     implementation(libs.io.coil.kt.coil.compose)

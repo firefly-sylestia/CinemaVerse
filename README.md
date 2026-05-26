@@ -141,7 +141,7 @@ Built with modern tools and clean architecture:
 * **UI & Design:** Jetpack Compose, Material 3, Glance Widgets, Coil, AndroidX Palette.
 * **Audio Engine:** Media3 ExoPlayer, FFmpeg Decoder, JAudioTagger.
 * **Architecture:** MVVM + Clean Architecture, 100% Kotlin, Kotlin Coroutines + Flow.
-* **Data & Network:** Room + SQLite, Retrofit, OkHttp, Ktor, Gson.
+* **Data & Network:** Room + SQLite, Retrofit, OkHttp, Gson.
 * **Build & Management:** AGP, Kotlin, WorkManager, LeakCanary.
 
 📖 **Full tech stack:** Read more in the [Wiki](https://github.com/cromaguy/Rhythm/wiki/Technology-Stack).

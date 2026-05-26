@@ -101,7 +101,6 @@ fun PlayerChipOrderBottomSheet(
             "LYRICS" -> Pair("Lyrics", MaterialSymbolIcon("lyrics", filled = true))
             "ALBUM" -> Pair("Album", RhythmIcons.Music.Album)
             "ARTIST" -> Pair("Artist", RhythmIcons.Music.Artist)
-            "CAST" -> Pair("Cast", RhythmIcons.Devices.Cast)
             else -> Pair(chipId, RhythmIcons.Edit)
         }
     }
@@ -337,7 +336,7 @@ fun PlayerChipOrderBottomSheet(
                         ExpressiveGroupButton(
                             onClick = {
                                 HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                reorderableList = listOf("FAVORITE", "SPEED", "PITCH", "EQUALIZER", "SLEEP_TIMER", "LYRICS", "ALBUM", "ARTIST", "CAST")
+                                reorderableList = listOf("FAVORITE", "SPEED", "PITCH", "EQUALIZER", "SLEEP_TIMER", "LYRICS", "ALBUM", "ARTIST")
                                 hiddenChipsSet = emptySet()
                                 // Save changes instantly
                                 appSettings.setPlayerChipOrder(reorderableList)

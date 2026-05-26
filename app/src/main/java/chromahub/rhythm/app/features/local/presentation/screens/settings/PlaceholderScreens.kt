@@ -6498,6 +6498,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
     val bluetoothLyricsEnabled by appSettings.bluetoothLyricsEnabled.collectAsState()
     
     val forcePlayerCompactMode by appSettings.forcePlayerCompactMode.collectAsState()
+    val useExperimentalPlayerUi by appSettings.useExperimentalPlayerUi.collectAsState()
     
     val updaterViewModel: AppUpdaterViewModel = viewModel()
     val latestVersion by updaterViewModel.latestVersion.collectAsState()
@@ -6523,6 +6524,21 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                             onToggleChange = {
                                 appSettings.setSkipSilenceEnabled(it)
                             }
+                        )
+                    )
+                )
+            )
+
+            add(
+                SettingGroup(
+                    title = "Experimental Player UI",
+                    items = listOf(
+                        SettingItem(
+                            MaterialSymbolIcon("new_window"),
+                            "Use new player and miniplayer",
+                            "Switches the app to the new experimental player and miniplayer",
+                            toggleState = useExperimentalPlayerUi,
+                            onToggleChange = { appSettings.setUseExperimentalPlayerUi(it) }
                         )
                     )
                 )

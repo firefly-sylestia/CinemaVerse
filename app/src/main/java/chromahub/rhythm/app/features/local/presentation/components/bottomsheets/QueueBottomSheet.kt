@@ -120,6 +120,7 @@ fun QueueBottomSheet(
     onAddSongsClick: () -> Unit = {},
     onClearQueue: () -> Unit = {},
     onToggleShuffle: () -> Unit = {},
+    onToggleRepeat: () -> Unit = {},
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
     val haptic = LocalHapticFeedback.current
@@ -194,9 +195,11 @@ fun QueueBottomSheet(
                 QueueHeader(
                     queueSize = displayQueue.size,
                     isShuffleEnabled = isShuffleEnabled,
+                    repeatMode = repeatMode,
                     onAddSongsClick = onAddSongsClick,
                     onClearQueue = if (displayQueue.isNotEmpty()) onClearQueue else null,
-                    onToggleShuffle = onToggleShuffle
+                    onToggleShuffle = onToggleShuffle,
+                    onToggleRepeat = onToggleRepeat
                 )
             }
             
@@ -437,9 +440,11 @@ fun QueueBottomSheet(
 private fun QueueHeader(
     queueSize: Int,
     isShuffleEnabled: Boolean,
+    repeatMode: Int,
     onAddSongsClick: () -> Unit,
     onClearQueue: (() -> Unit)? = null,
     onToggleShuffle: () -> Unit = {},
+    onToggleRepeat: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -506,6 +511,33 @@ private fun QueueHeader(
                 Icon(
                     imageVector = RhythmIcons.Shuffle,
                     contentDescription = if (isShuffleEnabled) "Disable shuffle" else "Enable shuffle",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            val repeatEnabled = repeatMode != Player.REPEAT_MODE_OFF
+            val repeatIcon = when (repeatMode) {
+                Player.REPEAT_MODE_ONE -> RhythmIcons.RepeatOne
+                else -> RhythmIcons.Repeat
+            }
+
+            FilledTonalIconButton(
+                onClick = onToggleRepeat,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = if (repeatEnabled)
+                        MaterialTheme.colorScheme.primaryContainer
+                    else
+                        MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor = if (repeatEnabled)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = repeatIcon,
+                    contentDescription = if (repeatEnabled) "Disable repeat" else "Enable repeat",
                     modifier = Modifier.size(20.dp)
                 )
             }

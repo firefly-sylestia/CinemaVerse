@@ -9056,7 +9056,7 @@ private fun IntegrationsSettingsCards(
             onDiscordChange
         ),
         onboardingToggleItem(
-            RhythmIcons.Cast,
+            RhythmIcons.Share,
             context.getString(R.string.onboarding_integration_broadcast),
             context.getString(R.string.onboarding_integration_broadcast_desc),
             broadcastStatusEnabled,

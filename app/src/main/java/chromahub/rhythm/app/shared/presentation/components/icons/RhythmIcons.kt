@@ -53,6 +53,8 @@ object RhythmIcons {
         val Equalizer = MaterialSymbolIcon("equalizer")
         val Speed = MaterialSymbolIcon("speed")
         val Timer = MaterialSymbolIcon("timer")
+        val FavoriteOutlined = MaterialSymbolIcon("favorite")
+
     }
 
     // ═══════════════════════════════════════════════════

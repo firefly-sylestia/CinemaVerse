@@ -98,7 +98,7 @@ fun M3Placeholder(
             contentAlignment = Alignment.Center
         ) {
             val minDim = minOf(maxWidth, maxHeight)
-            val iconSize = minOf(minDim * 0.42f, 28.dp)
+            val iconSize = (minDim * 0.42f).coerceIn(28.dp, 96.dp)
 
             Icon(
                 imageVector = icon,

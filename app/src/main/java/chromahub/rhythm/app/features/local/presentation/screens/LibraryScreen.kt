@@ -1,8 +1,4 @@
-// Experimental API opt-ins required for:
-// - Material3 APIs (ModalBottomSheet, ExtendedFloatingActionButton behaviors)
-// - Foundation APIs (HorizontalPager, stickyHeader in LazyColumn)
-// These will become stable in future Compose releases
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+﻿@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.screens
 
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
@@ -224,6 +220,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.zIndex
 import chromahub.rhythm.app.features.local.presentation.components.player.PlayingEqIcon
 import chromahub.rhythm.app.shared.presentation.components.common.ContentLoadingIndicator
 import chromahub.rhythm.app.shared.presentation.components.common.DataProcessingLoader
@@ -235,6 +232,7 @@ import chromahub.rhythm.app.util.AudioQualityDetector
 import chromahub.rhythm.app.shared.presentation.components.common.ActionProgressLoader
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
 import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveElevation
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledIconButton
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
@@ -242,7 +240,6 @@ import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShap
 
 enum class LibraryTab { SONGS, PLAYLISTS, ALBUMS, ARTISTS, EXPLORER }
 
-// Playlist sort order enum for library tab
 enum class LibraryPlaylistSortOrder {
     NAME_ASC,
     NAME_DESC,
@@ -252,6 +249,9 @@ enum class LibraryPlaylistSortOrder {
     SONG_COUNT_DESC
 }
 
+/**
+ * Main library surface with tabbed browsing, playback actions, and library management controls.
+ */
 @Composable
 fun LibraryScreen(
     songs: List<Song>,
@@ -268,19 +268,19 @@ fun LibraryScreen(
     onAlbumClick: (Album) -> Unit,
     onArtistClick: (Artist) -> Unit,
     onAlbumShufflePlay: (Album) -> Unit = { _ -> },
-    onPlayQueue: (List<Song>) -> Unit = { _ -> }, // Added for playing a list of songs with queue replacement
-    onPlayQueueFromIndex: (List<Song>, Int) -> Unit = { _, _ -> }, // Added for playing from specific index
-    onShuffleQueue: (List<Song>) -> Unit = { _ -> }, // Added for shuffling and playing a list of songs
-    onAlbumBottomSheetClick: (Album) -> Unit = { _ -> }, // Added for opening album bottom sheet
+    onPlayQueue: (List<Song>) -> Unit = { _ -> },
+    onPlayQueueFromIndex: (List<Song>, Int) -> Unit = { _, _ -> },
+    onShuffleQueue: (List<Song>) -> Unit = { _ -> },
+    onAlbumBottomSheetClick: (Album) -> Unit = { _ -> },
     onSort: () -> Unit = {},
-    onRefreshClick: () -> Unit, // Changed from onSearchClick to onRefreshClick
+    onRefreshClick: () -> Unit,
     onAddSongToPlaylist: (Song, String) -> Unit = { _, _ -> },
     onCreatePlaylist: (String) -> Unit = { _ -> },
     sortOrder: MusicViewModel.SortOrder = MusicViewModel.SortOrder.TITLE_ASC,
     onSkipNext: () -> Unit = {},
     onAddToQueue: (Song) -> Unit,
     initialTab: LibraryTab = LibraryTab.SONGS,
-    musicViewModel: MusicViewModel, // Add MusicViewModel as a parameter
+    musicViewModel: MusicViewModel,
     onExportAllPlaylists: ((PlaylistImportExportUtils.PlaylistExportFormat, Boolean, Uri?, (Result<String>) -> Unit) -> Unit)? = null,
     onImportPlaylist: ((Uri, (Result<String>) -> Unit, (() -> Unit)?) -> Unit)? = null,
     onRestartApp: (() -> Unit)? = null,
@@ -292,7 +292,6 @@ fun LibraryScreen(
     val hiddenTabs by appSettings.hiddenLibraryTabs.collectAsState()
     val enableRatingSystem by appSettings.enableRatingSystem.collectAsState()
     
-    // Map tab IDs to display names, filtering out hidden tabs
     val tabs = remember(tabOrder, hiddenTabs) {
         tabOrder
             .filter { !hiddenTabs.contains(it) }
@@ -308,12 +307,10 @@ fun LibraryScreen(
             }
     }
     
-    // Create a list of visible tab IDs (after filtering hidden tabs)
     val visibleTabIds = remember(tabOrder, hiddenTabs) {
         tabOrder.filter { !hiddenTabs.contains(it) }
     }
     
-    // Find initial tab index based on the visible tabs
     val initialTabIndex = remember(visibleTabIds, initialTab) {
         val tabId = initialTab.name
         visibleTabIds.indexOf(tabId).takeIf { it >= 0 } ?: 0
@@ -325,39 +322,30 @@ fun LibraryScreen(
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
     
-    // Track previous tab order to detect changes
     var previousVisibleTabIds by remember { mutableStateOf(visibleTabIds) }
     
-    // Sync pager with selected tab when tabs change (hide/unhide/reorder)
     LaunchedEffect(tabs.size, visibleTabIds) {
-        // Check if tab configuration has changed (not just on initial composition)
         val hasTabsChanged = previousVisibleTabIds != visibleTabIds
         
         if (hasTabsChanged) {
-            // Tab configuration has changed - always reset to first tab
             selectedTabIndex = 0
             pagerState.scrollToPage(0)
-            // Scroll tab row to start
             tabRowState.animateScrollToItem(0)
             previousVisibleTabIds = visibleTabIds
         } else if (selectedTabIndex >= tabs.size) {
-            // If current selected tab is out of bounds, reset to first tab
             selectedTabIndex = 0
             pagerState.scrollToPage(0)
         }
     }
     
-    // Sync pager state with selected tab index
     LaunchedEffect(pagerState.currentPage) {
         selectedTabIndex = pagerState.currentPage
     }
     
-    // Auto-scroll tab row to show selected tab when returning to this screen
     LaunchedEffect(selectedTabIndex) {
         tabRowState.animateScrollToItem(selectedTabIndex)
     }
     
-    // Dialog and bottom sheet states
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistSheet by remember { mutableStateOf(false) }
     var showAlbumBottomSheet by remember { mutableStateOf(false) }
@@ -368,15 +356,12 @@ fun LibraryScreen(
     var operationInProgress by remember { mutableStateOf("") }
     var operationResult by remember { mutableStateOf<Pair<String, Boolean>?>(null) }
     
-    // Pending write request for metadata editing (Android 11+)
     val pendingWriteRequest by musicViewModel.pendingWriteRequest.collectAsState()
     
-    // Write permission launcher for Android 11+ metadata editing
     val writePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            // User granted permission, complete the write
             musicViewModel.completeMetadataWriteAfterPermission(
                 onSuccess = {
                     Toast.makeText(context, "Metadata saved successfully!", Toast.LENGTH_SHORT).show()
@@ -386,13 +371,11 @@ fun LibraryScreen(
                 }
             )
         } else {
-            // User denied permission
             musicViewModel.cancelPendingMetadataWrite()
             Toast.makeText(context, "Permission denied. Changes saved to library only.", Toast.LENGTH_LONG).show()
         }
     }
     
-    // Import/Export related state
     var operationProgressText by remember { mutableStateOf("") }
     var operationError by remember { mutableStateOf<String?>(null) }
     var showExportResultDialog by remember { mutableStateOf(false) }
@@ -402,14 +385,12 @@ fun LibraryScreen(
     var showErrorDialog by remember { mutableStateOf(false) }
     var showRestartDialog by remember { mutableStateOf(false) }
     
-    // Explorer reload trigger
     var explorerReloadTrigger by remember { mutableStateOf(0) }
     var selectedSong by remember { mutableStateOf<Song?>(null) }
     var selectedAlbum by remember { mutableStateOf<Album?>(null) }
     val addToPlaylistSheetState = rememberModalBottomSheetState()
     val albumBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     
-    // Multi-selection state
     val multiSelectionState = remember { chromahub.rhythm.app.features.local.presentation.viewmodel.MultiSelectionStateHolder() }
     val selectedSongs by multiSelectionState.selectedSongs.collectAsState()
     val isSelectionMode by multiSelectionState.isSelectionMode.collectAsState()
@@ -417,7 +398,6 @@ fun LibraryScreen(
     var showMultiSelectionSheet by remember { mutableStateOf(false) }
     var showBatchEditSheet by remember { mutableStateOf(false) }
     
-    // Multi-selection callbacks
     val onSongLongPress: (Song) -> Unit = remember(multiSelectionState) {
         { song -> multiSelectionState.toggleSelection(song) }
     }
@@ -428,24 +408,20 @@ fun LibraryScreen(
     
     val favoriteSongs by musicViewModel.favoriteSongs.collectAsState()
     
-    // TopAppBar scroll behavior
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     
-    // FAB visibility based on scroll
     val fabVisibility by remember {
         derivedStateOf {
             scrollBehavior.state.collapsedFraction < 0.5f
         }
     }
 
-    // FAB menu state
     var showPlaylistFabMenu by remember { mutableStateOf(false) }
 
     BackHandler(showPlaylistFabMenu) {
         showPlaylistFabMenu = false
     }
 
-    // Handle FAB menu item clicks - close menu after action
     val onCreatePlaylistFromFab: () -> Unit = {
         showCreatePlaylistDialog = true
     }
@@ -462,7 +438,6 @@ fun LibraryScreen(
         }
     } else null
 
-    // Sync tabs with pager - only animate when tab button is clicked
     LaunchedEffect(selectedTabIndex) {
         if (selectedTabIndex != pagerState.currentPage) {
             pagerState.animateScrollToPage(selectedTabIndex)
@@ -471,16 +446,13 @@ fun LibraryScreen(
     
 
 
-    // Update selectedTabIndex when pager settles on a new page (handles swiping)
     LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
         if (!pagerState.isScrollInProgress && selectedTabIndex != pagerState.currentPage) {
             selectedTabIndex = pagerState.currentPage
-            // Auto-scroll tab buttons to show selected tab
             tabRowState.animateScrollToItem(pagerState.currentPage)
         }
     }
 
-    // Handle dialogs
     if (showCreatePlaylistDialog) {
         CreatePlaylistDialog(
             onDismiss = { showCreatePlaylistDialog = false },
@@ -492,7 +464,6 @@ fun LibraryScreen(
     }
     
     if (showSongInfoSheet && selectedSong != null) {
-        // Get the latest version of the song from the songs list
         val displaySong = songs.find { it.id == selectedSong!!.id } ?: selectedSong
         
         SongInfoBottomSheet(
@@ -500,7 +471,6 @@ fun LibraryScreen(
             onDismiss = { showSongInfoSheet = false },
             appSettings = appSettings,
             onEditSong = { title, artist, album, genre, year, trackNumber, artworkUri, removeArtwork ->
-                // Use the ViewModel's new metadata saving function with callbacks
                 musicViewModel.saveMetadataChanges(
                     song = displaySong!!,
                     title = title,
@@ -515,15 +485,12 @@ fun LibraryScreen(
                         if (fileWriteSucceeded) {
                             Toast.makeText(context, "Metadata saved successfully to file!", Toast.LENGTH_SHORT).show()
                         } else {
-                            // Don't show error here - permission request may be triggered
                         }
-                        // Don't close the sheet - let the user see the updated info
                     },
                     onError = { errorMessage ->
                         Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                     },
                     onPermissionRequired = { pendingRequest ->
-                        // Launch the system permission dialog for Android 11+
                         try {
                             val intentSenderRequest = androidx.activity.result.IntentSenderRequest.Builder(
                                 pendingRequest.intentSender
@@ -543,7 +510,6 @@ fun LibraryScreen(
         )
     }
     
-    // Use bottom sheet instead of dialog
     if (showAddToPlaylistSheet && selectedSong != null) {
         AddToPlaylistBottomSheet(
             song = selectedSong!!,
@@ -573,24 +539,21 @@ fun LibraryScreen(
         )
     }
     
-    // Album bottom sheet
     if (showAlbumBottomSheet && selectedAlbum != null) {
         AlbumBottomSheet(
             album = selectedAlbum!!,
             onDismiss = { showAlbumBottomSheet = false },
             onSongClick = onSongClick,
             onPlayAll = { songs ->
-                // Play the sorted album songs using proper queue replacement
                 if (songs.isNotEmpty()) {
-                    onPlayQueue(songs) // Use the new queue replacement callback
+                    onPlayQueue(songs)
                 } else {
                     selectedAlbum?.let { onAlbumClick(it) }
                 }
             },
             onShufflePlay = { songs ->
-                // Play shuffled sorted album songs with proper queue replacement
                 if (songs.isNotEmpty()) {
-                    onShuffleQueue(songs) // Use the new shuffle queue callback
+                    onShuffleQueue(songs)
                 } else {
                     selectedAlbum?.let { onAlbumShufflePlay(it) }
                 }
@@ -625,9 +588,7 @@ fun LibraryScreen(
         )
     }
     
-    // Playlist Management now handled in Tuner > Playlists settings
     
-    // Track library refreshing state for pull-to-refresh
     val isLibraryRefreshing by musicViewModel.isLibraryRefreshing.collectAsState()
     val scanProgress by musicViewModel.scanProgress.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
@@ -637,17 +598,14 @@ fun LibraryScreen(
         if (isTabletLayout) 16.dp else (MusicDimensions.bottomNavigationHeight + 16.dp)
     val libraryBottomOverlayPadding = baseLibraryBottomPadding
     
-    // Update refreshing state based on library refreshing
     LaunchedEffect(isLibraryRefreshing) {
         isRefreshing = isLibraryRefreshing
     }
     
-    // BackHandler for selection mode
     BackHandler(enabled = isSelectionMode) {
         multiSelectionState.clearSelection()
     }
     
-    // Multi-selection bottom sheet - only show when explicitly requested
     if (showMultiSelectionSheet && selectedSongs.isNotEmpty()) {
         MultiSelectionBottomSheet(
             selectedSongs = selectedSongs,
@@ -669,8 +627,6 @@ fun LibraryScreen(
                 multiSelectionState.clearSelection()
             },
             onAddToPlaylist = {
-                // Open playlist picker with first selected song for now
-                // In future, could support adding multiple songs
                 selectedSong = selectedSongs.firstOrNull()
                 showMultiSelectionSheet = false
                 showAddToPlaylistSheet = true
@@ -684,7 +640,6 @@ fun LibraryScreen(
                 }
             },
             onAddToBlacklist = {
-                // Add all selected songs to blacklist
                 selectedSongs.forEach { song ->
                     appSettings.addToBlacklist(song.id)
                 }
@@ -696,7 +651,6 @@ fun LibraryScreen(
         )
     }
 
-    // Batch edit tags sheet
     if (showBatchEditSheet && selectedSongs.isNotEmpty()) {
         BatchEditTagsSheet(
             selectedSongs = selectedSongs,
@@ -730,13 +684,13 @@ fun LibraryScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             Column {
-                Spacer(modifier = Modifier.height(5.dp)) // Add more padding before the header starts
+                Spacer(modifier = Modifier.height(5.dp))
                 
                 LargeTopAppBar(
                 navigationIcon = { },
                 title = {
                     val collapsedFraction = scrollBehavior.state.collapsedFraction
-                    val fontSize = (24 + (32 - 24) * (1 - collapsedFraction)).sp // Interpolate between 24sp and 32sp
+                    val fontSize = (24 + (32 - 24) * (1 - collapsedFraction)).sp
 
                     Text(
                         text = context.getString(R.string.library_title),
@@ -744,17 +698,14 @@ fun LibraryScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = fontSize
                         ),
-                        modifier = Modifier.padding(start = 14.dp) // Adjust start padding for title
+                        modifier = Modifier.padding(start = 14.dp)
                     )
                 },
                 actions = {
-                    // Tab-specific actions moved from section headers
                     when (visibleTabIds.getOrNull(selectedTabIndex)) {
                         "ALBUMS" -> {
-                            // Enhanced Album view toggle
                             val albumViewType by appSettings.albumViewType.collectAsState()
                             
-                            // Animation for button press
                             val buttonScale by animateFloatAsState(
                                 targetValue = 1f,
                                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -789,10 +740,8 @@ fun LibraryScreen(
                         }
                         
                         "ARTISTS" -> {
-                            // Enhanced Artist view toggle  
                             val artistViewType by appSettings.artistViewType.collectAsState()
                             
-                            // Animation for button press
                             val buttonScale by animateFloatAsState(
                                 targetValue = 1f,
                                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -827,10 +776,8 @@ fun LibraryScreen(
                         }
                         
                         "PLAYLISTS" -> {
-                            // Enhanced Playlist view toggle
                             val playlistViewType by appSettings.playlistViewType.collectAsState()
                             
-                            // Animation for button press
                             val buttonScale by animateFloatAsState(
                                 targetValue = 1f,
                                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -867,19 +814,16 @@ fun LibraryScreen(
 
                     }
                     
-                    // Sort dropdown like AlbumBottomSheet (only show for Songs, Albums, and Playlists)
                     val currentTabId = visibleTabIds.getOrNull(selectedTabIndex)
                     if (currentTabId == "SONGS" || currentTabId == "ALBUMS") {
                         var showSortMenu by remember { mutableStateOf(false) }
                         var pendingSortOrder by remember { mutableStateOf<MusicViewModel.SortOrder?>(null) }
                         
-                        // Clear pending sort order when actual sort order changes
                         LaunchedEffect(sortOrder) {
                             pendingSortOrder = null
                         }
                         
                         Box {
-                        // Enhanced sort button
                         val sortButtonScale by animateFloatAsState(
                             targetValue = if (showSortMenu) 0.95f else 1f,
                             animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -909,7 +853,6 @@ fun LibraryScreen(
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            // Sort order text
                             val sortText = when (sortOrder) {
                                 MusicViewModel.SortOrder.TITLE_ASC, MusicViewModel.SortOrder.TITLE_DESC -> "Title"
                                 MusicViewModel.SortOrder.ARTIST_ASC, MusicViewModel.SortOrder.ARTIST_DESC -> "Artist"
@@ -1013,7 +956,6 @@ fun LibraryScreen(
                                             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                                             pendingSortOrder = order
                                             showSortMenu = false
-                                            // Set the specific sort order instead of cycling
                                             if (sortOrder != order) {
                                                 musicViewModel.setSortOrder(order)
                                             }
@@ -1031,7 +973,6 @@ fun LibraryScreen(
                     }
                 }
                     
-                    // Playlist Sort dropdown
                     if (currentTabId == "PLAYLISTS") {
                         val playlistSortOrderString by appSettings.playlistSortOrder.collectAsState()
                         val playlistSortOrder = try {
@@ -1042,7 +983,6 @@ fun LibraryScreen(
                         var showPlaylistSortMenu by remember { mutableStateOf(false) }
                         
                         Box {
-                            // Enhanced sort button
                             val sortButtonScale by animateFloatAsState(
                                 targetValue = if (showPlaylistSortMenu) 0.95f else 1f,
                                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -1072,7 +1012,6 @@ fun LibraryScreen(
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
-                                // Sort order text
                                 val sortText = when (playlistSortOrder) {
                                     LibraryPlaylistSortOrder.NAME_ASC, LibraryPlaylistSortOrder.NAME_DESC -> context.getString(R.string.sort_name)
                                     LibraryPlaylistSortOrder.DATE_CREATED_ASC, LibraryPlaylistSortOrder.DATE_CREATED_DESC -> context.getString(R.string.sort_date_created)
@@ -1178,13 +1117,12 @@ fun LibraryScreen(
                     scrolledContainerColor = Color.Transparent
                 ),
                 scrollBehavior = scrollBehavior,
-                modifier = Modifier.padding(horizontal = 8.dp) // Added padding
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
             }
         },
         bottomBar = {},
         floatingActionButton = {
-            // Only show FAB on playlists tab
             if (visibleTabIds.getOrNull(selectedTabIndex) == "PLAYLISTS") {
                 PlaylistFabMenu(
                     visible = fabVisibility,
@@ -1194,7 +1132,7 @@ fun LibraryScreen(
                     onImportPlaylist = onImportPlaylistFromFab,
                     onExportPlaylists = onExportPlaylistsFromFab,
                     bottomPadding = baseLibraryBottomPadding,
-                    haptics = haptics // Pass haptics to PlaylistFabMenu
+                    haptics = haptics
                 )
             }
         }
@@ -1204,11 +1142,10 @@ fun LibraryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Horizontal Scrollable Navigation Buttons - Stats screen style
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.dp
@@ -1248,7 +1185,6 @@ fun LibraryScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    // Get the actual tab ID from the visible tabs list
                                     val currentTabId = visibleTabIds.getOrNull(index)
                                     Icon(
                                         imageVector = when (currentTabId) {
@@ -1272,13 +1208,12 @@ fun LibraryScreen(
                         )
                     }
                     
-                    // Edit button at the end to open LibraryTabReorderBottomSheet
                     item {
                         var showLibraryTabOrderSheet by remember { mutableStateOf(false) }
 
                         TabAnimation(
-                            index = tabs.size, // Use tabs.size as index since it's after all tabs
-                            selectedIndex = -1, // Never selected
+                            index = tabs.size,
+                            selectedIndex = -1,
                             title = "Edit",
                             selectedColor = MaterialTheme.colorScheme.secondaryContainer,
                             onSelectedColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -1319,7 +1254,6 @@ fun LibraryScreen(
                 }
             }
             
-            // Background Processing Loader - shown between tabs and content
             val isBackgroundProcessing by musicViewModel.isBackgroundProcessing.collectAsState()
             val isMediaScanning by musicViewModel.isMediaScanning.collectAsState()
             val isGenreDetectionRunning by musicViewModel.isGenreDetectionRunning.collectAsState()
@@ -1347,7 +1281,6 @@ fun LibraryScreen(
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 8.dp)
                 ) {
-                    // Wavy animated progress indicator for library screen with transparent track
                     androidx.compose.material3.LinearWavyProgressIndicator(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1356,79 +1289,22 @@ fun LibraryScreen(
                         trackColor = Color.Transparent
                     )
                     
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    // Processing status text with animated icon
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                        modifier = Modifier.padding(start = 4.dp)
-//                    ) {
-//                        // Animated status icon
-//                        val infiniteTransition = rememberInfiniteTransition(label = "statusIconAnimation")
-//                        val iconRotation by infiniteTransition.animateFloat(
-//                            initialValue = 0f,
-//                            targetValue = 360f,
-//                            animationSpec = infiniteRepeatable(
-//                                animation = tween(2000, easing = LinearEasing),
-//                                repeatMode = RepeatMode.Restart
-//                            ),
-//                            label = "iconRotation"
-//                        )
-//
-//                        Icon(
-//                            imageVector = when {
-//                                isMediaScanning -> RhythmIcons.Refresh
-//                                isExtractingMetadata -> MaterialSymbolIcon("analytics")
-//                                isFetchingArtwork -> RhythmIcons.Image
-//                                !isGenreDetectionRunning -> RhythmIcons.Category
-//                                else -> MaterialSymbolIcon("sync")
-//                            },
-//                            contentDescription = null,
-//                            
-//                            modifier = Modifier
-//                                .size(16.dp)
-//                                .graphicsLayer {
-//                                    rotationZ = iconRotation
-//                                }
-//                        )
-//
-//                        val statusText = remember(isMediaScanning, isGenreDetectionRunning, isFetchingArtwork, isExtractingMetadata) {
-//                            when {
-//                                isMediaScanning -> context.getString(R.string.scanning_media)
-//                                isExtractingMetadata -> context.getString(R.string.extracting_metadata)
-//                                isFetchingArtwork -> context.getString(R.string.fetching_artwork)
-//                                !isGenreDetectionRunning -> context.getString(R.string.detecting_genres)
-//                                else -> context.getString(R.string.processing_library)
-//                            }
-//                        }
-//
-//                        Text(
-//                            text = statusText,
-//                            style = MaterialTheme.typography.bodySmall.copy(
-//                                fontWeight = FontWeight.Medium
-//                            ),
-//                            color = MaterialTheme.colorScheme.onSurfaceVariant
-//                        )
-//                    }
                 }
             }
             
-            // Single Big Card Container with Pull-to-Refresh
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(start = 20.dp, top = 8.dp, end = 20.dp, bottom = libraryBottomOverlayPadding),
+                    .padding(start = 10.dp, top = 0.dp, end = 10.dp, bottom = libraryBottomOverlayPadding),
                 shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = Color.Transparent,
                 shadowElevation = 0.dp
             ) {
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                        // If on Explorer tab, reload explorer; otherwise, trigger media scan
                         if (visibleTabIds.getOrNull(selectedTabIndex) == "EXPLORER") {
                             explorerReloadTrigger++
                         } else {
@@ -1446,17 +1322,15 @@ fun LibraryScreen(
                     }
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        // Content with animation
                         HorizontalPager(
                     state = pagerState,
+                    contentPadding = PaddingValues(0.dp),
+                    pageSpacing = 0.dp,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = 16.dp)
                 ) { page ->
-                    // Dynamically show tab content based on visible tab order (filtered)
                     when (visibleTabIds.getOrNull(page)) {
                         "SONGS" -> {
-                            // Sort songs according to current sort order
                             val sortedSongs = remember(songs, sortOrder) {
                                 when (sortOrder) {
                                     MusicViewModel.SortOrder.TITLE_ASC -> songs.sortedBy { it.title.lowercase() }
@@ -1567,8 +1441,25 @@ fun LibraryScreen(
                         )
                     }
                 }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(24.dp)
+                                .align(Alignment.TopCenter)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.background,
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.32f),
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+                                .zIndex(5f)
+                        )
                         
-                        // Show media scanning progress overlay on top
                         androidx.compose.animation.AnimatedVisibility(
                             visible = isMediaScanning,
                             enter = fadeIn() + expandVertically(),
@@ -1594,7 +1485,6 @@ fun LibraryScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Animated scanning icon
                                     val infiniteTransition = rememberInfiniteTransition(label = "scanIconRotation")
                                     val rotation by infiniteTransition.animateFloat(
                                         initialValue = 0f,
@@ -1636,7 +1526,6 @@ fun LibraryScreen(
                                         }
                                     }
                                     
-                                    // Show circular progress indicator
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(20.dp),
                                         color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -1651,7 +1540,6 @@ fun LibraryScreen(
         }
     }
     
-    // Playlist import/export dialogs
     if (showBulkExportDialog && onExportAllPlaylists != null) {
         BulkPlaylistExportDialog(
             playlistCount = playlists.size,
@@ -1668,7 +1556,6 @@ fun LibraryScreen(
                     showOperationProgress = false
                     result.fold(
                         onSuccess = { message ->
-                            // Success will be shown via snackbar from navigation layer
                         },
                         onFailure = { error ->
                             operationError = error.message ?: "Export failed"
@@ -1685,7 +1572,6 @@ fun LibraryScreen(
                     showOperationProgress = false
                     result.fold(
                         onSuccess = { message ->
-                            // Success will be shown via snackbar from navigation layer
                         },
                         onFailure = { error ->
                             operationError = error.message ?: "Export failed"
@@ -1723,7 +1609,6 @@ fun LibraryScreen(
         )
     }
 
-    // App Restart Dialog
     if (showRestartDialog && onRestartApp != null) {
         AppRestartDialog(
             onDismiss = { showRestartDialog = false },
@@ -1733,12 +1618,10 @@ fun LibraryScreen(
             },
             onContinue = {
                 showRestartDialog = false
-                // Continue without restart
             }
         )
     }
 
-    // Progress dialog for long operations
     if (showOperationProgress) {
         PlaylistOperationProgressDialog(
             operation = operationProgressText,
@@ -1749,7 +1632,6 @@ fun LibraryScreen(
         )
     }
     
-    // Simple success/error dialogs for now
     if (operationError != null) {
         AlertDialog(
             onDismissRequest = { operationError = null },
@@ -1778,7 +1660,6 @@ fun LibraryScreen(
         )
     }
 
-    // Dialog to show import result and offer restart
     if (showImportResultDialog && importResult != null) {
         AlertDialog(
             onDismissRequest = { showImportResultDialog = false; importResult = null },
@@ -1847,13 +1728,12 @@ fun SingleCardSongsContent(
     onShowSongInfo: (Song) -> Unit,
     onAddToBlacklist: (Song) -> Unit,
     onPlayQueue: (List<Song>) -> Unit = { _ -> },
-    onPlayQueueFromIndex: (List<Song>, Int) -> Unit = { _, _ -> }, // New parameter for playing from specific index
+    onPlayQueueFromIndex: (List<Song>, Int) -> Unit = { _, _ -> },
     onShuffleQueue: (List<Song>) -> Unit = { _ -> },
-    currentSong: Song? = null, // Add current song parameter
-    isPlaying: Boolean = false, // Add playing state
+    currentSong: Song? = null,
+    isPlaying: Boolean = false,
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
     enableRatingSystem: Boolean = true,
-    // Multi-selection parameters
     isSelectionMode: Boolean = false,
     selectedSongIds: Set<String> = emptySet(),
     multiSelectionState: chromahub.rhythm.app.features.local.presentation.viewmodel.MultiSelectionStateHolder? = null,
@@ -1868,18 +1748,14 @@ fun SingleCardSongsContent(
     val groupByAlbumArtist by appSettings.groupByAlbumArtist.collectAsState()
     var selectedCategory by remember { mutableStateOf("All") }
     
-    // Multi-selection state - get selected songs from state holder
     val selectedSongs = multiSelectionState?.selectedSongs?.collectAsState()?.value ?: emptyList()
     
-    // Loading state for async category computation
     var isLoading by remember { mutableStateOf(true) }
     var preparedSongs by remember { mutableStateOf(songs) }
     var categories by remember { mutableStateOf<List<String>>(listOf("All")) }
     
-    // Helper function to split artist names
     val splitArtistNames: (String) -> List<String> = remember {
         { artistName ->
-            // Character-level delimiters from settings
             val libAppSettings = AppSettings.getInstance(context)
             val artistSeparatorEnabled = libAppSettings.artistSeparatorEnabled.value
             val charDelimiters = if (artistSeparatorEnabled) {
@@ -1918,25 +1794,19 @@ fun SingleCardSongsContent(
         }
     }
     
-    // Cache for audio quality detection to avoid re-computation
     val audioQualityCache = remember { mutableMapOf<String, AudioQualityDetector.AudioQuality>() }
     
-    // Helper function to get or compute audio quality using AudioFormatDetector and AudioQualityDetector
-    // This matches the same logic used in AudioQualityBadges for consistent quality detection
     suspend fun getAudioQuality(song: Song): AudioQualityDetector.AudioQuality {
-        // Check cache first
         audioQualityCache[song.id]?.let { return it }
         
         return withContext(Dispatchers.IO) {
             try {
-                // Use AudioFormatDetector for accurate codec and format detection
                 val formatInfo = AudioFormatDetector.detectFormat(context, song.uri, song)
 
                 val songBitrate = song.bitrate ?: 0
                 val songSampleRate = song.sampleRate ?: 0
                 val songChannels = song.channels ?: 0
                 
-                // Prefer Song's metadata when available (more reliable)
                 val bitrateKbps = if (songBitrate > 0) {
                     songBitrate / 1000
                 } else if (formatInfo.bitrateKbps > 0) {
@@ -1964,7 +1834,6 @@ fun SingleCardSongsContent(
                 val codec = formatInfo.codec.ifEmpty { song.codec ?: "Unknown" }
                 val bitDepth = formatInfo.bitDepth
                 
-                // Use AudioQualityDetector for accurate quality classification
                 val quality = AudioQualityDetector.detectQuality(
                     codec = codec,
                     sampleRateHz = sampleRateHz,
@@ -1973,12 +1842,10 @@ fun SingleCardSongsContent(
                     channelCount = channelCount
                 )
                 
-                // Cache the result
                 audioQualityCache[song.id] = quality
                 quality
             } catch (e: Exception) {
                 android.util.Log.w("SongsTab", "Error detecting audio quality for ${song.title}: ${e.message}")
-                // Return a default quality on error
                 AudioQualityDetector.AudioQuality(
                     qualityType = AudioQualityDetector.QualityType.UNKNOWN,
                     isLossless = false,
@@ -1994,20 +1861,16 @@ fun SingleCardSongsContent(
         }
     }
     
-    // Synchronous helper functions for filtering (use cached metadata when possible, fallback to fresh extraction)
     fun isLosslessAudio(song: Song): Boolean {
         val codec = song.codec?.uppercase() ?: ""
 
-        // If we have cached codec data, use it
         if (codec.isNotEmpty()) {
-            // Check if it's explicitly a LOSSY codec - these are NEVER lossless
             val isLossyCodec = codec.contains("MP3") || codec.contains("AAC") ||
                               codec.contains("OGG") || codec.contains("OPUS") ||
                               codec.contains("VORBIS") || (codec.contains("WMA") && !codec.contains("LOSSLESS"))
 
             if (isLossyCodec) return false
 
-            // Check if it's explicitly a LOSSLESS codec
             val isLosslessCodec = codec in listOf("ALAC", "FLAC", "PCM", "WAV", "APE", "DSD", "TRUEHD", "DOLBY ATMOS", "DTS-HD MA", "AIFF", "WV", "TAK", "TTA") ||
                                  codec.contains("LOSSLESS", ignoreCase = true) ||
                                  codec.contains("APPLE LOSSLESS", ignoreCase = true)
@@ -2015,7 +1878,6 @@ fun SingleCardSongsContent(
             if (isLosslessCodec) return true
         }
 
-        // Fallback: Check file extension for known lossless formats
         val uri = song.uri.toString()
         val isLosslessExtension = uri.endsWith(".flac", ignoreCase = true) ||
                                   uri.endsWith(".wav", ignoreCase = true) ||
@@ -2043,35 +1905,29 @@ fun SingleCardSongsContent(
         val bitrate = song.bitrate ?: 0
         val channels = song.channels ?: 2
 
-        // Hi-Res Lossless requires ≥48kHz sample rate
         if (sampleRate < 48000) {
             android.util.Log.d("SongsTab", "Song ${song.title} sample rate $sampleRate < 48000, not Hi-Res")
             return false
         }
 
-        // For known Hi-Res sample rates, consider them Hi-Res even without bitrate calculation
         if (sampleRate >= 88200) {
             android.util.Log.d("SongsTab", "Song ${song.title} has Hi-Res sample rate $sampleRate")
-            return true // 88.2kHz, 96kHz, 176.4kHz, 192kHz etc.
+            return true
         }
 
-        // Calculate bit depth using improved AudioFormatDetector logic
         if (bitrate > 0 && sampleRate > 0 && channels > 0) {
             val bitrateKbps = bitrate / 1000
             val calculatedBitDepth = (bitrateKbps * 1000) / (sampleRate * channels)
-            // Use AudioFormatDetector thresholds: >= 20 bits/sample = 24-bit
-            // But be more lenient for Hi-Res detection
             android.util.Log.d("SongsTab", "Song ${song.title} bit depth calculation: bitrate=${bitrateKbps}kbps, sampleRate=$sampleRate, channels=$channels, calculatedBitDepth=$calculatedBitDepth")
             if (calculatedBitDepth >= 18) {
                 android.util.Log.d("SongsTab", "Song ${song.title} qualifies as Hi-Res with bit depth $calculatedBitDepth")
-                return true // Allow some margin for calculation errors
+                return true
             }
         }
 
-        // Fallback: High bitrate lossless at 48kHz or higher is likely Hi-Res
         if (bitrate >= 2000000 && sampleRate >= 48000) {
             android.util.Log.d("SongsTab", "Song ${song.title} qualifies as Hi-Res with high bitrate $bitrate")
-            return true // 2Mbps+ at 48kHz+
+            return true
         }
 
         android.util.Log.d("SongsTab", "Song ${song.title} does not qualify as Hi-Res")
@@ -2079,12 +1935,9 @@ fun SingleCardSongsContent(
     }
     
     fun isRegularLossless(song: Song): Boolean {
-        // Regular Lossless = Lossless but NOT Hi-Res
-        // This ensures mutual exclusivity between "Lossless" and "Hi-Res Lossless" filters
         val lossless = isLosslessAudio(song)
         if (!lossless) return false
         
-        // IMPORTANT: Check if it's Hi-Res and exclude it
         val hiRes = isHiResLossless(song)
         if (hiRes) {
             android.util.Log.d("SongsTab", "Song ${song.title} is Hi-Res, excluding from Regular Lossless")
@@ -2097,7 +1950,7 @@ fun SingleCardSongsContent(
 
     fun isDolbyOrSurround(song: Song): Boolean {
         val codec = song.codec?.uppercase() ?: ""
-        return (song.channels ?: 2) > 2 || // Multi-channel audio
+        return (song.channels ?: 2) > 2 ||
                codec.contains("AC-3") ||
                codec.contains("E-AC-3") ||
                codec.contains("DOLBY") ||
@@ -2106,7 +1959,6 @@ fun SingleCardSongsContent(
                codec.contains("DTS")
     }
 
-    // Async category computation to avoid blocking UI on tab switch
     LaunchedEffect(songs, favoriteSongs, enableRatingSystem) {
         isLoading = true
         val result = withContext(Dispatchers.Default) {
@@ -2114,35 +1966,28 @@ fun SingleCardSongsContent(
 
             android.util.Log.d("SongsTab", "Recomputing categories for ${songs.size} songs")
 
-// Favorites filter - show if there are any favorite songs
         val favoriteSongsList = songs.filter { it.id in favoriteSongs }
         if (favoriteSongsList.isNotEmpty()) {
             allCategories.add("❤️ Favorites")
             }
 
-            // Audio Quality Filters (Mutually Exclusive) - Most specific first
 
-            // Hi-Res Lossless (≥48 kHz + 24-bit lossless)
             val hiResLosslessSongs = songs.filter { isHiResLossless(it) && !isDolbyOrSurround(it) }
             android.util.Log.d("SongsTab", "Found ${hiResLosslessSongs.size} Hi-Res Lossless songs")
             if (hiResLosslessSongs.isNotEmpty()) allCategories.add("Hi-Res Lossless")
 
-            // Regular Lossless (CD quality: 44.1kHz/16-bit or 48kHz/16-bit)
             val regularLosslessSongs = songs.filter { isRegularLossless(it) && !isDolbyOrSurround(it) }
             android.util.Log.d("SongsTab", "Found ${regularLosslessSongs.size} Lossless (CD Quality) songs")
             if (regularLosslessSongs.isNotEmpty()) allCategories.add("Lossless")
 
-            // Dolby (includes AC-3, E-AC-3/D+, TrueHD, Atmos, DTS in 5.1, 7.1, etc.)
             val dolbySongs = songs.filter { isDolbyOrSurround(it) }
             android.util.Log.d("SongsTab", "Found ${dolbySongs.size} Dolby/Surround songs")
             if (dolbySongs.isNotEmpty()) allCategories.add("Dolby")
             
-            // Stereo (standard 2-channel, non-quality filtered) - HIDDEN per user request
             val stereoSongs = songs.filter { song ->
                 (song.channels ?: 2) == 2 && !isDolbyOrSurround(song)
             }
             android.util.Log.d("SongsTab", "Found ${stereoSongs.size} Stereo songs")
-            // if (stereoSongs.isNotEmpty()) allCategories.add("Stereo")  // HIDDEN - user requested to hide stereo filter
             
             val monoSongs = songs.filter { song ->
                 (song.channels ?: 2) == 1
@@ -2150,14 +1995,11 @@ fun SingleCardSongsContent(
             android.util.Log.d("SongsTab", "Found ${monoSongs.size} Mono songs")
             if (monoSongs.isNotEmpty()) allCategories.add("Mono")
             
-            // Log sample metadata for debugging
             if (songs.isNotEmpty()) {
                 val sampleSong = songs.first()
                 android.util.Log.d("SongsTab", "Sample song metadata: ${sampleSong.title} - bitrate=${sampleSong.bitrate}, sampleRate=${sampleSong.sampleRate}, channels=${sampleSong.channels}, codec=${sampleSong.codec}")
             }
 
-            // Rating-based categories (5★ = Absolute Favorite, 4★ = Loved, 3★ = Great, 2★ = Good, 1★ = Liked)
-            // Only show if rating system is enabled
             if (enableRatingSystem) {
                 val appSettings = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
                 val ratingDistribution = appSettings.getRatingDistribution()
@@ -2179,7 +2021,6 @@ fun SingleCardSongsContent(
                 }
             }
 
-            // Quality-based categories for lossy audio
             val highQualitySongs = songs.filter { song ->
                 val bitrate = song.bitrate ?: 0
                 bitrate >= 320000 && !isLosslessAudio(song) && !isDolbyOrSurround(song)
@@ -2192,7 +2033,6 @@ fun SingleCardSongsContent(
             }
             if (standardSongs.isNotEmpty()) allCategories.add("Standard")
 
-            // Duration-based categories
             val shortSongs = songs.filter { it.duration < 3 * 60 * 1000 }
             if (shortSongs.isNotEmpty()) allCategories.add("Short (< 3 min)")
 
@@ -2209,8 +2049,6 @@ fun SingleCardSongsContent(
         isLoading = false
     }
 
-    // Filter songs based on selected category - computed asynchronously
-    // Initialize with all songs (not emptyList) so LazyListState can restore scroll position correctly
     var filteredSongs by remember { mutableStateOf<List<Song>>(songs) }
     
     LaunchedEffect(preparedSongs, selectedCategory, favoriteSongs) {
@@ -2219,7 +2057,6 @@ fun SingleCardSongsContent(
                 "All" -> preparedSongs
                 "❤️ Favorites" -> preparedSongs.filter { it.id in favoriteSongs }
                 
-                // Rating-based filters
                 "⭐⭐⭐⭐⭐ Absolute Favorites" -> {
                     val ratedSongIds = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongsByRating(5)
                     preparedSongs.filter { it.id in ratedSongIds }
@@ -2245,7 +2082,6 @@ fun SingleCardSongsContent(
                 "Medium (3-5 min)" -> preparedSongs.filter { it.duration in (3 * 60 * 1000)..(5 * 60 * 1000) }
                 "Long (> 5 min)" -> preparedSongs.filter { it.duration > 5 * 60 * 1000 }
 
-                // Audio Quality Filters (Mutually Exclusive)
                 "Hi-Res Lossless" -> preparedSongs.filter { isHiResLossless(it) && !isDolbyOrSurround(it) }
                 "Lossless" -> preparedSongs.filter { isRegularLossless(it) && !isDolbyOrSurround(it) }
                 "Dolby" -> preparedSongs.filter { isDolbyOrSurround(it) }
@@ -2262,12 +2098,11 @@ fun SingleCardSongsContent(
                     bitrate in 128000..319999 && !isLosslessAudio(song) && !isDolbyOrSurround(song)
                 }
 
-                else -> preparedSongs // Default to showing all songs for any unrecognized category
+                else -> preparedSongs
             }
         }
     }
     
-    // Show loading indicator while preparing
     if (isLoading && preparedSongs.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -2300,248 +2135,135 @@ fun SingleCardSongsContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
                 bottom = 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // Section Header (Scrollable, not sticky) - Shows selection mode or normal mode
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
-                        .animateContentSize(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        ),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isSelectionMode) 
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                            else 
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Column {
-                            AnimatedContent(
-                                targetState = isSelectionMode,
-                                transitionSpec = {
-                                    fadeIn(animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                                        stiffness = Spring.StiffnessLow
-                                    )) togetherWith
-                                    fadeOut(animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                                        stiffness = Spring.StiffnessLow
-                                    ))
-                                },
-                                label = "SectionHeaderAnimation"
-                            ) { isInSelectionMode ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(20.dp)
+                AnimatedContent(
+                    targetState = isSelectionMode,
+                    transitionSpec = {
+                        (fadeIn() + slideInVertically { it / 2 }) togetherWith
+                                (fadeOut() + slideOutVertically { -it / 2 })
+                    },
+                    label = "SectionHeaderAnimation"
+                ) { isInSelectionMode ->
+                    if (isInSelectionMode) {
+                        ExpressiveSelectionHeader(
+                            selectedCount = selectedSongs.size,
+                            totalCount = filteredSongs.size,
+                            onClearSelection = {
+                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                multiSelectionState?.clearSelection()
+                            }
+                        ) {
+                            ExpressiveButtonGroup(
+                                modifier = Modifier.weight(1f),
+                                style = ButtonGroupStyle.Filled
+                            ) {
+                                ExpressiveGroupButton(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                        onPlayQueueFromIndex(selectedSongs, 0)
+                                        multiSelectionState?.clearSelection()
+                                    },
+                                    isStart = true,
+                                    isEnd = false,
+                                    modifier = Modifier.weight(1f)
                                 ) {
-                                    if (isInSelectionMode) {
-                                        // Selection Mode: Show Close button and selection count
-                                        FilledTonalIconButton(
-                                            onClick = {
-                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                                                multiSelectionState?.clearSelection()
-                                            },
-                                            shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                                            modifier = Modifier.size(48.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = RhythmIcons.Close,
-                                                contentDescription = "Clear selection"
-                                            )
-                                        }
+                                    Icon(imageVector = RhythmIcons.Play, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("Play", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                                }
 
-                                        Spacer(modifier = Modifier.width(16.dp))
-
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = "${selectedSongs.size} selected",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                                            )
-                                            Text(
-                                                text = "from ${filteredSongs.size} tracks",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                                            )
-                                        }
-                                    } else {
-                                        // Normal Mode: Show icon and track count
-                                        Surface(
-                                            modifier = Modifier.size(48.dp),
-                                            shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                                            color = MaterialTheme.colorScheme.primary,
-                                            shadowElevation = 0.dp
-                                        ) {
-                                            Box(contentAlignment = Alignment.Center) {
-                                                Icon(
-                                                    imageVector = RhythmIcons.Relax,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.width(16.dp))
-
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = context.getString(R.string.library_your_music),
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                                            )
-                                            Text(
-                                                text = "${filteredSongs.size} of ${preparedSongs.size} tracks",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                                            )
-                                        }
-
-                                        // Expressive Shuffle Button with modern design
-                                        if (filteredSongs.isNotEmpty()) {
-                                            ExpressiveFilledIconButton(
-                                                onClick = {
-                                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                                    onShuffleQueue(filteredSongs)
-                                                },
-                                                modifier = Modifier.size(44.dp),
-                                                shape = ExpressiveShapes.SquircleMedium,
-                                                colors = IconButtonDefaults.filledIconButtonColors(
-                                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                                                )
-                                            ) {
-                                                Icon(
-                                                    imageVector = RhythmIcons.Shuffle,
-                                                    contentDescription = context.getString(R.string.cd_shuffle),
-                                                    modifier = Modifier.size(22.dp)
-                                                )
-                                            }
-                                        }
-                                    }
+                                ExpressiveGroupButton(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                        onShuffleQueue(selectedSongs)
+                                        multiSelectionState?.clearSelection()
+                                    },
+                                    isStart = false,
+                                    isEnd = true
+                                ) {
+                                    Icon(imageVector = RhythmIcons.Shuffle, contentDescription = "Shuffle selected", modifier = Modifier.size(20.dp))
                                 }
                             }
+
+                            FilledTonalIconButton(
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                    val allAreLiked = selectedSongs.all { favoriteSongs.contains(it.id) }
+                                    selectedSongs.forEach { onToggleFavorite(it) }
+                                    val msg = if (allAreLiked) "Removed ${selectedSongs.size} from favorites" else "Added ${selectedSongs.size} to favorites"
+                                    android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                val allAreLiked = selectedSongs.all { favoriteSongs.contains(it.id) }
+                                Icon(
+                                    imageVector = if (allAreLiked) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
+                                    contentDescription = if (allAreLiked) "Unlike all" else "Like all",
+                                    tint = if (allAreLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSecondaryContainer
+                                )
                             }
-                            
-                            // Selection Mode Actions: Show ExpressiveButtonGroup with quick actions
-                            if (isSelectionMode && selectedSongs.isNotEmpty()) {
-                                // Quick Actions using ExpressiveButtonGroup
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+
+                            FilledTonalIconButton(
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                    onShowMultiSelectionSheet()
+                                },
+                                modifier = Modifier.size(44.dp)
+                            ) {
+                                Icon(imageVector = RhythmIcons.More, contentDescription = "More actions")
+                            }
+                        }
+                    } else {
+                        ExpressiveSectionHeader(
+                            title = context.getString(R.string.library_your_music),
+                            countText = "${filteredSongs.size} of ${preparedSongs.size} tracks",
+                            icon = RhythmIcons.Relax,
+                            countIcon = RhythmIcons.MusicNote
+                        ) {
+                            if (filteredSongs.isNotEmpty()) {
+                                ExpressiveFilledIconButton(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                        onShuffleQueue(filteredSongs)
+                                    },
+                                    modifier = Modifier.size(56.dp),
+                                    shape = ExpressiveShapes.SquircleMedium,
+                                    colors = IconButtonDefaults.filledIconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
                                 ) {
-                                    // Primary action - Play
-                                    ExpressiveButtonGroup(
-                                        modifier = Modifier.weight(1f),
-                                        style = ButtonGroupStyle.Filled
-                                    ) {
-                                        ExpressiveGroupButton(
-                                            onClick = {
-                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                                                // Play all selected
-                                                onPlayQueueFromIndex(selectedSongs, 0)
-                                                multiSelectionState?.clearSelection()
-                                            },
-                                            isStart = true,
-                                            isEnd = false,
-                                            modifier = Modifier.weight(1f)
-                                        ) {
-                                            Icon(
-                                                imageVector = RhythmIcons.Play,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(Modifier.width(4.dp))
-                                            Text(
-                                                text = "Play",
-                                                style = MaterialTheme.typography.labelMedium,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        }
-                                        
-                                        ExpressiveGroupButton(
-                                            onClick = {
-                                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                                                // Shuffle all selected
-                                                onShuffleQueue(selectedSongs)
-                                                multiSelectionState?.clearSelection()
-                                            },
-                                            isStart = false,
-                                            isEnd = true
-                                        ) {
-                                            Icon(
-                                                imageVector = RhythmIcons.Shuffle,
-                                                contentDescription = "Shuffle selected",
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    }
-                                    
-                                    // Secondary actions
-                                    FilledTonalIconButton(
-                                        onClick = {
-                                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                                            // Toggle favorite for all
-                                            val allAreLiked = selectedSongs.all { favoriteSongs.contains(it.id) }
-                                            selectedSongs.forEach { onToggleFavorite(it) }
-                                            if (allAreLiked) {
-                                                Toast.makeText(context, "Removed ${selectedSongs.size} from favorites", Toast.LENGTH_SHORT).show()
-                                            } else {
-                                                Toast.makeText(context, "Added ${selectedSongs.size} to favorites", Toast.LENGTH_SHORT).show()
-                                            }
-                                        },
-                                        modifier = Modifier.size(48.dp)
-                                    ) {
-                                        val allAreLiked = selectedSongs.all { favoriteSongs.contains(it.id) }
-                                        Icon(
-                                            imageVector = if (allAreLiked) RhythmIcons.FavoriteFilled else RhythmIcons.Favorite,
-                                            contentDescription = if (allAreLiked) "Unlike all" else "Like all",
-                                            tint = if (allAreLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSecondaryContainer
-                                        )
-                                    }
-                                    
-                                    FilledTonalIconButton(
-                                        onClick = {
-                                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                                            onShowMultiSelectionSheet()
-                                        },
-                                        modifier = Modifier.size(48.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = RhythmIcons.More,
-                                            contentDescription = "More actions"
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = RhythmIcons.Shuffle,
+                                        contentDescription = context.getString(R.string.cd_shuffle),
+                                        modifier = Modifier.size(24.dp)
+                                    )
                                 }
                             }
                         }
+                    }
+                }
             }
 
-            // Sticky Filter Chips
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             if (categories.size > 1) {
                 stickyHeader {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.surfaceContainer
+                            color = Color.Transparent
                         ) {
                             LazyRow(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                contentPadding = PaddingValues(horizontal = 28.dp, vertical = 8.dp),
+                                contentPadding = PaddingValues(horizontal = 5.dp, vertical = 4.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 items(
@@ -2550,11 +2272,9 @@ fun SingleCardSongsContent(
                                 ) { category ->
                                     val isSelected = selectedCategory == category
                                     
-                                    // Add TabAnimation-like effects for filter chips
                                     val scaleAnimatable = remember { Animatable(1f) }
                                     val offsetAnimatable = remember { Animatable(0f) }
                                     
-                                    // Pop animation for selected filter
                                     LaunchedEffect(isSelected) {
                                         if (isSelected) {
                                             launch {
@@ -2566,14 +2286,13 @@ fun SingleCardSongsContent(
                                         }
                                     }
                                     
-                                    // Offset animation for neighboring filters
                                     LaunchedEffect(selectedCategory) {
                                         if (!isSelected && selectedCategory != null) {
                                             val currentIndex = categories.indexOf(category)
                                             val selectedIndex = categories.indexOf(selectedCategory)
                                             if (currentIndex >= 0 && selectedIndex >= 0) {
                                                 val distance = currentIndex - selectedIndex
-                                                if (abs(distance) == 1) { // Only affect direct neighbors
+                                                if (abs(distance) == 1) {
                                                     val direction = if (distance > 0) 1 else -1
                                                     val offsetValue = 8f * direction
                                                     launch {
@@ -2667,12 +2386,11 @@ fun SingleCardSongsContent(
                     }
                 }
 
-            // Songs Items
-            items(
+            itemsIndexed(
                 items = filteredSongs,
-                key = { "song_${it.id}_${it.uri}" },
-                contentType = { "song" }
-            ) { song ->
+                key = { _, song -> "song_${song.id}_${song.uri}" },
+                contentType = { _, _ -> "song" }
+            ) { index, song ->
                     AnimateIn(modifier = Modifier.animateItem()) {
                         val isSelected = selectedSongIds.contains(song.id)
                         val selectionIndex = multiSelectionState?.getSelectionIndex(song.id)
@@ -2681,10 +2399,8 @@ fun SingleCardSongsContent(
                             song = song,
                             onClick = {
                                 if (isSelectionMode) {
-                                    // In selection mode, tap toggles selection
                                     onSongSelectionToggle(song)
                                 } else {
-                                    // Normal mode - play from this position
                                     val songIndex = filteredSongs.indexOf(song)
                                     if (songIndex >= 0) {
                                         onPlayQueueFromIndex(filteredSongs, songIndex)
@@ -2699,9 +2415,7 @@ fun SingleCardSongsContent(
                             onToggleFavorite = { onToggleFavorite(song) },
                             isFavorite = favoriteSongs.contains(song.id),
                             onGoToArtist = { 
-                                // Find the artist from the list - respect groupByAlbumArtist setting
                                 val artist = if (groupByAlbumArtist) {
-                                    // When grouping by album artist, match split albumArtist (with split track fallback).
                                     val explicitAlbumArtist = song.albumArtist?.trim().orEmpty()
                                     val songArtistNames = if (explicitAlbumArtist.isNotBlank() && !explicitAlbumArtist.equals("<unknown>", ignoreCase = true)) {
                                         splitArtistNames(explicitAlbumArtist)
@@ -2712,7 +2426,6 @@ fun SingleCardSongsContent(
                                         songArtistNames.any { it.equals(artist.name, ignoreCase = true) }
                                     }
                                 } else {
-                                    // When not grouping, check if any split artist name matches
                                     val songArtistNames = splitArtistNames(song.artist)
                                     artists.find { artist ->
                                         songArtistNames.any { it.equals(artist.name, ignoreCase = true) }
@@ -2721,7 +2434,6 @@ fun SingleCardSongsContent(
                                 artist?.let { onGoToArtist(it) }
                             },
                             onGoToAlbum = { 
-                                // Find the album from the list
                                 val album = albums.find { 
                                     it.title.equals(song.album, ignoreCase = true) && 
                                     it.artist.equals(song.artist, ignoreCase = true)
@@ -2734,6 +2446,7 @@ fun SingleCardSongsContent(
                         isPlaying = isPlaying,
                         haptics = haptics,
                         enableRatingSystem = enableRatingSystem,
+                        itemShape = groupedLibraryItemShape(index, filteredSongs.size),
                         isSelected = isSelected,
                         isSelectionMode = isSelectionMode,
                         selectionIndex = selectionIndex,
@@ -2768,15 +2481,12 @@ fun SingleCardPlaylistsContent(
         LibraryPlaylistSortOrder.NAME_ASC
     }
     
-    // Loading state for initial render
     var isLoading by remember { mutableStateOf(true) }
     var preparedPlaylists by remember { mutableStateOf(playlists) }
     
-    // Prepare and sort playlists asynchronously to avoid blocking UI on tab switch
     LaunchedEffect(playlists, playlistSortOrder) {
         isLoading = true
         preparedPlaylists = withContext(Dispatchers.Default) {
-            // Sort playlists based on selected order
             when (playlistSortOrder) {
                 LibraryPlaylistSortOrder.NAME_ASC -> playlists.sortedBy { it.name.lowercase() }
                 LibraryPlaylistSortOrder.NAME_DESC -> playlists.sortedByDescending { it.name.lowercase() }
@@ -2789,7 +2499,6 @@ fun SingleCardPlaylistsContent(
         isLoading = false
     }
     
-    // Show loading indicator while preparing
     if (isLoading && preparedPlaylists.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -2826,71 +2535,23 @@ fun SingleCardPlaylistsContent(
                 contentPadding = PaddingValues(
                     start = 16.dp,
                     end = 16.dp,
-                    bottom = 16.dp // Simple spacing - Scaffold handles rest
+                    bottom = 16.dp
                 ),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Sticky Section Header
-                item(span = { GridItemSpan(2) }) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(20.dp)
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(48.dp),
-                                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                                color = MaterialTheme.colorScheme.primary,
-                                shadowElevation = 0.dp
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = RhythmIcons.PlaylistFilled,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.library_your_playlists),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    text = "${preparedPlaylists.size} ${if (preparedPlaylists.size == 1) "playlist" else "playlists"}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                                )
-                            }
-
-                            Surface(
-                                modifier = Modifier
-                                    .height(2.dp)
-                                    .width(60.dp),
-                                shape = RoundedCornerShape(1.dp),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
-                            ) {}
-                        }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column {
+                        ExpressiveSectionHeader(
+                            title = context.getString(R.string.library_your_playlists),
+                            countText = "${preparedPlaylists.size} ${if (preparedPlaylists.size == 1) "playlist" else "playlists"}",
+                            icon = RhythmIcons.PlaylistFilled,
+                            countIcon = RhythmIcons.MusicNote
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
                 
-                // Playlist Grid Items
                 items(
                     items = preparedPlaylists,
                     key = { it.id },
@@ -2909,69 +2570,24 @@ fun SingleCardPlaylistsContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                bottom = 16.dp // Simple spacing - Scaffold handles rest
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // Section Header (not sticky in list view)
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(20.dp)
-                    ) {
-                        Surface(
-                            modifier = Modifier.size(48.dp),
-                            shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                            color = MaterialTheme.colorScheme.primary,
-                            shadowElevation = 0.dp
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = RhythmIcons.PlaylistFilled,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Column (modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = context.getString(R.string.library_your_playlists),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            Text(
-                                text = "${preparedPlaylists.size} ${if (preparedPlaylists.size == 1) "playlist" else "playlists"}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                            )
-                        }
-                        Surface(
-                                modifier = Modifier
-                                    .height(2.dp)
-                                    .width(60.dp),
-                                shape = RoundedCornerShape(1.dp),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
-                        ) {}
-                    }
+                Column {
+                    ExpressiveSectionHeader(
+                        title = context.getString(R.string.library_your_playlists),
+                        countText = "${preparedPlaylists.size} ${if (preparedPlaylists.size == 1) "playlist" else "playlists"}",
+                        icon = RhythmIcons.PlaylistFilled,
+                        countIcon = RhythmIcons.MusicNote
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
 
-            // Playlist Items
             itemsIndexed(
                 items = preparedPlaylists,
                 key = { _, playlist -> playlist.id },
@@ -3006,21 +2622,17 @@ fun SingleCardAlbumsContent(
     val context = LocalContext.current
     val albumViewType by appSettings.albumViewType.collectAsState()
     
-    // Loading state for initial render
     var isLoading by remember { mutableStateOf(true) }
     var preparedAlbums by remember { mutableStateOf(albums) }
     
-    // Prepare albums asynchronously to avoid blocking UI on tab switch
     LaunchedEffect(albums) {
         isLoading = true
         preparedAlbums = withContext(Dispatchers.Default) {
-            // Pre-process albums (sorting, etc.) in background
             albums.toList()
         }
         isLoading = false
     }
     
-    // Show loading indicator while preparing
     if (isLoading && preparedAlbums.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -3050,81 +2662,37 @@ fun SingleCardAlbumsContent(
             onRefresh = onRefreshClick
         )
     } else {
-                        if (albumViewType == AlbumViewType.GRID) {
+        if (albumViewType == AlbumViewType.GRID) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp,
                     end = 16.dp,
-                    bottom = 16.dp // Simple spacing - Scaffold handles rest
+                    bottom = 16.dp
                 ),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Sticky Section Header
-                item(span = { GridItemSpan(2) }) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(20.dp)
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column {
+                        ExpressiveSectionHeader(
+                            title = context.getString(R.string.library_your_albums),
+                            countText = "${preparedAlbums.size} ${if (preparedAlbums.size == 1) "album" else "albums"}",
+                            icon = RhythmIcons.Music.Album,
+                            countIcon = RhythmIcons.Album
                         ) {
-                            Surface(
-                                modifier = Modifier.size(48.dp),
-                                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                                color = MaterialTheme.colorScheme.primary,
-                                shadowElevation = 0.dp
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = RhythmIcons.Music.Album,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.library_your_albums),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    text = "${preparedAlbums.size} ${if (preparedAlbums.size == 1) "album" else "albums"}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(0.1f))
-
-                            // Expressive Shuffle Button
                             if (preparedAlbums.isNotEmpty()) {
                                 ExpressiveFilledIconButton(
                                     onClick = {
                                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                        // Shuffle album order but keep each album's songs in their correct order
                                         val shuffledAlbums = preparedAlbums.shuffled()
                                         val allSongs = shuffledAlbums.flatMap { it.songs }
                                         if (allSongs.isNotEmpty()) {
                                             onPlayQueue(allSongs)
                                         }
                                     },
-                                    modifier = Modifier.size(44.dp),
+                                    modifier = Modifier.size(56.dp),
                                     shape = ExpressiveShapes.SquircleMedium,
                                     colors = IconButtonDefaults.filledIconButtonColors(
                                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -3134,13 +2702,14 @@ fun SingleCardAlbumsContent(
                                     Icon(
                                         imageVector = RhythmIcons.Shuffle,
                                         contentDescription = context.getString(R.string.cd_shuffle),
-                                        modifier = Modifier.size(22.dp)
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                             }
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
-                }                // Album Grid Items
+                }
                 items(
                     items = preparedAlbums,
                     key = { it.id },
@@ -3160,77 +2729,31 @@ fun SingleCardAlbumsContent(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    bottom = 16.dp // Simple spacing - Scaffold handles rest
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
                 ),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                // Section Header (not sticky in list view)
                 item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(20.dp)
+                    Column {
+                        ExpressiveSectionHeader(
+                            title = context.getString(R.string.library_your_albums),
+                            countText = "${preparedAlbums.size} ${if (preparedAlbums.size == 1) "album" else "albums"}",
+                            icon = RhythmIcons.Music.Album,
+                            countIcon = RhythmIcons.Album
                         ) {
-                            Surface(
-                                modifier = Modifier.size(48.dp),
-                                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                                color = MaterialTheme.colorScheme.primary,
-                                shadowElevation = 0.dp
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = RhythmIcons.Music.Album,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.library_your_albums),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    text = "${preparedAlbums.size} ${if (preparedAlbums.size == 1) "album" else "albums"}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(0.1f))
-
-                            // Expressive Shuffle Button
                             if (preparedAlbums.isNotEmpty()) {
                                 ExpressiveFilledIconButton(
                                     onClick = {
-                                        HapticUtils.performHapticFeedback(
-                                            context,
-                                            haptics,
-                                            HapticFeedbackType.LongPress
-                                        )
-                                        // Shuffle album order but keep each album's songs in their correct order
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                                         val shuffledAlbums = preparedAlbums.shuffled()
                                         val allSongs = shuffledAlbums.flatMap { it.songs }
                                         if (allSongs.isNotEmpty()) {
                                             onPlayQueue(allSongs)
                                         }
                                     },
-                                    modifier = Modifier.size(44.dp),
+                                    modifier = Modifier.size(56.dp),
                                     shape = ExpressiveShapes.SquircleMedium,
                                     colors = IconButtonDefaults.filledIconButtonColors(
                                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -3240,15 +2763,15 @@ fun SingleCardAlbumsContent(
                                     Icon(
                                         imageVector = RhythmIcons.Shuffle,
                                         contentDescription = context.getString(R.string.cd_shuffle),
-                                        modifier = Modifier.size(22.dp)
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                             }
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
 
-                // Album List Items
                 itemsIndexed(
                     items = preparedAlbums,
                     key = { _, album -> album.id },
@@ -3289,23 +2812,22 @@ fun PlaylistsTab(
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            // Enhanced Playlists Section Header (Sticky)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 6.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+                    containerColor = Color.Transparent
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(20.dp)
+                    modifier = Modifier.padding(vertical = 12.dp)
                 ) {
                     Surface(
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(44.dp),
                         shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
                         color = MaterialTheme.colorScheme.primary,
                         shadowElevation = 0.dp
@@ -3315,7 +2837,7 @@ fun PlaylistsTab(
                                 imageVector = RhythmIcons.PlaylistFilled,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
@@ -3327,13 +2849,13 @@ fun PlaylistsTab(
                             text = context.getString(R.string.library_your_playlists),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Text(
                             text = "${playlists.size} ${if (playlists.size == 1) "playlist" else "playlists"}",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
                     }
 
@@ -3349,18 +2871,17 @@ fun PlaylistsTab(
                 }
             }
 
-            // Scrollable Playlists List
             Surface(
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Take remaining space
+                    .weight(1f)
             ) {
                 LazyColumn(
                     contentPadding = PaddingValues(
-                        top = 8.dp, // Start below the sticky elements
-                        bottom = 16.dp // Simple spacing - Scaffold handles rest
+                        top = 8.dp,
+                        bottom = 16.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
@@ -3372,7 +2893,7 @@ fun PlaylistsTab(
                             PlaylistItem(
                                 playlist = playlist,
                                 onClick = { onPlaylistClick(playlist) },
-                                haptics = haptics // Pass haptics
+                                haptics = haptics
                             )
                         }
                     }
@@ -3388,7 +2909,7 @@ fun AlbumsTab(
     onAlbumClick: (Album) -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumBottomSheetClick: (Album) -> Unit = {},
-    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback // Add haptics parameter
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     val context = LocalContext.current
     val appSettings = remember { AppSettings.getInstance(context) }
@@ -3405,14 +2926,13 @@ fun AlbumsTab(
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            // Enhanced Albums Section Header (Sticky)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+                    containerColor = Color.Transparent
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
@@ -3454,7 +2974,6 @@ fun AlbumsTab(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // View type toggle button
                     FilledIconButton(
                         onClick = {
                             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -3486,13 +3005,12 @@ fun AlbumsTab(
                 }
             }
 
-            // Scrollable Albums Content
             Surface(
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Take remaining space
+                    .weight(1f)
             ) {
                 if (albumViewType == AlbumViewType.GRID) {
                     AlbumsGrid(
@@ -3500,15 +3018,15 @@ fun AlbumsTab(
                         onAlbumClick = { album ->
                             onAlbumBottomSheetClick(album)
                         },
-                        onAlbumPlay = onAlbumClick, // This plays the album
+                        onAlbumPlay = onAlbumClick,
                         onSongClick = onSongClick,
-                        haptics = haptics // Pass haptics
+                        haptics = haptics
                     )
                 } else {
                     LazyColumn(
                         contentPadding = PaddingValues(
-                            top = 8.dp, // Start below the sticky elements
-                            bottom = 16.dp // Simple spacing - Scaffold handles rest
+                            top = 8.dp,
+                            bottom = 16.dp
                         ),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
@@ -3519,12 +3037,11 @@ fun AlbumsTab(
                             AnimateIn {
                                 LibraryAlbumItem(
                                     album = album,
-                                    onClick = { onAlbumBottomSheetClick(album) }, // Changed to open bottom sheet
+                                    onClick = { onAlbumBottomSheetClick(album) },
                                     onPlayClick = {
-                                        // Play the entire album
                                         onAlbumClick(album)
                                     },
-                                    haptics = haptics // Pass haptics
+                                    haptics = haptics
                                 )
                             }
                         }
@@ -3548,12 +3065,11 @@ fun LibrarySongItem(
     onGoToArtist: () -> Unit = {},
     onGoToAlbum: () -> Unit = {},
     onShowSongInfo: () -> Unit,
-    onAddToBlacklist: () -> Unit, // Add blacklist callback
-    currentSong: Song? = null, // Add current song parameter
-    isPlaying: Boolean = false, // Add playing state
+    onAddToBlacklist: () -> Unit,
+    currentSong: Song? = null,
+    isPlaying: Boolean = false,
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
-    enableRatingSystem: Boolean = true, // Add rating system enabled flag
-    // Multi-selection parameters
+    enableRatingSystem: Boolean = true,
     isSelected: Boolean = false,
     isSelectionMode: Boolean = false,
     selectionIndex: Int? = null,
@@ -3562,12 +3078,10 @@ fun LibrarySongItem(
 ) {
     val context = LocalContext.current
     var showDropdown by remember { mutableStateOf(false) }
-    // Track rating state for immediate UI updates
     val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
     var currentRating by remember(song.id) { mutableStateOf(appSettings.getSongRating(song.id)) }
     val isCurrentSong = currentSong?.id == song.id
 
-    // Animated colors for text
     val titleColor by animateColorAsState(
         targetValue = if (isCurrentSong) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         animationSpec = tween(300),
@@ -3579,7 +3093,6 @@ fun LibrarySongItem(
         label = "supportingColor"
     )
 
-    // Selection animations
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.98f else 1f,
         animationSpec = spring(
@@ -3605,8 +3118,8 @@ fun LibrarySongItem(
                 text = song.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (isCurrentSong) FontWeight.Bold else FontWeight.Medium,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
                 color = titleColor
             )
         },
@@ -3617,7 +3130,7 @@ fun LibrarySongItem(
                     append(" • ")
                     append(song.album)
                 },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = supportingColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -3630,7 +3143,7 @@ fun LibrarySongItem(
                         ExpressiveShapeTarget.SONG_ART,
                         fallbackShape = MaterialTheme.shapes.large
                     ),
-                    modifier = Modifier.size(56.dp),
+                    modifier = Modifier.size(60.dp),
                     border = if (isCurrentSong && !isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
                 ) {
                     M3ImageUtils.TrackImage(
@@ -3641,11 +3154,10 @@ fun LibrarySongItem(
                     )
                 }
                 
-                // Selection check overlay on album art
                 if (isSelected) {
                     Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .size(60.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                                 shape = rememberExpressiveShapeFor(
@@ -3679,7 +3191,7 @@ fun LibrarySongItem(
                             .offset(x = 4.dp, y = 4.dp),
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primary,
-                        shadowElevation = 2.dp
+                        shadowElevation = 0.dp
                     ) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -3697,7 +3209,6 @@ fun LibrarySongItem(
             }
         },
         trailingContent = {
-            // Hide more options button in selection mode
             if (!isSelectionMode) {
                 FilledIconButton(
                     onClick = {
@@ -3705,17 +3216,18 @@ fun LibrarySongItem(
                         showDropdown = true
                     },
                     modifier = Modifier
-                        .size(width = 40.dp, height = 36.dp),
-                    shape = RoundedCornerShape(18.dp), // Pill shape like Android 16
+                        .width(32.dp)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(50),
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
                     Icon(
                         imageVector = RhythmIcons.More,
                         contentDescription = "More options",
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
@@ -3738,7 +3250,6 @@ fun LibrarySongItem(
                         showDropdown = false
                     }
                 } else {
-                // Play next
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
@@ -3778,7 +3289,6 @@ fun LibrarySongItem(
                     )
                 }
 
-                // Add to queue
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
@@ -3818,7 +3328,6 @@ fun LibrarySongItem(
                     )
                 }
 
-                // Toggle favorite
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
@@ -3859,7 +3368,6 @@ fun LibrarySongItem(
                     )
                 }
 
-                // Add to playlist
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
@@ -3899,89 +3407,8 @@ fun LibrarySongItem(
                     )
                 }
 
-                // Go to artist
-                // Surface(
-                //     color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                //     shape = RoundedCornerShape(12.dp),
-                //     modifier = Modifier
-                //         .fillMaxWidth()
-                //         .padding(horizontal = 8.dp, vertical = 2.dp)
-                // ) {
-                //     DropdownMenuItem(
-                //         text = {
-                //             Text(
-                //                 "Go to artist",
-                //                 style = MaterialTheme.typography.bodyMedium,
-                //                 fontWeight = FontWeight.Medium,
-                //                 color = MaterialTheme.colorScheme.onSurface
-                //             )
-                //         },
-                //         leadingIcon = {
-                //             Surface(
-                //                 color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                //                 shape = CircleShape,
-                //                 modifier = Modifier.size(32.dp)
-                //             ) {
-                //                 Icon(
-                //                     imageVector = RhythmIcons.ArtistFilled,
-                //                     contentDescription = null,
-                //                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                //                     modifier = Modifier
-                //                         .fillMaxSize()
-                //                         .padding(6.dp)
-                //                 )
-                //             }
-                //         },
-                //         onClick = {
-                //             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                //             showDropdown = false
-                //             onGoToArtist()
-                //         }
-                //     )
-                // }
 
-                // Go to album
-                // Surface(
-                //     color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                //     shape = RoundedCornerShape(12.dp),
-                //     modifier = Modifier
-                //         .fillMaxWidth()
-                //         .padding(horizontal = 8.dp, vertical = 2.dp)
-                // ) {
-                //     DropdownMenuItem(
-                //         text = {
-                //             Text(
-                //                 "Go to album",
-                //                 style = MaterialTheme.typography.bodyMedium,
-                //                 fontWeight = FontWeight.Medium,
-                //                 color = MaterialTheme.colorScheme.onSurface
-                //             )
-                //         },
-                //         leadingIcon = {
-                //             Surface(
-                //                 color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                //                 shape = CircleShape,
-                //                 modifier = Modifier.size(32.dp)
-                //             ) {
-                //                 Icon(
-                //                     imageVector = RhythmIcons.AlbumFilled,
-                //                     contentDescription = null,
-                //                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                //                     modifier = Modifier
-                //                         .fillMaxSize()
-                //                         .padding(6.dp)
-                //                 )
-                //             }
-                //         },
-                //         onClick = {
-                //             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                //             showDropdown = false
-                //             onGoToAlbum()
-                //         }
-                //     )
-                // }
 
-                // Rate song - only show if rating system is enabled
                 if (enableRatingSystem) {
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceContainer,
@@ -4031,7 +3458,7 @@ fun LibrarySongItem(
                                 rating = currentRating,
                                 onRatingChanged = { newRating ->
                                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                    currentRating = newRating  // Update UI immediately
+                                    currentRating = newRating
                                     appSettings.setSongRating(song.id, newRating)
                                     if (newRating > 0 && !isFavorite) {
                                         onToggleFavorite()
@@ -4044,7 +3471,6 @@ fun LibrarySongItem(
                     }
                 }
 
-                // Song info
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
@@ -4085,7 +3511,6 @@ fun LibrarySongItem(
                     )
                 }
 
-                // Add to blacklist
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
@@ -4133,12 +3558,10 @@ fun LibrarySongItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 72.dp)
     )
 }
 
-/**
- * Wrapper composable for LibrarySongItem with rounded corners and border for active song
- */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LibrarySongItemWrapper(
@@ -4157,8 +3580,8 @@ fun LibrarySongItemWrapper(
     isPlaying: Boolean = false,
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
     enableRatingSystem: Boolean = true,
-    itemShape: RoundedCornerShape = RoundedCornerShape(12.dp),
-    // Multi-selection parameters
+    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp),
+    horizontalPadding: androidx.compose.ui.unit.Dp = 0.dp,
     isSelected: Boolean = false,
     isSelectionMode: Boolean = false,
     selectionIndex: Int? = null,
@@ -4168,7 +3591,6 @@ fun LibrarySongItemWrapper(
     val context = LocalContext.current
     val isCurrentSong = currentSong?.id == song.id
     
-    // Selection animations
     val selectionScale by animateFloatAsState(
         targetValue = if (isSelected) 0.98f else 1f,
         animationSpec = spring(
@@ -4178,12 +3600,11 @@ fun LibrarySongItemWrapper(
         label = "selectionScaleAnimation"
     )
     
-    // Animated colors
     val containerColor by animateColorAsState(
         targetValue = when {
-            isSelected -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
+            isSelected -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
             isCurrentSong -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
-            else -> Color.Transparent
+            else -> MaterialTheme.colorScheme.surfaceContainer
         },
         animationSpec = tween(300),
         label = "containerColor"
@@ -4192,7 +3613,7 @@ fun LibrarySongItemWrapper(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = horizontalPadding, vertical = 2.dp)
             .graphicsLayer {
                 scaleX = selectionScale
                 scaleY = selectionScale
@@ -4208,11 +3629,13 @@ fun LibrarySongItemWrapper(
                 }
             ),
         shape = itemShape,
-        color = containerColor
+            color = containerColor,
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp
     ) {
         LibrarySongItem(
             song = song,
-            onClick = {}, // Click handled by combinedClickable
+            onClick = {},
             onMoreClick = onMoreClick,
             onAddToQueue = onAddToQueue,
             onPlayNext = onPlayNext,
@@ -4241,11 +3664,11 @@ fun PlaylistItem(
     playlist: Playlist,
     onClick: () -> Unit,
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
-    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp)
+    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp),
+    horizontalPadding: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     val context = LocalContext.current
     
-    // Get unique album arts from playlist songs (up to 4)
     val albumArts = remember(playlist.songs) {
         playlist.songs
             .distinctBy { it.albumId }
@@ -4259,9 +3682,9 @@ fun PlaylistItem(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp),
+            .padding(horizontal = horizontalPadding, vertical = 2.dp),
         shape = itemShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 2.dp,
         shadowElevation = 0.dp
     ) {
@@ -4271,7 +3694,6 @@ fun PlaylistItem(
                 .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Stylish playlist artwork with collage
             Surface(
                 modifier = Modifier.size(72.dp),
                 shape = rememberExpressiveShapeFor(
@@ -4287,20 +3709,17 @@ fun PlaylistItem(
                     contentAlignment = Alignment.Center
                 ) {
                     if (playlist.artworkUri != null) {
-                        // Use custom playlist artwork if available
                         M3ImageUtils.PlaylistImage(
                             imageUrl = playlist.artworkUri,
                             playlistName = playlist.name,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else if (albumArts.isNotEmpty()) {
-                        // Create collage from album arts
                         PlaylistArtCollage(
                             songs = albumArts,
                             playlistName = playlist.name
                         )
                     } else {
-                        // Fallback to playlist icon with solid background (matching artwork corner radius)
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -4320,7 +3739,6 @@ fun PlaylistItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Playlist info with better typography
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -4339,9 +3757,8 @@ fun PlaylistItem(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Enhanced metadata display with pill shape
                     Surface(
-                        shape = RoundedCornerShape(50), // Pill shape
+                        shape = RoundedCornerShape(50),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Row(
@@ -4376,7 +3793,7 @@ fun PlaylistItem(
                         }
 
                         Surface(
-                            shape = RoundedCornerShape(50), // Pill shape
+                            shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
                         ) {
                             Row(
@@ -4402,7 +3819,6 @@ fun PlaylistItem(
                 }
             }
 
-            // Stylish forward arrow with animation hint
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = CircleShape,
@@ -4450,7 +3866,6 @@ fun PlaylistArtCollage(
 ) {
     when (songs.size) {
         1 -> {
-            // Single album art
             M3ImageUtils.AlbumArt(
                 imageUrl = songs[0].artworkUri,
                 albumName = songs[0].album,
@@ -4460,7 +3875,6 @@ fun PlaylistArtCollage(
             )
         }
         2 -> {
-            // Two album arts side by side
             Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                 Box(modifier = Modifier
                     .weight(1f)
@@ -4487,7 +3901,6 @@ fun PlaylistArtCollage(
             }
         }
         3 -> {
-            // Three album arts: one large on left, two stacked on right
             Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                 Box(modifier = Modifier
                     .weight(1f)
@@ -4529,7 +3942,6 @@ fun PlaylistArtCollage(
             }
         }
         else -> {
-            // Four album arts in a 2x2 grid
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
                 Row(modifier = Modifier
                     .weight(1f)
@@ -4595,7 +4007,8 @@ fun LibraryAlbumItem(
     onClick: () -> Unit,
     onPlayClick: () -> Unit = {},
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback,
-    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp)
+    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp),
+    horizontalPadding: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     val context = LocalContext.current
     val artworkShape = rememberExpressiveShapeFor(
@@ -4610,9 +4023,9 @@ fun LibraryAlbumItem(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+            .padding(horizontal = horizontalPadding, vertical = 2.dp),
         shape = itemShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
@@ -4622,7 +4035,6 @@ fun LibraryAlbumItem(
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Enhanced album artwork
             Surface(
                 modifier = Modifier.size(68.dp),
                 shape = artworkShape,
@@ -4658,11 +4070,10 @@ fun LibraryAlbumItem(
             
             Spacer(modifier = Modifier.width(18.dp))
             
-            // Enhanced album info
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp) // Add padding to prevent text from being cut off
+                    .padding(end = 8.dp)
             ) {
                 Text(
                     text = album.title,
@@ -4673,7 +4084,7 @@ fun LibraryAlbumItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 
-                Spacer(modifier = Modifier.height(6.dp)) // Increase spacing
+                Spacer(modifier = Modifier.height(6.dp))
                 
                 Text(
                     text = album.artist,
@@ -4683,15 +4094,14 @@ fun LibraryAlbumItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 
-                Spacer(modifier = Modifier.height(4.dp)) // Increase spacing
+                Spacer(modifier = Modifier.height(4.dp))
                 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Song count pill
                     Surface(
-                        shape = RoundedCornerShape(50), // Pill shape
+                        shape = RoundedCornerShape(50),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Row(
@@ -4714,10 +4124,9 @@ fun LibraryAlbumItem(
                         }
                     }
 
-                    // Year pill
                     if (album.year > 0) {
                         Surface(
-                            shape = RoundedCornerShape(50), // Pill shape
+                            shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
                         ) {
                             Row(
@@ -4743,7 +4152,6 @@ fun LibraryAlbumItem(
                 }
             }
             
-            // Enhanced play button
             FilledIconButton(
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -4809,7 +4217,6 @@ fun EmptyState(
                     label = "alphaAnimation"
                 )
                 
-                // Enhanced icon container with gradient background
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainer,
             shape = RoundedCornerShape(20.dp),
@@ -4922,7 +4329,7 @@ fun AlbumsGrid(
     onAlbumClick: (Album) -> Unit,
     onAlbumPlay: (Album) -> Unit,
     onSongClick: (Song) -> Unit,
-    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback // Add haptics parameter
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -4931,7 +4338,7 @@ fun AlbumsGrid(
             .padding(horizontal = 16.dp),
         contentPadding = PaddingValues(
             top = 8.dp,
-            bottom = 16.dp // Simple spacing - Scaffold handles rest
+            bottom = 16.dp
         ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -4943,9 +4350,9 @@ fun AlbumsGrid(
             AnimateIn {
                 AlbumGridItem(
                     album = album,
-                    onClick = { onAlbumClick(album) }, // Card click opens bottom sheet
-                    onPlayClick = { onAlbumPlay(album) }, // Play button plays album
-                    haptics = haptics // Pass haptics
+                    onClick = { onAlbumClick(album) },
+                    onPlayClick = { onAlbumPlay(album) },
+                    haptics = haptics
                 )
             }
         }
@@ -4971,7 +4378,7 @@ fun PlaylistGridItem(
             .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp,
@@ -4984,7 +4391,6 @@ fun PlaylistGridItem(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Playlist artwork - maintain square ratio
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -5019,7 +4425,6 @@ fun PlaylistGridItem(
             
             Spacer(modifier = Modifier.height(14.dp))
             
-            // Playlist name
             Text(
                 text = playlist.name,
                 style = MaterialTheme.typography.titleSmall,
@@ -5032,14 +4437,13 @@ fun PlaylistGridItem(
             
             Spacer(modifier = Modifier.height(6.dp))
             
-            // Song count pill
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(horizontal = 2.dp)
             ) {
                 Surface(
-                    shape = RoundedCornerShape(50), // Pill shape
+                    shape = RoundedCornerShape(50),
                     color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                 ) {
                     Row(
@@ -5073,7 +4477,7 @@ fun AlbumGridItem(
     onClick: () -> Unit,
     onPlayClick: () -> Unit = {},
     modifier: Modifier = Modifier,
-    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback // Add haptics parameter
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     val context = LocalContext.current
     
@@ -5086,7 +4490,7 @@ fun AlbumGridItem(
             .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp,
@@ -5102,7 +4506,6 @@ fun AlbumGridItem(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Album artwork - maintain square ratio
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -5143,7 +4546,6 @@ fun AlbumGridItem(
                 
                 Spacer(modifier = Modifier.height(14.dp))
                 
-                // Album title
                 Text(
                     text = album.title,
                     style = MaterialTheme.typography.titleSmall,
@@ -5156,7 +4558,6 @@ fun AlbumGridItem(
                 
                 Spacer(modifier = Modifier.height(6.dp))
                 
-                // Artist name
                 Text(
                     text = album.artist,
                     style = MaterialTheme.typography.bodySmall,
@@ -5168,15 +4569,13 @@ fun AlbumGridItem(
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 
-                // Pills row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.padding(horizontal = 2.dp)
                 ) {
-                    // Song count pill
                     Surface(
-                        shape = RoundedCornerShape(50), // Pill shape
+                        shape = RoundedCornerShape(50),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Row(
@@ -5199,10 +4598,9 @@ fun AlbumGridItem(
                         }
                     }
 
-                    // Year pill
                     if (album.year > 0) {
                         Surface(
-                            shape = RoundedCornerShape(50), // Pill shape
+                            shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
                         ) {
                             Row(
@@ -5228,7 +4626,6 @@ fun AlbumGridItem(
                 }
             }
             
-            // Play button overlay
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -5269,23 +4666,19 @@ fun SingleCardArtistsContent(
     val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
     val appSettings = remember { AppSettings.getInstance(context) }
     
-    // Get artist view type from settings
     val artistViewType by appSettings.artistViewType.collectAsState()
     
     var selectedCategory by remember { mutableStateOf("All") }
     var currentSortOption by remember { mutableStateOf(ArtistSortOption.NAME_ASC) }
     var showSortOptions by remember { mutableStateOf(false) }
     
-    // Loading state for async sorting
     var isLoading by remember { mutableStateOf(true) }
     var sortedArtists by remember { mutableStateOf(artists) }
     
-    // Define categories for artists
     val categories = remember(artists) {
         listOf("All")
     }
     
-    // Sort artists asynchronously to avoid blocking UI
     LaunchedEffect(artists, currentSortOption) {
         isLoading = true
         sortedArtists = withContext(Dispatchers.Default) {
@@ -5299,10 +4692,8 @@ fun SingleCardArtistsContent(
         isLoading = false
     }
     
-    // Determine if we should use grid or list view
     val isGridView = artistViewType == ArtistViewType.GRID
     
-    // Show loading indicator while sorting
     if (isLoading && sortedArtists.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -5325,7 +4716,6 @@ fun SingleCardArtistsContent(
         return
     }
     
-    // Check for empty state
     if (sortedArtists.isEmpty()) {
         EmptyState(
             message = "No artists yet",
@@ -5336,39 +4726,40 @@ fun SingleCardArtistsContent(
     }
     
     if (isGridView) {
-        // Grid view using LazyVerticalGrid as main container
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
+                start = 16.dp,
+                end = 16.dp,
                 top = 0.dp,
-                bottom = 16.dp // Simple spacing - Scaffold handles rest
+                bottom = 16.dp
             ),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Sticky header for grid view
             item(span = { GridItemSpan(maxLineSpan) }) {
-                ArtistSectionHeader(
-                    artistCount = sortedArtists.size,
-                    artists = sortedArtists,
-                    applyOuterHorizontalPadding = false,
-                    onPlayAll = {
-                        val allSongs = sortedArtists.flatMap { it.songs }
-                        if (allSongs.isNotEmpty()) {
-                            onPlayQueue(allSongs)
-                        }
-                    },
-                    onShuffleAll = {
-                        val allSongs = sortedArtists.flatMap { it.songs }
-                        if (allSongs.isNotEmpty()) {
-                            onShuffleQueue(allSongs)
-                        }
-                    },
-                    haptics = haptics
-                )
+                Column {
+                    ArtistSectionHeader(
+                        artistCount = sortedArtists.size,
+                        artists = sortedArtists,
+                        applyOuterHorizontalPadding = false,
+                        onPlayAll = {
+                            val allSongs = sortedArtists.flatMap { it.songs }
+                            if (allSongs.isNotEmpty()) {
+                                onPlayQueue(allSongs)
+                            }
+                        },
+                        onShuffleAll = {
+                            val allSongs = sortedArtists.flatMap { it.songs }
+                            if (allSongs.isNotEmpty()) {
+                                onShuffleQueue(allSongs)
+                            }
+                        },
+                        haptics = haptics
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
             
             if (sortedArtists.isNotEmpty()) {
@@ -5400,33 +4791,36 @@ fun SingleCardArtistsContent(
             }
         }
     } else {
-        // List view using LazyColumn as main container
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                bottom = 16.dp // Simple spacing - Scaffold handles rest
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // Section header (not sticky in list view)
             item {
-                ArtistSectionHeader(
-                    artistCount = sortedArtists.size,
-                    artists = sortedArtists,
-                    onPlayAll = {
-                        val allSongs = sortedArtists.flatMap { it.songs }
-                        if (allSongs.isNotEmpty()) {
-                            onPlayQueue(allSongs)
-                        }
-                    },
-                    onShuffleAll = {
-                        val allSongs = sortedArtists.flatMap { it.songs }
-                        if (allSongs.isNotEmpty()) {
-                            onShuffleQueue(allSongs)
-                        }
-                    },
-                    haptics = haptics
-                )
+                Column {
+                    ArtistSectionHeader(
+                        artistCount = sortedArtists.size,
+                        artists = sortedArtists,
+                        onPlayAll = {
+                            val allSongs = sortedArtists.flatMap { it.songs }
+                            if (allSongs.isNotEmpty()) {
+                                onPlayQueue(allSongs)
+                            }
+                        },
+                        onShuffleAll = {
+                            val allSongs = sortedArtists.flatMap { it.songs }
+                            if (allSongs.isNotEmpty()) {
+                                onShuffleQueue(allSongs)
+                            }
+                        },
+                        haptics = haptics
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
             
             if (sortedArtists.isNotEmpty()) {
@@ -5454,7 +4848,6 @@ fun SingleCardArtistsContent(
         }
     }
 
-    // Sort options bottom sheet
     if (showSortOptions) {
         ModalBottomSheet(
             onDismissRequest = { showSortOptions = false },
@@ -5508,7 +4901,6 @@ fun SingleCardArtistsContent(
         }
     }
 }
-
 @Composable
 private fun ArtistSectionHeader(
     artistCount: Int,
@@ -5519,62 +4911,41 @@ private fun ArtistSectionHeader(
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback? = null
 ) {
     val context = LocalContext.current
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = if (applyOuterHorizontalPadding) 20.dp else 0.dp,
-                vertical = 8.dp
-            ),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+
+    ExpressiveSectionHeader(
+
+/**
+ * Shared expressive header used across library sections for a title, count badge, and trailing actions.
+ */
+        title = context.getString(R.string.library_your_artists),
+
+/**
+ * Artist-specific wrapper around the shared section header with shuffle actions when artists are available.
+ */
+        countText = "$artistCount ${if (artistCount == 1) "artist" else "artists"}",
+        icon = RhythmIcons.Artist,
+        countIcon = RhythmIcons.ArtistFilled,
+        modifier = if (!applyOuterHorizontalPadding) Modifier.padding(horizontal = 0.dp) else Modifier
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                color = MaterialTheme.colorScheme.primary,
-                shadowElevation = 0.dp
+        if (artists.isNotEmpty() && haptics != null) {
+            ExpressiveFilledIconButton(
+                onClick = {
+                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                    onShuffleAll()
+                },
+                modifier = Modifier.size(56.dp),
+                shape = ExpressiveShapes.SquircleMedium,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = RhythmIcons.Artist,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = context.getString(R.string.library_your_artists),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Text(
-                    text = "$artistCount ${if (artistCount == 1) "artist" else "artists"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                Icon(
+                    imageVector = RhythmIcons.Shuffle,
+                    contentDescription = "Shuffle Artists",
+                    modifier = Modifier.size(24.dp)
                 )
             }
-            Surface(
-                modifier = Modifier
-                .height(2.dp)
-                .width(60.dp),
-                shape = RoundedCornerShape(1.dp),
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
-            ) {}
         }
     }
 }
@@ -5601,7 +4972,7 @@ private fun ArtistGridCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(
@@ -5615,7 +4986,6 @@ private fun ArtistGridCard(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Artist image with expressive shape container
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -5643,7 +5013,6 @@ private fun ArtistGridCard(
                         applyExpressiveShape = false
                     )
                     
-                    // Play button overlay positioned at bottom right
                     Surface(
                         onClick = onPlayClick,
                         shape = CircleShape,
@@ -5677,7 +5046,6 @@ private fun ArtistGridCard(
                     .fillMaxWidth()
                     .height(60.dp)
             ) {
-                // Artist name
                 Text(
                     text = artist.name,
                     style = MaterialTheme.typography.bodyMedium,
@@ -5691,15 +5059,13 @@ private fun ArtistGridCard(
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                // Artist info row with pills (centered)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Track count pill
                     Surface(
-                        shape = RoundedCornerShape(50), // Pill shape
+                        shape = RoundedCornerShape(50),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Row(
@@ -5722,10 +5088,9 @@ private fun ArtistGridCard(
                         }
                     }
                     
-                    // Album count pill
                     if (artist.numberOfAlbums > 0) {
                         Surface(
-                            shape = RoundedCornerShape(50), // Pill shape
+                            shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
                         ) {
                             Row(
@@ -5761,15 +5126,16 @@ private fun ArtistListCard(
     onClick: () -> Unit,
     onPlayClick: () -> Unit,
     modifier: Modifier = Modifier,
-    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp)
+    itemShape: RoundedCornerShape = RoundedCornerShape(20.dp),
+    horizontalPadding: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     Surface(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+            .padding(horizontal = horizontalPadding, vertical = 2.dp),
         shape = itemShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
@@ -5779,7 +5145,6 @@ private fun ArtistListCard(
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Artist image with expressive shape
             M3ImageUtils.ArtistImage(
                 imageUrl = artist.artworkUri,
                 artistName = artist.name,
@@ -5794,7 +5159,6 @@ private fun ArtistListCard(
                     .weight(1f)
                     .padding(end = 8.dp)
             ) {
-                // Artist name
                 Text(
                     text = artist.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -5806,14 +5170,12 @@ private fun ArtistListCard(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Artist info with pills
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Track count pill
                     Surface(
-                        shape = RoundedCornerShape(50), // Pill shape
+                        shape = RoundedCornerShape(50),
                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     ) {
                         Row(
@@ -5836,10 +5198,9 @@ private fun ArtistListCard(
                         }
                     }
 
-                    // Album count pill
                     if (artist.numberOfAlbums > 0) {
                         Surface(
-                            shape = RoundedCornerShape(50), // Pill shape
+                            shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
                         ) {
                             Row(
@@ -5865,7 +5226,6 @@ private fun ArtistListCard(
                 }
             }
 
-            // Play button
             FilledIconButton(
                 onClick = onPlayClick,
                 colors = IconButtonDefaults.filledIconButtonColors(
@@ -5890,7 +5250,7 @@ fun PlaylistFabMenuContent(
     onCreatePlaylist: () -> Unit,
     onImportPlaylist: (() -> Unit)?,
     onExportPlaylists: (() -> Unit)?,
-    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback // Added haptics parameter
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -5902,7 +5262,6 @@ fun PlaylistFabMenuContent(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.End
     ) {
-        // Export playlists item
         if (onExportPlaylists != null) {
             FloatingActionButton(
                 onClick = {
@@ -5923,7 +5282,6 @@ fun PlaylistFabMenuContent(
             }
         }
 
-        // Import playlist item
         if (onImportPlaylist != null) {
             FloatingActionButton(
                 onClick = {
@@ -5944,7 +5302,6 @@ fun PlaylistFabMenuContent(
             }
         }
 
-        // Create playlist item (always shown)
         FloatingActionButton(
             onClick = {
                 HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -5975,7 +5332,7 @@ fun PlaylistFabMenu(
     onExportPlaylists: (() -> Unit)?,
     modifier: Modifier = Modifier,
     bottomPadding: androidx.compose.ui.unit.Dp = 0.dp,
-    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback // Added haptics parameter
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     val context = LocalContext.current
     val menuItems = remember(onCreatePlaylist, onImportPlaylist, onExportPlaylists) {
@@ -6066,25 +5423,23 @@ fun FabMenuItem(
     label: String,
     icon: MaterialSymbolIcon,
     contentDescription: String,
-    containerColor: Color, // Added containerColor
-    contentColor: Color,   // Added contentColor
+    containerColor: Color,
+    contentColor: Color,
     onClick: () -> Unit,
     animationDelay: Int = 0,
     modifier: Modifier = Modifier,
-    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback // Added haptics parameter
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     val context = LocalContext.current
     var isPressed by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope() // Define scope here
+    val scope = rememberCoroutineScope()
 
-    // Tap animation state
     val pressedScale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessHigh),
         label = "pressedScale_$label"
     )
 
-    // Staggered entrance animation
     val entranceScale by animateFloatAsState(
         targetValue = 1f,
         animationSpec = spring(
@@ -6108,14 +5463,13 @@ fun FabMenuItem(
             HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
             isPressed = true
             onClick()
-            // Reset pressed state after animation
-            scope.launch { // Use the local scope
+            scope.launch {
                 kotlinx.coroutines.delay(100)
                 isPressed = false
             }
         },
-        shape = RoundedCornerShape(50.dp), // Pill shape
-        colors = CardDefaults.cardColors( // Use CardDefaults.cardColors
+        shape = RoundedCornerShape(50.dp),
+        colors = CardDefaults.cardColors(
             containerColor = containerColor,
             contentColor = contentColor
         ),
@@ -6160,7 +5514,6 @@ fun FabMenuItem(
     }
 }
 
-// Bottom Floating Button Group Component
 @Composable
 fun BottomFloatingButtonGroup(
     modifier: Modifier = Modifier,
@@ -6171,7 +5524,6 @@ fun BottomFloatingButtonGroup(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
-    // Loading states
     var isPlayAllLoading by remember { mutableStateOf(false) }
     var isShuffleLoading by remember { mutableStateOf(false) }
     
@@ -6180,7 +5532,7 @@ fun BottomFloatingButtonGroup(
             .padding(horizontal = 20.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -6190,13 +5542,11 @@ fun BottomFloatingButtonGroup(
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Play All Button
             Button(
                 onClick = {
                     if (!isPlayAllLoading && !isShuffleLoading) {
                         isPlayAllLoading = true
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                        // Must call on Main thread for MediaController
                         scope.launch {
                             try {
                                 onPlayAll()
@@ -6236,13 +5586,11 @@ fun BottomFloatingButtonGroup(
                 )
             }
             
-            // Expressive Shuffle Button
             ExpressiveFilledIconButton(
                 onClick = {
                     if (!isPlayAllLoading && !isShuffleLoading) {
                         isShuffleLoading = true
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                        // Must call on Main thread for MediaController
                         scope.launch {
                             try {
                                 onShuffle()
@@ -6273,6 +5621,156 @@ fun BottomFloatingButtonGroup(
                         modifier = Modifier.size(24.dp)
                     )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ExpressiveSectionHeader(
+    title: String,
+    countText: String,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    modifier: Modifier = Modifier,
+    countIcon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon? = null,
+    horizontalPadding: androidx.compose.ui.unit.Dp = 12.dp,
+    actionContent: @Composable RowScope.() -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = horizontalPadding, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(56.dp),
+            shape = rememberExpressiveShapeFor(
+                ExpressiveShapeTarget.PLAYER_CONTROLS,
+                fallbackShape = ExpressiveShapes.SquircleLarge
+            ),
+            color = MaterialTheme.colorScheme.primaryContainer,
+            tonalElevation = ExpressiveElevation.Level2
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-0.5).sp
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    if (countIcon != null) {
+                        Icon(
+                            imageVector = countIcon,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                    Text(
+                        text = countText,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            content = actionContent
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ExpressiveSelectionHeader(
+    selectedCount: Int,
+    totalCount: Int,
+    onClearSelection: () -> Unit,
+    modifier: Modifier = Modifier,
+    actionContent: @Composable RowScope.() -> Unit = {}
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 12.dp, end = 12.dp, top= 12.dp, bottom = 8.dp),
+        shape = ExpressiveShapes.Large,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ExpressiveFilledIconButton(
+                    onClick = onClearSelection,
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                ) {
+                    Icon(imageVector = RhythmIcons.Close, contentDescription = "Clear selection")
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "$selectedCount Selected",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                    Text(
+                        text = "from $totalCount tracks",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
+
+            Box(modifier = Modifier.padding(top = 16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = actionContent
+                )
             }
         }
     }

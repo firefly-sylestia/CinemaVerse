@@ -27,7 +27,6 @@ navigationCompose = "2.9.8"
 accompanistPermissions = "0.37.3"
 fragmentKtx = "1.8.9"
 mediaRouter = "1.8.1"
-ktor = "3.5.0"
 coilCompose = "2.7.0"
 jaudiotagger = "3.0.1"
 retrofit = "3.0.0"
@@ -64,7 +63,6 @@ androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplaye
 androidx-media3-exoplayer-dash = { group = "androidx.media3", name = "media3-exoplayer-dash", version.ref = "media3" }
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
-androidx-media3-cast = { group = "androidx.media3", name = "media3-cast", version.ref = "media3" }
 androidx-media3-exoplayer-midi = { group = "androidx.media3", name = "media3-exoplayer-midi", version.ref = "media3" }
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
@@ -75,8 +73,6 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 com-google-accompanist-accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
 androidx-mediarouter = { group = "androidx.mediarouter", name = "mediarouter", version.ref = "mediaRouter" }
-io-ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
-io-ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
 io-coil-kt-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
 net-jthink-jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
 com-squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

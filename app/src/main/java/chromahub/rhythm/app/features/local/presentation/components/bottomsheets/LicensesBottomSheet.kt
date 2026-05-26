@@ -211,15 +211,6 @@ fun LicensesBottomSheet(
             haptic = haptic
         ),
         licenseItem(
-            name = "Ktor",
-            description = "Asynchronous microservices & HTTP client framework (v3.5.0)",
-            license = "Apache License 2.0",
-            url = "https://ktor.io/",
-            icon = RhythmIcons.Actions.Info,
-            context = context,
-            haptic = haptic
-        ),
-        licenseItem(
             name = "LeakCanary",
             description = "Memory leak detection library for Android (v2.14)",
             license = "Apache License 2.0",

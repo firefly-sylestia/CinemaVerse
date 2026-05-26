@@ -35,9 +35,6 @@ import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.infrastructure.service.player.RhythmPlayerEngine
 import chromahub.rhythm.app.infrastructure.service.player.TransitionController
 import chromahub.rhythm.app.infrastructure.service.player.PreloadController
-import androidx.media3.cast.CastPlayer
-import androidx.media3.cast.SessionAvailabilityListener
-import com.google.android.gms.cast.framework.CastContext
 import chromahub.rhythm.app.infrastructure.widget.WidgetUpdater
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
@@ -61,7 +58,6 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     private lateinit var player: Player
     private lateinit var customCommands: List<CommandButton>
     private lateinit var preloadController: PreloadController
-    private var castPlayer: CastPlayer? = null
 
     private var controller: MediaController? = null
     
@@ -103,6 +99,8 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     private var isBassBoostAvailable: Boolean = true // Rhythm bass boost is always available
     private val audioEffectsInitMutex = Mutex()
     private var audioEffectsInitJob: Job? = null
+    private var equalizerVolumeTransitionJob: Job? = null
+    private var equalizerVolumeRestoreTarget: Float? = null
     @Volatile
     private var pendingAudioEffectsSessionId: Int = 0
     
@@ -169,6 +167,10 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         private const val CHANNEL_ID = "RhythmMediaPlayback"
         private const val SLEEP_TIMER_NOTIFICATION_ID = 1002
         private const val SLEEP_TIMER_CHANNEL_ID = "RhythmSleepTimer"
+        private const val EQ_TOGGLE_DUCK_FACTOR = 0.12f
+        private const val EQ_TOGGLE_SETTLE_DELAY_MS = 45L
+        private const val EQ_TOGGLE_RAMP_STEPS = 6
+        private const val EQ_TOGGLE_RAMP_STEP_DELAY_MS = 22L
 
         private const val PREF_NAME = "rhythm_preferences"
         private const val PREF_GAPLESS_PLAYBACK = "gapless_playback"
@@ -260,9 +262,6 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         
         // Initialize preloader
         preloadController = PreloadController(applicationContext, appSettings)
-        
-        // Initialize Cast player defensively
-        initializeCast()
         
         // Initialize Rhythm audio processors early (before player creation)
         try {
@@ -705,6 +704,41 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             eq.enabled = enabled
             eq.enabled
         }
+    }
+
+    private fun setEqualizerEnabledWithVolumeGuard(enabled: Boolean): Boolean {
+        if (!::player.isInitialized || !player.isPlaying) {
+            return setEqualizerEnabledSafe(enabled)
+        }
+
+        val restoreVolume = equalizerVolumeRestoreTarget ?: player.volume
+        if (restoreVolume <= 0f) {
+            return setEqualizerEnabledSafe(enabled)
+        }
+
+        equalizerVolumeTransitionJob?.cancel()
+        equalizerVolumeRestoreTarget = restoreVolume
+
+        player.volume = (restoreVolume * EQ_TOGGLE_DUCK_FACTOR).coerceIn(0f, restoreVolume)
+        val actualState = setEqualizerEnabledSafe(enabled)
+
+        equalizerVolumeTransitionJob = serviceScope.launch(Dispatchers.Main.immediate) {
+            try {
+                delay(EQ_TOGGLE_SETTLE_DELAY_MS)
+                val startVolume = player.volume
+                repeat(EQ_TOGGLE_RAMP_STEPS) { step ->
+                    val fraction = (step + 1).toFloat() / EQ_TOGGLE_RAMP_STEPS.toFloat()
+                    player.volume = startVolume + (restoreVolume - startVolume) * fraction
+                    delay(EQ_TOGGLE_RAMP_STEP_DELAY_MS)
+                }
+            } finally {
+                if (equalizerVolumeRestoreTarget == restoreVolume) {
+                    equalizerVolumeRestoreTarget = null
+                }
+            }
+        }
+
+        return actualState
     }
     
     private fun handlePlaybackError(error: PlaybackException) {
@@ -1411,10 +1445,6 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             preloadController.release()
         }
         
-        // Release cast player
-        castPlayer?.release()
-        castPlayer = null
-
         // Release crossfade engine and transition controller
         transitionController.release()
         rhythmPlayerEngine.release()
@@ -1995,113 +2025,6 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         return (player as? ExoPlayer)?.audioSessionId ?: 0
     }
 
-    private fun initializeCast() {
-        try {
-            val castContext = CastContext.getSharedInstance(this)
-            val cp = CastPlayer(castContext)
-            castPlayer = cp
-            cp.setSessionAvailabilityListener(object : SessionAvailabilityListener {
-                override fun onCastSessionAvailable() {
-                    Log.d(TAG, "Cast session available, switching to CastPlayer")
-                    switchToCastPlayer()
-                }
-
-                override fun onCastSessionUnavailable() {
-                    Log.d(TAG, "Cast session unavailable, switching back to local player")
-                    switchToLocalPlayer()
-                }
-            })
-            Log.d(TAG, "CastPlayer initialized defensively")
-        } catch (e: Exception) {
-            Log.w(TAG, "CastContext could not be initialized defensively (non-GMS device?)", e)
-        }
-    }
-
-    private fun switchToCastPlayer() {
-        val cp = castPlayer ?: return
-        Log.d(TAG, "switchToCastPlayer: Swapping from local player to CastPlayer")
-        
-        val mediaItems = mutableListOf<MediaItem>()
-        for (i in 0 until player.mediaItemCount) {
-            mediaItems.add(player.getMediaItemAt(i))
-        }
-        val currentIndex = player.currentMediaItemIndex
-        val currentPosition = player.currentPosition
-        val isPlaying = player.isPlaying
-
-        // Pause local engine
-        rhythmPlayerEngine.masterPlayer.pause()
-
-        // Swap listeners
-        playerListener?.let { listener ->
-            player.removeListener(listener)
-            cp.addListener(listener)
-        }
-
-        // Swap active player references
-        player = cp
-        mediaSession?.player = cp
-
-        // Synchronize state on CastPlayer
-        cp.setMediaItems(mediaItems, currentIndex, currentPosition)
-        cp.prepare()
-        if (isPlaying) {
-            cp.play()
-        }
-
-        // Reinitialize audio effects if needed
-        initializeAudioEffects()
-        
-        // Update widget
-        updateWidgetFromMediaItem(cp.currentMediaItem)
-        scheduleCustomLayoutUpdate(50)
-    }
-
-    private fun switchToLocalPlayer() {
-        val cp = castPlayer ?: return
-        Log.d(TAG, "switchToLocalPlayer: Swapping from CastPlayer back to local player")
-        
-        val mediaItems = mutableListOf<MediaItem>()
-        for (i in 0 until cp.mediaItemCount) {
-            mediaItems.add(cp.getMediaItemAt(i))
-        }
-        val currentIndex = cp.currentMediaItemIndex
-        val currentPosition = cp.currentPosition
-        val isPlaying = cp.isPlaying
-
-        // Stop remote casting
-        cp.stop()
-
-        // Swap listeners back to local player
-        val localPlayer = rhythmPlayerEngine.masterPlayer
-        playerListener?.let { listener ->
-            cp.removeListener(listener)
-            localPlayer.addListener(listener)
-        }
-
-        // Swap active player references back to local master
-        player = localPlayer
-        mediaSession?.player = localPlayer
-
-        // Synchronize state back to local player
-        if (currentIndex != C.INDEX_UNSET && currentIndex < localPlayer.mediaItemCount) {
-            localPlayer.seekTo(currentIndex, currentPosition)
-        } else {
-            localPlayer.seekTo(currentPosition)
-        }
-        localPlayer.prepare()
-        if (isPlaying) {
-            localPlayer.play()
-        }
-
-        // Reinitialize audio effects for local session
-        initializeAudioEffects()
-        
-        // Update widget
-        updateWidgetFromMediaItem(localPlayer.currentMediaItem)
-        scheduleCustomLayoutUpdate(50)
-    }
-
     // Audio Effects (Equalizer) functionality
     fun getAudioSessionId(): Int {
         return try {
@@ -2300,41 +2223,16 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
                 applyEqualizerPreset(bandLevels.toFloatArray())
             }
             
-            val actualState = setEqualizerEnabledSafe(true)
+            val actualState = setEqualizerEnabledWithVolumeGuard(true)
             Log.d(TAG, "Equalizer enabled: true, actual state: $actualState")
             if (!actualState) {
                 Log.e(TAG, "Equalizer state mismatch! Requested: true, Actual: false")
             }
         } else {
-            // Turning OFF: Set all bands to 0 (flat/neutral) first so response transitions smoothly
-            equalizer?.let { eq ->
-                try {
-                    val numberOfBands = eq.numberOfBands.toInt()
-                    val flatLevels = FloatArray(numberOfBands) { 0f }
-                    applyEqualizerPreset(flatLevels)
-                    Log.d(TAG, "Equalizer set to flat levels prior to disablement")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Failed to apply flat preset before disabling equalizer", e)
-                }
-            }
-            
-            // Defer hardware disabling if player is currently playing to prevent pop/hard sound
-            if (player.isPlaying) {
-                Log.d(TAG, "Player is active; deferring hardware equalizer disable by 300ms to clear audio sink buffer")
-                serviceScope.launch(Dispatchers.Main) {
-                    delay(300)
-                    // Check if equalizer was not re-enabled by the user in the interim
-                    if (!appSettings.equalizerEnabled.value) {
-                        val actualState = setEqualizerEnabledSafe(false)
-                        Log.d(TAG, "Equalizer deferred hardware disable completed. Actual state: $actualState")
-                    } else {
-                        Log.d(TAG, "Equalizer re-enabled during delay window; skipping hardware disablement")
-                    }
-                }
-            } else {
-                // Player is paused/stopped; disable immediately
-                val actualState = setEqualizerEnabledSafe(false)
-                Log.d(TAG, "Player is inactive; equalizer disabled immediately. Actual state: $actualState")
+            val actualState = setEqualizerEnabledWithVolumeGuard(false)
+            Log.d(TAG, "Equalizer disabled requested, actual enabled state: $actualState")
+            if (actualState) {
+                Log.e(TAG, "Equalizer state mismatch! Requested: false, Actual: true")
             }
         }
     }

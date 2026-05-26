@@ -125,6 +125,7 @@ class AppSettings private constructor(context: Context) {
         
         // Player Theme Settings
         private const val KEY_PLAYER_THEME_ID = "player_theme_id" // ID of the selected player theme (default, compact, large, minimal)
+        private const val KEY_USE_EXPERIMENTAL_PLAYER_UI = "use_experimental_player_ui"
         
         // Library Settings
         private const val KEY_ALBUM_VIEW_TYPE = "album_view_type"
@@ -711,18 +712,15 @@ class AppSettings private constructor(context: Context) {
     val libraryCombineDiscs: StateFlow<Boolean> = _libraryCombineDiscs.asStateFlow()
     
     // Player Chip Order (Add to Playlist and Edit chips are not reorderable - they stay fixed)
-    private val defaultChipOrder = listOf("FAVORITE", "SPEED", "PITCH", "EQUALIZER", "SLEEP_TIMER", "LYRICS", "ALBUM", "ARTIST", "CAST")
+    private val defaultChipOrder = listOf("FAVORITE", "SPEED", "PITCH", "EQUALIZER", "SLEEP_TIMER", "LYRICS", "ALBUM", "ARTIST")
     private val _playerChipOrder = MutableStateFlow(
         prefs.getString(KEY_PLAYER_CHIP_ORDER, null)
             ?.split(",")
-            ?.filter { it.isNotBlank() }
+            ?.filter { it.isNotBlank() && it in defaultChipOrder }
             ?.takeIf { it.isNotEmpty() }
             ?.let { existingChips ->
                 // Add new chips if not present in existing order
                 var updated = existingChips
-                if (!updated.contains("CAST")) {
-                    updated = updated + "CAST"
-                }
                 if (!updated.contains("PITCH")) {
                     // Insert PITCH right after SPEED if SPEED exists, else append
                     val speedIndex = updated.indexOf("SPEED")
@@ -1419,6 +1417,9 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     
     private val _forcePlayerCompactMode = MutableStateFlow(prefs.getBoolean(KEY_FORCE_PLAYER_COMPACT_MODE, false))
     val forcePlayerCompactMode: StateFlow<Boolean> = _forcePlayerCompactMode.asStateFlow()
+
+    private val _useExperimentalPlayerUi = MutableStateFlow(prefs.getBoolean(KEY_USE_EXPERIMENTAL_PLAYER_UI, false))
+    val useExperimentalPlayerUi: StateFlow<Boolean> = _useExperimentalPlayerUi.asStateFlow()
     
     // Festive Theme Settings
     private val _festiveThemeEnabled = MutableStateFlow(prefs.getBoolean(KEY_FESTIVE_THEME_ENABLED, true))
@@ -2002,9 +2003,10 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     }
     
     fun setPlayerChipOrder(chipOrder: List<String>) {
-        val orderString = chipOrder.joinToString(",")
+        val sanitizedOrder = chipOrder.filter { it in defaultChipOrder }
+        val orderString = sanitizedOrder.joinToString(",")
         prefs.edit().putString(KEY_PLAYER_CHIP_ORDER, orderString).apply()
-        _playerChipOrder.value = chipOrder
+        _playerChipOrder.value = sanitizedOrder
     }
     
     fun resetPlayerChipOrder() {
@@ -2024,9 +2026,10 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     }
     
     fun setHiddenPlayerChips(hiddenChips: Set<String>) {
-        val hiddenString = hiddenChips.joinToString(",")
+        val sanitizedHiddenChips = hiddenChips.filter { it in defaultChipOrder }.toSet()
+        val hiddenString = sanitizedHiddenChips.joinToString(",")
         prefs.edit().putString(KEY_HIDDEN_PLAYER_CHIPS, hiddenString).apply()
-        _hiddenPlayerChips.value = hiddenChips
+        _hiddenPlayerChips.value = sanitizedHiddenChips
     }
     
     fun setGroupByAlbumArtist(enable: Boolean) {
@@ -3029,6 +3032,11 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     fun setForcePlayerCompactMode(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_FORCE_PLAYER_COMPACT_MODE, enabled).apply()
         _forcePlayerCompactMode.value = enabled
+    }
+
+    fun setUseExperimentalPlayerUi(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_USE_EXPERIMENTAL_PLAYER_UI, enabled).apply()
+        _useExperimentalPlayerUi.value = enabled
     }
     
     // Codec Monitoring & Enhanced Seeking Methods
@@ -4354,6 +4362,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _rhythmPulseNotificationsEnabled.value = prefs.getBoolean(KEY_RHYTHM_PULSE_NOTIFICATIONS_ENABLED, false)
         _rhythmPulseNotificationIntervalHours.value = prefs.getInt(KEY_RHYTHM_PULSE_NOTIFICATION_INTERVAL_HOURS, 24).coerceIn(6, 72)
         _forcePlayerCompactMode.value = prefs.getBoolean(KEY_FORCE_PLAYER_COMPACT_MODE, false)
+        _useExperimentalPlayerUi.value = prefs.getBoolean(KEY_USE_EXPERIMENTAL_PLAYER_UI, false)
         _onboardingCompleted.value = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
         _initialMediaScanCompleted.value = prefs.getBoolean(KEY_INITIAL_MEDIA_SCAN_COMPLETED, false)
         _genreDetectionCompleted.value = prefs.getBoolean(KEY_GENRE_DETECTION_COMPLETED, false)

@@ -465,61 +465,17 @@ fun SingleCardExplorerContent(
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 16.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            stickyHeader {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(48.dp),
-                                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS),
-                                color = MaterialTheme.colorScheme.primary,
-                                shadowElevation = 0.dp
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = RhythmIcons.Folder,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.library_explore),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = if (currentPath == null) "${currentItems.size} locations" else "${currentItems.size} items",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-
+            item {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    ExpressiveSectionHeader(
+                        title = context.getString(R.string.library_explore),
+                        countText = if (currentPath == null) "${currentItems.size} locations" else "${currentItems.size} items",
+                        icon = RhythmIcons.Folder,
+                        countIcon = RhythmIcons.MusicNote,
+                        actionContent = {
                             if (currentPath != null) {
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -567,23 +523,25 @@ fun SingleCardExplorerContent(
                                 }
                             }
                         }
+                    )
 
-                        if (currentPath != null) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            ExplorerBreadcrumb(
-                                path = currentPath!!,
-                                onNavigateTo = { newPath ->
-                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                    currentPath = newPath
-                                },
-                                onGoHome = {
-                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                    currentPath = null
-                                },
-                                scrollState = breadcrumbScrollState
-                            )
-                        }
+                    if (currentPath != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ExplorerBreadcrumb(
+                            path = currentPath!!,
+                            onNavigateTo = { newPath ->
+                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                currentPath = newPath
+                            },
+                            onGoHome = {
+                                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                currentPath = null
+                            },
+                            scrollState = breadcrumbScrollState
+                        )
                     }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
 
@@ -2189,10 +2147,10 @@ fun ExplorerItemCard(
                 },
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 0.dp, vertical = 2.dp),
                 shape = itemShape ?: RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
@@ -2268,10 +2226,10 @@ fun ExplorerItemCard(
                 },
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 0.dp, vertical = 2.dp),
                 shape = itemShape ?: RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
@@ -2351,16 +2309,23 @@ fun ExplorerItemCard(
                         var showMenu by remember { mutableStateOf(false) }
                         if (onPlayFolder != null || onAddFolderToQueue != null) {
                             Box {
-                                IconButton(
+                                FilledIconButton(
                                     onClick = {
                                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                                         showMenu = true
-                                    }
+                                    },
+                                    modifier = Modifier
+                                        .width(32.dp)
+                                        .height(44.dp),
+                                    shape = RoundedCornerShape(50),
+                                    colors = IconButtonDefaults.filledIconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
                                 ) {
                                     Icon(
                                         imageVector = RhythmIcons.More,
                                         contentDescription = "Folder options",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }

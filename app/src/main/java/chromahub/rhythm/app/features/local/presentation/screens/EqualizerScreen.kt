@@ -77,6 +77,8 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import kotlin.system.exitProcess
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.ArcProgressSlider
 import chromahub.rhythm.app.features.local.presentation.components.bottomsheets.StandardBottomSheetHeader
@@ -1062,118 +1064,58 @@ fun EqualizerScreen(
                     enter = fadeIn() + expandVertically(),
                     exit = fadeOut() + shrinkVertically()
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "Advanced",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+                    Material3SettingsGroup(
+                        title = "Advanced",
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        items = listOf(
+                            Material3SettingsItem(
+                                icon = MaterialSymbolIcon("auto_mode", filled = true),
+                                iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                iconBackgroundTint = MaterialTheme.colorScheme.primaryContainer,
+                                title = {
+                                    Text("AutoEQ Profiles", fontWeight = FontWeight.SemiBold)
+                                },
+                                description = {
+                                    Text("Apply headphone-specific equalization")
+                                },
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    showAutoEQSelector = true
+                                }
+                            ),
+                            Material3SettingsItem(
+                                icon = MaterialSymbolIcon("device_hub", filled = true),
+                                iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                iconBackgroundTint = MaterialTheme.colorScheme.secondaryContainer,
+                                title = {
+                                    Text("Manage AutoEQ", fontWeight = FontWeight.SemiBold)
+                                },
+                                description = {
+                                    Text("Import, export, and organize profiles")
+                                },
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    showDeviceConfiguration = true
+                                }
+                            ),
+                            Material3SettingsItem(
+                                icon = MaterialSymbolIcon("arrow_outward", filled = true),
+                                iconTint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                iconBackgroundTint = MaterialTheme.colorScheme.tertiaryContainer,
+                                title = {
+                                    Text("System Equalizer", fontWeight = FontWeight.SemiBold)
+                                },
+                                description = {
+                                    Text("Access Android's built-in settings")
+                                },
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                                    val activity = context as? Activity
+                                    viewModel.openSystemEqualizer(activity, MainActivity.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL_REQUEST)
+                                }
+                            )
                         )
-
-                        Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainerLow,
-                            shape = RoundedCornerShape(32.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                                ListItem(
-                                    headlineContent = {
-                                        Text("AutoEQ Profiles", fontWeight = FontWeight.SemiBold)
-                                    },
-                                    supportingContent = {
-                                        Text("Apply headphone-specific equalization")
-                                    },
-                                    leadingContent = {
-                                        Surface(
-                                            color = MaterialTheme.colorScheme.primaryContainer,
-                                            shape = CircleShape,
-                                            modifier = Modifier.size(40.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = MaterialSymbolIcon("auto_mode", filled = true),
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
-                                    },
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    modifier = Modifier.clickable {
-                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                        showAutoEQSelector = true
-                                    }
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 24.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                )
-
-                                ListItem(
-                                    headlineContent = {
-                                        Text("Manage AutoEQ", fontWeight = FontWeight.SemiBold)
-                                    },
-                                    supportingContent = {
-                                        Text("Import, export, and organize profiles")
-                                    },
-                                    leadingContent = {
-                                        Surface(
-                                            color = MaterialTheme.colorScheme.secondaryContainer,
-                                            shape = CircleShape,
-                                            modifier = Modifier.size(40.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = MaterialSymbolIcon("device_hub", filled = true),
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
-                                    },
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    modifier = Modifier.clickable {
-                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                        showDeviceConfiguration = true
-                                    }
-                                )
-
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 24.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                )
-
-                                ListItem(
-                                    headlineContent = {
-                                        Text("System Equalizer", fontWeight = FontWeight.SemiBold)
-                                    },
-                                    supportingContent = {
-                                        Text("Access Android's built-in settings")
-                                    },
-                                    leadingContent = {
-                                        Surface(
-                                            color = MaterialTheme.colorScheme.tertiaryContainer,
-                                            shape = CircleShape,
-                                            modifier = Modifier.size(40.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = MaterialSymbolIcon("arrow_outward", filled = true),
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
-                                    },
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    modifier = Modifier.clickable {
-                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
-                                        val activity = context as? Activity
-                                        viewModel.openSystemEqualizer(activity, MainActivity.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL_REQUEST)
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -1244,17 +1186,11 @@ private fun ExpressiveEffectCard(
                     tint = contentColor,
                     modifier = Modifier.size(24.dp)
                 )
-                Switch(
+                TunerAnimatedSwitch(
                     checked = isEnabled,
                     onCheckedChange = onEnabledChange,
                     enabled = isAvailable,
-                    modifier = Modifier.scale(0.85f),
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = activeContainerColor,
-                        checkedTrackColor = onActiveContainerColor,
-                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                    )
+                    modifier = Modifier.scale(0.85f)
                 )
             }
 
