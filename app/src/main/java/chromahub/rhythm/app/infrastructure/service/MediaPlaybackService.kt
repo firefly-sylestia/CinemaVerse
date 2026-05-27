@@ -719,12 +719,22 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         equalizerVolumeTransitionJob?.cancel()
         equalizerVolumeRestoreTarget = restoreVolume
 
-        player.volume = (restoreVolume * EQ_TOGGLE_DUCK_FACTOR).coerceIn(0f, restoreVolume)
-        val actualState = setEqualizerEnabledSafe(enabled)
+        // 1. Duck the player volume to 0.0f to completely silence any transient audio during the hardware transition
+        player.volume = 0.0f
+        var actualState = enabled
 
         equalizerVolumeTransitionJob = serviceScope.launch(Dispatchers.Main.immediate) {
             try {
-                delay(EQ_TOGGLE_SETTLE_DELAY_MS)
+                // 2. Wait for the silent/ducked volume state to propagate and the audio track's buffer to clear
+                delay(120L)
+                
+                // 3. Safely toggle the hardware equalizer enabled state while fully silent
+                actualState = setEqualizerEnabledSafe(enabled)
+                
+                // 4. Settle delay to allow Android AudioFlinger / hardware DSP to fully transition
+                delay(45L)
+                
+                // 5. Smoothly ramp the volume back up to the original target from 0.0f
                 val startVolume = player.volume
                 repeat(EQ_TOGGLE_RAMP_STEPS) { step ->
                     val fraction = (step + 1).toFloat() / EQ_TOGGLE_RAMP_STEPS.toFloat()

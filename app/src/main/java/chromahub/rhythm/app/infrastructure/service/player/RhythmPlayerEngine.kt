@@ -286,9 +286,12 @@ class RhythmPlayerEngine(
         val appSettings = AppSettings.getInstance(context)
         val trackSelectionParametersBuilder = TrackSelectionParameters.Builder(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Software audio processors (Bass Boost & Spatialization) are incompatible with hardware audio offload.
+            // If they are active/configured in the sink, offload must be disabled to prevent conflicts.
+            val isOffloadSupported = appSettings.isAudioOffloadActive.value && (bassProcessor == null && spatialProcessor == null)
             val audioOffloadPreferences = TrackSelectionParameters.AudioOffloadPreferences.Builder()
                 .setAudioOffloadMode(
-                    if (appSettings.isAudioOffloadActive.value) {
+                    if (isOffloadSupported) {
                         TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED
                     } else {
                         TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED
