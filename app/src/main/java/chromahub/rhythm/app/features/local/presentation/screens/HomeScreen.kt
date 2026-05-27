@@ -622,7 +622,7 @@ private fun ModernScrollableContent(
     val discoverShowGradient by appSettings.homeDiscoverShowGradient.collectAsState()
 
     // Enhanced artist computation
-    val availableArtists = remember(allSongs, topArtists) {
+    val availableArtists = remember(topArtists) {
         val collaborationSeparators = listOf(
             ", ", ",", " & ", " and ", "&", " feat. ", " featuring ", " ft. ",
             " with ", " x ", " X ", " + ", " vs ", " VS ", " / ", ";", " · "
@@ -633,41 +633,9 @@ private fun ModernScrollableContent(
             .joinToString("|")
             .toRegex(RegexOption.IGNORE_CASE)
 
-        val filteredTopArtists = topArtists.filter { artist ->
+        topArtists.filter { artist ->
             !artist.name.contains(collaborationRegex)
         }
-
-        val extractedArtistNames = allSongs.asSequence()
-            .flatMap { song ->
-                var artistString = song.artist
-                collaborationSeparators.forEach { separator ->
-                    artistString = artistString.replace(separator, "||")
-                }
-
-                artistString.split("||")
-                    .map { it.trim() }
-                    .map { name ->
-                        if (name.contains("(") && (name.contains("feat") || name.contains("ft") || name.contains("featuring"))) {
-                            name.substringBefore("(").trim()
-                        } else {
-                            name
-                        }
-                    }
-            }
-            .filter { it.length > 1 }
-            .distinct()
-
-        extractedArtistNames
-            .mapNotNull { artistName ->
-                filteredTopArtists.find { it.name.equals(artistName, ignoreCase = true) }
-                    ?: filteredTopArtists.find {
-                        it.name.equals(artistName, ignoreCase = true) ||
-                                (artistName.length > 3 && it.name.contains(artistName, ignoreCase = true))
-                    }
-            }
-            .distinct()
-            .sortedBy { it.name }
-            .toList()
     }
 
     // Featured albums with auto-refresh

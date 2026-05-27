@@ -16,7 +16,80 @@ import android.util.Log
 object ArtistSeparator {
     private const val TAG = "ArtistSeparator"
     private const val ESCAPE_CHAR = '\\'
+
+    @Volatile
+    private var cachedDelimiters: String? = null
     
+    @Volatile
+    private var cachedRegex: Regex? = null
+    
+    private val lock = Any()
+
+    private fun getOrCreateRegex(delimiters: String): Regex {
+        val cached = cachedRegex
+        if (cachedDelimiters == delimiters && cached != null) {
+            return cached
+        }
+        synchronized(lock) {
+            if (cachedDelimiters == delimiters && cachedRegex != null) {
+                return cachedRegex!!
+            }
+            
+            val selectedDelimiterChars = delimiters.toSet()
+            val wordSeparators = mutableListOf<String>().apply {
+                if (selectedDelimiterChars.contains('&')) add(" & ")
+                add(" and ")
+                if (selectedDelimiterChars.contains(',')) add(", ")
+                add(" feat. ")
+                add(" feat ")
+                add(" ft. ")
+                add(" ft ")
+                add(" featuring ")
+                add(" x ")
+                add(" X ")
+                add(" × ")
+                add(" vs ")
+                add(" vs. ")
+                add(" with ")
+            }
+            
+            val charSeparators = delimiters.map { it.toString() }
+            val allSeparators = (wordSeparators + charSeparators)
+                .distinct()
+                .sortedByDescending { it.length }
+                
+            val patternString = allSeparators.joinToString("|") { Regex.escape(it) }
+            val regex = patternString.toRegex(RegexOption.IGNORE_CASE)
+            
+            cachedDelimiters = delimiters
+            cachedRegex = regex
+            return regex
+        }
+    }
+
+    /**
+     * Splits artist names using precompiled high-performance Regex caching.
+     * Supports both character-level delimiters and word-level separators.
+     */
+    fun splitArtistNames(
+        artistName: String?,
+        delimiters: String = "/;,+&",
+        enabled: Boolean = true
+    ): List<String> {
+        if (artistName.isNullOrBlank()) {
+            return emptyList()
+        }
+        
+        if (!enabled || delimiters.isEmpty()) {
+            return listOf(artistName.trim()).filter { it.isNotBlank() }
+        }
+
+        val regex = getOrCreateRegex(delimiters)
+        return regex.split(artistName)
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+    }
+
     /**
      * Split an artist string into multiple artists using the provided delimiters.
      * 

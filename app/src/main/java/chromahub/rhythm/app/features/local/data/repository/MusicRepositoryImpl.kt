@@ -2253,21 +2253,10 @@ class MusicRepository(context: Context) {
      * Reads AppSettings internally — use [splitArtistNames(String, List<String>)] in hot loops.
      */
     fun splitArtistNames(artistName: String): List<String> {
-        // Character-level delimiters from artist separator settings
         val appSettings = AppSettings.getInstance(context)
         val artistSeparatorEnabled = appSettings.artistSeparatorEnabled.value
-        
-        val charDelimiters = if (artistSeparatorEnabled) {
-            val currentDelimitersStr = appSettings.artistSeparatorDelimiters.value
-            if (cachedDelimitersString != currentDelimitersStr) {
-                cachedDelimitersString = currentDelimitersStr
-                cachedDelimitersList = currentDelimitersStr.map { it.toString() }
-            }
-            cachedDelimitersList
-        } else {
-            emptyList()
-        }
-        return splitArtistNames(artistName, charDelimiters)
+        val delimiters = if (artistSeparatorEnabled) appSettings.artistSeparatorDelimiters.value else ""
+        return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(artistName, delimiters, artistSeparatorEnabled)
     }
 
     /**
@@ -2275,41 +2264,8 @@ class MusicRepository(context: Context) {
      * Use this overload in hot loops to avoid reading AppSettings per call.
      */
     fun splitArtistNames(artistName: String, preloadedCharDelimiters: List<String>): List<String> {
-        // No configured delimiters means splitting is disabled.
-        if (preloadedCharDelimiters.isEmpty()) {
-            return listOf(artistName.trim()).filter { it.isNotBlank() }
-        }
-
-        val selectedDelimiterChars = preloadedCharDelimiters.mapNotNull { it.firstOrNull() }.toSet()
-        val wordSeparators = mutableListOf<String>().apply {
-            if (selectedDelimiterChars.contains('&')) add(" & ")
-            add(" and ")
-            if (selectedDelimiterChars.contains(',')) add(", ")
-            add(" feat. ")
-            add(" feat ")
-            add(" ft. ")
-            add(" ft ")
-            add(" featuring ")
-            add(" x ")
-            add(" X ")
-            add(" vs ")
-            add(" vs. ")
-            add(" with ")
-        }
-
-        var names = listOf(artistName)
-
-        // Split on character-level delimiters first (/, ;, etc.)
-        for (delimiter in preloadedCharDelimiters) {
-            names = names.flatMap { it.split(delimiter) }
-        }
-
-        // Then split on word-level separators
-        for (separator in wordSeparators) {
-            names = names.flatMap { it.split(separator, ignoreCase = true) }
-        }
-
-        return names.map { it.trim() }.filter { it.isNotBlank() }
+        val delimiters = preloadedCharDelimiters.joinToString("")
+        return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(artistName, delimiters, preloadedCharDelimiters.isNotEmpty())
     }
     
     /**
@@ -4932,23 +4888,18 @@ class MusicRepository(context: Context) {
         val artistAlbums = allAlbums.filter { album ->
             if (groupByAlbumArtist) {
                 // When grouping by album artist, check if any song in the album has matching album artist
-                allSongs.any { song ->
+                album.songs.any { song ->
                     val explicitAlbumArtist = song.albumArtist?.trim().orEmpty()
                     val songArtistNames = if (explicitAlbumArtist.isNotBlank() && !explicitAlbumArtist.equals("<unknown>", ignoreCase = true)) {
                         splitArtistNames(explicitAlbumArtist)
                     } else {
                         splitArtistNames(song.artist)
                     }
-
-                    song.album == album.title &&
-                    song.albumId == album.id &&
                     songArtistNames.any { it.equals(artist.name, ignoreCase = true) }
                 }
             } else {
                 // When not grouping, check if artist appears in any song's track artist field for this album
-                allSongs.any { song ->
-                    song.album == album.title &&
-                    song.albumId == album.id &&
+                album.songs.any { song ->
                     splitArtistNames(song.artist).any { it.equals(artist.name, ignoreCase = true) }
                 }
             }

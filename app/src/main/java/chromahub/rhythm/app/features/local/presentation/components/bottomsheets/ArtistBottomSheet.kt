@@ -108,41 +108,11 @@ fun ArtistBottomSheet(
     // Helper function to split artist names
     val splitArtistNames: (String) -> List<String> = remember {
         { artistName ->
-            // Character-level delimiters from settings
-            val artistSeparatorEnabled = appSettings.artistSeparatorEnabled.value
-            val charDelimiters = if (artistSeparatorEnabled) {
-                appSettings.artistSeparatorDelimiters.value.toList().map { it.toString() }
-            } else emptyList()
-
-            if (charDelimiters.isEmpty()) {
-                listOf(artistName.trim()).filter { it.isNotBlank() }
-            } else {
-                val selectedDelimiterChars = charDelimiters.mapNotNull { it.firstOrNull() }.toSet()
-                val wordSeparators = mutableListOf<String>().apply {
-                    if (selectedDelimiterChars.contains('&')) add(" & ")
-                    add(" and ")
-                    if (selectedDelimiterChars.contains(',')) add(", ")
-                    add(" feat. ")
-                    add(" feat ")
-                    add(" ft. ")
-                    add(" ft ")
-                    add(" featuring ")
-                    add(" x ")
-                    add(" X ")
-                    add(" vs ")
-                    add(" vs. ")
-                    add(" with ")
-                }
-
-                var names = listOf(artistName)
-                for (delimiter in charDelimiters) {
-                    names = names.flatMap { it.split(delimiter) }
-                }
-                for (separator in wordSeparators) {
-                    names = names.flatMap { it.split(separator, ignoreCase = true) }
-                }
-                names.map { it.trim() }.filter { it.isNotBlank() }
-            }
+            chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+                artistName = artistName,
+                delimiters = appSettings.artistSeparatorDelimiters.value,
+                enabled = appSettings.artistSeparatorEnabled.value
+            )
         }
     }
     
@@ -165,29 +135,24 @@ fun ArtistBottomSheet(
         }
     }
     
-    val artistAlbums = remember(displayAlbums, displaySongs, artist, groupByAlbumArtist, artistSeparatorEnabled, artistSeparatorDelimiters) {
+    val artistAlbums = remember(displayAlbums, artist, groupByAlbumArtist, artistSeparatorEnabled, artistSeparatorDelimiters) {
         if (groupByAlbumArtist) {
             // When grouping by album artist, check if any song in the album has matching album artist
             displayAlbums.filter { album ->
-                displaySongs.any { song ->
+                album.songs.any { song ->
                     val explicitAlbumArtist = song.albumArtist?.trim().orEmpty()
                     val songArtistNames = if (explicitAlbumArtist.isNotBlank() && !explicitAlbumArtist.equals("<unknown>", ignoreCase = true)) {
                         splitArtistNames(explicitAlbumArtist)
                     } else {
                         splitArtistNames(song.artist)
                     }
-
-                    song.album == album.title &&
-                    song.albumId == album.id &&
                     songArtistNames.any { it.equals(artist.name, ignoreCase = true) }
                 }
             }
         } else {
             // When not grouping, check if artist appears in any song's track artist field for this album
             displayAlbums.filter { album ->
-                displaySongs.any { song ->
-                    song.album == album.title &&
-                    song.albumId == album.id &&
+                album.songs.any { song ->
                     splitArtistNames(song.artist).any { it.equals(artist.name, ignoreCase = true) }
                 }
             }

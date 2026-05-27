@@ -674,9 +674,9 @@ fun PlaylistDetailScreen(
         )
     }
 
-    // Song picker bottom sheet (overlayed) - open when requested
     val availableSongs = remember(allSongs, playlist.songs) {
-        allSongs.filter { song -> !playlist.songs.any { it.id == song.id } }
+        val playlistSongIds = playlist.songs.map { it.id }.toSet()
+        allSongs.filter { song -> song.id !in playlistSongIds }
     }
 
     if (showSongPicker) {

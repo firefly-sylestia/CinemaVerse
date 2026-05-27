@@ -906,116 +906,72 @@ fun AlbumBottomSheet(
                                                         )
                                                     }
 
-                                                    var itemVisible by remember(song.id, index) { mutableStateOf(false) }
-
-                                                    val itemAlpha by animateFloatAsState(
-                                                        targetValue = if (itemVisible) 1f else 0f,
-                                                        animationSpec = tween(
-                                                            durationMillis = 300,
-                                                            easing = FastOutSlowInEasing
-                                                        ),
-                                                        label = "itemAlpha_$index"
+                                                    ExpressiveSongItem(
+                                                        song = song,
+                                                        index = index + 1,
+                                                        itemShape = when {
+                                                            showDiscSections && isFirstInDiscGroup && isLastInDiscGroup -> RoundedCornerShape(24.dp)
+                                                            showDiscSections && isFirstInDiscGroup -> RoundedCornerShape(
+                                                                topStart = 24.dp,
+                                                                topEnd = 24.dp,
+                                                                bottomStart = 6.dp,
+                                                                bottomEnd = 6.dp
+                                                            )
+                                                            showDiscSections && isLastInDiscGroup -> RoundedCornerShape(
+                                                                topStart = 6.dp,
+                                                                topEnd = 6.dp,
+                                                                bottomStart = 24.dp,
+                                                                bottomEnd = 24.dp
+                                                            )
+                                                            visibleSongs.size == 1 -> RoundedCornerShape(24.dp)
+                                                            index == 0 -> RoundedCornerShape(
+                                                                topStart = 24.dp,
+                                                                topEnd = 24.dp,
+                                                                bottomStart = 6.dp,
+                                                                bottomEnd = 6.dp
+                                                            )
+                                                            index == visibleSongs.lastIndex -> RoundedCornerShape(
+                                                                topStart = 6.dp,
+                                                                topEnd = 6.dp,
+                                                                bottomStart = 24.dp,
+                                                                bottomEnd = 24.dp
+                                                            )
+                                                            else -> RoundedCornerShape(6.dp)
+                                                        },
+                                                        baseContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                                        horizontalPadding = 4.dp,
+                                                        verticalPadding = 2.dp,
+                                                        onClick = {
+                                                            onSongClick(song)
+                                                            onDismiss()
+                                                            onPlayerClick()
+                                                        },
+                                                        onAddToQueue = { onAddToQueue(song) },
+                                                        onAddToPlaylist = {
+                                                            onAddSongToPlaylist(
+                                                                song
+                                                            )
+                                                        },
+                                                        onPlayNext = { onPlayNext(song) },
+                                                        onToggleFavorite = {
+                                                            onToggleFavorite(
+                                                                song
+                                                            )
+                                                        },
+                                                        isFavorite = favoriteSongs.contains(song.id),
+                                                        onShowSongInfo = { onShowSongInfo(song) },
+                                                        onAddToBlacklist = {
+                                                            onAddToBlacklist(
+                                                                song
+                                                            )
+                                                        },
+                                                        currentSong = currentSong,
+                                                        isPlaying = isPlaying,
+                                                        useHoursFormat = useHoursFormat,
+                                                        songArtShape = songArtworkShape,
+                                                        haptics = haptics,
+                                                        modifier = Modifier.animateItem()
                                                     )
-
-                                                    val itemTranslation by animateFloatAsState(
-                                                        targetValue = if (itemVisible) 0f else 60f,
-                                                        animationSpec = spring(
-                                                            dampingRatio = Spring.DampingRatioLowBouncy,
-                                                            stiffness = Spring.StiffnessMediumLow
-                                                        ),
-                                                        label = "itemTranslation_$index"
-                                                    )
-
-                                                    val itemScale by animateFloatAsState(
-                                                        targetValue = if (itemVisible) 1f else 0.9f,
-                                                        animationSpec = spring(
-                                                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                                                            stiffness = Spring.StiffnessMedium
-                                                        ),
-                                                        label = "itemScale_$index"
-                                                    )
-
-                                                    LaunchedEffect(song.id, index) {
-                                                        delay((35L * index).coerceAtMost(700L))
-                                                        itemVisible = true
-                                                    }
-
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .graphicsLayer {
-                                                                alpha = itemAlpha
-                                                                translationX = itemTranslation
-                                                                scaleX = itemScale
-                                                                scaleY = itemScale
-                                                            }
-                                                    ) {
-                                                        ExpressiveSongItem(
-                                                            song = song,
-                                                            index = index + 1,
-                                                            itemShape = when {
-                                                                showDiscSections && isFirstInDiscGroup && isLastInDiscGroup -> RoundedCornerShape(24.dp)
-                                                                showDiscSections && isFirstInDiscGroup -> RoundedCornerShape(
-                                                                    topStart = 24.dp,
-                                                                    topEnd = 24.dp,
-                                                                    bottomStart = 6.dp,
-                                                                    bottomEnd = 6.dp
-                                                                )
-                                                                showDiscSections && isLastInDiscGroup -> RoundedCornerShape(
-                                                                    topStart = 6.dp,
-                                                                    topEnd = 6.dp,
-                                                                    bottomStart = 24.dp,
-                                                                    bottomEnd = 24.dp
-                                                                )
-                                                                visibleSongs.size == 1 -> RoundedCornerShape(24.dp)
-                                                                index == 0 -> RoundedCornerShape(
-                                                                    topStart = 24.dp,
-                                                                    topEnd = 24.dp,
-                                                                    bottomStart = 6.dp,
-                                                                    bottomEnd = 6.dp
-                                                                )
-                                                                index == visibleSongs.lastIndex -> RoundedCornerShape(
-                                                                    topStart = 6.dp,
-                                                                    topEnd = 6.dp,
-                                                                    bottomStart = 24.dp,
-                                                                    bottomEnd = 24.dp
-                                                                )
-                                                                else -> RoundedCornerShape(6.dp)
-                                                            },
-                                                            baseContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                                            horizontalPadding = 4.dp,
-                                                            verticalPadding = 2.dp,
-                                                            onClick = {
-                                                                onSongClick(song)
-                                                                onDismiss()
-                                                                onPlayerClick()
-                                                            },
-                                                            onAddToQueue = { onAddToQueue(song) },
-                                                            onAddToPlaylist = {
-                                                                onAddSongToPlaylist(
-                                                                    song
-                                                                )
-                                                            },
-                                                            onPlayNext = { onPlayNext(song) },
-                                                            onToggleFavorite = {
-                                                                onToggleFavorite(
-                                                                    song
-                                                                )
-                                                            },
-                                                            isFavorite = favoriteSongs.contains(song.id),
-                                                            onShowSongInfo = { onShowSongInfo(song) },
-                                                            onAddToBlacklist = {
-                                                                onAddToBlacklist(
-                                                                    song
-                                                                )
-                                                            },
-                                                            currentSong = currentSong,
-                                                            isPlaying = isPlaying,
-                                                            useHoursFormat = useHoursFormat,
-                                                            songArtShape = songArtworkShape,
-                                                            haptics = haptics,
-                                                            modifier = Modifier.animateItem()
-                                                        )
-                                                    }
                                                 }
                                             }
                                         } else {
@@ -1849,117 +1805,72 @@ fun AlbumBottomSheet(
                                         )
                                     }
 
-                                    var itemVisible by remember(song.id, index) { mutableStateOf(false) }
-
-                                    // Animation progress for stagger effect
-                                    val itemAlpha by animateFloatAsState(
-                                        targetValue = if (itemVisible) 1f else 0f,
-                                        animationSpec = tween(
-                                            durationMillis = 300,
-                                            easing = FastOutSlowInEasing
-                                        ),
-                                        label = "itemAlpha_$index"
-                                    )
-
-                                    val itemTranslation by animateFloatAsState(
-                                        targetValue = if (itemVisible) 0f else 60f,
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioLowBouncy,
-                                            stiffness = Spring.StiffnessMediumLow
-                                        ),
-                                        label = "itemTranslation_$index"
-                                    )
-
-                                    val itemScale by animateFloatAsState(
-                                        targetValue = if (itemVisible) 1f else 0.9f,
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                                            stiffness = Spring.StiffnessMedium
-                                        ),
-                                        label = "itemScale_$index"
-                                    )
-
-                                    LaunchedEffect(song.id, index) {
-                                        delay((35L * index).coerceAtMost(700L))
-                                        itemVisible = true
-                                    }
-
-                                    Box(
-                                        modifier = Modifier
-                                            .graphicsLayer {
-                                                alpha = itemAlpha
-                                                translationX = itemTranslation
-                                                scaleX = itemScale
-                                                scaleY = itemScale
-                                            }
-                                    ) {
-                                        ExpressiveSongItem(
-                                            song = song,
-                                            index = index + 1,
-                                            itemShape = when {
-                                                showDiscSections && isFirstInDiscGroup && isLastInDiscGroup -> RoundedCornerShape(24.dp)
-                                                showDiscSections && isFirstInDiscGroup -> RoundedCornerShape(
-                                                    topStart = 24.dp,
-                                                    topEnd = 24.dp,
-                                                    bottomStart = 6.dp,
-                                                    bottomEnd = 6.dp
-                                                )
-                                                showDiscSections && isLastInDiscGroup -> RoundedCornerShape(
-                                                    topStart = 6.dp,
-                                                    topEnd = 6.dp,
-                                                    bottomStart = 24.dp,
-                                                    bottomEnd = 24.dp
-                                                )
-                                                visibleSongs.size == 1 -> RoundedCornerShape(24.dp)
-                                                index == 0 -> RoundedCornerShape(
-                                                    topStart = 24.dp,
-                                                    topEnd = 24.dp,
-                                                    bottomStart = 6.dp,
-                                                    bottomEnd = 6.dp
-                                                )
-                                                index == visibleSongs.lastIndex -> RoundedCornerShape(
-                                                    topStart = 6.dp,
-                                                    topEnd = 6.dp,
-                                                    bottomStart = 24.dp,
-                                                    bottomEnd = 24.dp
-                                                )
-                                                else -> RoundedCornerShape(6.dp)
-                                            },
-                                            baseContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                            horizontalPadding = 4.dp,
-                                            verticalPadding = 2.dp,
-                                            onClick = {
-                                                onSongClick(song)
-                                                scope.launch {
-                                                    sheetState.hide()
-                                                }.invokeOnCompletion {
-                                                    if (!sheetState.isVisible) {
-                                                        onDismiss()
-                                                        onPlayerClick()
-                                                    }
+                                    ExpressiveSongItem(
+                                        song = song,
+                                        index = index + 1,
+                                        itemShape = when {
+                                            showDiscSections && isFirstInDiscGroup && isLastInDiscGroup -> RoundedCornerShape(24.dp)
+                                            showDiscSections && isFirstInDiscGroup -> RoundedCornerShape(
+                                                topStart = 24.dp,
+                                                topEnd = 24.dp,
+                                                bottomStart = 6.dp,
+                                                bottomEnd = 6.dp
+                                            )
+                                            showDiscSections && isLastInDiscGroup -> RoundedCornerShape(
+                                                topStart = 6.dp,
+                                                topEnd = 6.dp,
+                                                bottomStart = 24.dp,
+                                                bottomEnd = 24.dp
+                                            )
+                                            visibleSongs.size == 1 -> RoundedCornerShape(24.dp)
+                                            index == 0 -> RoundedCornerShape(
+                                                topStart = 24.dp,
+                                                topEnd = 24.dp,
+                                                bottomStart = 6.dp,
+                                                bottomEnd = 6.dp
+                                            )
+                                            index == visibleSongs.lastIndex -> RoundedCornerShape(
+                                                topStart = 6.dp,
+                                                topEnd = 6.dp,
+                                                bottomStart = 24.dp,
+                                                bottomEnd = 24.dp
+                                            )
+                                            else -> RoundedCornerShape(6.dp)
+                                        },
+                                        baseContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        horizontalPadding = 4.dp,
+                                        verticalPadding = 2.dp,
+                                        onClick = {
+                                            onSongClick(song)
+                                            scope.launch {
+                                                sheetState.hide()
+                                            }.invokeOnCompletion {
+                                                if (!sheetState.isVisible) {
+                                                    onDismiss()
+                                                    onPlayerClick()
                                                 }
-                                            },
-                                            onAddToQueue = { onAddToQueue(song) },
-                                            onAddToPlaylist = { onAddSongToPlaylist(song) },
-                                            onPlayNext = { onPlayNext(song) },
-                                            onToggleFavorite = { onToggleFavorite(song) },
-                                            isFavorite = favoriteSongs.contains(song.id),
-                                            onShowSongInfo = { onShowSongInfo(song) },
-                                            onAddToBlacklist = { onAddToBlacklist(song) },
-                                            showPlayNextAction = showPlayNextAction,
-                                            showAddToQueueAction = showAddToQueueAction,
-                                            showToggleFavoriteAction = showToggleFavoriteAction,
-                                            showAddToPlaylistAction = showAddToPlaylistAction,
-                                            showSongInfoAction = showSongInfoAction,
-                                            showAddToBlacklistAction = showAddToBlacklistAction,
-                                            currentSong = currentSong,
-                                            isPlaying = isPlaying,
-                                            useHoursFormat = useHoursFormat,
-                                            songArtShape = songArtworkShape,
-                                            haptics = haptics,
-                                            modifier = Modifier.animateItem()
-                                        )
-                                    }
+                                            }
+                                        },
+                                        onAddToQueue = { onAddToQueue(song) },
+                                        onAddToPlaylist = { onAddSongToPlaylist(song) },
+                                        onPlayNext = { onPlayNext(song) },
+                                        onToggleFavorite = { onToggleFavorite(song) },
+                                        isFavorite = favoriteSongs.contains(song.id),
+                                        onShowSongInfo = { onShowSongInfo(song) },
+                                        onAddToBlacklist = { onAddToBlacklist(song) },
+                                        showPlayNextAction = showPlayNextAction,
+                                        showAddToQueueAction = showAddToQueueAction,
+                                        showToggleFavoriteAction = showToggleFavoriteAction,
+                                        showAddToPlaylistAction = showAddToPlaylistAction,
+                                        showSongInfoAction = showSongInfoAction,
+                                        showAddToBlacklistAction = showAddToBlacklistAction,
+                                        currentSong = currentSong,
+                                        isPlaying = isPlaying,
+                                        useHoursFormat = useHoursFormat,
+                                        songArtShape = songArtworkShape,
+                                        haptics = haptics,
+                                        modifier = Modifier.animateItem()
+                                    )
                                 }
                             }
                         } else {

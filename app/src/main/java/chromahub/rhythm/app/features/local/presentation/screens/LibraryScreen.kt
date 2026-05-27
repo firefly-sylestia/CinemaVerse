@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 package chromahub.rhythm.app.features.local.presentation.screens
 
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
@@ -1757,40 +1757,11 @@ fun SingleCardSongsContent(
     val splitArtistNames: (String) -> List<String> = remember {
         { artistName ->
             val libAppSettings = AppSettings.getInstance(context)
-            val artistSeparatorEnabled = libAppSettings.artistSeparatorEnabled.value
-            val charDelimiters = if (artistSeparatorEnabled) {
-                libAppSettings.artistSeparatorDelimiters.value.toList().map { it.toString() }
-            } else emptyList()
-
-            if (charDelimiters.isEmpty()) {
-                listOf(artistName.trim()).filter { it.isNotBlank() }
-            } else {
-                val selectedDelimiterChars = charDelimiters.mapNotNull { it.firstOrNull() }.toSet()
-                val wordSeparators = mutableListOf<String>().apply {
-                    if (selectedDelimiterChars.contains('&')) add(" & ")
-                    add(" and ")
-                    if (selectedDelimiterChars.contains(',')) add(", ")
-                    add(" feat. ")
-                    add(" feat ")
-                    add(" ft. ")
-                    add(" ft ")
-                    add(" featuring ")
-                    add(" x ")
-                    add(" X ")
-                    add(" vs ")
-                    add(" vs. ")
-                    add(" with ")
-                }
-
-                var names = listOf(artistName)
-                for (delimiter in charDelimiters) {
-                    names = names.flatMap { it.split(delimiter) }
-                }
-                for (separator in wordSeparators) {
-                    names = names.flatMap { it.split(separator, ignoreCase = true) }
-                }
-                names.map { it.trim() }.filter { it.isNotBlank() }
-            }
+            chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+                artistName = artistName,
+                delimiters = libAppSettings.artistSeparatorDelimiters.value,
+                enabled = libAppSettings.artistSeparatorEnabled.value
+            )
         }
     }
     

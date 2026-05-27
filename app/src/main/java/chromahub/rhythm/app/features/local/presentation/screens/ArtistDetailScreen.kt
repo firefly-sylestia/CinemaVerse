@@ -129,42 +129,12 @@ fun ArtistDetailScreen(
         }
 
         value = withContext(Dispatchers.Default) {
-            val charDelimiters = if (artistSeparatorEnabled) {
-                artistSeparatorDelimiters.toList().map { it.toString() }
-            } else {
-                emptyList()
-            }
-
             fun splitArtistNames(artistNameStr: String): List<String> {
-                if (charDelimiters.isEmpty()) {
-                    return listOf(artistNameStr.trim()).filter { it.isNotBlank() }
-                }
-
-                val selectedDelimiterChars = charDelimiters.mapNotNull { it.firstOrNull() }.toSet()
-                val wordSeparators = mutableListOf<String>().apply {
-                    if (selectedDelimiterChars.contains('&')) add(" & ")
-                    add(" and ")
-                    if (selectedDelimiterChars.contains(',')) add(", ")
-                    add(" feat. ")
-                    add(" feat ")
-                    add(" ft. ")
-                    add(" ft ")
-                    add(" featuring ")
-                    add(" x ")
-                    add(" X ")
-                    add(" vs ")
-                    add(" vs. ")
-                    add(" with ")
-                }
-
-                var names = listOf(artistNameStr)
-                for (delimiter in charDelimiters) {
-                    names = names.flatMap { it.split(delimiter) }
-                }
-                for (separator in wordSeparators) {
-                    names = names.flatMap { it.split(separator, ignoreCase = true) }
-                }
-                return names.map { it.trim() }.filter { it.isNotBlank() }
+                return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+                    artistName = artistNameStr,
+                    delimiters = artistSeparatorDelimiters,
+                    enabled = artistSeparatorEnabled
+                )
             }
 
             fun songMatchesArtist(song: Song): Boolean {

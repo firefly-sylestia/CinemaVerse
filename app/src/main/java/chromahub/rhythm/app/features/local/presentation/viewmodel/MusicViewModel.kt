@@ -619,9 +619,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
         // Pre-compute the set of all unique, lowercase split artist names from filteredSongs
         // to avoid O(N * M) complex string splitting and massive allocations in the filter loop.
-        val activeArtistNames = filteredSongs.flatMap { song ->
+        val activeArtistNames = java.util.HashSet<String>(filteredSongs.size)
+        for (song in filteredSongs) {
             val explicitAlbumArtist = song.albumArtist?.trim().orEmpty()
-            if (groupByAlbumArtist) {
+            val artistsList = if (groupByAlbumArtist) {
                 if (explicitAlbumArtist.isNotBlank() && !explicitAlbumArtist.equals("<unknown>", ignoreCase = true)) {
                     repository.splitArtistNames(explicitAlbumArtist, charDelimiters)
                 } else {
@@ -630,7 +631,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 repository.splitArtistNames(song.artist, charDelimiters)
             }
-        }.map { it.lowercase() }.toSet()
+            for (artistName in artistsList) {
+                activeArtistNames.add(artistName.lowercase())
+            }
+        }
 
         artists.filter { artist ->
             activeArtistNames.contains(artist.name.lowercase())

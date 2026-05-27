@@ -1154,33 +1154,11 @@ fun RhythmPlayerScreen(
 
         val splitArtistNames: (String) -> List<String> = remember {
             { artistName ->
-                val charDelimiters = if (artistSeparatorEnabled) {
-                    artistSeparatorDelimiters.toList().map { it.toString() }
-                } else {
-                    emptyList()
-                }
-
-                if (charDelimiters.isEmpty()) {
-                    listOf(artistName.trim()).filter { it.isNotBlank() }
-                } else {
-                    val selectedDelimiterChars = charDelimiters.mapNotNull { it.firstOrNull() }.toSet()
-                    val separators = mutableListOf<String>().apply {
-                        if (selectedDelimiterChars.contains('&')) add(" & ")
-                        add(" and ")
-                        if (selectedDelimiterChars.contains(',')) add(", ")
-                        add(" feat. ")
-                        add(" feat ")
-                        add(" ft. ")
-                        add(" ft ")
-                        add(" featuring ")
-                        add(" x ")
-                        add(" × ")
-                    }
-                    val pattern = separators.joinToString("|") { Regex.escape(it) }.toRegex(RegexOption.IGNORE_CASE)
-                    pattern.split(artistName)
-                        .map { it.trim() }
-                        .filter { it.isNotBlank() }
-                }
+                chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+                    artistName = artistName,
+                    delimiters = artistSeparatorDelimiters,
+                    enabled = artistSeparatorEnabled
+                )
             }
         }
 
