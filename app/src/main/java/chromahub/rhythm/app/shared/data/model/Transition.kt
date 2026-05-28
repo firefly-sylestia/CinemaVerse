@@ -38,4 +38,5 @@ data class TransitionSettings(
     val curveIn: Curve = Curve.S_CURVE,
     val curveOut: Curve = Curve.S_CURVE,
     val isManualSkip: Boolean = false,
+    val isSkipPrevious: Boolean = false,
 )

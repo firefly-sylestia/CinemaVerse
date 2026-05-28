@@ -318,8 +318,10 @@ private fun RhythmGuardWarningHost(
     }
     val activeThresholdPercent = (activeThreshold * 100f).toInt().coerceIn(0, 100)
     val currentVolumePercent = (currentSystemVolume * 100f).toInt().coerceIn(0, 100)
-    val isListeningTimeoutActive = timeoutUntilMs > System.currentTimeMillis()
-    val isPostTimeoutCooldownActive = timeoutCooldownUntilMs > System.currentTimeMillis()
+    val isListeningTimeoutActive = timeoutUntilMs > System.currentTimeMillis() ||
+            appSettings.rhythmGuardTimeoutUntilMs.value > System.currentTimeMillis()
+    val isPostTimeoutCooldownActive = timeoutCooldownUntilMs > System.currentTimeMillis() ||
+            appSettings.rhythmGuardTimeoutCooldownUntilMs.value > System.currentTimeMillis()
 
     val rulesEnabled = auraMode != AppSettings.RHYTHM_GUARD_MODE_OFF && currentSong != null
     val volumeWarningEnabled = when (auraMode) {

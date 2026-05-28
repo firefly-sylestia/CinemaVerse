@@ -437,12 +437,12 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
             parentScreen = context.getString(R.string.settings_section_storage_data)
         ))
         add(SearchableSettingItem(
-            id = "listening_stats",
+            id = "rhythm_stats",
             title = context.getString(R.string.settings_rhythm_stats),
             description = context.getString(R.string.settings_rhythm_stats_desc),
             keywords = listOf("stats", "statistics", "listening", "history", "play count", "most played", "analytics"),
             icon = MaterialSymbolIcon("auto_graph"),
-            route = SettingsRoutes.LISTENING_STATS,
+            route = SettingsRoutes.RHYTHM_STATS,
             parentScreen = context.getString(R.string.settings_section_storage_data)
         ))
         add(SearchableSettingItem(

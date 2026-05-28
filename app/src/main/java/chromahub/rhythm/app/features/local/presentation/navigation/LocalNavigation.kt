@@ -116,7 +116,7 @@ import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
 import chromahub.rhythm.app.shared.presentation.components.player.SleepTimerBottomSheetNew
 import chromahub.rhythm.app.features.local.presentation.screens.LibraryScreen
 import chromahub.rhythm.app.features.local.presentation.screens.HomeScreen
-import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
+import chromahub.rhythm.app.shared.presentation.screens.RhythmStatsScreen
 import chromahub.rhythm.app.features.local.presentation.screens.EqualizerScreen
 import chromahub.rhythm.app.shared.presentation.screens.player.PlayerScreen
 
@@ -225,7 +225,7 @@ sealed class Screen(val route: String) {
     object TunerHomeScreen : Screen("tuner_home_screen_settings")
     
     // Stats Screen
-    object ListeningStats : Screen("listening_stats")
+    object RhythmStats : Screen("rhythm_stats")
     object Equalizer : Screen("equalizer")
 }
 
@@ -404,7 +404,7 @@ fun LocalNavigation(
                 pendingRoute == Screen.Search.route ||
                 pendingRoute == Screen.Player.route ||
                 pendingRoute == Screen.Settings.route ||
-                pendingRoute == Screen.ListeningStats.route ||
+                pendingRoute == Screen.RhythmStats.route ||
                 pendingRoute.startsWith(Screen.Library.route.substringBefore("?")) ||
                 pendingRoute.startsWith("playlist/") ||
                 pendingRoute.startsWith("artist/")
@@ -440,7 +440,7 @@ fun LocalNavigation(
             isLibraryRoute ||
             currentRoute == Screen.Search.route ||
             currentRoute == Screen.Settings.route ||
-            currentRoute == Screen.ListeningStats.route
+            currentRoute == Screen.RhythmStats.route
     }
     val showBottomNav = remember(currentRoute) {
         currentRoute == Screen.Home.route || isLibraryRoute
@@ -1323,7 +1323,7 @@ private fun LocalNavigationContent(
                             }
                         },
                         onNavigateToStats = {
-                            navigateToTopLevel(Screen.ListeningStats.route)
+                            navigateToTopLevel(Screen.RhythmStats.route)
                         },
                         onNavigateToArtist = { artist ->
                             navController.navigate(Screen.ArtistDetail.createRoute(artist.name))
@@ -1655,7 +1655,7 @@ private fun LocalNavigationContent(
                 }
 
                 composable(
-                    route = Screen.ListeningStats.route,
+                    route = Screen.RhythmStats.route,
                     enterTransition = {
                         fadeIn(animationSpec = tween(300)) +
                                 slideInVertically(
@@ -1674,7 +1674,7 @@ private fun LocalNavigationContent(
                                 )
                     }
                 ) {
-                    ListeningStatsScreen(navController = navController)
+                    RhythmStatsScreen(navController = navController)
                 }
 
                 composable(
@@ -2826,12 +2826,12 @@ private fun LocalNavigationRail(
                     }
                 ),
                 LocalNavRailItem(
-                    route = Screen.ListeningStats.route,
+                    route = Screen.RhythmStats.route,
                     title = "Stats",
                     selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
                     unselectedIcon = MaterialSymbolIcon("auto_graph"),
                     onClick = {
-                        navigateToTopLevel(Screen.ListeningStats.route)
+                        navigateToTopLevel(Screen.RhythmStats.route)
                     }
                 ),
                 LocalNavRailItem(
@@ -2862,7 +2862,7 @@ private fun LocalNavigationRail(
                         "Library" -> currentRoute.substringBefore("?") == Screen.Library.route.substringBefore("?")
                         "Search" -> currentRoute == Screen.Search.route
                         "Settings" -> currentRoute.contains("settings")
-                        "Stats" -> currentRoute == Screen.ListeningStats.route
+                        "Stats" -> currentRoute == Screen.RhythmStats.route
                         else -> false
                     },
                     haptic = haptic,

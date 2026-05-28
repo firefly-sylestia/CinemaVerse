@@ -154,7 +154,7 @@ import chromahub.rhythm.app.shared.presentation.screens.settings.SettingItem
 import chromahub.rhythm.app.shared.presentation.screens.settings.SettingGroup
 
 
-// BackupInfoItem composable for displaying backup information
+
 @Composable
 fun BackupInfoItem(
     icon: MaterialSymbolIcon,
@@ -181,7 +181,7 @@ fun BackupInfoItem(
 
 
 
-// Backup & Restore Screen (merged from BackupRestoreBottomSheet)
+
 @Composable
 fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
@@ -318,7 +318,6 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                 isRestoringFromClipboard = true
                 HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
 
-                // Get backup from clipboard
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = clipboard.primaryClip
                 if (clip != null && clip.itemCount > 0) {
@@ -376,138 +375,101 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
-            // Status Cards
             item {
-                Row(
+                val hasBackup = lastBackupTimestamp > 0
+
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (hasBackup)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            MaterialTheme.colorScheme.errorContainer
+                    ),
+                    shape = RoundedCornerShape(28.dp)
                 ) {
-                    // Last Backup Card
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (lastBackupTimestamp > 0)
-                                MaterialTheme.colorScheme.primaryContainer
-                            else
-                                MaterialTheme.colorScheme.errorContainer
-                        ),
-                        shape = RoundedCornerShape(16.dp)
+                    Column(
+                        modifier = Modifier.padding(24.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                imageVector = if (lastBackupTimestamp > 0) RhythmIcons.CheckCircle else RhythmIcons.Warning,
-                                contentDescription = null,
-                                tint = if (lastBackupTimestamp > 0)
-                                    MaterialTheme.colorScheme.onPrimaryContainer
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Surface(
+                                shape = CircleShape,
+                                color = if (hasBackup)
+                                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f)
                                 else
-                                    MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = if (lastBackupTimestamp > 0) {
-                                    val sdf = SimpleDateFormat("MMM dd", java.util.Locale.getDefault())
-                                    sdf.format(Date(lastBackupTimestamp))
-                                } else "Never",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (lastBackupTimestamp > 0)
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onErrorContainer
-                            )
-                            Text(
-                                text = context.getString(R.string.last_backup),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (lastBackupTimestamp > 0)
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onErrorContainer
-                            )
-                        }
-                    }
+                                    MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.1f),
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = if (hasBackup) RhythmIcons.CheckCircle else RhythmIcons.Warning,
+                                        contentDescription = null,
+                                        tint = if (hasBackup)
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.onErrorContainer,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
 
-                    // Auto Backup Card
-                    Card(
-                        modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (autoBackupEnabled)
-                                MaterialTheme.colorScheme.tertiaryContainer
-                            else
-                                MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                imageVector = if (autoBackupEnabled) MaterialSymbolIcon("autorenew", filled = true) else RhythmIcons.AccessTime,
-                                contentDescription = null,
-                                tint = if (autoBackupEnabled)
-                                    MaterialTheme.colorScheme.onTertiaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = if (autoBackupEnabled) context.getString(R.string.settings_backup_enabled) else context.getString(R.string.settings_backup_manual),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (autoBackupEnabled)
-                                    MaterialTheme.colorScheme.onTertiaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = context.getString(R.string.auto_backup),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (autoBackupEnabled)
-                                    MaterialTheme.colorScheme.onTertiaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            }
+                            Spacer(modifier = Modifier.width(16.dp))
 
-            // Backup location info if available
-            backupLocation?.let { location ->
-                item {
-                    Surface(
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = RhythmIcons.Folder,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.size(16.dp)
+                            Column {
+                                Text(
+                                    text = if (hasBackup) "Data Backed Up" else "No Backups Found",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (hasBackup)
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                    else
+                                        MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                Text(
+                                    text = if (hasBackup) {
+                                        val sdf = SimpleDateFormat("MMMM dd, yyyy • hh:mm a", Locale.getDefault())
+                                        sdf.format(Date(lastBackupTimestamp))
+                                    } else {
+                                        "Protect your library and settings"
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (hasBackup)
+                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                    else
+                                        MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+
+                        if (hasBackup && backupLocation != null) {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = location.substringAfterLast("/"),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.Folder,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = backupLocation!!.substringAfterLast("/"),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }
@@ -515,8 +477,20 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
 
             val settingGroups = listOf(
                 SettingGroup(
-                    title = context.getString(R.string.settings_backup_settings),
+                    title = "Backup",
                     items = listOf(
+                        SettingItem(
+                            MaterialSymbolIcon("save"),
+                            context.getString(R.string.settings_create_backup),
+                            context.getString(R.string.settings_create_backup_desc),
+                            onClick = {
+                                if (!isBusy) {
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                    backupSections = AppSettings.BackupRestoreSections()
+                                    showBackupSelectionSheet = true
+                                }
+                            }
+                        ),
                         SettingItem(
                             MaterialSymbolIcon("autorenew"),
                             context.getString(R.string.settings_auto_backup),
@@ -531,24 +505,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                     )
                 ),
                 SettingGroup(
-                    title = context.getString(R.string.settings_backup_actions),
-                    items = listOf(
-                        SettingItem(
-                            MaterialSymbolIcon("save"),
-                            context.getString(R.string.settings_create_backup),
-                            context.getString(R.string.settings_create_backup_desc),
-                            onClick = {
-                                if (!isBusy) {
-                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                                    backupSections = AppSettings.BackupRestoreSections()
-                                    showBackupSelectionSheet = true
-                                }
-                            }
-                        )
-                    )
-                ),
-                SettingGroup(
-                    title = context.getString(R.string.settings_restore_actions),
+                    title = "Restore",
                     items = listOf(
                         SettingItem(
                             RhythmIcons.ContentCopy,
@@ -582,7 +539,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
             )
 
             items(settingGroups, key = { "setting_${it.title}_${settingGroups.indexOf(it)}" }) { group ->
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 val materialItems = group.items.map { item ->
                     toMaterial3SettingsItem(context = context, item = item, hapticFeedback = haptics)
@@ -595,37 +552,34 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                 )
             }
 
-            // Tips/Information Card
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
                     )
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = MaterialSymbolIcon("lightbulb", filled = true),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = context.getString(R.string.backup_whats_included_placeholder),
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         BackupInfoItem(
                             icon = MaterialSymbolIcon("save", filled = true),
@@ -643,7 +597,7 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
         }
     }
 
@@ -725,8 +679,6 @@ fun BackupRestoreSettingsScreen(onBackClick: () -> Unit) {
         )
     }
 }
-
-
 
 @Composable
 fun BackupRestoreSectionRow(

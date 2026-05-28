@@ -422,67 +422,12 @@ class RhythmPlayerEngine(
      * 6. Releases old player and recreates it fresh
      */
     private suspend fun performOverlapTransition(settings: TransitionSettings) {
-        Log.d(TAG, "Starting crossfade. Duration: ${settings.durationMs}ms, isManualSkip: ${settings.isManualSkip}")
-
         if (playerB.mediaItemCount == 0) {
-            Log.w(TAG, "Skipping overlap — next player not prepared (count=0)")
             playerA.volume = 1f
             setPauseAtEndOfMediaItems(false)
             return
         }
 
-        // Ensure Player B is ready
-        if (playerB.playbackState == Player.STATE_IDLE) {
-            Log.d(TAG, "Player B idle. Preparing now.")
-            playerB.prepare()
-        }
-
-        var readinessChecks = 0
-        val maxReadinessChecks = if (settings.isManualSkip) 16 else 120 // 400ms max for manual skip
-        while (playerB.playbackState == Player.STATE_BUFFERING && readinessChecks < maxReadinessChecks) {
-            delay(25)
-            readinessChecks++
-        }
-
-        val incomingReady = playerB.playbackState == Player.STATE_READY
-        if (!incomingReady && !settings.isManualSkip) {
-            Log.w(TAG, "Player B not ready for overlap. State=${playerB.playbackState}")
-            playerA.volume = 1f
-            setPauseAtEndOfMediaItems(false)
-            return
-        }
-
-        var isFading = false
-
-        if (incomingReady) {
-            // Start Player B playing at volume 0
-            playerB.volume = 0f
-            playerA.volume = 1f
-            if (!playerA.isPlaying && playerA.playbackState == Player.STATE_READY) {
-                playerA.play()
-            }
-
-            playerB.playWhenReady = true
-            playerB.play()
-
-            Log.d(TAG, "Player B started. Playing=${playerB.isPlaying}, state=${playerB.playbackState}")
-
-            // Wait for Player B to actually start rendering audio
-            var playChecks = 0
-            val maxPlayChecks = if (settings.isManualSkip) 16 else 80 // 400ms max for manual skip
-            while (!playerB.isPlaying && playChecks < maxPlayChecks) {
-                delay(25)
-                playChecks++
-            }
-
-            if (playerB.isPlaying) {
-                isFading = true
-                delay(75) // Small stabilization delay
-            }
-        }
-
-        // --- SWAP PLAYERS EARLY (Before Fade) ---
-        // This makes the UI immediately show the new song
         val outgoingPlayer = playerA
         val incomingPlayer = playerB
 
@@ -492,23 +437,29 @@ class RhythmPlayerEngine(
             .takeIf { it in 0 until outgoingMediaItemCount }
             ?: 0
 
-        // Resolve where the incoming media item belongs in the outgoing queue.
-        // This keeps queue order stable across wrap-around transitions (e.g., last -> first with repeat-all)
-        // and prevents duplicating the first song as a permanent loop target.
         val outgoingTimeline = outgoingPlayer.currentTimeline
-        val timelineNextIndex = if (!outgoingTimeline.isEmpty && currentOutgoingIndex != C.INDEX_UNSET) {
-            outgoingTimeline.getNextWindowIndex(
-                currentOutgoingIndex,
-                outgoingPlayer.repeatMode,
-                outgoingPlayer.shuffleModeEnabled
-            )
+        val timelineTargetIndex = if (!outgoingTimeline.isEmpty && currentOutgoingIndex != C.INDEX_UNSET) {
+            if (settings.isSkipPrevious) {
+                outgoingTimeline.getPreviousWindowIndex(
+                    currentOutgoingIndex,
+                    outgoingPlayer.repeatMode,
+                    outgoingPlayer.shuffleModeEnabled
+                )
+            } else {
+                outgoingTimeline.getNextWindowIndex(
+                    currentOutgoingIndex,
+                    outgoingPlayer.repeatMode,
+                    outgoingPlayer.shuffleModeEnabled
+                )
+            }
         } else {
             C.INDEX_UNSET
         }
         val incomingMediaId = incomingPlayer.currentMediaItem?.mediaId
         val incomingQueueIndex = when {
             isSelfTransition -> currentOutgoingIndex
-            timelineNextIndex in 0 until outgoingMediaItemCount -> timelineNextIndex
+            timelineTargetIndex in 0 until outgoingMediaItemCount && 
+                outgoingPlayer.getMediaItemAt(timelineTargetIndex).mediaId == incomingMediaId -> timelineTargetIndex
             incomingMediaId != null -> (0 until outgoingMediaItemCount)
                 .firstOrNull { index -> outgoingPlayer.getMediaItemAt(index).mediaId == incomingMediaId }
                 ?: currentOutgoingIndex
@@ -525,28 +476,25 @@ class RhythmPlayerEngine(
             futureToTransfer.add(outgoingPlayer.getMediaItemAt(i))
         }
 
-        Log.d(
-            TAG,
-            "Queue transfer indices: current=$currentOutgoingIndex, incoming=$incomingQueueIndex, nextFromTimeline=$timelineNextIndex, total=$outgoingMediaItemCount"
-        )
+        incomingPlayer.repeatMode = outgoingPlayer.repeatMode
+        incomingPlayer.shuffleModeEnabled = outgoingPlayer.shuffleModeEnabled
+        incomingPlayer.playbackParameters = outgoingPlayer.playbackParameters
 
-        // Transfer playback settings
-        val repeatModeToTransfer = outgoingPlayer.repeatMode
-        val shuffleModeToTransfer = outgoingPlayer.shuffleModeEnabled
-        val playbackParamsToTransfer = outgoingPlayer.playbackParameters
-        incomingPlayer.repeatMode = repeatModeToTransfer
-        incomingPlayer.shuffleModeEnabled = shuffleModeToTransfer
-        incomingPlayer.playbackParameters = playbackParamsToTransfer
-        Log.d(TAG, "Transferred playback settings: repeat=$repeatModeToTransfer, shuffle=$shuffleModeToTransfer, speed=${playbackParamsToTransfer.speed}, pitch=${playbackParamsToTransfer.pitch}")
+        if (historyToTransfer.isNotEmpty()) {
+            incomingPlayer.addMediaItems(0, historyToTransfer)
+        }
 
-        // Swap the player references
+        if (futureToTransfer.isNotEmpty()) {
+            incomingPlayer.addMediaItems(futureToTransfer)
+        }
+
+        incomingPlayer.seekTo(incomingQueueIndex, 0)
+
         outgoingPlayer.removeListener(masterPlayerListener)
 
         playerA = incomingPlayer
         playerB = outgoingPlayer
 
-        // Keep the outgoing player from auto-advancing while it is fading out.
-        // Otherwise it can jump to the next item and briefly replay an intro.
         playerB.pauseAtEndOfMediaItems = true
         playerA.pauseAtEndOfMediaItems = false
 
@@ -555,26 +503,48 @@ class RhythmPlayerEngine(
             requestAudioFocus()
         }
 
-        // Add history and future items to the new master player
-        if (historyToTransfer.isNotEmpty()) {
-            playerA.addMediaItems(0, historyToTransfer)
-            Log.d(TAG, "Transferred ${historyToTransfer.size} history items.")
-        }
-
-        if (futureToTransfer.isNotEmpty()) {
-            playerA.addMediaItems(futureToTransfer)
-            Log.d(TAG, "Transferred ${futureToTransfer.size} future items.")
-        }
-
-        // Notify listeners about the player swap
         onPlayerSwappedListeners.forEach { it(playerA) }
 
         _activeAudioSessionId.value = playerA.audioSessionId
 
-        Log.d(TAG, "Players swapped EARLY. UI should now show next song. isFading=$isFading")
+        if (playerA.playbackState == Player.STATE_IDLE) {
+            playerA.prepare()
+        }
+
+        var readinessChecks = 0
+        val maxReadinessChecks = if (settings.isManualSkip) 16 else 120
+        while (playerA.playbackState == Player.STATE_BUFFERING && readinessChecks < maxReadinessChecks) {
+            delay(25)
+            readinessChecks++
+        }
+
+        val incomingReady = playerA.playbackState == Player.STATE_READY
+        var isFading = false
+
+        if (incomingReady || settings.isManualSkip) {
+            playerA.volume = 0f
+            playerB.volume = 1f
+            if (!playerB.isPlaying && playerB.playbackState == Player.STATE_READY) {
+                playerB.play()
+            }
+
+            playerA.playWhenReady = true
+            playerA.play()
+
+            var playChecks = 0
+            val maxPlayChecks = if (settings.isManualSkip) 16 else 80
+            while (!playerA.isPlaying && playChecks < maxPlayChecks) {
+                delay(25)
+                playChecks++
+            }
+
+            if (playerA.isPlaying) {
+                isFading = true
+                delay(75)
+            }
+        }
 
         if (isFading) {
-            // *** FADE LOOP — shaped volume curves ***
             val duration = settings.durationMs.toLong().coerceAtLeast(500L)
             val stepMs = 16L
             var elapsed = 0L
@@ -588,16 +558,13 @@ class RhythmPlayerEngine(
                 playerB.volume = volOut.coerceIn(0f, 1f)
 
                 if (playerA.playbackState == Player.STATE_ENDED || playerB.playbackState == Player.STATE_ENDED) {
-                    Log.w(TAG, "A player ended during crossfade (A=${playerA.playbackState}, B=${playerB.playbackState})")
                     break
                 }
 
                 delay(stepMs)
                 elapsed += stepMs
             }
-            Log.d(TAG, "Crossfade loop finished.")
         } else {
-            Log.d(TAG, "Instant swap without fade (incoming track buffering or failed to play)")
             playerA.volume = 1f
             if (playerA.playbackState == Player.STATE_READY) {
                 playerA.play()
@@ -609,32 +576,22 @@ class RhythmPlayerEngine(
         playerB.volume = 0f
         playerA.volume = 1f
 
-        // Clean up outgoing player
         playerB.pause()
         playerB.stop()
         playerB.clearMediaItems()
 
-        // Try to reset Player B for reuse instead of always recreating
         try {
             playerB.seekTo(0)
             playerB.setPlaybackSpeed(1.0f)
             playerB.setPlaybackParameters(playerB.playbackParameters)
-            Log.d(TAG, "Player B reset for reuse.")
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to reset Player B, recreating", e)
-            // Fallback: Release and recreate Player B fresh to avoid OEM stale session bugs
             playerB.release()
             playerB = buildPlayer(handleAudioFocus = false)
-            Log.d(TAG, "Old player released and recreated fresh.")
         }
-
-        setPauseAtEndOfMediaItems(false)
     }
 
-    /**
-     * Releases both players and cleans up resources.
-     */
     fun release() {
+        setPauseAtEndOfMediaItems(false)
         transitionJob?.cancel()
         abandonAudioFocus()
         if (::playerA.isInitialized) {

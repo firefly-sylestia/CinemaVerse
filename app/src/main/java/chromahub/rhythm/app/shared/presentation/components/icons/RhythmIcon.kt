@@ -1,5 +1,8 @@
 package chromahub.rhythm.app.shared.presentation.components.icons
 
+import android.content.Context
+import android.graphics.Typeface
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.LocalContentColor
@@ -11,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -25,9 +29,74 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.res.ResourcesCompat
 import chromahub.rhythm.app.R
+import java.util.concurrent.ConcurrentHashMap
 
 private const val MaterialSymbolGlyphScale = 0.875f
+
+/**
+ * Thread-safe cache and fallback provider for Material Symbols font family.
+ *
+ * Speeds up font resolution and avoids heavy TTF re-parsing during recompositions.
+ * Bypasses Compose's dynamic/asynchronous resolution entirely when standard loading fails
+ * or on older SDK versions by wrapping the statically preloaded native Android Typeface.
+ */
+private object RhythmIconFontCache {
+    private val cache = ConcurrentHashMap<String, FontFamily>()
+    private var fallbackFontFamily: FontFamily? = null
+    private val lock = Any()
+
+    fun getFallbackFontFamily(context: Context): FontFamily {
+        fallbackFontFamily?.let { return it }
+        synchronized(lock) {
+            fallbackFontFamily?.let { return it }
+            val tf = try {
+                ResourcesCompat.getFont(context, R.font.material_symbols_outlined)
+            } catch (e: Throwable) {
+                null
+            }
+            val ff = if (tf != null) {
+                FontFamily(tf)
+            } else {
+                FontFamily(Font(R.font.material_symbols_outlined))
+            }
+            fallbackFontFamily = ff
+            return ff
+        }
+    }
+
+    fun getOrCreate(
+        context: Context,
+        filled: Boolean,
+        weight: Int,
+        grade: Float,
+        opticalSize: Float
+    ): FontFamily {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return getFallbackFontFamily(context)
+        }
+
+        val key = "$filled-$weight-$grade-$opticalSize"
+        return cache.getOrPut(key) {
+            try {
+                FontFamily(
+                    Font(
+                        resId = R.font.material_symbols_outlined,
+                        variationSettings = FontVariation.Settings(
+                            FontVariation.weight(weight),
+                            FontVariation.Setting("FILL", if (filled) 1f else 0f),
+                            FontVariation.Setting("GRAD", grade),
+                            FontVariation.Setting("opsz", opticalSize)
+                        )
+                    )
+                )
+            } catch (e: Throwable) {
+                getFallbackFontFamily(context)
+            }
+        }
+    }
+}
 
 /**
  * Representation of a Material Symbol icon in the Rhythm app.
@@ -57,7 +126,7 @@ data class MaterialSymbolIcon(
 
 /**
  * Creates a [FontFamily] for Material Symbols with the given variation settings.
- * Results are cached via [remember] to avoid re-creating font objects on every recomposition.
+ * Results are cached via [remember] and a static global cache map to avoid re-creating/re-parsing font objects.
  */
 @Composable
 fun rememberSymbolsFontFamily(
@@ -66,18 +135,9 @@ fun rememberSymbolsFontFamily(
     grade: Float = 0f,
     opticalSize: Float = 24f
 ): FontFamily {
+    val context = LocalContext.current
     return remember(filled, weight, grade, opticalSize) {
-        FontFamily(
-            Font(
-                resId = R.font.material_symbols_outlined,
-                variationSettings = FontVariation.Settings(
-                    FontVariation.weight(weight),
-                    FontVariation.Setting("FILL", if (filled) 1f else 0f),
-                    FontVariation.Setting("GRAD", grade),
-                    FontVariation.Setting("opsz", opticalSize)
-                )
-            )
-        )
+        RhythmIconFontCache.getOrCreate(context, filled, weight, grade, opticalSize)
     }
 }
 

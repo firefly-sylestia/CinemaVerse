@@ -360,7 +360,90 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
     CollapsibleHeaderScreen(
         title = context.getString(R.string.settings_rhythm_guard),
         showBackButton = true,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        headerContent = {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isRhythmGuardEnabled)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+                    else
+                        MaterialTheme.colorScheme.surfaceContainer
+                ),
+                shape = MaterialTheme.shapes.extraLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = RhythmIcons.Security,
+                            contentDescription = null,
+                            tint = if (isRhythmGuardEnabled) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (isRhythmGuardEnabled) "Active" else "Disabled",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isRhythmGuardEnabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        TunerAnimatedSwitch(
+                            checked = isRhythmGuardEnabled,
+                            onCheckedChange = { enabled ->
+                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                                if (enabled) {
+                                    val restoredMode = if (auraMode == AppSettings.RHYTHM_GUARD_MODE_MANUAL) {
+                                        AppSettings.RHYTHM_GUARD_MODE_MANUAL
+                                    } else {
+                                        AppSettings.RHYTHM_GUARD_MODE_AUTO
+                                    }
+                                    appSettings.setRhythmGuardMode(restoredMode)
+                                } else {
+                                    appSettings.setRhythmGuardMode(AppSettings.RHYTHM_GUARD_MODE_OFF)
+                                }
+                            }
+                        )
+                    }
+
+                    // Smoothly expand the mode selector when active
+                    AnimatedVisibility(
+                        visible = isRhythmGuardEnabled,
+                        enter = fadeIn() + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
+                        exit = fadeOut() + shrinkVertically(spring(stiffness = Spring.StiffnessMediumLow))
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ExpressiveButtonGroup(
+                                items = listOf(
+                                    context.getString(R.string.settings_rhythm_guard_mode_auto),
+                                    context.getString(R.string.settings_rhythm_guard_mode_manual)
+                                ),
+                                selectedIndex = if (auraMode == AppSettings.RHYTHM_GUARD_MODE_MANUAL) 1 else 0,
+                                onItemClick = { index ->
+                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                                    when (index) {
+                                        0 -> appSettings.setRhythmGuardMode(AppSettings.RHYTHM_GUARD_MODE_AUTO)
+                                        else -> appSettings.setRhythmGuardMode(AppSettings.RHYTHM_GUARD_MODE_MANUAL)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+        }
     ) { modifier ->
         LazyColumn(
             modifier = modifier
@@ -411,94 +494,6 @@ fun RhythmGuardSettingsScreen(onBackClick: () -> Unit) {
                         isWarning = showVolumeWarning,
                         modifier = Modifier.weight(1f)
                     )
-                }
-            }
-
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(40.dp),
-                                shape = RoundedCornerShape(34.dp),
-                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                tonalElevation = 0.dp
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Icon(
-                                        imageVector = RhythmIcons.Security,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = guardStatusAccentColor
-                                    )
-                                }
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.settings_rhythm_guard_mode_title),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = context.getString(R.string.settings_rhythm_guard_mode_desc),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = guardStatusText,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = guardStatusAccentColor
-                                )
-                            }
-
-                            TunerAnimatedSwitch(
-                                checked = isRhythmGuardEnabled,
-                                onCheckedChange = { enabled ->
-                                    if (enabled) {
-                                        val restoredMode = if (auraMode == AppSettings.RHYTHM_GUARD_MODE_MANUAL) {
-                                            AppSettings.RHYTHM_GUARD_MODE_MANUAL
-                                        } else {
-                                            AppSettings.RHYTHM_GUARD_MODE_AUTO
-                                        }
-                                        appSettings.setRhythmGuardMode(restoredMode)
-                                    } else {
-                                        appSettings.setRhythmGuardMode(AppSettings.RHYTHM_GUARD_MODE_OFF)
-                                    }
-                                }
-                            )
-                        }
-
-                        if (isRhythmGuardEnabled) {
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            ExpressiveButtonGroup(
-                                items = listOf(
-                                    context.getString(R.string.settings_rhythm_guard_mode_auto),
-                                    context.getString(R.string.settings_rhythm_guard_mode_manual)
-                                ),
-                                selectedIndex = if (auraMode == AppSettings.RHYTHM_GUARD_MODE_MANUAL) 1 else 0,
-                                onItemClick = { index ->
-                                    when (index) {
-                                        0 -> appSettings.setRhythmGuardMode(AppSettings.RHYTHM_GUARD_MODE_AUTO)
-                                        else -> appSettings.setRhythmGuardMode(AppSettings.RHYTHM_GUARD_MODE_MANUAL)
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
                 }
             }
 
@@ -1585,7 +1580,6 @@ enum class RhythmGuardWidgetVisualLevel {
 }
 
 
-
 @Composable
 fun RhythmGuardOverallHealthCard(
     level: RhythmGuardOverallHealthLevel,
@@ -1594,99 +1588,96 @@ fun RhythmGuardOverallHealthCard(
     statusDetail: String?,
     modifier: Modifier = Modifier
 ) {
-    val statusGreen = Color(0xFF2E7D32)
-    val statusOrange = Color(0xFFED6C02)
-    val statusRed = Color(0xFFC62828)
-    val statusBlue = Color(0xFF1565C0)
-    val indicatorColor = when (level) {
-        RhythmGuardOverallHealthLevel.GOOD -> statusGreen
-        RhythmGuardOverallHealthLevel.FAIR -> statusOrange
-        RhythmGuardOverallHealthLevel.RISK -> statusRed
-        RhythmGuardOverallHealthLevel.COOLDOWN -> statusBlue
-        RhythmGuardOverallHealthLevel.TIMEOUT -> statusRed
-        RhythmGuardOverallHealthLevel.OFF -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val statusContainerColor = when (level) {
-        RhythmGuardOverallHealthLevel.GOOD -> statusGreen.copy(alpha = 0.14f)
-        RhythmGuardOverallHealthLevel.FAIR -> statusOrange.copy(alpha = 0.16f)
-        RhythmGuardOverallHealthLevel.RISK -> statusRed.copy(alpha = 0.16f)
-        RhythmGuardOverallHealthLevel.COOLDOWN -> statusBlue.copy(alpha = 0.16f)
-        RhythmGuardOverallHealthLevel.TIMEOUT -> statusRed.copy(alpha = 0.20f)
-        RhythmGuardOverallHealthLevel.OFF -> MaterialTheme.colorScheme.surfaceContainerHighest
-    }
-    val statusColor = when (level) {
-        RhythmGuardOverallHealthLevel.GOOD -> statusGreen
-        RhythmGuardOverallHealthLevel.FAIR -> statusOrange
-        RhythmGuardOverallHealthLevel.RISK -> statusRed
-        RhythmGuardOverallHealthLevel.COOLDOWN -> statusBlue
-        RhythmGuardOverallHealthLevel.TIMEOUT -> statusRed
-        RhythmGuardOverallHealthLevel.OFF -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress.coerceIn(0f, 1f),
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "rhythm_guard_overall_progress"
-    )
+    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
 
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    val statusGood = if (isDark) Color(0xFF34D399) else Color(0xFF059669)
+    val statusFair = if (isDark) Color(0xFFFBBF24) else Color(0xFFD97706)
+    val statusCooldown = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
+
+    val containerColor = when (level) {
+        RhythmGuardOverallHealthLevel.GOOD -> statusGood.copy(alpha = if (isDark) 0.15f else 0.12f)
+        RhythmGuardOverallHealthLevel.FAIR -> statusFair.copy(alpha = if (isDark) 0.15f else 0.12f)
+        RhythmGuardOverallHealthLevel.RISK, RhythmGuardOverallHealthLevel.TIMEOUT -> MaterialTheme.colorScheme.errorContainer
+        RhythmGuardOverallHealthLevel.COOLDOWN -> statusCooldown.copy(alpha = if (isDark) 0.15f else 0.12f)
+        RhythmGuardOverallHealthLevel.OFF -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+
+    val contentColor = when (level) {
+        RhythmGuardOverallHealthLevel.GOOD -> statusGood
+        RhythmGuardOverallHealthLevel.FAIR -> statusFair
+        RhythmGuardOverallHealthLevel.RISK, RhythmGuardOverallHealthLevel.TIMEOUT -> MaterialTheme.colorScheme.onErrorContainer
+        RhythmGuardOverallHealthLevel.COOLDOWN -> statusCooldown
+        RhythmGuardOverallHealthLevel.OFF -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    // Dynamic Comic Content
+    val headerText = when (level) {
+        RhythmGuardOverallHealthLevel.GOOD -> "All Good"
+        RhythmGuardOverallHealthLevel.FAIR -> "Careful"
+        RhythmGuardOverallHealthLevel.RISK -> "Too Loud"
+        RhythmGuardOverallHealthLevel.COOLDOWN -> "Chilling"
+        RhythmGuardOverallHealthLevel.TIMEOUT -> "Locked"
+        RhythmGuardOverallHealthLevel.OFF -> "Disabled"
+    }
+
+    val comicSubtitle = when (level) {
+        RhythmGuardOverallHealthLevel.GOOD -> "Your ears are currently throwing a perfectly-volumed party. 🎉"
+        RhythmGuardOverallHealthLevel.FAIR -> "Getting a little spicy in there. Maybe turn it down a notch? 🌶️"
+        RhythmGuardOverallHealthLevel.RISK -> "Whoa there, rockstar! Your eardrums are begging for mercy. 🎸🔥"
+        RhythmGuardOverallHealthLevel.COOLDOWN -> "Shhh... mandatory ear nap in progress. Do not disturb. 😴"
+        RhythmGuardOverallHealthLevel.TIMEOUT -> "You're in acoustic jail. Time to think about what you've done. 🛑"
+        RhythmGuardOverallHealthLevel.OFF -> "Living dangerously on the edge, I see. Godspeed. 🏍️"
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Box(
-            modifier = Modifier.size(130.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                progress = { 1f },
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                strokeWidth = 10.dp,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-            )
-            CircularProgressIndicator(
-                progress = { animatedProgress },
-                modifier = Modifier.fillMaxSize(),
-                color = indicatorColor,
-                strokeWidth = 10.dp,
-                trackColor = Color.Transparent
-            )
-            Icon(
-                imageVector = RhythmIcons.Security,
-                contentDescription = null,
-                tint = indicatorColor,
-                modifier = Modifier.size(46.dp)
-            )
-        }
-
-        Surface(
-            shape = RoundedCornerShape(999.dp),
-            color = statusContainerColor
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = statusText,
-                style = MaterialTheme.typography.labelLarge,
-                color = statusColor,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
-            )
-        }
-
-        if (!statusDetail.isNullOrBlank()) {
-            Text(
-                text = statusDetail,
-                style = MaterialTheme.typography.bodySmall,
-                color = statusColor.copy(alpha = 0.88f),
+                text = headerText,
+                style = MaterialTheme.typography.displayMedium,
+                color = contentColor,
+                fontWeight = FontWeight.Black,
                 textAlign = TextAlign.Center
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = comicSubtitle,
+                style = MaterialTheme.typography.bodyLarge,
+                color = contentColor.copy(alpha = 0.85f),
+                textAlign = TextAlign.Center,
+                lineHeight = 22.sp
+            )
+
+            if (!statusDetail.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = contentColor.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        text = statusDetail,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = contentColor,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                    )
+                }
+            }
         }
     }
 }
-
-
 
 data class BackupRestoreResultState(
     val title: String,

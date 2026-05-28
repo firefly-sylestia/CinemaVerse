@@ -222,7 +222,7 @@ private fun RhythmGuardTimeoutScreen(
         Surface(
             color = MaterialTheme.colorScheme.surface,
             shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = if (isTablet) 4.dp else 2.dp,
+            tonalElevation = 0.dp,
             modifier = if (isTablet) {
                 Modifier
                     .fillMaxWidth()
@@ -251,7 +251,7 @@ private fun RhythmGuardTimeoutScreen(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Timeout icon at top left
+                // Timeout icon centered at top, onboarding style
                 AnimatedVisibility(
                     visible = true,
                     enter = scaleIn(
@@ -263,17 +263,15 @@ private fun RhythmGuardTimeoutScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .padding(bottom = 32.dp)
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                            .fillMaxWidth()
+                            .padding(bottom = 32.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = RhythmIcons.Security,
                             contentDescription = "Rhythm Guard",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(56.dp)
                         )
                     }
                 }

@@ -343,6 +343,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
                         if (mode != AppSettings.RHYTHM_GUARD_MODE_OFF) {
                             val now = System.currentTimeMillis()
                             val timeoutUntil = appSettings.rhythmGuardTimeoutUntilMs.value
+                            val cooldownUntil = appSettings.rhythmGuardTimeoutCooldownUntilMs.value
                             if (now < timeoutUntil) {
                                 // Timeout is active, ensure playback is paused
                                 if (player.isPlaying) {
@@ -350,6 +351,8 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
                                         player.pause()
                                     }
                                 }
+                            } else if (now < cooldownUntil) {
+                                // Cooldown is active, do not trigger a new timeout
                             } else if (player.isPlaying) {
                                 // Check active daily exposure limit
                                 val age = appSettings.rhythmGuardAge.value
@@ -1459,8 +1462,12 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             }
 
             if (rhythmPlayerEngine.isTransitionRunning()) {
-                Log.d(TAG, "Cannot skip with crossfade while transition is already running")
-                return false
+                Log.d(TAG, "Transition is running during skip request. Force completing it first.")
+                if (::transitionController.isInitialized) {
+                    transitionController.cancelPendingTransition()
+                } else {
+                    rhythmPlayerEngine.cancelNext()
+                }
             }
 
             val playerToUse = rhythmPlayerEngine.masterPlayer
@@ -1513,19 +1520,17 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             // Prepare the next song
             rhythmPlayerEngine.prepareNext(nextMediaItem)
 
-            // Configure snappy manual skip transition settings (1.0 second crossfade, isManualSkip = true)
             val settings = TransitionSettings(
                 mode = TransitionMode.OVERLAP,
                 durationMs = 1000,
-                isManualSkip = true
+                isManualSkip = true,
+                isSkipPrevious = !toNext
             )
 
-            // Set transitionController to manual transitioning state
             if (::transitionController.isInitialized) {
                 transitionController.setManualTransitioning()
             }
 
-            // Perform the crossfade transition
             rhythmPlayerEngine.performTransition(settings)
 
             return true

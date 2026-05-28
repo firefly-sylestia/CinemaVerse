@@ -50,6 +50,8 @@ import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.shared.presentation.components.common.ArtistCollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
 import chromahub.rhythm.app.util.HapticUtils
 import chromahub.rhythm.app.util.ImageUtils
 import kotlinx.coroutines.Dispatchers
@@ -210,7 +212,7 @@ fun ArtistDetailScreen(
         ) {
             // Action Buttons Section
             item {
-                Spacer(modifier = Modifier.height(38.dp)) // Extra spacing from header
+                Spacer(modifier = Modifier.height(38.dp))
                 if (isArtistContentLoading) {
                     Box(
                         modifier = Modifier
@@ -627,7 +629,7 @@ private fun ArtistAlbumsSection(
             )
         }
         
-        Spacer(modifier = Modifier.height(12.dp)) // Add spacing between header and cards
+        Spacer(modifier = Modifier.height(12.dp))
         
         LazyRow(
             contentPadding = PaddingValues(horizontal = 24.dp),
@@ -662,6 +664,10 @@ private fun ArtistAlbumCard(
     haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
 ) {
     val context = LocalContext.current
+    val albumArtShape = rememberExpressiveShapeFor(
+        ExpressiveShapeTarget.ALBUM_ART,
+        fallbackShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+    )
     
     Card(
         onClick = {
@@ -680,7 +686,7 @@ private fun ArtistAlbumCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    .clip(albumArtShape)
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
@@ -853,9 +859,13 @@ private fun ArtistSongItem(
                 }
             },
             leadingContent = {
+                val songArtShape = rememberExpressiveShapeFor(
+                    ExpressiveShapeTarget.SONG_ART,
+                    fallbackShape = RoundedCornerShape(12.dp)
+                )
                 Box {
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = songArtShape,
                         modifier = Modifier.size(48.dp),
                         tonalElevation = 2.dp
                     ) {

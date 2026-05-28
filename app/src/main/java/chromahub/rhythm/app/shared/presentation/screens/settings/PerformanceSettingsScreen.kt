@@ -177,14 +177,14 @@ fun PerformanceSettingsScreen(onBackClick: () -> Unit) {
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = if (batterySaverEnabled)
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
                     else
                         MaterialTheme.colorScheme.surfaceContainer
                 ),
-                shape = RoundedCornerShape(24.dp),
+                shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Row(
@@ -206,7 +206,8 @@ fun PerformanceSettingsScreen(onBackClick: () -> Unit) {
                             Text(
                                 text = if (batterySaverEnabled) "Active" else "Disabled",
                                 style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = if (batterySaverEnabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
                             )
                         }
                         TunerAnimatedSwitch(
@@ -217,17 +218,24 @@ fun PerformanceSettingsScreen(onBackClick: () -> Unit) {
                             }
                         )
                     }
-                    if (batterySaverEnabled) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        ExpressiveButtonGroup(
-                            items = listOf("Auto", "Manual"),
-                            selectedIndex = if (batterySaverMode == "auto") 0 else 1,
-                            onItemClick = { index ->
-                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                                appSettings.setBatterySaverMode(if (index == 0) "auto" else "manual")
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+
+                    AnimatedVisibility(
+                        visible = batterySaverEnabled,
+                        enter = fadeIn() + expandVertically(spring(stiffness = Spring.StiffnessMediumLow)),
+                        exit = fadeOut() + shrinkVertically(spring(stiffness = Spring.StiffnessMediumLow))
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ExpressiveButtonGroup(
+                                items = listOf("Auto", "Manual"),
+                                selectedIndex = if (batterySaverMode == "auto") 0 else 1,
+                                onItemClick = { index ->
+                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                                    appSettings.setBatterySaverMode(if (index == 0) "auto" else "manual")
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }

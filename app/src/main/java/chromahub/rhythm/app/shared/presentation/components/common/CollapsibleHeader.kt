@@ -348,13 +348,6 @@ fun ArtistCollapsibleHeaderScreen(
         label = "contentOffset"
     )
 
-    val headerBlendHeight = 24.dp
-    val headerBlendBaseColor = if (containerColor == Color.Transparent) {
-        MaterialTheme.colorScheme.surface
-    } else {
-        containerColor
-    }
-
     val lazyListState = rememberLazyListState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -564,7 +557,6 @@ fun ArtistCollapsibleHeaderScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .offset(y = -headerBlendHeight)
                     .graphicsLayer {
                         alpha = contentAlpha
                         translationY = contentOffset

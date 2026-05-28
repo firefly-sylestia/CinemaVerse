@@ -96,7 +96,7 @@ import chromahub.rhythm.app.features.local.presentation.navigation.Screen
 import chromahub.rhythm.app.features.local.presentation.screens.AddToPlaylistScreen
 import chromahub.rhythm.app.features.local.presentation.screens.ArtistDetailScreen
 import chromahub.rhythm.app.features.local.presentation.screens.EqualizerScreen
-import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
+import chromahub.rhythm.app.shared.presentation.screens.RhythmStatsScreen
 import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
 import chromahub.rhythm.app.shared.presentation.screens.player.PlayerScreen
 import chromahub.rhythm.app.shared.presentation.screens.settings.RhythmGuardSettingsScreen
@@ -1034,7 +1034,7 @@ fun StreamingNavigation(
                         )
                 }
             ) {
-                ListeningStatsScreen(
+                RhythmStatsScreen(
                     navController = navController,
                     viewModel = localMusicViewModel
                 )

@@ -16,6 +16,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.navigation.NavController
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import androidx.compose.foundation.layout.fillMaxSize
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ExtraControlBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
@@ -115,6 +148,7 @@ fun PlayerScreen(
 
     if (playerThemeId == "EXPRESSIVE") {
         val context = LocalContext.current
+        val haptic = LocalHapticFeedback.current
         val useHoursFormat by appSettings.useHoursInTimeFormat.collectAsState()
         val progressValue = progress().coerceIn(0f, 1f)
         val totalTimeMs = song?.duration ?: 0L
@@ -135,6 +169,8 @@ fun PlayerScreen(
         var selectedSongForPlaylist by remember { mutableStateOf<Song?>(null) }
         var showLyricsView by remember { mutableStateOf(false) }
         var showLyricsEditorDialog by remember { mutableStateOf(false) }
+        var showArtistChooserSheet by remember { mutableStateOf(false) }
+        var candidateArtists by remember { mutableStateOf<List<Artist>>(emptyList()) }
 
         val playbackSpeed by musicViewModel.playbackSpeed.collectAsState()
         val playbackPitch by musicViewModel.playbackPitch.collectAsState()
@@ -249,9 +285,27 @@ fun PlayerScreen(
                 }
             },
             onShowArtistBottomSheet = {
-                currentSongArtistForSheet?.let { artist ->
-                    selectedArtist = artist
-                    showArtistSheet = true
+                song?.let { currentSong ->
+                    val albumArtist = currentSong.albumArtist?.trim().orEmpty()
+                    val artistNames = if (albumArtist.isNotBlank() && !albumArtist.equals("<unknown>", ignoreCase = true)) {
+                        splitArtistNames(albumArtist)
+                    } else {
+                        splitArtistNames(currentSong.artist)
+                    }
+
+                    if (artistNames.size <= 1) {
+                        currentSongArtistForSheet?.let { artist ->
+                            selectedArtist = artist
+                            showArtistSheet = true
+                        }
+                    } else {
+                        val resolvedCandidates = artistNames.map { name ->
+                            artists.firstOrNull { it.name.trim().equals(name.trim(), ignoreCase = true) }
+                                ?: Artist(id = name.trim(), name = name.trim())
+                        }
+                        candidateArtists = resolvedCandidates
+                        showArtistChooserSheet = true
+                    }
                 }
             },
             onMoreClick = {
@@ -510,6 +564,121 @@ fun PlayerScreen(
                 songs = songs,
                 albums = albums
             )
+        }
+
+        if (showArtistChooserSheet) {
+            val chooserSheetState = rememberModalBottomSheetState()
+            ModalBottomSheet(
+                onDismissRequest = { showArtistChooserSheet = false },
+                sheetState = chooserSheetState,
+                dragHandle = {
+                    BottomSheetDefaults.DragHandle(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                tonalElevation = 0.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .padding(bottom = 32.dp)
+                ) {
+                    Text(
+                        text = "Select Artist",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 20.dp)
+                    )
+
+                    val artistArtShape = rememberExpressiveShapeFor(
+                        ExpressiveShapeTarget.ARTIST_ART,
+                        fallbackShape = RoundedCornerShape(12.dp)
+                    )
+
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        itemsIndexed(candidateArtists) { index, artist ->
+                            val itemShape = when (candidateArtists.size) {
+                                1 -> RoundedCornerShape(24.dp)
+                                else -> when (index) {
+                                    0 -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 6.dp, bottomEnd = 6.dp)
+                                    candidateArtists.size - 1 -> RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
+                                    else -> RoundedCornerShape(6.dp)
+                                }
+                            }
+
+                            Card(
+                                onClick = {
+                                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                                    selectedArtist = artist
+                                    showArtistChooserSheet = false
+                                    showArtistSheet = true
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                shape = itemShape,
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Surface(
+                                        shape = artistArtShape,
+                                        color = MaterialTheme.colorScheme.secondaryContainer,
+                                        modifier = Modifier.size(56.dp)
+                                    ) {
+                                        chromahub.rhythm.app.util.M3ImageUtils.ArtistImage(
+                                            imageUrl = artist.artworkUri,
+                                            artistName = artist.name,
+                                            modifier = Modifier.fillMaxSize(),
+                                            applyExpressiveShape = false
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = artist.name,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Surface(
+                                        modifier = Modifier.size(36.dp),
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        tonalElevation = 0.dp
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(
+                                                imageVector = RhythmIcons.Forward,
+                                                contentDescription = "Open Artist",
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (showLyricsEditorDialog) {

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.features.local.presentation.screens
+package chromahub.rhythm.app.shared.presentation.screens
 
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
 import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
@@ -56,6 +56,7 @@ import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
 import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
 import chromahub.rhythm.app.shared.presentation.components.common.TabAnimation
+import chromahub.rhythm.app.shared.presentation.components.common.SmallTabAnimation
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
 import chromahub.rhythm.app.util.M3ImageUtils
 import chromahub.rhythm.app.util.HapticUtils
@@ -64,7 +65,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ListeningStatsScreen(
+fun RhythmStatsScreen(
     navController: NavController,
     viewModel: MusicViewModel = viewModel()
 ) {
@@ -602,147 +603,153 @@ private fun CategoryMetricsSection(
     var selectedDimension by remember { mutableStateOf(CategoryDimension.SONG) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            CategoryDimension.entries.forEach { dimension ->
+            itemsIndexed(CategoryDimension.entries, key = { _, dimension -> "dim_${dimension.name}" }) { index, dimension ->
                 val isSelected = dimension == selectedDimension
-                FilterChip(
-                    selected = isSelected,
+                val title = dimension.displayName
+
+                SmallTabAnimation(
+                    index = index,
+                    selectedIndex = CategoryDimension.entries.indexOf(selectedDimension),
+                    title = title,
+                    selectedColor = MaterialTheme.colorScheme.primary,
+                    onSelectedColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    onUnselectedColor = MaterialTheme.colorScheme.onSurface,
                     onClick = { selectedDimension = dimension },
-                    label = {
+                    modifier = Modifier.padding(all = 2.dp),
+                    content = {
                         Text(
-                            text = dimension.displayName,
+                            text = title,
                             style = MaterialTheme.typography.labelLarge,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
-                    },
-                    shape = CircleShape,
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        labelColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        borderColor = Color.Transparent,
-                        selectedBorderColor = Color.Transparent,
-                        enabled = true,
-                        selected = isSelected
-                    )
+                    }
                 )
             }
         }
 
-        when (selectedDimension) {
-            CategoryDimension.SONG -> TopSongsList(stats = stats, useHoursFormat = useHoursFormat)
-            CategoryDimension.ARTIST -> TopArtistsList(stats = stats, artists = artists)
-            else -> {
-                val entries = when (selectedDimension) {
-                    CategoryDimension.ALBUM -> stats.topAlbums.map {
-                        CategoryMetricEntry(it.album, it.totalDurationMs, it.playCount, "${it.uniqueSongs} tracks")
-                    }
-                    CategoryDimension.GENRE -> stats.topGenres.map {
-                        CategoryMetricEntry(it.genre, 0L, (it.percentage * stats.totalPlayCount).toInt(), "Top Genre")
-                    }
-                    else -> emptyList()
-                }.filter { it.plays > 0 || it.durationMs > 0 }
+        AnimatedContent(
+            targetState = selectedDimension,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+            },
+            label = "categorySectionTransition"
+        ) { targetDimension ->
+            when (targetDimension) {
+                CategoryDimension.SONG -> TopSongsList(stats = stats, useHoursFormat = useHoursFormat)
+                CategoryDimension.ARTIST -> TopArtistsList(stats = stats, artists = artists)
+                else -> {
+                    val entries = when (targetDimension) {
+                        CategoryDimension.ALBUM -> stats.topAlbums.map {
+                            CategoryMetricEntry(it.album, it.totalDurationMs, it.playCount, "${it.uniqueSongs} tracks")
+                        }
+                        CategoryDimension.GENRE -> stats.topGenres.map {
+                            CategoryMetricEntry(it.genre, 0L, (it.percentage * stats.totalPlayCount).toInt(), "Top Genre")
+                        }
+                        else -> emptyList()
+                    }.filter { it.plays > 0 || it.durationMs > 0 }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .animateContentSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "Top ${selectedDimension.displayName}",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    if (entries.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .animateContentSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                         Text(
-                            "No data available for this category yet.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "Top ${targetDimension.displayName}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                    } else {
-                        val maxVal = entries.maxOf { if (it.durationMs > 0) it.durationMs.toFloat() else it.plays.toFloat() }.coerceAtLeast(1f)
 
-                        val settingsItems = entries.take(8).mapIndexed { index, entry ->
-                            val isTop = index == 0
-                            val rawVal = if (entry.durationMs > 0) entry.durationMs.toFloat() else entry.plays.toFloat()
-                            val progress = (rawVal / maxVal).coerceIn(0f, 1f)
+                        if (entries.isEmpty()) {
+                            Text(
+                                "No data available for this category yet.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            val maxVal = entries.maxOf { if (it.durationMs > 0) it.durationMs.toFloat() else it.plays.toFloat() }.coerceAtLeast(1f)
 
-                            val accentColor = if (isTop) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                            val accentOnColor = if (isTop) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+                            val settingsItems = entries.take(8).mapIndexed { index, entry ->
+                                val isTop = index == 0
+                                val rawVal = if (entry.durationMs > 0) entry.durationMs.toFloat() else entry.plays.toFloat()
+                                val progress = (rawVal / maxVal).coerceIn(0f, 1f)
 
-                            Material3SettingsItem(
-                                isHighlighted = isTop,
-                                leadingContent = {
-                                    CategoryRankBadge(
-                                        rank = index + 1,
-                                        accentColor = accentColor,
-                                        accentOnColor = accentOnColor,
-                                        highlighted = isTop
-                                    )
-                                },
-                                title = {
-                                    Text(
-                                        text = entry.label,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                },
-                                description = {
-                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                val accentColor = if (isTop) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                                val accentOnColor = if (isTop) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+
+                                Material3SettingsItem(
+                                    isHighlighted = isTop,
+                                    leadingContent = {
+                                        CategoryRankBadge(
+                                            rank = index + 1,
+                                            accentColor = accentColor,
+                                            accentOnColor = accentOnColor,
+                                            highlighted = isTop
+                                        )
+                                    },
+                                    title = {
                                         Text(
-                                            text = entry.supporting,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            text = entry.label,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        LinearProgressIndicator(
-                                            progress = { progress },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(6.dp)
-                                                .clip(CircleShape),
-                                            color = accentColor,
-                                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                                        )
-                                    }
-                                },
-                                trailingContent = {
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        if (entry.durationMs > 0) {
+                                    },
+                                    description = {
+                                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                             Text(
-                                                text = formatDuration(entry.durationMs, useHoursFormat),
-                                                style = MaterialTheme.typography.labelMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurface
+                                                text = entry.supporting,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            LinearProgressIndicator(
+                                                progress = { progress },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(6.dp)
+                                                    .clip(CircleShape),
+                                                color = accentColor,
+                                                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                                             )
                                         }
-                                        Text(
-                                            text = "${entry.plays} plays",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                    },
+                                    trailingContent = {
+                                        Column(horizontalAlignment = Alignment.End) {
+                                            if (entry.durationMs > 0) {
+                                                Text(
+                                                    text = formatDuration(entry.durationMs, useHoursFormat),
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                            Text(
+                                                text = "${entry.plays} plays",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
-                                }
+                                )
+                            }
+
+                            Material3SettingsGroup(
+                                items = settingsItems,
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                             )
                         }
-
-                        Material3SettingsGroup(
-                            items = settingsItems,
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                        )
                     }
                 }
             }

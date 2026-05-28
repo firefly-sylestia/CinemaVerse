@@ -220,20 +220,29 @@ object PlaylistImportExportUtils {
                 ?: return Result.failure(IllegalArgumentException("Cannot open file"))
             
             val content = inputStream.bufferedReader().use { it.readText() }
+            if (content.isBlank()) {
+                return Result.failure(IllegalArgumentException("Selected file is empty"))
+            }
             val fileName = getFileName(context, uri)
             
-            // Build file path map for M3U/PLS imports (needed to match file paths to songs)
             val filePathMap = buildFilePathToSongMap(context, availableSongs)
             val m3uDirectory = getM3uDirectoryPath(context, uri)
             
             Log.d(TAG, "Importing playlist: $fileName, M3U directory: $m3uDirectory")
             
-            val playlist = when {
-                fileName.endsWith(".json", true) -> importFromJson(content, availableSongs)
-                fileName.endsWith(".m3u", true) || fileName.endsWith(".m3u8", true) -> 
-                    importFromM3u(content, fileName, availableSongs, filePathMap, m3uDirectory)
-                fileName.endsWith(".pls", true) -> importFromPls(content, fileName, availableSongs, filePathMap, m3uDirectory)
-                else -> return Result.failure(IllegalArgumentException("Unsupported file format"))
+            val trimmedContent = content.trim()
+            val resolvedFormat = when {
+                fileName.endsWith(".json", true) || (trimmedContent.startsWith("{") && trimmedContent.endsWith("}")) -> "json"
+                fileName.endsWith(".m3u", true) || fileName.endsWith(".m3u8", true) || trimmedContent.startsWith("#EXTM3U", true) -> "m3u"
+                fileName.endsWith(".pls", true) || trimmedContent.startsWith("[playlist]", true) -> "pls"
+                else -> null
+            }
+            
+            val playlist = when (resolvedFormat) {
+                "json" -> importFromJson(content, availableSongs)
+                "m3u" -> importFromM3u(content, fileName, availableSongs, filePathMap, m3uDirectory)
+                "pls" -> importFromPls(content, fileName, availableSongs, filePathMap, m3uDirectory)
+                else -> return Result.failure(IllegalArgumentException("Unsupported or unrecognized file format"))
             }
             
             Log.d(TAG, "Successfully imported playlist '${playlist.name}' with ${playlist.songs.size} songs")
@@ -301,25 +310,31 @@ object PlaylistImportExportUtils {
     
     private fun importFromJson(content: String, availableSongs: List<Song>): Playlist {
         val exportData = Gson().fromJson(content, PlaylistExportData::class.java)
+            ?: throw IllegalArgumentException("Invalid playlist JSON format")
+        
+        val songsList = exportData.songs ?: emptyList()
+        val playlistName = exportData.name.takeIf { !it.isNullOrBlank() } ?: "Imported Playlist"
+        
         val songMap = availableSongs.associateBy { it.uri.toString() }
         val addedSongUris = mutableSetOf<String>()
         val addedSongKeys = mutableSetOf<String>()
         
-        val matchedSongs = exportData.songs.mapNotNull { entry ->
-            // Create a key for duplicate detection (title + artist, normalized)
-            val songKey = "${entry.title.trim().lowercase()}_${entry.artist.trim().lowercase()}"
+        val matchedSongs = songsList.mapNotNull { entry ->
+            val title = entry.title?.trim() ?: return@mapNotNull null
+            val artist = entry.artist?.trim() ?: "Unknown Artist"
+            val uriStr = entry.uri ?: return@mapNotNull null
             
-            // Skip if already added by URI or by title+artist combination
-            if (addedSongUris.contains(entry.uri) || addedSongKeys.contains(songKey)) {
-                Log.d(TAG, "Skipping duplicate song: ${entry.title} by ${entry.artist}")
+            val songKey = "${title.lowercase()}_${artist.lowercase()}"
+            
+            if (addedSongUris.contains(uriStr) || addedSongKeys.contains(songKey)) {
+                Log.d(TAG, "Skipping duplicate song: $title by $artist")
                 return@mapNotNull null
             }
             
-            val matchedSong = songMap[entry.uri] ?: 
-                // Fallback: match by title and artist
+            val matchedSong = songMap[uriStr] ?: 
                 availableSongs.find { 
-                    it.title.equals(entry.title, ignoreCase = true) && 
-                    it.artist.equals(entry.artist, ignoreCase = true) 
+                    it.title.equals(title, ignoreCase = true) && 
+                    it.artist.equals(artist, ignoreCase = true) 
                 }
             
             matchedSong?.let {
@@ -331,8 +346,8 @@ object PlaylistImportExportUtils {
         }
         
         return Playlist(
-            id = System.currentTimeMillis().toString(), // Generate new ID
-            name = exportData.name,
+            id = System.currentTimeMillis().toString(),
+            name = playlistName,
             songs = matchedSongs,
             dateCreated = System.currentTimeMillis(),
             dateModified = System.currentTimeMillis()

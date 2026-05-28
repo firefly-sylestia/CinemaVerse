@@ -4055,33 +4055,65 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         value: Any?,
         originalType: String?
     ) {
+        val existingValue = prefs.all[key]
+        val resolvedType = originalType ?: when (existingValue) {
+            is Boolean -> "Boolean"
+            is Float -> "Float"
+            is Int -> "Int"
+            is Long -> "Long"
+            is String -> "String"
+            is Set<*> -> "StringSet"
+            else -> {
+                when {
+                    key == "listening_time" || key.endsWith("_timestamp") || key.endsWith("_ms") || key.endsWith("_at") -> "Long"
+                    key == "songs_played" || key == "unique_artists" || key == "rhythm_guard_age" || key.endsWith("_count") || key.endsWith("_limit") || key.endsWith("_index") -> "Int"
+                    key == "gapless_playback" || key == "crossfade" || key.endsWith("_enabled") || key.endsWith("_active") -> "Boolean"
+                    key == "crossfade_duration" || key.endsWith("_strength") || key.endsWith("_threshold") || key.endsWith("_speed") || key.endsWith("_pitch") -> "Float"
+                    else -> null
+                }
+            }
+        }
+
         when (value) {
             is Boolean -> editor.putBoolean(key, value)
             is Float -> {
-                when (originalType) {
+                when (resolvedType) {
                     "Long" -> editor.putLong(key, value.toLong())
                     "Int" -> editor.putInt(key, value.toInt())
                     else -> editor.putFloat(key, value)
                 }
             }
-            is Int -> editor.putInt(key, value)
-            is Long -> editor.putLong(key, value)
+            is Int -> {
+                when (resolvedType) {
+                    "Long" -> editor.putLong(key, value.toLong())
+                    "Float" -> editor.putFloat(key, value.toFloat())
+                    else -> editor.putInt(key, value)
+                }
+            }
+            is Long -> {
+                when (resolvedType) {
+                    "Int" -> editor.putInt(key, value.toInt())
+                    "Float" -> editor.putFloat(key, value.toFloat())
+                    else -> editor.putLong(key, value)
+                }
+            }
             is String -> editor.putString(key, value)
             is List<*> -> {
-                if (originalType == "StringSet") {
+                if (resolvedType == "StringSet") {
                     editor.putStringSet(key, value.mapNotNull { it?.toString() }.toSet())
                 }
             }
             is Set<*> -> {
-                if (originalType == "StringSet") {
+                if (resolvedType == "StringSet") {
                     editor.putStringSet(key, value.mapNotNull { it?.toString() }.toSet())
                 }
             }
             is Double -> {
-                when (originalType) {
+                when (resolvedType) {
                     "Float" -> editor.putFloat(key, value.toFloat())
                     "Long" -> editor.putLong(key, value.toLong())
                     "Int" -> editor.putInt(key, value.toInt())
+                    "Boolean" -> editor.putBoolean(key, value != 0.0)
                     else -> editor.putFloat(key, value.toFloat())
                 }
             }

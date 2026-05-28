@@ -136,7 +136,7 @@ object SettingsRoutes {
     const val WIDGET = "widget_settings"
     const val HOME_SCREEN = "home_screen_settings"
     const val GESTURES = "gestures_settings"
-    const val LISTENING_STATS = "listening_stats"
+    const val RHYTHM_STATS = "rhythm_stats"
     const val EXPRESSIVE_SHAPES = "expressive_shapes_settings"
     const val LIBRARY_SETTINGS = "library_settings"
     const val RHYTHM_GUARD = "rhythm_guard_settings"
@@ -362,7 +362,7 @@ fun SettingsScreen(
                 title = context.getString(R.string.settings_section_storage_data),
                 items = buildList {
                     // Listening Stats and Rhythm Guard are shared across LOCAL and STREAMING modes
-                    add(SettingItem(MaterialSymbolIcon("auto_graph"), context.getString(R.string.settings_rhythm_stats), context.getString(R.string.settings_rhythm_stats_desc), onClick = { onNavigateTo(SettingsRoutes.LISTENING_STATS) }))
+                    add(SettingItem(MaterialSymbolIcon("auto_graph"), context.getString(R.string.settings_rhythm_stats), context.getString(R.string.settings_rhythm_stats_desc), onClick = { onNavigateTo(SettingsRoutes.RHYTHM_STATS) }))
                     add(SettingItem(RhythmIcons.Security, context.getString(R.string.settings_rhythm_guard), context.getString(R.string.settings_rhythm_guard_list_desc), onClick = { onNavigateTo(SettingsRoutes.RHYTHM_GUARD) }))
                     // Cache and Backup are LOCAL-only
                     if (appMode == "LOCAL") {
@@ -969,8 +969,8 @@ fun SettingsScreenWrapper(
     }
 
     val onNavigateToSubsetting = { route: String ->
-        if (route == SettingsRoutes.LISTENING_STATS) {
-            val localStatsRoute = Screen.ListeningStats.route
+        if (route == SettingsRoutes.RHYTHM_STATS) {
+            val localStatsRoute = Screen.RhythmStats.route
             val streamingStatsRoute = "streaming_rhythm_stats"
             when {
                 navController.graph.findNode(streamingStatsRoute) != null -> navController.navigate(streamingStatsRoute)

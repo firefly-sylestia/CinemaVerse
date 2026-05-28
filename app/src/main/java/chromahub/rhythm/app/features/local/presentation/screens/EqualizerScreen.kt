@@ -272,8 +272,7 @@ import chromahub.rhythm.app.shared.presentation.components.dialogs.QueueActionDi
 import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
 import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Delete
 import chromahub.rhythm.app.features.local.presentation.screens.LibraryScreen
-import chromahub.rhythm.app.features.local.presentation.screens.HomeScreen
-import chromahub.rhythm.app.features.local.presentation.screens.ListeningStatsScreen
+import chromahub.rhythm.app.shared.presentation.components.common.SmallTabAnimation
 import chromahub.rhythm.app.shared.presentation.screens.player.PlayerScreen
 import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
 import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsScreenWrapper
@@ -328,7 +327,6 @@ import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AutoEQPr
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.DeviceConfigurationBottomSheet
 import chromahub.rhythm.app.shared.data.model.AutoEQProfile
 
-// Equalizer Preset Data Class
 data class EqualizerPreset(
     val name: String,
     val icon: MaterialSymbolIcon,
@@ -700,7 +698,6 @@ fun EqualizerScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            // Expressive Presets Section
             item {
                 AnimatedVisibility(
                     visible = isEqualizerEnabled,
@@ -739,49 +736,47 @@ fun EqualizerScreen(
                         }
 
                         LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
-                            items(presets, key = { "preset_${it.name}" }) { preset ->
+                            itemsIndexed(presets, key = { _, it -> "preset_${it.name}" }) { index, preset ->
                                 val isSelected = selectedPreset == preset.name
+                                val selectedIndex = presets.indexOfFirst { it.name == selectedPreset }
 
-                                Surface(
+                                SmallTabAnimation(
+                                    index = index,
+                                    selectedIndex = selectedIndex,
+                                    title = preset.name,
+                                    selectedColor = MaterialTheme.colorScheme.primaryContainer,
+                                    onSelectedColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    unselectedColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    onUnselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     onClick = { applyPreset(preset) },
-                                    shape = RoundedCornerShape(100), // Perfect pill shape
-                                    color = if (isSelected)
-                                        MaterialTheme.colorScheme.primaryContainer
-                                    else
-                                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    contentColor = if (isSelected)
-                                        MaterialTheme.colorScheme.onPrimaryContainer
-                                    else
-                                        MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.height(48.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 20.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = preset.icon,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                        Text(
-                                            text = preset.name,
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                        )
+                                    content = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = preset.icon,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Text(
+                                                text = preset.name,
+                                                style = MaterialTheme.typography.labelLarge,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                            )
+                                        }
                                     }
-                                }
+                                )
                             }
                         }
                     }
                 }
             }
 
-            // Frequency Bands & Chart Section (Expressive Unified Container)
             item {
                 AnimatedVisibility(
                     visible = isEqualizerEnabled,
@@ -806,7 +801,6 @@ fun EqualizerScreen(
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            // Chart Area (Seamless)
                             Surface(
                                 color = MaterialTheme.colorScheme.surfaceContainerLowest,
                                 shape = RoundedCornerShape(24.dp),
@@ -830,7 +824,6 @@ fun EqualizerScreen(
                                             val height = size.height
                                             val bandWidth = width / bandLevels.size
 
-                                            // Draw center line (0dB)
                                             drawLine(
                                                 color = outlineColor.copy(alpha = 0.3f),
                                                 start = Offset(0f, height / 2),
@@ -908,7 +901,6 @@ fun EqualizerScreen(
 
                             Spacer(modifier = Modifier.height(32.dp))
 
-                            // Clean Sliders List
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -931,7 +923,6 @@ fun EqualizerScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
-                                        // Label Side
                                         Column(
                                             modifier = Modifier.width(48.dp),
                                             horizontalAlignment = Alignment.End
@@ -944,7 +935,6 @@ fun EqualizerScreen(
                                             )
                                         }
 
-                                        // Slider
                                         Slider(
                                             value = level,
                                             onValueChange = { newLevel ->
@@ -962,7 +952,6 @@ fun EqualizerScreen(
                                             )
                                         )
 
-                                        // Value Side
                                         Text(
                                             text = if (level > 0) "+${String.format("%.1f", level)}" else String.format("%.1f", level),
                                             style = MaterialTheme.typography.labelMedium,
@@ -979,7 +968,6 @@ fun EqualizerScreen(
                 }
             }
 
-            // Audio Effects Section
             item {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -1057,7 +1045,6 @@ fun EqualizerScreen(
                 }
             }
 
-            // Advanced System / AutoEQ Options
             item {
                 AnimatedVisibility(
                     visible = isEqualizerEnabled,
@@ -1120,7 +1107,6 @@ fun EqualizerScreen(
             }
         }
 
-        // Bottom Sheets
         if (showAutoEQSelector) {
             AutoEQPresetPickerBottomSheet(
                 currentProfileName = currentAutoEQProfile,
@@ -1169,7 +1155,7 @@ private fun ExpressiveEffectCard(
     Surface(
         modifier = modifier,
         color = containerColor,
-        shape = RoundedCornerShape(32.dp), // Expressive high-radius shape
+        shape = RoundedCornerShape(32.dp),
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
