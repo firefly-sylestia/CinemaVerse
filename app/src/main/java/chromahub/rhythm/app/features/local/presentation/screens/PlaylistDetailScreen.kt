@@ -6,6 +6,9 @@ import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.content.Context
 import androidx.compose.ui.focus.FocusRequester
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsSearchBar
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -113,7 +116,6 @@ import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistOpera
 import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistOperationResultDialog
 import chromahub.rhythm.app.util.PlaylistImportExportUtils
 import android.net.Uri
-import android.widget.Toast
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
@@ -242,6 +244,23 @@ fun PlaylistDetailScreen(
     val haptics = LocalHapticFeedback.current
     val context = LocalContext.current
     val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val writePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            musicViewModel.completeMetadataWriteAfterPermission(
+                onSuccess = {
+                    Toast.makeText(context, R.string.localnavigation_metadata_saved_successfully, Toast.LENGTH_SHORT).show()
+                },
+                onError = { errorMessage ->
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            )
+        } else {
+            musicViewModel.cancelPendingMetadataWrite()
+            Toast.makeText(context, R.string.localnavigation_permission_denied_changes_saved, Toast.LENGTH_LONG).show()
+        }
+    }
     val playlistClickBehavior by appSettings.playlistClickBehavior.collectAsState(initial = "ask")
     val useHoursFormat by appSettings.useHoursInTimeFormat.collectAsState()
     val canEditPlaylist = !isStreamingPlaylist
@@ -711,7 +730,45 @@ fun PlaylistDetailScreen(
                 selectedSongForInfo = null
             },
             appSettings = appSettings,
-            isStreamingMode = true
+            isStreamingMode = isStreamingPlaylist,
+            onEditSong = { title, artist, album, genre, year, trackNumber, artworkUri, removeArtwork ->
+                try {
+                    musicViewModel.saveMetadataChanges(
+                        song = selectedSongForInfo!!,
+                        title = title,
+                        artist = artist,
+                        album = album,
+                        genre = genre,
+                        year = year,
+                        trackNumber = trackNumber,
+                        artworkUri = artworkUri,
+                        removeArtwork = removeArtwork,
+                        onSuccess = { fileWriteSucceeded ->
+                            if (fileWriteSucceeded) {
+                                Toast.makeText(context, R.string.localnavigation_metadata_saved_successfully_to, Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        onError = { errorMessage ->
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                        },
+                        onPermissionRequired = { pendingRequest ->
+                            try {
+                                val intentSenderRequest = androidx.activity.result.IntentSenderRequest.Builder(
+                                    pendingRequest.intentSender
+                                ).build()
+                                writePermissionLauncher.launch(intentSenderRequest)
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Failed to request permission: ${e.message}", Toast.LENGTH_LONG).show()
+                                musicViewModel.cancelPendingMetadataWrite()
+                            }
+                        }
+                    )
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Unexpected error: ${e.message}", Toast.LENGTH_LONG).show()
+                    android.util.Log.w("PlaylistDetailScreen", "Metadata update failed for song: ${selectedSongForInfo!!.title}", e)
+                }
+            },
+            onShowLyricsEditor = { }
         )
     }
 

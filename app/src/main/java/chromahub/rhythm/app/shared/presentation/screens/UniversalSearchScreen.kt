@@ -6,6 +6,8 @@ import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -152,6 +154,24 @@ fun UniversalSearchScreen(
     var selectedSongForInfo by remember { mutableStateOf<Song?>(null) }
     var isSongInfoStreaming by remember { mutableStateOf(false) }
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
+
+    val writePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            localViewModel.completeMetadataWriteAfterPermission(
+                onSuccess = {
+                    Toast.makeText(context, R.string.localnavigation_metadata_saved_successfully, Toast.LENGTH_SHORT).show()
+                },
+                onError = { errorMessage ->
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            )
+        } else {
+            localViewModel.cancelPendingMetadataWrite()
+            Toast.makeText(context, R.string.localnavigation_permission_denied_changes_saved, Toast.LENGTH_LONG).show()
+        }
+    }
 
     val localSongs by localViewModel.filteredSongs.collectAsState()
     val localAlbums by localViewModel.filteredAlbums.collectAsState()
@@ -1011,7 +1031,45 @@ fun UniversalSearchScreen(
                 song = selectedSongForInfo,
                 onDismiss = { showSongInfoSheet = false },
                 appSettings = appSettings,
-                isStreamingMode = isSongInfoStreaming
+                isStreamingMode = isSongInfoStreaming,
+                onEditSong = { title, artist, album, genre, year, trackNumber, artworkUri, removeArtwork ->
+                    try {
+                        localViewModel.saveMetadataChanges(
+                            song = selectedSongForInfo!!,
+                            title = title,
+                            artist = artist,
+                            album = album,
+                            genre = genre,
+                            year = year,
+                            trackNumber = trackNumber,
+                            artworkUri = artworkUri,
+                            removeArtwork = removeArtwork,
+                            onSuccess = { fileWriteSucceeded ->
+                                if (fileWriteSucceeded) {
+                                    Toast.makeText(context, R.string.localnavigation_metadata_saved_successfully_to, Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            onError = { errorMessage ->
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                            },
+                            onPermissionRequired = { pendingRequest ->
+                                try {
+                                    val intentSenderRequest = androidx.activity.result.IntentSenderRequest.Builder(
+                                        pendingRequest.intentSender
+                                    ).build()
+                                    writePermissionLauncher.launch(intentSenderRequest)
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Failed to request permission: ${e.message}", Toast.LENGTH_LONG).show()
+                                    localViewModel.cancelPendingMetadataWrite()
+                                }
+                            }
+                        )
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Unexpected error: ${e.message}", Toast.LENGTH_LONG).show()
+                        android.util.Log.w("UniversalSearchScreen", "Metadata update failed for song: ${selectedSongForInfo!!.title}", e)
+                    }
+                },
+                onShowLyricsEditor = { }
             )
         }
 

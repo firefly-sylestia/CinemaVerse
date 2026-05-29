@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import chromahub.rhythm.app.shared.data.model.LyricsData
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import androidx.compose.material3.ContainedLoadingIndicator
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
@@ -68,6 +70,8 @@ fun FullScreenLyricsView(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
+    val appSettings = remember { AppSettings.getInstance(context) }
+    val playerLyricsTextSize by appSettings.playerLyricsTextSize.collectAsState()
 
     // Detect light or dark theme based on the app's theme background luminance
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
@@ -246,21 +250,21 @@ fun FullScreenLyricsView(
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp)
         ) {
-            // A. TOP BAR: Centered Expressive Artwork and Metadata Details
-            Column(
+            // A. TOP BAR: Horizontal Artwork, Metadata and close button
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp, bottom = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // Expressive-shaped Cover Art
-                val artShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_ART)
+                val artShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.SONG_ART)
                 Surface(
                     shape = artShape,
                     color = glassBgColor,
                     border = BorderStroke(1.dp, glassBorderColor),
                     modifier = Modifier
-                        .size(108.dp)
+                        .size(64.dp)
                         .graphicsLayer {
                             scaleX = artworkScaleState
                             scaleY = artworkScaleState
@@ -277,40 +281,51 @@ fun FullScreenLyricsView(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-                // Centered song title
-                Text(
-                    text = song?.title ?: "Unknown Song",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = textPrimaryColor,
-                        letterSpacing = 0.1.sp
-                    ),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                )
-                
-                Spacer(modifier = Modifier.height(2.dp))
-                
-                // Centered artist name
-                Text(
-                    text = song?.artist ?: "Unknown Artist",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = textSecondaryColor
-                    ),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                )
+                // Song details (Title + Artist)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = song?.title ?: "Unknown Song",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = textPrimaryColor,
+                            letterSpacing = 0.1.sp
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = song?.artist ?: "Unknown Artist",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = textSecondaryColor
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Close button: Material 3 FilledTonalIconButton
+                FilledTonalIconButton(
+                    onClick = {
+                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                        onClose()
+                    },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = RhythmIcons.KeyboardArrowDown,
+                        contentDescription = stringResource(R.string.onboarding_dismiss),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
             // B. SCROLLING LYRICS AREA (with floating controls)
@@ -325,7 +340,7 @@ fun FullScreenLyricsView(
                     isLoadingLyrics -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                ContainedLoadingIndicator()
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = stringResource(R.string.fullscreenlyricsview_loading_synced_lyrics),
@@ -379,7 +394,7 @@ fun FullScreenLyricsView(
                                 modifier = Modifier.fillMaxSize(),
                                 onSeek = onLyricsSeek,
                                 lyricsSource = lyrics?.source,
-                                textSizeMultiplier = 1.25f,
+                                textSizeMultiplier = playerLyricsTextSize,
                                 textAlignment = TextAlign.Center,
                                 showTranslation = showTranslation,
                                 showRomanization = showRomanization
@@ -397,7 +412,7 @@ fun FullScreenLyricsView(
                                 showTranslation = showTranslation,
                                 showRomanization = showRomanization,
                                 lyricsSource = lyrics?.source,
-                                textSizeMultiplier = 1.25f,
+                                textSizeMultiplier = playerLyricsTextSize,
                                 textAlignment = TextAlign.Center
                             )
                         }
@@ -412,28 +427,36 @@ fun FullScreenLyricsView(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Quick Toggle Romanization
-                    FloatingLyricOptionButton(
-                        icon = MaterialSymbolIcon("translate"),
-                        contentDescription = stringResource(R.string.fullscreenlyricsview_romanization),
-                        isActive = showRomanization,
-                        onClick = {
+                    FilledTonalIconToggleButton(
+                        checked = showRomanization,
+                        onCheckedChange = {
                             HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            showRomanization = !showRomanization
+                            showRomanization = it
                         },
-                        isDark = isDark
-                    )
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbolIcon("translate"),
+                            contentDescription = stringResource(R.string.fullscreenlyricsview_romanization),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
 
                     // Quick Toggle Translation
-                    FloatingLyricOptionButton(
-                        icon = MaterialSymbolIcon("subtitles"),
-                        contentDescription = stringResource(R.string.fullscreenlyricsview_translation),
-                        isActive = showTranslation,
-                        onClick = {
+                    FilledTonalIconToggleButton(
+                        checked = showTranslation,
+                        onCheckedChange = {
                             HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            showTranslation = !showTranslation
+                            showTranslation = it
                         },
-                        isDark = isDark
-                    )
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbolIcon("subtitles"),
+                            contentDescription = stringResource(R.string.fullscreenlyricsview_translation),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
             }
 
@@ -578,101 +601,9 @@ fun FullScreenLyricsView(
                 )
             }
         }
-
-        // E. FLOATING CLOSE BUTTON: Pill at the top right corner
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .statusBarsPadding()
-                .padding(top = 16.dp, end = 20.dp)
-        ) {
-            val closeInteractionSource = remember { MutableInteractionSource() }
-            val closePressed by closeInteractionSource.collectIsPressedAsState()
-            val closeScale by animateFloatAsState(
-                targetValue = if (closePressed) 0.90f else 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium
-                ),
-                label = "close_bounce"
-            )
-            Surface(
-                onClick = {
-                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                    onClose()
-                },
-                shape = CircleShape,
-                color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.1f),
-                border = BorderStroke(1.dp, (if (isDark) Color.White else Color.Black).copy(alpha = 0.12f)),
-                modifier = Modifier
-                    .size(40.dp)
-                    .graphicsLayer {
-                        scaleX = closeScale
-                        scaleY = closeScale
-                    },
-                interactionSource = closeInteractionSource
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Icon(
-                        imageVector = RhythmIcons.KeyboardArrowDown,
-                        contentDescription = stringResource(R.string.onboarding_dismiss),
-                        tint = textPrimaryColor,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-        }
     }
 }
 
-@Composable
-private fun FloatingLyricOptionButton(
-    icon: MaterialSymbolIcon,
-    contentDescription: String,
-    isActive: Boolean,
-    onClick: () -> Unit,
-    isDark: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.90f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "floating_lyric_btn_scale"
-    )
-    
-    val activeBgColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.24f)
-    val inactiveBgColor = (if (isDark) Color.White else Color.Black).copy(alpha = 0.08f)
-    val activeBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.38f)
-    val inactiveBorderColor = (if (isDark) Color.White else Color.Black).copy(alpha = 0.12f)
-    
-    Surface(
-        onClick = onClick,
-        shape = CircleShape,
-        color = if (isActive) activeBgColor else inactiveBgColor,
-        border = BorderStroke(1.dp, if (isActive) activeBorderColor else inactiveBorderColor),
-        modifier = modifier
-            .size(44.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
-        interactionSource = interactionSource
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = if (isActive) MaterialTheme.colorScheme.primary else (if (isDark) Color.White else Color.Black).copy(alpha = 0.65f),
-                modifier = Modifier.size(22.dp)
-            )
-        }
-    }
-}
 
 @Composable
 private fun Modifier.bouncyClickable(

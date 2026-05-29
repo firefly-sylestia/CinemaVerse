@@ -107,6 +107,7 @@ import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
 import chromahub.rhythm.app.shared.presentation.components.common.ThumbStyle
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.LicensesBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.UpdateBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.LyricsApiPriorityBottomSheet
 import chromahub.rhythm.app.ui.utils.LazyListStateSaver
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeProvider
@@ -185,6 +186,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
     var showChipOrderBottomSheet by remember { mutableStateOf(false) }
     var showLyricsSourceDialog by remember { mutableStateOf(false) }
+    var showLyricsApiPriorityBottomSheet by remember { mutableStateOf(false) }
     var showTextAlignmentSheet by remember { mutableStateOf(false) }
     var showCornerRadiusSheet by remember { mutableStateOf(false) }
     var showPlayerProgressStyleSheet by remember { mutableStateOf(false) }
@@ -192,6 +194,13 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
 
     if (showLyricsSourceDialog) {
         LyricsSourceDialog(onDismiss = { showLyricsSourceDialog = false }, appSettings = appSettings, context = context, haptic = haptics)
+    }
+
+    if (showLyricsApiPriorityBottomSheet) {
+        LyricsApiPriorityBottomSheet(
+            onDismiss = { showLyricsApiPriorityBottomSheet = false },
+            appSettings = appSettings
+        )
     }
 
     CollapsibleHeaderScreen(
@@ -373,6 +382,19 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                     title = context.getString(R.string.lyrics_source_priority),
                                     description = context.getString(R.string.playback_lyrics_priority_desc),
                                     onClick = { showLyricsSourceDialog = true }
+                                )
+                            )
+                        )
+                        val apiPriority by appSettings.lyricsApiPriority.collectAsState()
+                        add(
+                            toMaterial3SettingsItem(
+                                context = context,
+                                hapticFeedback = haptics,
+                                item = SettingItem(
+                                    icon = MaterialSymbolIcon("lyrics"),
+                                    title = stringResource(R.string.lyricssourcesettingsscreen_lyrics_api_priority),
+                                    description = if (apiPriority == chromahub.rhythm.app.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) "Apple Music First" else "LRCLib First",
+                                    onClick = { showLyricsApiPriorityBottomSheet = true }
                                 )
                             )
                         )

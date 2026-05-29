@@ -107,6 +107,7 @@ import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
 import chromahub.rhythm.app.shared.presentation.components.common.ThumbStyle
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.LicensesBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.UpdateBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.LyricsApiPriorityBottomSheet
 import chromahub.rhythm.app.ui.utils.LazyListStateSaver
 import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeProvider
@@ -162,6 +163,7 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
     val hapticFeedback = LocalHapticFeedback.current
 
     val lyricsSourcePreference by appSettings.lyricsSourcePreference.collectAsState()
+    var showPriorityBottomSheet by remember { mutableStateOf(false) }
 
     CollapsibleHeaderScreen(
         title = context.getString(R.string.settings_lyrics_source),
@@ -328,30 +330,15 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
                             icon = MaterialSymbolIcon("lyrics"),
                             title = { Text(stringResource(R.string.lyricssourcesettingsscreen_lyrics_api_priority)) },
                             description = {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.lyricssourcesettingsscreen_choose_which_online_lyrics),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    ExpressiveButtonGroup(
-                                        items = listOf("Apple Music", "LRCLib"),
-                                        selectedIndex = if (apiPriority == chromahub.rhythm.app.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) 0 else 1,
-                                        onItemClick = { index ->
-                                            HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                                            val newPriority = if (index == 0) {
-                                                chromahub.rhythm.app.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST
-                                            } else {
-                                                chromahub.rhythm.app.shared.data.model.LyricsApiPriority.LRCLIB_FIRST
-                                            }
-                                            appSettings.setLyricsApiPriority(newPriority)
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                                Text(
+                                    text = if (apiPriority == chromahub.rhythm.app.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) "Apple Music First" else "LRCLib First",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            onClick = {
+                                HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.LongPress)
+                                showPriorityBottomSheet = true
                             }
                         ),
                         toMaterial3SettingsItem(
@@ -416,4 +403,12 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
         }
     }
+
+    if (showPriorityBottomSheet) {
+        LyricsApiPriorityBottomSheet(
+            onDismiss = { showPriorityBottomSheet = false },
+            appSettings = appSettings
+        )
+    }
 }
+
