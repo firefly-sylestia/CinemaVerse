@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
@@ -151,6 +152,12 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShape
+import androidx.compose.ui.draw.shadow
+import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
+import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -194,7 +201,6 @@ fun OnboardingScreen(
     
     val visibleSteps = remember(appMode) {
         val list = mutableListOf<OnboardingStep>()
-        list.add(OnboardingStep.WELCOME)
         list.add(OnboardingStep.APP_MODE_CHOICE)
         if (appMode == "STREAMING") {
             list.add(OnboardingStep.STREAMING_SETUP)
@@ -210,6 +216,7 @@ fun OnboardingScreen(
         list.add(OnboardingStep.BACKUP_RESTORE)
         list.add(OnboardingStep.AUDIO_PLAYBACK)
         list.add(OnboardingStep.THEMING)
+        list.add(OnboardingStep.PLAYER_THEME_CHOICE)
         list.add(OnboardingStep.GESTURES)
         list.add(OnboardingStep.WIDGETS)
         list.add(OnboardingStep.INTEGRATIONS)
@@ -240,6 +247,7 @@ fun OnboardingScreen(
 
     // Sync pager with step changes
     LaunchedEffect(stepIndex) {
+        if (currentStep == OnboardingStep.WELCOME) return@LaunchedEffect
         if (pagerState.currentPage != stepIndex) {
             val pageJump = (pagerState.currentPage - stepIndex).absoluteValue
             if (pageJump > 1) {
@@ -252,6 +260,7 @@ fun OnboardingScreen(
 
     // Sync step with pager changes.
     LaunchedEffect(pagerState.currentPage) {
+        if (currentStep == OnboardingStep.WELCOME) return@LaunchedEffect
         val newStep = visibleSteps.getOrNull(pagerState.currentPage) ?: OnboardingStep.COMPLETE
         if (newStep != currentStep && pagerState.currentPage < stepIndex) {
             onPrevStep()
@@ -260,47 +269,63 @@ fun OnboardingScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .let { if (isTablet) it.width(contentMaxWidth) else it }
-    ) {
-        // Top app bar removed to provide a clean, full-screen onboarding experience.
-
-        // Single onboarding card container for all pager content
-        OnboardingCard(
+    if (currentStep == OnboardingStep.WELCOME) {
+        EnhancedWelcomeContent(
+            onNextStep = onNextStep,
+            themeViewModel = themeViewModel,
             isTablet = isTablet,
-            modifier = Modifier.weight(1f)
+            contentMaxWidth = contentMaxWidth
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .let { if (isTablet) it.width(contentMaxWidth) else it }
         ) {
-            // HorizontalPager for smooth sliding animations
-            HorizontalPager(
-                state = pagerState,
-                userScrollEnabled = when {
-                    currentStep != OnboardingStep.PERMISSIONS && currentStep != OnboardingStep.GESTURES && currentStep != OnboardingStep.STREAMING_SETUP -> true
-                    permissionScreenState == PermissionScreenState.PermissionsGranted -> true
-                    else -> true // Allow scrolling to let user review info before granting
-                },
-                modifier = Modifier.fillMaxSize(),
-                key = { page -> page } // Add key to preserve page state
-            ) { page ->
-                val step = visibleSteps.getOrNull(page) ?: OnboardingStep.COMPLETE
-                // Container for step-specific content - positioned at top within pager page
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .statusBarsPadding()
-                        .padding(top = 30.dp, start = horizontalPadding, end = horizontalPadding, bottom = 0.dp),
-                    contentAlignment = Alignment.TopCenter
-                )    {
-                    // Use key to preserve composable state across recompositions
-                    androidx.compose.runtime.key(step) {
-                        when (step) {
-                            OnboardingStep.WELCOME -> {
-                                // Welcome screen without card
-                                EnhancedWelcomeContent(onNextStep = onNextStep, isTablet = isTablet, contentMaxWidth = contentMaxWidth)
-                            }
-                            OnboardingStep.APP_MODE_CHOICE -> {
+            // Top app bar removed to provide a clean, full-screen onboarding experience.
+
+            // Single onboarding card container for all pager content
+            OnboardingCard(
+                isTablet = isTablet,
+                containerColor = if (currentStep == OnboardingStep.APP_MODE_CHOICE) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.surface,
+                modifier = Modifier.weight(1f)
+            ) {
+                // HorizontalPager for smooth sliding animations
+                HorizontalPager(
+                    state = pagerState,
+                    userScrollEnabled = when {
+                        currentStep != OnboardingStep.PERMISSIONS && currentStep != OnboardingStep.GESTURES && currentStep != OnboardingStep.STREAMING_SETUP -> true
+                        permissionScreenState == PermissionScreenState.PermissionsGranted -> true
+                        else -> true // Allow scrolling to let user review info before granting
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    key = { page -> page } // Add key to preserve page state
+                ) { page ->
+                    val step = visibleSteps.getOrNull(page) ?: OnboardingStep.COMPLETE
+                    val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction)
+                    // Container for step-specific content - positioned at top within pager page
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .statusBarsPadding()
+                            .padding(top = 30.dp, start = horizontalPadding, end = horizontalPadding, bottom = 0.dp)
+                            .graphicsLayer {
+                                val absOffset = kotlin.math.abs(pageOffset).coerceIn(0f, 1f)
+                                alpha = 1f - absOffset
+                                scaleX = 0.96f + (1f - absOffset) * 0.04f
+                                scaleY = 0.96f + (1f - absOffset) * 0.04f
+                            },
+                        contentAlignment = Alignment.TopCenter
+                    )    {
+                        // Use key to preserve composable state across recompositions
+                        androidx.compose.runtime.key(step) {
+                            when (step) {
+                                OnboardingStep.WELCOME -> {
+                                    // Standalone welcome step is rendered outside the pager
+                                    Box(modifier = Modifier.fillMaxSize())
+                                }
+                                OnboardingStep.APP_MODE_CHOICE -> {
                                 EnhancedAppModeChoiceContent(
                                     appSettings = appSettings,
                                     isTablet = isTablet,
@@ -846,6 +871,85 @@ fun OnboardingScreen(
                                     onNextStep = onNextStep,
                                     onSkip = onNextStep,
                                     themeViewModel = themeViewModel,
+                                    appSettings = appSettings,
+                                    isTablet = isTablet,
+                                    backButton = if (stepIndex > 0) {
+                                        {
+                                            val buttonScale = remember { Animatable(1f) }
+                                            OutlinedButton(
+                                                onClick = {
+                                                    scope.launch {
+                                                        buttonScale.animateTo(0.92f, animationSpec = tween(100))
+                                                        buttonScale.animateTo(1f, animationSpec = spring(
+                                                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                            stiffness = Spring.StiffnessHigh
+                                                        ))
+                                                    }
+                                                    onPrevStep()
+                                                },
+                                                modifier = Modifier
+                                                    .height(56.dp)
+                                                    .graphicsLayer {
+                                                        scaleX = buttonScale.value
+                                                        scaleY = buttonScale.value
+                                                    },
+                                                shape = RoundedCornerShape(32.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = RhythmIcons.Back,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(context.getString(R.string.onboarding_back), style = MaterialTheme.typography.labelLarge)
+                                            }
+                                        }
+                                    } else null,
+                                    nextButton = {
+                                        val nextButtonScale = remember { Animatable(1f) }
+                                        Button(
+                                            onClick = {
+                                                scope.launch {
+                                                    nextButtonScale.animateTo(0.92f, animationSpec = tween(100))
+                                                    nextButtonScale.animateTo(1f, animationSpec = spring(
+                                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                        stiffness = Spring.StiffnessHigh
+                                                    ))
+                                                }
+                                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                                                onNextStep()
+                                            },
+                                            modifier = Modifier
+                                                .height(56.dp)
+                                                .graphicsLayer {
+                                                    scaleX = nextButtonScale.value
+                                                    scaleY = nextButtonScale.value
+                                                },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary,
+                                                contentColor = MaterialTheme.colorScheme.onPrimary
+                                            ),
+                                            shape = RoundedCornerShape(32.dp)
+                                        ) {
+                                            Text(
+                                                context.getString(R.string.onboarding_next),
+                                                style = MaterialTheme.typography.labelLarge.copy(
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Icon(
+                                                imageVector = RhythmIcons.Forward,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                            OnboardingStep.PLAYER_THEME_CHOICE -> {
+                                EnhancedPlayerThemeChoiceContent(
+                                    onNextStep = onNextStep,
                                     appSettings = appSettings,
                                     isTablet = isTablet,
                                     backButton = if (stepIndex > 0) {
@@ -1763,6 +1867,7 @@ fun OnboardingScreen(
             }
         }
     }
+    }
 
     // Bottom sheets for advanced configuration
     if (showLibraryTabOrderBottomSheet) {
@@ -1825,13 +1930,14 @@ private fun OnboardingTopBackButton(onBackClick: () -> Unit) {
 private fun OnboardingCard(
     isTablet: Boolean,
     modifier: Modifier = Modifier,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val contentMaxWidth = 600.dp
     val cardPadding = if (isTablet) 20.dp else 10.dp
 
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = containerColor,
         shape = MaterialTheme.shapes.extraLarge,
         tonalElevation = if (isTablet) 0.dp else 0.dp,
         modifier = modifier
@@ -1874,353 +1980,145 @@ private fun OnboardingStepHeaderIcon(
 }
 
 @Composable
-fun EnhancedWelcomeContent(onNextStep: () -> Unit, isTablet: Boolean = false, contentMaxWidth: androidx.compose.ui.unit.Dp = androidx.compose.ui.unit.Dp.Infinity) {
+fun EnhancedWelcomeContent(
+    onNextStep: () -> Unit,
+    themeViewModel: ThemeViewModel,
+    isTablet: Boolean = false,
+    contentMaxWidth: androidx.compose.ui.unit.Dp = androidx.compose.ui.unit.Dp.Infinity
+) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     var showLanguageSwitcher by remember { mutableStateOf(false) }
 
-    // Animated scale for logo
-    val infiniteTransition = rememberInfiniteTransition(label = "welcome_animations")
-    val logoGlow by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = androidx.compose.animation.core.EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "logoGlow"
-    )
+    val useSystemTheme by themeViewModel.useSystemTheme.collectAsState()
+    val darkMode by themeViewModel.darkMode.collectAsState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .let { if (isTablet) it.width(contentMaxWidth) else it },
+            .background(MaterialTheme.colorScheme.primary),
         contentAlignment = Alignment.Center
     ) {
-        // Language switcher button at top-right
-        FilledTonalButton(
-            onClick = { showLanguageSwitcher = true },
+        Box(
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp),
-            colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            shape = RoundedCornerShape(16.dp)
+                .fillMaxHeight()
+                .then(if (isTablet) Modifier.width(contentMaxWidth) else Modifier.fillMaxWidth())
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .padding(horizontal = if (isTablet) 48.dp else 24.dp, vertical = 24.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = RhythmIcons.Public,
-                contentDescription = stringResource(R.string.cd_change_language),
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = context.getString(R.string.onboarding_language),
-                style = MaterialTheme.typography.labelLarge
-            )
-        }
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp)
-        ) {
-            // Logo and App Name - Adaptive Layout
-            if (isTablet) {
-                // Tablet: Logo and name on the same line
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // App logo with glowing effect
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = scaleIn(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMediumLow
-                            )
-                        ) + fadeIn(
-                            animationSpec = tween(1000)
-                        )
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(140.dp)
-                                .clip(CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.rhythm_splash_logo),
-                                contentDescription = stringResource(R.string.updates_rhythm_logo_cd),
-                                modifier = Modifier.size(140.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(2.dp))
-
-                    // App name with staggered animation
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = slideInVertically(
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                    stiffness = Spring.StiffnessMedium
-                                ),
-                                initialOffsetY = { it / 2 }
-                            ) + fadeIn(animationSpec = tween(800, delayMillis = 200))
-                        ) {
-                            Text(
-                                text = context.getString(R.string.onboarding_welcome_title),
-                                style = MaterialTheme.typography.displayLarge.copy(
-                                    fontSize = 64.sp,
-                                    letterSpacing = 0.8.sp
-                                ),
-                                fontWeight = FontWeight.ExtraBold,
-                                textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-
-                        // Subtitle with modern styling and delayed animation
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = slideInVertically(
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                    stiffness = Spring.StiffnessMedium
-                                ),
-                                initialOffsetY = { it / 2 }
-                            ) + fadeIn(animationSpec = tween(800, delayMillis = 400))
-                        ) {
-                            Text(
-                                text = context.getString(R.string.onboarding_welcome_subtitle),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    letterSpacing = 0.4.sp
-                                ),
-                                fontWeight = FontWeight.SemiBold,
-                                textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                }
-            } else {
-                // Phone: Vertical layout (original)
-                // App logo with glowing effect
-                AnimatedVisibility(
-                    visible = true,
-                    enter = scaleIn(
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMediumLow
-                        )
-                    ) + fadeIn(
-                        animationSpec = tween(1000)
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.rhythm_splash_logo),
-                            contentDescription = stringResource(R.string.updates_rhythm_logo_cd),
-                            modifier = Modifier.size(130.dp)
-                        )
-                    }
-                }
-
-                // App name with staggered animation
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = slideInVertically(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            initialOffsetY = { it / 2 }
-                        ) + fadeIn(animationSpec = tween(800, delayMillis = 200))
-                    ) {
-                        Text(
-                            text = context.getString(R.string.onboarding_welcome_title),
-                            style = MaterialTheme.typography.displayLarge.copy(
-                                fontSize = 48.sp,
-                                letterSpacing = 0.8.sp
-                            ),
-                            fontWeight = FontWeight.ExtraBold,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Subtitle with modern styling and delayed animation
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = slideInVertically(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            initialOffsetY = { it / 2 }
-                        ) + fadeIn(animationSpec = tween(800, delayMillis = 400))
-                    ) {
-                        Text(
-                            text = context.getString(R.string.onboarding_welcome_subtitle),
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                letterSpacing = 0.4.sp
-                            ),
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(if (isTablet) 48.dp else 34.dp))
-
-            // Minimal description with better typography and animation
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(animationSpec = tween(1000, delayMillis = 600)) +
-                        slideInVertically(
-                            animationSpec = tween(800, delayMillis = 600),
-                            initialOffsetY = { it / 3 }
-                        )
+            // Welcome to & Rhythm centered vertically
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = context.getString(R.string.onboarding_welcome_desc),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = if (isTablet) 16.sp else 12.sp,
-                        lineHeight = if (isTablet) 26.sp else 22.sp
+                    text = stringResource(R.string.onboarding_welcome_to),
+                    style = MaterialTheme.typography.displayMedium.copy(
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = if (isTablet) 48.sp else 38.sp
                     ),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = if (isTablet) 64.dp else 8.dp)
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Rhythm",
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = if (isTablet) 72.sp else 56.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = (-1.5).sp
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.height(if (isTablet) 56.dp else 44.dp))
-
-            // Enhanced Get Started button with modern design and animation
-            AnimatedVisibility(
-                visible = true,
-                enter = scaleIn(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                ) + fadeIn(animationSpec = tween(800, delayMillis = 800))
+            // Bottom row of three pill-shaped actions
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Left Action: Vertically elongated Pill for Light/Dark Mode toggle
+                Box(
+                    modifier = Modifier
+                        .size(width = 68.dp, height = 80.dp)
+                        .clip(RoundedCornerShape(34.dp)) // pill shape
+                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f))
+                        .clickable {
+                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                            themeViewModel.setUseSystemTheme(false)
+                            themeViewModel.setDarkMode(!darkMode)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (darkMode) MaterialSymbolIcon("light_mode") else MaterialSymbolIcon("dark_mode"),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                // Middle Action: Large pill-shaped "Get started" button
                 Button(
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
                         onNextStep()
                     },
                     modifier = Modifier
-                        .then(
-                            if (isTablet) Modifier.width(500.dp) else Modifier.fillMaxWidth()
-                        )
-                        .height(if (isTablet) 72.dp else 68.dp),
+                        .weight(1f)
+                        .height(80.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.onPrimary,
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
-                    shape = RoundedCornerShape(if (isTablet) 28.dp else 24.dp)
+                    shape = RoundedCornerShape(40.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.animateContentSize()
-                    ) {
-                        Icon(
-                            imageVector = RhythmIcons.Play,
-                            contentDescription = null,
-                            modifier = Modifier.size(if (isTablet) 32.dp else 28.dp)
+                    Text(
+                        text = context.getString(R.string.onboarding_get_started),
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = context.getString(R.string.onboarding_get_started),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontSize = if (isTablet) 22.sp else 20.sp
-                            ),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    )
+                }
+
+                // Right Action: Vertically elongated Pill for Language Switcher
+                Box(
+                    modifier = Modifier
+                        .size(width = 68.dp, height = 80.dp)
+                        .clip(RoundedCornerShape(34.dp)) // pill shape
+                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f))
+                        .clickable {
+                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                            showLanguageSwitcher = true
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = RhythmIcons.Language,
+                        contentDescription = stringResource(R.string.cd_change_language),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
 
-//            Spacer(modifier = Modifier.height(32.dp))
-//
-//            // Feature highlights with animated appearance
-//            AnimatedVisibility(
-//                visible = true,
-//                enter = fadeIn(animationSpec = tween(800, delayMillis = 1000)) +
-//                        expandVertically(animationSpec = tween(600, delayMillis = 1000))
-//            ) {
-//                Row(
-//                    horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(horizontal = 12.dp)
-//                ) {
-//                    WelcomeFeatureChip(
-//                        icon = RhythmIcons.MusicNote,
-//                        text = context.getString(R.string.onboarding_offline)
-//                    )
-//                    WelcomeFeatureChip(
-//                        icon = RhythmIcons.Palette,
-//                        text = context.getString(R.string.onboarding_customizable)
-//                    )
-//                    WelcomeFeatureChip(
-//                        icon = RhythmIcons.Security,
-//                        text = context.getString(R.string.onboarding_private)
-//                    )
-//                }
-//            }
-
-            Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 24.dp))
-
-            // Version info or subtle additional info with animation
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(animationSpec = tween(800, delayMillis = 1200))
-            ) {
-                Text(
-                    text = context.getString(R.string.onboarding_tagline),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = if (isTablet) 14.sp else 12.sp,
-                        letterSpacing = 0.3.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    textAlign = TextAlign.Center
+            // Language switcher dialog
+            if (showLanguageSwitcher) {
+                LanguageSwitcherDialog(
+                    onDismiss = { showLanguageSwitcher = false }
                 )
             }
-        }
-
-        // Language switcher dialog
-        if (showLanguageSwitcher) {
-            LanguageSwitcherDialog(
-                onDismiss = { showLanguageSwitcher = false }
-            )
         }
     }
 }
@@ -6491,7 +6389,7 @@ fun EnhancedUpdaterContent(
                 )
             }
 
-            // Update options - using Card + OnboardingSettingRow pattern like gesture step
+            // Update options
             val haptic = LocalHapticFeedback.current
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -8365,6 +8263,904 @@ private fun NotificationInfoCard() {
 }
 
 // =====================================================
+// PLAYER & MINIPLAYER THEMES ONBOARDING STEP
+// =====================================================
+
+@Composable
+fun EnhancedPlayerThemeChoiceContent(
+    onNextStep: () -> Unit,
+    appSettings: AppSettings,
+    isTablet: Boolean = false,
+    backButton: @Composable (() -> Unit)? = null,
+    nextButton: @Composable () -> Unit
+) {
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
+    val playerThemeId by appSettings.playerThemeId.collectAsState()
+    val miniPlayerThemeId by appSettings.miniPlayerThemeId.collectAsState()
+
+    var selectedViewIndex by remember { mutableStateOf(0) } // 0 = Player, 1 = Mini Player
+
+    if (isTablet) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(vertical = 32.dp),
+            horizontalArrangement = Arrangement.spacedBy(32.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Left Column: Icon, Title, Description, Switcher Tabs, Navigation Buttons
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OnboardingStepHeaderIcon(
+                    imageVector = RhythmIcons.Palette,
+                    tint = MaterialTheme.colorScheme.primary,
+                    iconSize = 72.dp
+                )
+
+                Text(
+                    text = context.getString(R.string.onboarding_player_theme_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                Text(
+                    text = context.getString(R.string.onboarding_player_theme_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+
+                // Tab Switcher between Player and Miniplayer
+                ExpressiveButtonGroup(
+                    items = listOf("Full Player", "Mini Player"),
+                    selectedIndex = selectedViewIndex,
+                    onItemClick = { index ->
+                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                        selectedViewIndex = index
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    backButton?.invoke()
+                    nextButton()
+                }
+            }
+
+            // Right Column: The Preview Card & Selector
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Live Preview",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // Interactive Preview
+                PlaybackThemePreview(
+                    isPlayer = selectedViewIndex == 0,
+                    playerThemeId = playerThemeId,
+                    miniPlayerThemeId = miniPlayerThemeId
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Selector Buttons
+                ThemeSelectionButtons(
+                    isPlayer = selectedViewIndex == 0,
+                    playerThemeId = playerThemeId,
+                    miniPlayerThemeId = miniPlayerThemeId,
+                    onThemeChange = { newTheme ->
+                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                        if (selectedViewIndex == 0) {
+                            appSettings.setPlayerThemeId(newTheme)
+                        } else {
+                            appSettings.setMiniPlayerThemeId(newTheme)
+                        }
+                    }
+                )
+            }
+        }
+    } else {
+        // Mobile layout: Single column
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+        ) {
+            OnboardingStepHeaderIcon(
+                imageVector = RhythmIcons.Palette,
+                tint = MaterialTheme.colorScheme.primary,
+                iconSize = 56.dp
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = context.getString(R.string.onboarding_player_theme_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Text(
+                text = context.getString(R.string.onboarding_player_theme_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+
+            // Switcher Tabs for Player vs Miniplayer
+            ExpressiveButtonGroup(
+                items = listOf("Full Player", "Mini Player"),
+                selectedIndex = selectedViewIndex,
+                onItemClick = { index ->
+                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                    selectedViewIndex = index
+                },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            )
+
+            // Interactive Preview Card
+            PlaybackThemePreview(
+                isPlayer = selectedViewIndex == 0,
+                playerThemeId = playerThemeId,
+                miniPlayerThemeId = miniPlayerThemeId
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Selector Button Group
+            ThemeSelectionButtons(
+                isPlayer = selectedViewIndex == 0,
+                playerThemeId = playerThemeId,
+                miniPlayerThemeId = miniPlayerThemeId,
+                onThemeChange = { newTheme ->
+                    HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                    if (selectedViewIndex == 0) {
+                        appSettings.setPlayerThemeId(newTheme)
+                    } else {
+                        appSettings.setMiniPlayerThemeId(newTheme)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Bottom navigation buttons removed on mobile view as they are rendered globally by OnboardingScreen bottom nav bar.
+        }
+    }
+}
+
+@Composable
+private fun PlaybackThemePreview(
+    isPlayer: Boolean,
+    playerThemeId: String,
+    miniPlayerThemeId: String
+) {
+    val isPlayerExpressive = playerThemeId == "EXPRESSIVE"
+    val isMiniPlayerExpressive = miniPlayerThemeId == "EXPRESSIVE"
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(320.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(0.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isPlayer) {
+                // Full Player Previews
+                AnimatedContent(
+                    targetState = isPlayerExpressive,
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(400)) + scaleIn(initialScale = 0.95f, animationSpec = tween(400)))
+                            .togetherWith(fadeOut(animationSpec = tween(300)) + scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                    },
+                    label = "player_preview_animation"
+                ) { expressive ->
+                    if (expressive) {
+                        // Expressive Player Preview Mock (Highly faithful to ExpressivePlayerScreen.kt)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Top Bar Placeholder
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.Back,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = "Expressive Design",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = RhythmIcons.More,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+
+                            // Expressive shape artwork
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .shadow(4.dp, rememberExpressiveShapeFor(ExpressiveShapeTarget.ALBUM_ART))
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.ALBUM_ART)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.MusicNote,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            // Song info and favorite/lyrics buttons row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Song",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Black,
+                                            letterSpacing = (-0.5).sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "Artist",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                
+                                // Lyrics & Fav double button group placeholder
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.Player.Lyrics,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.FavoriteFilled,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Playback controls container card (mimics real ExpressivePlayerScreen)
+                            Card(
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    // Row 1: wide pill play/pause and circle skip next
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(36.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.primaryContainer),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "Pause",
+                                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS))
+                                                .background(MaterialTheme.colorScheme.secondaryContainer),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = RhythmIcons.Player.SkipNext,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    }
+
+                                    // Row 2: circle skip previous and wavy progress slider
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_CONTROLS))
+                                                .background(MaterialTheme.colorScheme.secondaryContainer),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = RhythmIcons.Player.SkipPrevious,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+
+                                        // Wavy progress bar
+                                        StyledProgressBar(
+                                            progress = 0.65f,
+                                            style = ProgressStyle.WAVY,
+                                            modifier = Modifier.weight(1f),
+                                            progressColor = MaterialTheme.colorScheme.primary,
+                                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                            height = 4.dp,
+                                            isPlaying = true
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Rhythm (Material) Player Preview Mock (Highly faithful to MaterialPlayerScreen.kt)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Top Bar Placeholder
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.Back,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = "NOW PLAYING",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 1.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                                Icon(
+                                    imageVector = RhythmIcons.More,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            // Classic round-corner square artwork
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .shadow(4.dp, RoundedCornerShape(12.dp))
+                                    .background(
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.MusicNote,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            // Song info and favorite row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Song",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "Artist",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Icon(
+                                    imageVector = RhythmIcons.Favorite,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            // Classic linear progress bar
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                StyledProgressBar(
+                                    progress = 0.65f,
+                                    style = ProgressStyle.NORMAL,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    progressColor = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                    height = 4.dp,
+                                    isPlaying = true
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(text = "02:40", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(text = "04:15", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+
+                            // Unified Expressive Player Controls Row (faithful to real MaterialPlayerScreen using ExpressivePlayerControlGroup)
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(20.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                tonalElevation = 2.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 6.dp, vertical = 6.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Previous button
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(32.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.tertiary),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.SkipPrevious,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onTertiary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                    
+                                    // Seek back
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(32.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.Replay10,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                    }
+                                    
+                                    // Play/Pause center button
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1.2f)
+                                            .height(32.dp)
+                                            .clip(RoundedCornerShape(14.dp))
+                                            .background(MaterialTheme.colorScheme.primary),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.Pause,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                    
+                                    // Seek forward
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(32.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.Forward10,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                    }
+                                    
+                                    // Next button
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(32.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.tertiary),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.SkipNext,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onTertiary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Mini Player Previews
+                AnimatedContent(
+                    targetState = isMiniPlayerExpressive,
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(400)) + scaleIn(initialScale = 0.95f, animationSpec = tween(400)))
+                            .togetherWith(fadeOut(animationSpec = tween(300)) + scaleOut(targetScale = 0.95f, animationSpec = tween(300)))
+                    },
+                    label = "mini_player_preview_animation"
+                ) { expressive ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (expressive) {
+                            // Expressive Mini Player Preview: floating pill card with integrated progress background
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(72.dp)
+                                    .shadow(4.dp, CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer, shape = CircleShape)
+                                    .clip(CircleShape)
+                            ) {
+                                // Progress overlay acts as dynamic background
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .fillMaxWidth(0.65f)
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                )
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Organic squircle artwork
+                                    Box(
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .background(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.MINI_PLAYER)
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.MusicNote,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Song",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = "Artist",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+
+                                    // One large circular Play/Pause button
+                                    Box(
+                                        modifier = Modifier
+                                            .size(44.dp)
+                                            .background(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                shape = CircleShape
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = RhythmIcons.Pause,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            // Rhythm (Material) Mini Player Preview: Clean bottom bar mockup
+                            Card(
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                ),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(2.dp, RoundedCornerShape(16.dp))
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    // Top handle drag indicator
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 4.dp, bottom = 2.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        HorizontalDivider(
+                                            modifier = Modifier
+                                                .width(30.dp)
+                                                .height(3.dp)
+                                                .clip(RoundedCornerShape(1.5.dp)),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                                        )
+                                    }
+
+                                    // Inline flat progress bar (faithful to original MaterialMiniPlayer top-progress with 28.dp horizontal padding)
+                                    StyledProgressBar(
+                                        progress = 0.45f,
+                                        style = ProgressStyle.NORMAL,
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 28.dp),
+                                        progressColor = MaterialTheme.colorScheme.secondary,
+                                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                                        height = 3.dp,
+                                        isPlaying = true
+                                    )
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        // Square artwork
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.secondary,
+                                                    shape = RoundedCornerShape(8.dp)
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = RhythmIcons.MusicNote,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSecondary,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.width(10.dp))
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Song",
+                                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = "Artist",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .background(
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        shape = CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = RhythmIcons.Pause,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .background(
+                                                        color = MaterialTheme.colorScheme.secondaryContainer,
+                                                        shape = CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = RhythmIcons.SkipNext,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeSelectionButtons(
+    isPlayer: Boolean,
+    playerThemeId: String,
+    miniPlayerThemeId: String,
+    onThemeChange: (String) -> Unit
+) {
+    val currentTheme = if (isPlayer) playerThemeId else miniPlayerThemeId
+    val isExpressive = currentTheme == "EXPRESSIVE"
+
+    ExpressiveButtonGroup(
+        items = listOf(
+            "Rhythm (Material)",
+            "Expressive (Modern)"
+        ),
+        selectedIndex = if (isExpressive) 1 else 0,
+        onItemClick = { index ->
+            val themeVal = if (index == 1) "EXPRESSIVE" else "MATERIAL"
+            onThemeChange(themeVal)
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+// =====================================================
 // GESTURES ONBOARDING STEP
 // =====================================================
 
@@ -9633,104 +10429,76 @@ fun EnhancedAppModeChoiceContent(
 
     var selectedMode by remember { mutableStateOf(appMode) }
 
-    if (isTablet) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(scrollState)
-                .padding(vertical = 32.dp),
-            horizontalArrangement = Arrangement.spacedBy(32.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            // Left Column
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
-                    OnboardingStepHeaderIcon(
-                        imageVector = MaterialSymbolIcon("music_video", filled = true),
-                        tint = MaterialTheme.colorScheme.primary,
-                        iconSize = 72.dp
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.onboardingscreen_choose_your_playback_mode),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                Text(
-                    text = stringResource(R.string.onboardingscreen_select_how_youd_like),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
-
-                AppModeChoiceTipsCard()
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    backButton?.invoke()
-                    nextButton()
-                }
-            }
-
-            // Right Column
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                AppModeChoiceSelection(
-                    selectedMode = selectedMode,
-                    onModeSelected = { mode ->
-                        selectedMode = mode
-                        scope.launch { appSettings.setAppMode(mode) }
-                    }
-                )
-            }
-        }
-    } else {
-        // Mobile Column
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
+                .then(if (isTablet) Modifier.width(500.dp) else Modifier)
                 .verticalScroll(scrollState)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            AnimatedVisibility(visible = true, enter = scaleIn() + fadeIn()) {
-                OnboardingStepHeaderIcon(
-                    imageVector = MaterialSymbolIcon("music_video", filled = true),
-                    tint = MaterialTheme.colorScheme.primary,
-                    iconSize = 56.dp
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                // Logo
+                Image(
+                    painter = painterResource(id = R.drawable.rhythm_splash_logo),
+                    contentDescription = stringResource(R.string.updates_rhythm_logo_cd),
+                    modifier = Modifier.size(100.dp)
                 )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                // App name
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = context.getString(R.string.common_rhythm),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontSize = 42.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center
+                    )
+
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = selectedMode == "STREAMING",
+                        enter = scaleIn() + fadeIn(),
+                        exit = scaleOut() + fadeOut()
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.splashscreen_go),
+                                style = MaterialTheme.typography.displayMedium.copy(
+                                    fontSize = 42.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                ),
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
 
             Text(
                 text = stringResource(R.string.onboardingscreen_choose_your_playback_mode),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            Text(
-                text = stringResource(R.string.onboardingscreen_select_how_youd_like),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Medium
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
+            // Button group selection
             AppModeChoiceSelection(
                 selectedMode = selectedMode,
                 onModeSelected = { mode ->
@@ -9739,9 +10507,79 @@ fun EnhancedAppModeChoiceContent(
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            AppModeChoiceTipsCard()
+            // Dynamic proper description card
+            androidx.compose.animation.AnimatedContent(
+                targetState = selectedMode,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(220)).togetherWith(fadeOut(animationSpec = tween(220)))
+                },
+                label = "mode_description"
+            ) { mode ->
+                val descriptionTitle = if (mode == "LOCAL") {
+                    stringResource(R.string.onboardingscreen_local_offline_player)
+                } else {
+                    stringResource(R.string.onboardingscreen_rhythm_go_streaming)
+                }
+
+                val descriptionText = if (mode == "LOCAL") {
+                    stringResource(R.string.onboardingscreen_play_audio_files_stored)
+                } else {
+                    stringResource(R.string.onboardingscreen_connect_to_jellyfin_subsonic)
+                }
+
+                val icon = if (mode == "LOCAL") {
+                    MaterialSymbolIcon("music_note", filled = true)
+                } else {
+                    MaterialSymbolIcon("cloud_queue", filled = true)
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            modifier = Modifier.size(52.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(26.dp)
+                                )
+                            }
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = descriptionTitle,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = descriptionText,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -9751,137 +10589,21 @@ private fun AppModeChoiceSelection(
     selectedMode: String,
     onModeSelected: (String) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
 
-    // Option 1: Local Mode
-    val isLocalSelected = selectedMode == "LOCAL"
-    val localCardScale = remember { Animatable(1f) }
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = localCardScale.value
-                scaleY = localCardScale.value
-            }
-            .clickable {
-                scope.launch {
-                    localCardScale.animateTo(0.97f, animationSpec = tween(80))
-                    localCardScale.animateTo(1f, animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy))
-                }
-                onModeSelected("LOCAL")
-            },
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(
-            width = if (isLocalSelected) 2.dp else 1.dp,
-            color = if (isLocalSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isLocalSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = if (isLocalSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(56.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = MaterialSymbolIcon("music_note", filled = true),
-                        contentDescription = null,
-                        tint = if (isLocalSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
+    val items = listOf("Local Offline", "Streaming (Go)")
+    val selectedIndex = if (selectedMode == "LOCAL") 0 else 1
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.onboardingscreen_local_offline_player),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = if (isLocalSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.onboardingscreen_play_audio_files_stored),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (isLocalSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Option 2: Go Mode (Streaming)
-    val isStreamingSelected = selectedMode == "STREAMING"
-    val streamingCardScale = remember { Animatable(1f) }
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                scaleX = streamingCardScale.value
-                scaleY = streamingCardScale.value
-            }
-            .clickable {
-                scope.launch {
-                    streamingCardScale.animateTo(0.97f, animationSpec = tween(80))
-                    streamingCardScale.animateTo(1f, animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy))
-                }
-                onModeSelected("STREAMING")
-            },
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(
-            width = if (isStreamingSelected) 2.dp else 1.dp,
-            color = if (isStreamingSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isStreamingSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = if (isStreamingSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(56.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = MaterialSymbolIcon("cloud_queue", filled = true),
-                        contentDescription = null,
-                        tint = if (isStreamingSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.onboardingscreen_rhythm_go_streaming),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = if (isStreamingSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.onboardingscreen_connect_to_jellyfin_subsonic),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (isStreamingSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
+    ExpressiveButtonGroup(
+        items = items,
+        selectedIndex = selectedIndex,
+        onItemClick = { index ->
+            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+            onModeSelected(if (index == 0) "LOCAL" else "STREAMING")
+        },
+        modifier = Modifier.fillMaxWidth().height(56.dp)
+    )
 }
 
 @Composable

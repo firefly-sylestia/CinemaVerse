@@ -35,6 +35,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import chromahub.rhythm.app.shared.data.model.LyricsData
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+
 import chromahub.rhythm.app.shared.data.model.Song
 import chromahub.rhythm.app.shared.data.model.AppSettings
 import androidx.compose.material3.ContainedLoadingIndicator
@@ -72,6 +75,23 @@ fun FullScreenLyricsView(
     val haptic = LocalHapticFeedback.current
     val appSettings = remember { AppSettings.getInstance(context) }
     val playerLyricsTextSize by appSettings.playerLyricsTextSize.collectAsState()
+    val autoHideLyricsControls by appSettings.autoHideLyricsControls.collectAsState()
+
+    var controlsVisible by remember { mutableStateOf(true) }
+    var lastInteractionTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+
+    fun userActivityDetected() {
+        controlsVisible = true
+        lastInteractionTime = System.currentTimeMillis()
+    }
+
+    LaunchedEffect(controlsVisible, lastInteractionTime, autoHideLyricsControls) {
+        if (autoHideLyricsControls && controlsVisible) {
+            delay(5000L) // Auto hide after 5 seconds of inactivity
+            controlsVisible = false
+        }
+    }
+
 
     // Detect light or dark theme based on the app's theme background luminance
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
@@ -155,6 +175,28 @@ fun FullScreenLyricsView(
         modifier = modifier
             .fillMaxSize()
             .background(baseBgColor)
+            .pointerInput(autoHideLyricsControls) {
+                if (autoHideLyricsControls) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent(PointerEventPass.Initial)
+                            userActivityDetected()
+                        }
+                    }
+                }
+            }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                if (autoHideLyricsControls) {
+                    if (controlsVisible) {
+                        controlsVisible = false
+                    } else {
+                        userActivityDetected()
+                    }
+                }
+            }
     ) {
         // 1. DYNAMIC BACKGROUND: Blurred scaled album art with animated moving orbs
         Box(
@@ -251,80 +293,86 @@ fun FullScreenLyricsView(
                 .padding(horizontal = 20.dp)
         ) {
             // A. TOP BAR: Horizontal Artwork, Metadata and close button
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            AnimatedVisibility(
+                visible = !autoHideLyricsControls || controlsVisible,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { -it })
             ) {
-                // Expressive-shaped Cover Art
-                val artShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.SONG_ART)
-                Surface(
-                    shape = artShape,
-                    color = glassBgColor,
-                    border = BorderStroke(1.dp, glassBorderColor),
+                Row(
                     modifier = Modifier
-                        .size(64.dp)
-                        .graphicsLayer {
-                            scaleX = artworkScaleState
-                            scaleY = artworkScaleState
-                        }
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    M3ImageUtils.M3MediaImage(
-                        data = song?.artworkUri,
-                        contentDescription = stringResource(R.string.fullscreenlyricsview_cover_artwork),
-                        modifier = Modifier.fillMaxSize(),
-                        shape = RoundedCornerShape(12.dp),
-                        type = M3PlaceholderType.TRACK,
-                        name = song?.title,
-                        expressiveShape = artShape
-                    )
-                }
+                    // Expressive-shaped Cover Art
+                    val artShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.SONG_ART)
+                    Surface(
+                        shape = artShape,
+                        color = glassBgColor,
+                        border = BorderStroke(1.dp, glassBorderColor),
+                        modifier = Modifier
+                            .size(64.dp)
+                            .graphicsLayer {
+                                scaleX = artworkScaleState
+                                scaleY = artworkScaleState
+                            }
+                    ) {
+                        M3ImageUtils.M3MediaImage(
+                            data = song?.artworkUri,
+                            contentDescription = stringResource(R.string.fullscreenlyricsview_cover_artwork),
+                            modifier = Modifier.fillMaxSize(),
+                            shape = RoundedCornerShape(12.dp),
+                            type = M3PlaceholderType.TRACK,
+                            name = song?.title,
+                            expressiveShape = artShape
+                        )
+                    }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                // Song details (Title + Artist)
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = song?.title ?: "Unknown Song",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = textPrimaryColor,
-                            letterSpacing = 0.1.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = song?.artist ?: "Unknown Artist",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = textSecondaryColor
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                    // Song details (Title + Artist)
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = song?.title ?: "Unknown Song",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = textPrimaryColor,
+                                letterSpacing = 0.1.sp
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = song?.artist ?: "Unknown Artist",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Medium,
+                                color = textSecondaryColor
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                // Close button: Material 3 FilledTonalIconButton
-                FilledTonalIconButton(
-                    onClick = {
-                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                        onClose()
-                    },
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = RhythmIcons.KeyboardArrowDown,
-                        contentDescription = stringResource(R.string.onboarding_dismiss),
-                        modifier = Modifier.size(24.dp)
-                    )
+                    // Close button: Material 3 FilledTonalIconButton
+                    FilledTonalIconButton(
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                            onClose()
+                        },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = RhythmIcons.KeyboardArrowDown,
+                            contentDescription = stringResource(R.string.onboarding_dismiss),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
 
@@ -420,185 +468,207 @@ fun FullScreenLyricsView(
                 }
 
                 // Floating Romanization and Translation Stack
-                Column(
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = !autoHideLyricsControls || controlsVisible,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut(),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(bottom = 16.dp, end = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(bottom = 16.dp, end = 4.dp)
                 ) {
-                    // Quick Toggle Romanization
-                    FilledTonalIconToggleButton(
-                        checked = showRomanization,
-                        onCheckedChange = {
-                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            showRomanization = it
-                        },
-                        modifier = Modifier.size(44.dp)
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            imageVector = MaterialSymbolIcon("translate"),
-                            contentDescription = stringResource(R.string.fullscreenlyricsview_romanization),
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-
-                    // Quick Toggle Translation
-                    FilledTonalIconToggleButton(
-                        checked = showTranslation,
-                        onCheckedChange = {
-                            HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            showTranslation = it
-                        },
-                        modifier = Modifier.size(44.dp)
-                    ) {
-                        Icon(
-                            imageVector = MaterialSymbolIcon("subtitles"),
-                            contentDescription = stringResource(R.string.fullscreenlyricsview_translation),
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                }
-            }
-
-            // C. SYNC TUNER DOCK: Translucent slider or quick buttons to tweak sync offset in real time
-            Spacer(modifier = Modifier.height(10.dp))
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = glassBgColor,
-                border = BorderStroke(1.dp, glassBorderColor),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.fullscreenlyricsview_realtime_sync_adjustment),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = textSecondaryColor
-                        )
-                    )
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Nudge Backwards
-                        val nudgeBackInteractionSource = remember { MutableInteractionSource() }
-                        val nudgeBackPressed by nudgeBackInteractionSource.collectIsPressedAsState()
-                        val nudgeBackScale by animateFloatAsState(
-                            targetValue = if (nudgeBackPressed) 0.90f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            label = "nudge_back_bounce"
-                        )
-                        Surface(
-                            onClick = {
+                        // Quick Toggle Romanization
+                        FilledTonalIconToggleButton(
+                            checked = showRomanization,
+                            onCheckedChange = {
                                 HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                                manualSyncOffsetMs -= 500L
+                                showRomanization = it
                             },
-                            shape = CircleShape,
-                            color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.12f),
-                            modifier = Modifier
-                                .size(36.dp)
-                                .graphicsLayer {
-                                    scaleX = nudgeBackScale
-                                    scaleY = nudgeBackScale
-                                },
-                            interactionSource = nudgeBackInteractionSource
+                            modifier = Modifier.size(44.dp)
                         ) {
-                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                Text(stringResource(R.string.fullscreenlyricsview_str_05s), color = textPrimaryColor, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
-                            }
-                        }
-
-                        // Display Current Offset
-                        val offsetSeconds = manualSyncOffsetMs / 1000f
-                        Text(
-                            text = String.format("%+.1fs", offsetSeconds),
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.primary
-                            ),
-                            modifier = Modifier.padding(horizontal = 6.dp)
-                        )
-
-                        // Nudge Forwards
-                        val nudgeForwardInteractionSource = remember { MutableInteractionSource() }
-                        val nudgeForwardPressed by nudgeForwardInteractionSource.collectIsPressedAsState()
-                        val nudgeForwardScale by animateFloatAsState(
-                            targetValue = if (nudgeForwardPressed) 0.90f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            ),
-                            label = "nudge_forward_bounce"
-                        )
-                        Surface(
-                            onClick = {
-                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                                manualSyncOffsetMs += 500L
-                            },
-                            shape = CircleShape,
-                            color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.12f),
-                            modifier = Modifier
-                                .size(36.dp)
-                                .graphicsLayer {
-                                    scaleX = nudgeForwardScale
-                                    scaleY = nudgeForwardScale
-                                },
-                            interactionSource = nudgeForwardInteractionSource
-                        ) {
-                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                                Text(stringResource(R.string.fullscreenlyricsview_str_05s_1), color = textPrimaryColor, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
-                            }
-                        }
-
-                        // Reset Button
-                        if (manualSyncOffsetMs != 0L) {
                             Icon(
-                                imageVector = RhythmIcons.Restore,
-                                contentDescription = stringResource(R.string.fullscreenlyricsview_reset_offset),
-                                tint = textSecondaryColor,
-                                modifier = Modifier
-                                    .padding(start = 6.dp)
-                                    .size(20.dp)
-                                    .bouncyClickable {
-                                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                        manualSyncOffsetMs = 0L
-                                    }
+                                imageVector = MaterialSymbolIcon("translate"),
+                                contentDescription = stringResource(R.string.fullscreenlyricsview_romanization),
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+
+                        // Quick Toggle Translation
+                        FilledTonalIconToggleButton(
+                            checked = showTranslation,
+                            onCheckedChange = {
+                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                                showTranslation = it
+                            },
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Icon(
+                                imageVector = MaterialSymbolIcon("subtitles"),
+                                contentDescription = stringResource(R.string.fullscreenlyricsview_translation),
+                                modifier = Modifier.size(22.dp)
                             )
                         }
                     }
                 }
             }
 
-            // D. GLASSMORPHIC CONTROL DOCK: Integrated with the official material ExpressivePlayerControlGroup
-            Spacer(modifier = Modifier.height(12.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+            // C. SYNC TUNER DOCK: Translucent slider or quick buttons to tweak sync offset in real time
+            AnimatedVisibility(
+                visible = !autoHideLyricsControls || controlsVisible,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
             ) {
-                ExpressivePlayerControlGroup(
-                    isPlaying = isPlaying,
-                    showSeekButtons = false,
-                    onPrevious = onSkipPrevious,
-                    onPlayPause = onPlayPause,
-                    onNext = onSkipNext,
-                    onSeekBack = {},
-                    onSeekForward = {},
-                    useGlassEffect = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        shape = RoundedCornerShape(24.dp),
+                        color = glassBgColor,
+                        border = BorderStroke(1.dp, glassBorderColor),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(R.string.fullscreenlyricsview_realtime_sync_adjustment),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = textSecondaryColor
+                                )
+                            )
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                // Nudge Backwards
+                                val nudgeBackInteractionSource = remember { MutableInteractionSource() }
+                                val nudgeBackPressed by nudgeBackInteractionSource.collectIsPressedAsState()
+                                val nudgeBackScale by animateFloatAsState(
+                                    targetValue = if (nudgeBackPressed) 0.90f else 1f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium
+                                    ),
+                                    label = "nudge_back_bounce"
+                                )
+                                Surface(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                                        manualSyncOffsetMs -= 500L
+                                    },
+                                    shape = CircleShape,
+                                    color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.12f),
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .graphicsLayer {
+                                            scaleX = nudgeBackScale
+                                            scaleY = nudgeBackScale
+                                        },
+                                    interactionSource = nudgeBackInteractionSource
+                                ) {
+                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                        Text(stringResource(R.string.fullscreenlyricsview_str_05s), color = textPrimaryColor, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
+                                    }
+                                }
+
+                                // Display Current Offset
+                                val offsetSeconds = manualSyncOffsetMs / 1000f
+                                Text(
+                                    text = String.format("%+.1fs", offsetSeconds),
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier.padding(horizontal = 6.dp)
+                                )
+
+                                // Nudge Forwards
+                                val nudgeForwardInteractionSource = remember { MutableInteractionSource() }
+                                val nudgeForwardPressed by nudgeForwardInteractionSource.collectIsPressedAsState()
+                                val nudgeForwardScale by animateFloatAsState(
+                                    targetValue = if (nudgeForwardPressed) 0.90f else 1f,
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessMedium
+                                    ),
+                                    label = "nudge_forward_bounce"
+                                )
+                                Surface(
+                                    onClick = {
+                                        HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+                                        manualSyncOffsetMs += 500L
+                                    },
+                                    shape = CircleShape,
+                                    color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.12f),
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .graphicsLayer {
+                                            scaleX = nudgeForwardScale
+                                            scaleY = nudgeForwardScale
+                                        },
+                                    interactionSource = nudgeForwardInteractionSource
+                                ) {
+                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                        Text(stringResource(R.string.fullscreenlyricsview_str_05s_1), color = textPrimaryColor, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
+                                    }
+                                }
+
+                                // Reset Button
+                                if (manualSyncOffsetMs != 0L) {
+                                    Icon(
+                                        imageVector = RhythmIcons.Restore,
+                                        contentDescription = stringResource(R.string.fullscreenlyricsview_reset_offset),
+                                        tint = textSecondaryColor,
+                                        modifier = Modifier
+                                            .padding(start = 6.dp)
+                                            .size(20.dp)
+                                            .bouncyClickable {
+                                                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
+                                                manualSyncOffsetMs = 0L
+                                            }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // D. GLASSMORPHIC CONTROL DOCK: Integrated with the official material ExpressivePlayerControlGroup
+            AnimatedVisibility(
+                visible = !autoHideLyricsControls || controlsVisible,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp)
+                    ) {
+                        ExpressivePlayerControlGroup(
+                            isPlaying = isPlaying,
+                            showSeekButtons = false,
+                            onPrevious = onSkipPrevious,
+                            onPlayPause = onPlayPause,
+                            onNext = onSkipNext,
+                            onSeekBack = {},
+                            onSeekForward = {},
+                            useGlassEffect = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
         }
     }

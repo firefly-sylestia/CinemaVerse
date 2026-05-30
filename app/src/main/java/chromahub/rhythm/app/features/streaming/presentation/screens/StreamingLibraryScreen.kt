@@ -252,7 +252,7 @@ fun StreamingLibraryScreen(
     val miniPlayerBottomPadding = LocalMiniPlayerPadding.current.calculateBottomPadding()
     val isTabletLayout = LocalConfiguration.current.screenWidthDp >= 600
     val baseLibraryBottomPadding = if (isTabletLayout) 16.dp else (MusicDimensions.bottomNavigationHeight + 16.dp)
-    val libraryBottomOverlayPadding = baseLibraryBottomPadding + miniPlayerBottomPadding
+    val libraryBottomOverlayPadding = 26.dp
     val contentBottomPadding = 24.dp
 
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -583,7 +583,7 @@ fun StreamingLibraryScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.dp
@@ -637,30 +637,31 @@ fun StreamingLibraryScreen(
                 }
             }
 
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = { viewModel.loadLibrary() },
-                state = pullToRefreshState,
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                indicator = {
-                    PullToRefreshDefaults.LoadingIndicator(
-                        state = pullToRefreshState,
-                        isRefreshing = isRefreshing,
-                        modifier = Modifier.align(Alignment.TopCenter)
-                    )
-                }
+                    .weight(1f)
+                    .padding(start = 10.dp, top = 0.dp, end = 10.dp, bottom = libraryBottomOverlayPadding),
+                shape = RoundedCornerShape(20.dp),
+                color = Color.Transparent,
+                shadowElevation = 0.dp
             ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxSize()
-                        .padding(start = 10.dp, top = 0.dp, end = 10.dp, bottom = libraryBottomOverlayPadding),
-                    shape = RoundedCornerShape(20.dp),
-                    color = Color.Transparent,
-                    shadowElevation = 0.dp
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = { viewModel.loadLibrary() },
+                    state = pullToRefreshState,
+                    modifier = Modifier.fillMaxSize(),
+                    indicator = {
+                        PullToRefreshDefaults.LoadingIndicator(
+                            state = pullToRefreshState,
+                            isRefreshing = isRefreshing,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+                    }
                 ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
                 when {
                     !isSelectedServiceConnected -> {
                         Box(
@@ -731,7 +732,6 @@ fun StreamingLibraryScreen(
                             state = pagerState,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 10.dp, bottom = contentBottomPadding)
                         ) { page ->
                         when (tabs[page]) {
                             StreamingLibraryTab.ALBUMS -> {
@@ -1248,6 +1248,7 @@ fun StreamingLibraryScreen(
                             }
                         }
                         }
+                    }
                     }
                 }
             }

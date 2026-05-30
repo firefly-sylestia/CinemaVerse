@@ -128,6 +128,7 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_TAP_LYRICS_TO_FULL_SCREEN = "tap_lyrics_to_full_screen"
         private const val KEY_LYRICS_API_PRIORITY = "lyrics_api_priority"
         private const val KEY_LYRICS_API_FALLBACK_RETRY = "lyrics_api_fallback_retry"
+        private const val KEY_AUTO_HIDE_LYRICS_CONTROLS = "auto_hide_lyrics_controls"
         
         // Theme Settings
         private const val KEY_USE_SYSTEM_THEME = "use_system_theme"
@@ -655,6 +656,9 @@ class AppSettings private constructor(context: Context) {
 
     private val _lyricsApiFallbackRetry = MutableStateFlow(prefs.getBoolean(KEY_LYRICS_API_FALLBACK_RETRY, true))
     val lyricsApiFallbackRetry: StateFlow<Boolean> = _lyricsApiFallbackRetry.asStateFlow()
+    
+    private val _autoHideLyricsControls = MutableStateFlow(prefs.getBoolean(KEY_AUTO_HIDE_LYRICS_CONTROLS, true))
+    val autoHideLyricsControls: StateFlow<Boolean> = _autoHideLyricsControls.asStateFlow()
     
     // Theme Settings
     private val _useSystemTheme = MutableStateFlow(prefs.getBoolean(KEY_USE_SYSTEM_THEME, true))
@@ -1947,6 +1951,11 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     fun setLyricsApiFallbackRetry(enable: Boolean) {
         prefs.edit().putBoolean(KEY_LYRICS_API_FALLBACK_RETRY, enable).apply()
         _lyricsApiFallbackRetry.value = enable
+    }
+
+    fun setAutoHideLyricsControls(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_AUTO_HIDE_LYRICS_CONTROLS, enabled).apply()
+        _autoHideLyricsControls.value = enabled
     }
     
     // Theme Settings Methods

@@ -12,6 +12,7 @@ enum class OnboardingStep {
     BACKUP_RESTORE, // Step for backup and restore setup
     AUDIO_PLAYBACK, // Step for audio and playback settings
     THEMING,
+    PLAYER_THEME_CHOICE, // Step to choose between player theme and miniplayer theme
     GESTURES, // Step for gesture controls introduction
     LIBRARY_SETUP, // Legacy step (not shown in onboarding flow)
     MEDIA_SCAN, // Core step for choosing blacklist/whitelist filtering mode

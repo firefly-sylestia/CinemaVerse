@@ -198,18 +198,23 @@ class MainActivity : FragmentActivity() {
                         val currentAppVersion by appUpdaterViewModel.currentVersion.collectAsState() // Observe current version
                         val updateChannel by appUpdaterViewModel.updateChannel.collectAsState() // Observe update channel
 
-                    // State for permission handling and app initialization
+                    // State for permission handling and app initialization.
+                    // rememberSaveable so these survive configuration changes (e.g. system theme toggle)
+                    // which recreate the Activity but must not re-show the splash or re-enter loading.
                     var shouldShowSettingsRedirect by remember { mutableStateOf(false) }
-                    var isLoading by remember { mutableStateOf(true) } // Start as true to show loading during splash/initial checks
-                    var isInitializingApp by remember { mutableStateOf(false) }
+                    var isLoading by rememberSaveable { mutableStateOf(true) }
+                    var isInitializingApp by rememberSaveable { mutableStateOf(false) }
                     val lastCrashLog by appSettings.lastCrashLog.collectAsState() // Observe last crash log
 
-                    // Handle splash screen completion and post-init tasks
-                    LaunchedEffect(Unit) {
-                        // Wait for splash screen to complete (it will call onMediaScanComplete when ready)
-                        // This LaunchedEffect will handle post-splash tasks like beta popup and intent handling
+                    // If the Activity was recreated (config change) after the splash was already
+                    // dismissed, isLoading must be cleared immediately — onSplashComplete() will
+                    // never fire again because showSplash is already false.
+                    LaunchedEffect(showSplash) {
+                        if (!showSplash && isLoading) {
+                            isLoading = false
+                        }
                     }
-                    
+
                     // Function to handle splash completion
                     fun onSplashComplete() {
                         showSplash = false
@@ -630,6 +635,7 @@ class MainActivity : FragmentActivity() {
             OnboardingStep.BACKUP_RESTORE -> "Backup & Restore"
             OnboardingStep.AUDIO_PLAYBACK -> "Audio & Playback"
             OnboardingStep.THEMING -> "Theming"
+            OnboardingStep.PLAYER_THEME_CHOICE -> "Player Themes"
             OnboardingStep.GESTURES -> "Gestures"
             OnboardingStep.LIBRARY_SETUP -> "Library Setup"
             OnboardingStep.MEDIA_SCAN -> "Media Scan"

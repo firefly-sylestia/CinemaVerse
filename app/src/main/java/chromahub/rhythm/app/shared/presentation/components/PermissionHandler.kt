@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,10 +66,14 @@ fun PermissionHandler(
     val scope = rememberCoroutineScope()
     val onboardingCompleted by appSettings.onboardingCompleted.collectAsState()
     val initialMediaScanCompleted by appSettings.initialMediaScanCompleted.collectAsState()
+    val appMode by appSettings.appMode.collectAsState()
     var permissionScreenState by remember { mutableStateOf<PermissionScreenState>(PermissionScreenState.Loading) }
     var permissionRequestLaunched by remember { mutableStateOf(false) } // New state to track if permission request has been launched
     var showMediaScanLoader by remember { mutableStateOf(false) } // New state for media scan loader
     var continueFullTour by remember { mutableStateOf(false) }
+    // Track whether the tour was programmatically reset so that remember(onboardingCompleted)
+    // does not flip currentOnboardingStep back to COMPLETE during mid-tour recompositions.
+    var tourWasReset by remember { mutableStateOf(false) }
 
     // Storage permissions based on Android version:
     // - Android 13+ (API 33+): READ_MEDIA_AUDIO (granular media permissions)
@@ -120,13 +125,43 @@ fun PermissionHandler(
             }
             if (!hasStoragePermissions) {
                 // Invalid state: onboarding marked complete but permissions missing
-                // Reset onboarding to start fresh
+                // Reset onboarding to start fresh from WELCOME
+                tourWasReset = true
                 appSettings.setOnboardingCompleted(false)
                 appSettings.setInitialMediaScanCompleted(false)
+                // Immediately clear loading so the WELCOME screen can appear instead of
+                // getting stuck on the loading spinner indefinitely.
+                onSetIsLoading(false)
             }
         }
     }
 
+    // Reactive check: when the user switches from STREAMING → LOCAL mode after the onboarding
+    // was already completed in streaming mode, we must verify storage permissions are present.
+    // LaunchedEffect(Unit) above only runs once; this covers runtime mode switches.
+    LaunchedEffect(appMode) {
+        if (appMode != "STREAMING" && onboardingCompleted) {
+            val hasStoragePermissions = storagePermissions.all { permission ->
+                ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+            }
+            if (!hasStoragePermissions) {
+                // Permissions are required for local mode but not granted — restart the tour
+                // so the user goes through the PERMISSIONS step before reaching the main app.
+                tourWasReset = true
+                appSettings.setOnboardingCompleted(false)
+                appSettings.setInitialMediaScanCompleted(false)
+                onSetIsLoading(false)
+            }
+        }
+    }
+
+    // remember(onboardingCompleted) re-runs its lambda ONLY when the key (onboardingCompleted)
+    // changes. The initial value is simple: completed → COMPLETE, not completed → WELCOME.
+    // tourWasReset is intentionally NOT used here — when setOnboardingCompleted(true) fires at
+    // tour completion, the DataStore flow emits true, the key changes, and the lambda runs again.
+    // If tourWasReset were still true at that point (it's never auto-cleared), the lambda would
+    // return WELCOME instead of COMPLETE, causing a 1-frame WELCOME flash.
+    // tourWasReset is only used by the AnimatedVisibility escape hatch below.
     var currentOnboardingStep by remember(onboardingCompleted) {
         mutableStateOf(
             if (onboardingCompleted) OnboardingStep.COMPLETE else OnboardingStep.WELCOME
@@ -134,6 +169,7 @@ fun PermissionHandler(
     }
 
     fun completeOnboardingNow() {
+        tourWasReset = false // Clear reset flag before completing so the remember lambda sees false
         appSettings.setOnboardingCompleted(true)
         currentOnboardingStep = OnboardingStep.COMPLETE
         if (!initialMediaScanCompleted && appSettings.appMode.value != "STREAMING") {
@@ -290,7 +326,12 @@ fun PermissionHandler(
         }
 
         AnimatedVisibility(
-            visible = !isLoading && !isInitializingApp && currentOnboardingStep != OnboardingStep.COMPLETE, // Show onboarding if not loading AND not initializing AND not complete
+            // Show onboarding when:
+            //  • Not in a loading/initializing state, OR
+            //  • The tour was explicitly reset (we always want to show WELCOME in that case,
+            //    even if isLoading hasn't fully settled yet).
+            visible = (!isLoading && !isInitializingApp && currentOnboardingStep != OnboardingStep.COMPLETE)
+                    || (tourWasReset && currentOnboardingStep == OnboardingStep.WELCOME && !isInitializingApp),
             enter = fadeIn(animationSpec = tween(800, easing = androidx.compose.animation.core.EaseOutCubic)) +
                    scaleIn(initialScale = 0.95f, animationSpec = tween(800, easing = androidx.compose.animation.core.EaseOutCubic))
         ) {
@@ -353,7 +394,8 @@ fun PermissionHandler(
                         OnboardingStep.NOTIFICATIONS -> currentOnboardingStep = OnboardingStep.BACKUP_RESTORE
                         OnboardingStep.BACKUP_RESTORE -> currentOnboardingStep = OnboardingStep.AUDIO_PLAYBACK
                         OnboardingStep.AUDIO_PLAYBACK -> currentOnboardingStep = OnboardingStep.THEMING
-                        OnboardingStep.THEMING -> currentOnboardingStep = OnboardingStep.GESTURES
+                        OnboardingStep.THEMING -> currentOnboardingStep = OnboardingStep.PLAYER_THEME_CHOICE
+                        OnboardingStep.PLAYER_THEME_CHOICE -> currentOnboardingStep = OnboardingStep.GESTURES
                         OnboardingStep.GESTURES -> currentOnboardingStep = OnboardingStep.WIDGETS
                         OnboardingStep.LIBRARY_SETUP -> currentOnboardingStep = OnboardingStep.WIDGETS
                         OnboardingStep.WIDGETS -> currentOnboardingStep = OnboardingStep.INTEGRATIONS // Move to integrations
@@ -394,7 +436,8 @@ fun PermissionHandler(
                         OnboardingStep.BACKUP_RESTORE -> currentOnboardingStep = OnboardingStep.FULL_TOUR_PROMPT
                         OnboardingStep.AUDIO_PLAYBACK -> currentOnboardingStep = OnboardingStep.BACKUP_RESTORE
                         OnboardingStep.THEMING -> currentOnboardingStep = OnboardingStep.AUDIO_PLAYBACK
-                        OnboardingStep.GESTURES -> currentOnboardingStep = OnboardingStep.THEMING
+                        OnboardingStep.PLAYER_THEME_CHOICE -> currentOnboardingStep = OnboardingStep.THEMING
+                        OnboardingStep.GESTURES -> currentOnboardingStep = OnboardingStep.PLAYER_THEME_CHOICE
                         OnboardingStep.LIBRARY_SETUP -> currentOnboardingStep = OnboardingStep.GESTURES
                         OnboardingStep.WIDGETS -> currentOnboardingStep = OnboardingStep.GESTURES
                         OnboardingStep.INTEGRATIONS -> currentOnboardingStep = OnboardingStep.WIDGETS

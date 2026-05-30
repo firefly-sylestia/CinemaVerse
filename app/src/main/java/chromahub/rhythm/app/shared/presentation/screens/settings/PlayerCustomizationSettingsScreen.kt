@@ -179,6 +179,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
     val playerShowAudioQualityBadges by appSettings.playerShowAudioQualityBadges.collectAsState()
     val expressiveShapesEnabled by appSettings.expressiveShapesEnabled.collectAsState()
     val tapLyricsToFullScreen by appSettings.tapLyricsToFullScreen.collectAsState()
+    val autoHideLyricsControls by appSettings.autoHideLyricsControls.collectAsState()
 
     // Progress bar settings
     val playerProgressStyle by appSettings.playerProgressStyle.collectAsState()
@@ -408,6 +409,19 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                     description = context.getString(R.string.settings_keep_screen_on_lyrics_desc),
                                     toggleState = keepScreenOnLyrics,
                                     onToggleChange = { appSettings.setKeepScreenOnLyrics(it) }
+                                )
+                            )
+                        )
+                        add(
+                            toMaterial3SettingsItem(
+                                context = context,
+                                hapticFeedback = haptics,
+                                item = SettingItem(
+                                    icon = MaterialSymbolIcon("visibility_off"),
+                                    title = "Auto-hide lyrics controls",
+                                    description = "Automatically hide controls in full-screen lyrics screen after a few seconds of inactivity",
+                                    toggleState = autoHideLyricsControls,
+                                    onToggleChange = { appSettings.setAutoHideLyricsControls(it) }
                                 )
                             )
                         )

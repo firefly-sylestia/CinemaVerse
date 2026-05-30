@@ -659,6 +659,7 @@
     <string name="updates_channel_desc">Choose which update channel to follow:</string>
     
     <!-- Onboarding -->
+    <string name="onboarding_welcome_to">Welcome to</string>
     <string name="onboarding_welcome_title">Rhythm</string>
     <string name="onboarding_welcome_subtitle">Your Music, Your Rhythm</string>
     <string name="onboarding_welcome_desc">Personalize every aspect of your listening experience with powerful features and complete privacy. Play your music offline, ad-free, with full control.</string>
@@ -816,6 +817,8 @@
     <string name="onboarding_dark_mode_desc">Manually enable or disable dark mode for the application.</string>
     <string name="onboarding_dynamic_colors_title">Dynamic Colors (Material You)</string>
     <string name="onboarding_dynamic_colors_desc">Apply colors extracted from your device\'s wallpaper for a cohesive look.</string>
+    <string name="onboarding_player_theme_title">Playback &amp; Mini Player Themes</string>
+    <string name="onboarding_player_theme_desc">Personalize your playback interfaces. Toggle between the clean, modern Rhythm design or the vibrant, fluid Expressive design.</string>
     
     <!-- Onboarding Updater -->
     <string name="onboarding_update_check_failed">Update Check Failed</string>
@@ -1971,9 +1974,9 @@
     <string name="settings_rhythm_guard_state_active">Rhythm Guard is Active</string>
     <string name="settings_rhythm_guard_state_inactive">Rhythm Guard is Inactive</string>
     <string name="settings_rhythm_guard_state_timeout_active">Listening timeout in progress</string>
-    <string name="settings_rhythm_guard_state_cooldown_active">Recovery cooldown active</string>
+    <string name="settings_rhythm_guard_state_cooldown_active">Grace period active</string>
     <string name="settings_rhythm_guard_state_timeout_remaining">Break ends in %1$s</string>
-    <string name="settings_rhythm_guard_state_cooldown_remaining">Cooldown ends in %1$s</string>
+    <string name="settings_rhythm_guard_state_cooldown_remaining">Grace period ends in %1$s</string>
     <string name="settings_rhythm_guard_state_safety_score">Safety score: %1$d%%</string>
     <string name="settings_rhythm_guard_protection_presets_title">Protection Presets</string>
     <string name="settings_rhythm_guard_protection_presets_desc">Quickly apply tested guardrail bundles for your listening style.</string>
