@@ -62,15 +62,13 @@ android {
     }
 
     val signingProperties = getProperties(".config/keystore.properties")
-    val releaseSigning = if (signingProperties != null) {
+    val releaseSigning = signingProperties?.let {
         signingConfigs.create("release") {
-            keyAlias = signingProperties.property("key_alias")
-            keyPassword = signingProperties.property("key_password")
-            storePassword = signingProperties.property("store_password")
-            storeFile = rootProject.file(signingProperties.property("store_file"))
+            keyAlias = it.property("key_alias")
+            keyPassword = it.property("key_password")
+            storePassword = it.property("store_password")
+            storeFile = rootProject.file(it.property("store_file"))
         }
-    } else {
-        signingConfigs.getByName("debug")
     }
 
     defaultConfig {
@@ -84,6 +82,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Leave release APKs unsigned when no release keystore is present (for PR/CI builds).
+            // Tag release workflow creates .config/keystore.properties so this becomes signed there.
             signingConfig = releaseSigning
 //            ndk {
 //                debugSymbolLevel = "SYMBOL_TABLE"
@@ -104,7 +104,7 @@ android {
             versionNameSuffix = "-debug"
             //isMinifyEnabled = false
             //isDebuggable = true
-            signingConfig = releaseSigning
+            // Use the default debug signing config; release signing is reserved for tag releases.
         }
     }
     compileOptions {
@@ -140,13 +140,18 @@ android {
         }
     }
 
-    // ABI splits: create smaller per-architecture APKs (reduces size by ~5–10 MB each)
+    // Build one universal APK by default. Set -Prhythm.enableAbiSplits=true locally if
+    // per-architecture APKs are needed for testing or alternate distribution channels.
+    val enableAbiSplits = providers.gradleProperty("rhythm.enableAbiSplits")
+        .map(String::toBoolean)
+        .getOrElse(false)
+
     splits {
         abi {
-            isEnable = true
+            isEnable = enableAbiSplits
             reset()
             include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-            isUniversalApk = true // also keep a universal APK for IzzyOnDroid/F-Droid
+            isUniversalApk = true
         }
     }
 
