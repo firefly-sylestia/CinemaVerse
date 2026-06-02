@@ -184,6 +184,35 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
         ) {
             item { Spacer(modifier = Modifier.height(8.dp)) }
 
+            item {
+                ElevatedCard(
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Movie metadata APIs",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = "Configure OMDB_API_KEY, TMDB_API_KEY, and TMDB_READ_ACCESS_TOKEN before building. Rhythm uses bundled viewing-list data when keys are missing.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
+                        )
+                        Text(
+                            text = "Local poster/backdrop overrides are edited in ViewingLists.kt and take priority over TMDB and OMDb artwork.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.72f)
+                        )
+                    }
+                }
+            }
 
             // API Services
             item {

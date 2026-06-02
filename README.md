@@ -176,3 +176,33 @@ We welcome contributions! See our [CONTRIBUTING.md](https://github.com/cromaguy/
 <sub>⭐ If Rhythm improved your daily listening, don't forget to star the repository! ⭐</sub>
 
 </div>
+
+## Rhythm viewing-list metadata setup
+
+Rhythm now includes a movie/list viewing-order data layer while preserving the app name, navigation shell, theme system, and reusable Compose UI patterns.
+
+### OMDb and TMDB keys
+
+The Android build reads API credentials from environment variables when Gradle configures the app:
+
+```bash
+export OMDB_API_KEY="YOUR_OMDB_API_KEY_HERE"
+export TMDB_API_KEY="YOUR_TMDB_API_KEY_HERE"
+export TMDB_READ_ACCESS_TOKEN="YOUR_TMDB_READ_ACCESS_TOKEN_HERE"
+./gradlew :app:assembleGithubDebug
+```
+
+Real keys must not be committed. `.env.example` contains placeholder names only. If keys are missing, Rhythm stays usable with bundled local viewing-list data.
+
+### Local posters and backdrops
+
+Viewing items include `localPoster` and `localBackdrop` fields in `app/src/main/java/chromahub/rhythm/app/shared/data/viewing/ViewingLists.kt`. Replace the placeholder path `[I WILL PROVIDE POSTER FOLDER PATH LATER]` with your final asset path when you provide posters. Artwork priority is:
+
+1. Local poster/backdrop override
+2. TMDB poster/backdrop
+3. OMDb poster
+4. Rhythm fallback artwork
+
+### Editing viewing lists
+
+Add or edit curated lists in `ViewingLists.kt`. Local data defines membership, order, phase, saga, local artwork, and manual trailer URLs; OMDb/TMDB enrichment fills missing metadata through the service layer in `shared/data/service`.

@@ -71,9 +71,9 @@ sealed class LocalScreen(val route: String) {
  * Tabs available in the local library screen.
  */
 enum class LocalLibraryTab(val displayName: String) {
-    SONGS("Songs"),
-    ALBUMS("Albums"),
-    ARTISTS("Artists"),
-    PLAYLISTS("Playlists"),
-    EXPLORER("Folders")
+    SONGS("Movies"),
+    ALBUMS("Collections"),
+    ARTISTS("Phases"),
+    PLAYLISTS("Watchlist"),
+    EXPLORER("Files")
 }

@@ -189,6 +189,10 @@ import androidx.compose.material3.OutlinedTextField // Redundant, but ensuring i
 import androidx.compose.foundation.shape.CircleShape // Redundant, but ensuring it's there
 import androidx.compose.ui.text.style.TextAlign // Redundant, but ensuring it's there
 import androidx.compose.ui.res.stringResource
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingDetailScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingHomeScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingLibraryScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingSearchScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -1245,7 +1249,20 @@ private fun LocalNavigationContent(
                         // Simple faster fade animation when being popped from
                         fadeOut(animationSpec = tween(200))
                     }
-                ) {
+                ) homeRoute@ {
+                    ViewingHomeScreen(
+                        onOpenLibrary = {
+                            navController.navigate(Screen.Library.createRoute(firstVisibleLibraryTab)) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
+                        onOpenDetail = { navController.navigate(Screen.Player.route) },
+                        onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
+                    )
+                    return@homeRoute
                     HomeScreen(
                         musicViewModel = viewModel,
                         songs = songs,
@@ -1351,7 +1368,12 @@ private fun LocalNavigationContent(
                                     animationSpec = tween(350, easing = EaseInOutQuart)
                                 )
                     }
-                ) {
+                ) searchRoute@ {
+                    ViewingSearchScreen(
+                        onBack = { navigateBackOrToLanding() },
+                        onOpenDetail = { navController.navigate(Screen.Player.route) }
+                    )
+                    return@searchRoute
                     val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
                     var showAlbumBottomSheet by remember { mutableStateOf(false) }
@@ -1777,7 +1799,7 @@ private fun LocalNavigationContent(
                             }
                         }
                     }
-                ) {
+                ) libraryRoute@ {
                     val tabArg = it.arguments?.getString("tab") ?: "songs"
                     val initialTab = when (tabArg) {
                         "playlists" -> LibraryTab.PLAYLISTS
@@ -1787,6 +1809,8 @@ private fun LocalNavigationContent(
                         else -> LibraryTab.SONGS
                     }
 
+                    ViewingLibraryScreen(onOpenDetail = { navController.navigate(Screen.Player.route) })
+                    return@libraryRoute
                     LibraryScreen(
                         songs = songs,
                         albums = albums,
@@ -1976,7 +2000,7 @@ private fun LocalNavigationContent(
                             animationSpec = tween(durationMillis = 200)
                         )
                     }
-                ) {
+                ) playerRoute@ {
                     val showAddToPlaylistSheet = remember { mutableStateOf(false) }
                     val showCreatePlaylistDialog = remember { mutableStateOf(false) }
 
@@ -2019,6 +2043,8 @@ private fun LocalNavigationContent(
                         }
                     }
 
+                    ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
+                    return@playerRoute
                     PlayerScreen(
                         song = currentSong,
                         isPlaying = isPlaying,
