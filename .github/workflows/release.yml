@@ -1,4 +1,4 @@
-name: Build Release APK
+name: Build GitHub APKs
 
 on:
   push:
@@ -25,18 +25,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create files for signing
+      - name: Create private.properties for build
         env:
-          SIGNING_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE }}
-          SIGNING_PROPERTIES: ${{ secrets.SIGNING_PROPERTIES }}
           PRIVATE_PROPERTIES: ${{ secrets.PRIVATE_PROPERTIES }}
         run: |
           set -euo pipefail
-          test -n "$SIGNING_KEYSTORE"
-          test -n "$SIGNING_PROPERTIES"
-          mkdir -p config/signing .config
-          printf '%s' "$SIGNING_KEYSTORE" | base64 -di > ./config/signing/rhythm_keystore.jks
-          printf '%s' "$SIGNING_PROPERTIES" | base64 -di > ./.config/keystore.properties
           if [ -n "$PRIVATE_PROPERTIES" ]; then
             printf '%s' "$PRIVATE_PROPERTIES" | base64 -di > ./private.properties
           else
@@ -46,28 +39,42 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build signed universal release APK
-        run: ./gradlew assembleGithubRelease --stacktrace
+      - name: Build universal GitHub debug and unsigned release APKs
+        run: ./gradlew assembleGithubDebug assembleGithubRelease --stacktrace
 
-      - name: Verify signed release APK
+      - name: Verify GitHub APK artifacts
         run: |
           set -euo pipefail
-          apk="$(find app/build/outputs/apk/github/release -type f -name '*.apk' | sort | tee /tmp/release-apks.txt)"
-          count="$(wc -l < /tmp/release-apks.txt | tr -d ' ')"
-          if [ "$count" -ne 1 ]; then
-            echo "Expected exactly 1 signed universal release APK, found $count" >&2
-            cat /tmp/release-apks.txt >&2
+          mapfile -t debug_apks < <(find app/build/outputs/apk/github/debug -type f -name '*.apk' | sort)
+          mapfile -t release_apks < <(find app/build/outputs/apk/github/release -type f -name '*.apk' | sort)
+          printf 'Debug APKs:\n%s\n' "${debug_apks[*]}"
+          printf 'Release APKs:\n%s\n' "${release_apks[*]}"
+          if [ "${#debug_apks[@]}" -ne 1 ]; then
+            echo "Expected exactly 1 universal debug APK, found ${#debug_apks[@]}" >&2
             exit 1
           fi
-          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)/apksigner" verify --verbose --print-certs "$apk"
+          if [ "${#release_apks[@]}" -ne 1 ]; then
+            echo "Expected exactly 1 universal unsigned release APK, found ${#release_apks[@]}" >&2
+            exit 1
+          fi
+          build_tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+          "$build_tools/apksigner" verify --verbose "${debug_apks[0]}"
+          if "$build_tools/apksigner" verify --verbose "${release_apks[0]}"; then
+            echo "Release APK was signed, but this workflow must publish an unsigned release APK" >&2
+            exit 1
+          else
+            echo "Release APK is unsigned as expected."
+          fi
 
       - name: Generate checksums
         run: |
           set -euo pipefail
-          cd app/build/outputs/apk/github/release
-          for file in *.apk; do
-            sha256sum "$file" > "$file.sha256"
-            md5sum "$file" > "$file.md5"
+          for dir in app/build/outputs/apk/github/debug app/build/outputs/apk/github/release; do
+            cd "$GITHUB_WORKSPACE/$dir"
+            for file in *.apk; do
+              sha256sum "$file" > "$file.sha256"
+              md5sum "$file" > "$file.md5"
+            done
           done
 
       - name: Set prerelease flag
@@ -75,9 +82,9 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           if [[ "$TAG" == *alpha* || "$TAG" == *beta* || "$TAG" == *rc* ]]; then
-            echo "value=true" >> $GITHUB_OUTPUT
+            echo "value=true" >> "$GITHUB_OUTPUT"
           else
-            echo "value=false" >> $GITHUB_OUTPUT
+            echo "value=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: GitHub Release
@@ -86,6 +93,9 @@ jobs:
           prerelease: ${{ steps.prerelease.outputs.value }}
           generate_release_notes: true
           files: |
+            app/build/outputs/apk/github/debug/*.apk
+            app/build/outputs/apk/github/debug/*.apk.sha256
+            app/build/outputs/apk/github/debug/*.apk.md5
             app/build/outputs/apk/github/release/*.apk
             app/build/outputs/apk/github/release/*.apk.sha256
             app/build/outputs/apk/github/release/*.apk.md5

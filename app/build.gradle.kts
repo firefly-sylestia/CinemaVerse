@@ -1,4 +1,3 @@
-import java.util.Properties
 import com.android.build.api.variant.FilterConfiguration
 
 plugins {
@@ -47,9 +46,9 @@ android {
         
         create("github") {
             dimension = "distribution"
-            applicationId = "chromahub.rhythm.app"
+            applicationId = "chromahub.rhythm.universe"
             
-            // GitHub releases: Enable all features (same as F-Droid)
+            // GitHub releases: Enable all features. This is the only variant built by CI.
             buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")
             buildConfigField("boolean", "ENABLE_APPLE_MUSIC", "true")
             buildConfigField("boolean", "ENABLE_DEEZER", "true")
@@ -58,16 +57,6 @@ android {
             buildConfigField("String", "FLAVOR", "\"github\"")
             
             versionNameSuffix = "-gh"
-        }
-    }
-
-    val signingProperties = getProperties(".config/keystore.properties")
-    val releaseSigning = signingProperties?.let {
-        signingConfigs.create("release") {
-            keyAlias = it.property("key_alias")
-            keyPassword = it.property("key_password")
-            storePassword = it.property("store_password")
-            storeFile = rootProject.file(it.property("store_file"))
         }
     }
 
@@ -82,9 +71,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Leave release APKs unsigned when no release keystore is present (for PR/CI builds).
-            // Tag release workflow creates .config/keystore.properties so this becomes signed there.
-            signingConfig = releaseSigning
+            // GitHub release artifacts are intentionally unsigned so users and downstream
+            // distributors can apply their own signing keys after downloading the APK.
+            signingConfig = null
 //            ndk {
 //                debugSymbolLevel = "SYMBOL_TABLE"
 //            }
@@ -104,7 +93,7 @@ android {
             versionNameSuffix = "-debug"
             //isMinifyEnabled = false
             //isDebuggable = true
-            // Use the default debug signing config; release signing is reserved for tag releases.
+            // Use the default debug signing config for installable debug artifacts.
         }
     }
     compileOptions {
@@ -273,15 +262,3 @@ dependencies {
     // LeakCanary for memory leak detection (debug builds only)
     debugImplementation(libs.com.squareup.leakcanary.leakcanary.android)
 }
-
-fun getProperties(fileName: String): Properties? {
-    val file = rootProject.file(fileName)
-    return if (file.exists()) {
-        Properties().also { properties ->
-            file.inputStream().use { properties.load(it) }
-        }
-    } else null
-}
-
-fun Properties.property(key: String) =
-    this.getProperty(key) ?: "$key missing"

@@ -24,7 +24,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Lint
-        run: ./gradlew lint
+        run: ./gradlew lintGithubDebug
 
       - name: Upload lint results
         if: always()
@@ -60,18 +60,32 @@ jobs:
             touch ./private.properties
           fi
 
-      - name: Build universal debug and unsigned release APKs
+      - name: Build universal GitHub debug and unsigned release APKs
         run: ./gradlew assembleGithubDebug assembleGithubRelease --stacktrace
 
-      - name: Verify PR APK artifact count
+      - name: Verify PR APK artifacts
         if: github.event_name == 'pull_request'
         run: |
           set -euo pipefail
-          mapfile -t apks < <(find app/build/outputs/apk/github -type f -name '*.apk' | sort)
-          printf 'Built APKs:\n%s\n' "${apks[*]}"
-          if [ "${#apks[@]}" -ne 2 ]; then
-            echo "Expected exactly 2 APKs (debug + unsigned release), found ${#apks[@]}" >&2
+          mapfile -t debug_apks < <(find app/build/outputs/apk/github/debug -type f -name '*.apk' | sort)
+          mapfile -t release_apks < <(find app/build/outputs/apk/github/release -type f -name '*.apk' | sort)
+          printf 'Debug APKs:\n%s\n' "${debug_apks[*]}"
+          printf 'Release APKs:\n%s\n' "${release_apks[*]}"
+          if [ "${#debug_apks[@]}" -ne 1 ]; then
+            echo "Expected exactly 1 universal debug APK, found ${#debug_apks[@]}" >&2
             exit 1
+          fi
+          if [ "${#release_apks[@]}" -ne 1 ]; then
+            echo "Expected exactly 1 universal unsigned release APK, found ${#release_apks[@]}" >&2
+            exit 1
+          fi
+          build_tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+          "$build_tools/apksigner" verify --verbose "${debug_apks[0]}"
+          if "$build_tools/apksigner" verify --verbose "${release_apks[0]}"; then
+            echo "Release APK was signed, but PR artifacts must include an unsigned release APK" >&2
+            exit 1
+          else
+            echo "Release APK is unsigned as expected."
           fi
 
       - name: Generate build info

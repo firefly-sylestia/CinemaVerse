@@ -20,7 +20,7 @@
 [![Release](https://img.shields.io/github/v/release/cromaguy/Rhythm?style=flat-square&logo=github&color=673ab7&logoColor=white)](https://github.com/cromaguy/Rhythm/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/cromaguy/Rhythm/total?style=flat-square&logo=download&color=00bcd4&logoColor=white)](https://github.com/cromaguy/Rhythm/releases)
 [![Stars](https://img.shields.io/github/stars/cromaguy/Rhythm?style=flat-square&logo=star&color=ffc107&logoColor=white)](https://github.com/cromaguy/Rhythm/stargazers)
-[<img src="https://shields.rbtlog.dev/simple/chromahub.rhythm.app?style=flat-square" alt="RB shield">](https://shields.rbtlog.dev/chromahub.rhythm.app)
+[<img src="https://shields.rbtlog.dev/simple/chromahub.rhythm.universe?style=flat-square" alt="RB shield">](https://shields.rbtlog.dev/chromahub.rhythm.universe)
 
 ### [🌐 Website](https://rhythmweb.vercel.app/) • [📥 Download](https://github.com/cromaguy/Rhythm/releases/latest) • [🎧 Discord](https://discord.gg/vpRrk8AdVW) • [💬 Telegram](https://t.me/RhythmSupport) • [📖 Wiki](https://github.com/cromaguy/Rhythm/wiki)
 
@@ -117,15 +117,12 @@ Choose your preferred platform to download the latest version of Rhythm:
 
 | Source | Badge | Details |
 | :--- | :---: | :--- |
-| **GitHub** | [<img src="assets/badge-github.png" alt="Download APK" height="35">](https://github.com/cromaguy/Rhythm/releases/latest) | Direct APK download (Full Features) |
-| **F-Droid** | [<img src="assets/badge-fdroid.png" alt="F-Droid" height="35">](https://f-droid.org/packages/chromahub.rhythm.app) | Official repository (Full Features) |
-| **IzzyOnDroid** | [<img src="assets/badge-izzyondroid.png" alt="IzzyOnDroid" height="35">](https://apt.izzysoft.de/fdroid/index/apk/chromahub.rhythm.app) | Privacy-focused repo (Full Features) |
+| **GitHub** | [<img src="assets/badge-github.png" alt="Download APK" height="35">](https://github.com/cromaguy/Rhythm/releases/latest) | Direct universal APK downloads: unsigned release and debug artifacts (`chromahub.rhythm.universe`) |
 | **Obtainium** | [<img src="assets/badge-obtainium.png" alt="Obtainium" height="35">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/cromaguy/Rhythm/) | Auto-updates straight from GitHub |
-| **OpenAPK** | [<img src="assets/badge-openapk.png" alt="OpenAPK" height="35">](https://www.openapk.net/rhythm/chromahub.rhythm.app/) | Alternative APK source |
 
 </div>
 
-> 💡 **Note:** F-Droid, IzzyOnDroid, and GitHub releases include all features, including Deezer & YouTube Music artwork, LRCLib lyrics, and YouTube Music artwork. See [Build Variants](docs/BUILD_VARIANTS.md) for details. Need help? Check out the [Installation Guide](https://github.com/cromaguy/Rhythm/wiki/Installation-Guide).
+> 💡 **Note:** GitHub releases include all features, including Deezer & YouTube Music artwork, LRCLib lyrics, and YouTube Music artwork. Release APKs are intentionally unsigned, and debug APKs use the `.debug` package suffix. See [Build Variants](docs/BUILD_VARIANTS.md) for details. Need help? Check out the [Installation Guide](https://github.com/cromaguy/Rhythm/wiki/Installation-Guide).
 
 ---
 

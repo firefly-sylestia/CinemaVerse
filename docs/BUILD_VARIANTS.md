@@ -8,8 +8,8 @@ Rhythm uses Android build variants (product flavors) to create different builds 
 
 ```bash
 # Build commands
-./gradlew assembleFdroidRelease      # For F-Droid
-./gradlew assembleGithubRelease      # For GitHub Releases
+./gradlew assembleGithubDebug        # Universal debug APK for GitHub artifacts
+./gradlew assembleGithubRelease      # Universal unsigned release APK for GitHub artifacts
 
 # List all build variants
 ./gradlew tasks --all | grep assemble
@@ -45,8 +45,8 @@ ENABLE_SPOTIFY_SEARCH = true
 ---
 
 #### 2. `github`
-**Purpose:** Direct GitHub releases  
-**Package:** `chromahub.rhythm.app`  
+**Purpose:** Direct GitHub releases and CI artifacts
+**Package:** `chromahub.rhythm.universe` (`chromahub.rhythm.universe.debug` for debug builds)
 **Version Suffix:** `-gh`
 
 **BuildConfig Flags:**
@@ -61,7 +61,7 @@ ENABLE_SPOTIFY_SEARCH = true
 
 **Default Settings:** APIs and auto-updates enabled by default (opt-out available)
 
-**Use Case:** Users who download directly from GitHub releases get the full-featured experience.
+**Use Case:** Users who download directly from GitHub releases get the full-featured experience. Release APKs are intentionally unsigned; debug APKs use the default debug signing config.
 
 ---
 
@@ -188,13 +188,13 @@ app/build/outputs/bundle/githubRelease/app-github-release.aab
 ### Build All Variants
 
 ```bash
-# Release builds
-./gradlew assembleRelease
+# GitHub release build (unsigned)
+./gradlew assembleGithubRelease
 
-# Debug builds  
-./gradlew assembleDebug
+# GitHub debug build
+./gradlew assembleGithubDebug
 
-# Specific variant
+# Optional local F-Droid build (not used by GitHub CI)
 ./gradlew assembleFdroidDebug
 ```
 
