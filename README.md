@@ -174,108 +174,32 @@ We welcome contributions! See our [CONTRIBUTING.md](https://github.com/cromaguy/
 
 </div>
 
-## Marvel Spectrum MCU viewing metadata setup
+## Rhythm viewing-list metadata setup
 
-CinemaVerse (formerly Rhythm) includes comprehensive MCU viewing-order and collection data with bundled local posters and metadata. The app defaults to viewing mode and works offline without any API keys or configuration.
+Rhythm now includes a movie/list viewing-order data layer while preserving the app name, navigation shell, theme system, and reusable Compose UI patterns.
 
-### Bundled local data
+### OMDb and TMDB keys
 
-All viewing data is bundled as local assets and requires zero external dependencies:
-
-**JSON metadata:** `app/src/main/assets/mcu_data/mcu_titles.json`
-- Contains MCU titles, viewing order, chronological order, saga grouping, phase information, release dates, and enrichment metadata (IMDB/TMDB IDs)
-
-**Poster images:** `app/src/main/assets/mcu_posters/`
-- Contains 50+ MCU movie and series posters in optimized formats
-- Filenames match poster paths referenced in `posters.json`
-
-**Poster mapping:** `app/src/main/assets/mcu_data/posters.json`
-- Maps title IDs to poster filenames for flexible asset management
-
-### How bundled data is loaded
-
-At startup, `McuAssetDataSource` reads JSON from assets and resolves poster paths:
-
-```
-1. App loads mcu_titles.json from assets
-2. Each title's posterPath is resolved to file:///android_asset/mcu_posters/<filename>
-3. Coil image loader handles asset:// URIs natively
-4. Posters are cached in memory and on disk
-5. App works completely offline—no network required
-```
-
-### Artwork priority
-
-When loading posters, the app tries sources in this order:
-
-1. **Bundled local asset poster** (`file:///android_asset/mcu_posters/...`)
-2. **Local curated override** (if configured in ViewingLists.kt)
-3. **TMDB poster** (if API key configured and network available)
-4. **OMDb poster** (if API key configured and network available)
-5. **Built-in fallback** (MCU-themed gradient)
-
-Missing poster files are handled gracefully—the item remains visible with a fallback gradient.
-
-### Optional API enrichment (TMDB & OMDb)
-
-For enhanced metadata (ratings, full cast, plot, runtime, etc.), configure optional API keys:
+The Android build reads API credentials from environment variables when Gradle configures the app:
 
 ```bash
-export OMDB_API_KEY="YOUR_OMDB_API_KEY"
-export TMDB_API_KEY="YOUR_TMDB_API_KEY"
-export TMDB_READ_ACCESS_TOKEN="YOUR_TMDB_READ_ACCESS_TOKEN"
+export OMDB_API_KEY="YOUR_OMDB_API_KEY_HERE"
+export TMDB_API_KEY="YOUR_TMDB_API_KEY_HERE"
+export TMDB_READ_ACCESS_TOKEN="YOUR_TMDB_READ_ACCESS_TOKEN_HERE"
 ./gradlew :app:assembleGithubDebug
 ```
 
-**Important:** API keys are optional. The app is fully functional with bundled data alone. Missing keys produce a logged warning but do not block startup or features.
+Real keys must not be committed. `.env.example` contains placeholder names only. If keys are missing, Rhythm stays usable with bundled local viewing-list data.
 
-**Real API credentials must never be committed.** Use environment variables or CI/CD secrets.
+### Local posters and backdrops
 
-### Editing viewing lists and metadata
+Viewing items include `localPoster` and `localBackdrop` fields in `app/src/main/java/chromahub/rhythm/app/shared/data/viewing/ViewingLists.kt`. Replace the placeholder path `[I WILL PROVIDE POSTER FOLDER PATH LATER]` with your final asset path when you provide posters. Artwork priority is:
 
-Curated list membership, order, phase, saga, and descriptions are configured in:
+1. Local poster/backdrop override
+2. TMDB poster/backdrop
+3. OMDb poster
+4. Rhythm fallback artwork
 
-```
-app/src/main/java/com/cinemaverse/mcu/shared/data/viewing/ViewingLists.kt
-```
+### Editing viewing lists
 
-Add or edit collections by modifying the `allLists` section. The structure is:
-
-```kotlin
-ViewingList(
-    id = "unique-id",
-    title = "Display Name",
-    description = "Human-friendly description",
-    phase = "Phase One",
-    saga = "Infinity Saga",
-    franchise = "Marvel Cinematic Universe",
-    items = listOf(/* viewing items */)
-)
-```
-
-Bundled local data and curated collections are merged intelligently:
-- **Local values** are preserved when provided
-- **JSON values** fill gaps and provide additional enrichment
-- **API data** enriches further if keys are configured
-- **Local posters** take precedence over remote URLs
-
-### Disabling music mode
-
-CinemaVerse defaults to MCU viewing mode. Music integrations (YouTube Music, Spotify, Apple Music, Deezer) are disabled in build.gradle.kts:
-
-```gradle
-buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "false")
-buildConfigField("boolean", "ENABLE_APPLE_MUSIC", "false")
-buildConfigField("boolean", "ENABLE_DEEZER", "false")
-buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "false")
-```
-
-To re-enable music features, change these flags to `"true"` and recompile.
-
-### Development workflow
-
-1. **Add new titles:** Edit `mcu_titles.json` and add poster images to `app/src/main/assets/mcu_posters/`
-2. **Update lists:** Modify `ViewingLists.kt` and rebuild
-3. **Test offline:** Build and run without setting API keys; app works fully offline
-4. **Test with APIs:** Export API keys and rebuild to verify enrichment works
-5. **Commit safely:** Never commit API keys; use environment variables only
+Add or edit curated lists in `ViewingLists.kt`. Local data defines membership, order, phase, saga, local artwork, and manual trailer URLs; OMDb/TMDB enrichment fills missing metadata through the service layer in `shared/data/service`.

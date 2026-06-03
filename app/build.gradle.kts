@@ -33,12 +33,12 @@ android {
             dimension = "distribution"
             applicationId = "com.cinemaverse.mcu"
             
-            // F-Droid build: Disable music integrations for MCU viewing focus
-            buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "false")
-            buildConfigField("boolean", "ENABLE_APPLE_MUSIC", "false")
-            buildConfigField("boolean", "ENABLE_DEEZER", "false")
-            buildConfigField("boolean", "ENABLE_LRCLIB", "false")
-            buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "false")
+            // F-Droid build: Enable all features (FOSS ethos)
+            buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")
+            buildConfigField("boolean", "ENABLE_APPLE_MUSIC", "true")
+            buildConfigField("boolean", "ENABLE_DEEZER", "true")
+            buildConfigField("boolean", "ENABLE_LRCLIB", "true")
+            buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "true")
             buildConfigField("String", "FLAVOR", "\"fdroid\"")
             
             versionNameSuffix = "-fdroid"
@@ -48,12 +48,12 @@ android {
             dimension = "distribution"
             applicationId = "com.cinemaverse.mcu"
             
-            // GitHub releases: Disable music integrations for MCU viewing focus
-            buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "false")
-            buildConfigField("boolean", "ENABLE_APPLE_MUSIC", "false")
-            buildConfigField("boolean", "ENABLE_DEEZER", "false")
-            buildConfigField("boolean", "ENABLE_LRCLIB", "false")
-            buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "false")
+            // GitHub releases: Enable all features. This is the only variant built by CI.
+            buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")
+            buildConfigField("boolean", "ENABLE_APPLE_MUSIC", "true")
+            buildConfigField("boolean", "ENABLE_DEEZER", "true")
+            buildConfigField("boolean", "ENABLE_LRCLIB", "true")
+            buildConfigField("boolean", "ENABLE_SPOTIFY_SEARCH", "true")
             buildConfigField("String", "FLAVOR", "\"github\"")
             
             versionNameSuffix = "-gh"

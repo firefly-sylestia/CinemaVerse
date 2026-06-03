@@ -846,7 +846,7 @@ class AppSettings private constructor(context: Context) {
     val appMode: StateFlow<String> = _appMode.asStateFlow()
 
     private val _localExperienceMode = MutableStateFlow(
-        prefs.getString(KEY_LOCAL_EXPERIENCE_MODE, LOCAL_EXPERIENCE_MODE_VIEWING) ?: LOCAL_EXPERIENCE_MODE_VIEWING
+        prefs.getString(KEY_LOCAL_EXPERIENCE_MODE, LOCAL_EXPERIENCE_MODE_RHYTHM) ?: LOCAL_EXPERIENCE_MODE_RHYTHM
     )
     val localExperienceMode: StateFlow<String> = _localExperienceMode.asStateFlow()
     

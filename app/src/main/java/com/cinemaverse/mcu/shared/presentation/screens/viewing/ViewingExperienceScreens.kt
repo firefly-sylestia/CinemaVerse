@@ -42,7 +42,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -52,7 +51,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,7 +72,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 import com.cinemaverse.mcu.shared.data.service.MovieMetadataService
@@ -124,64 +121,6 @@ private object ViewingUiDefaults {
 }
 
 @Composable
-private fun MarvelSpectrumHeader(
-    onOpenSearch: () -> Unit,
-    onOpenSettings: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp)),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        "Marvel Spectrum",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        "MCU viewing order",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    IconButton(onClick = onOpenSearch, modifier = Modifier.size(40.dp)) {
-                        Icon(imageVector = MaterialSymbolIcon.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick = onOpenSettings, modifier = Modifier.size(40.dp)) {
-                        Icon(imageVector = MaterialSymbolIcon.Settings, contentDescription = "Settings")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun ViewingHomeScreen(
     onOpenLibrary: () -> Unit,
     onOpenSearch: () -> Unit,
@@ -191,19 +130,8 @@ fun ViewingHomeScreen(
 ) {
     val metadataService = remember { MovieMetadataService() }
     val message = remember { metadataService.getConfigurationMessage() }
-    val featuredList = remember { ViewingLists.featuredList }
-    val featuredItem = remember { ViewingLists.featuredItem }
-    
-    // Performance fix: memoize expensive list computations
-    val continueBrowsingItems = remember {
-        ViewingLists.allItems.drop(18).take(8)
-    }
-    val featuredLists = remember {
-        ViewingLists.allLists.take(8)
-    }
-    val phaseLists = remember {
-        ViewingLists.allLists.filter { it.phase?.startsWith("Phase") == true }
-    }
+    val featuredList = ViewingLists.featuredList
+    val featuredItem = ViewingLists.featuredItem
 
     LazyColumn(
         modifier = modifier
@@ -212,9 +140,6 @@ fun ViewingHomeScreen(
         contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.ScreenTopPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
         verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.SectionSpacing)
     ) {
-        item {
-            MarvelSpectrumHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings)
-        }
         item {
             HeroViewingCard(
                 item = featuredItem,
@@ -232,11 +157,7 @@ fun ViewingHomeScreen(
             SectionHeader("Continue browsing", "Recently viewed and watchlist-ready picks", action = "Search", onAction = onOpenSearch)
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(
-                    continueBrowsingItems,
-                    key = { it.id },
-                    contentType = { "poster-card" }
-                ) { item ->
+                items(ViewingLists.allItems.drop(18).take(8)) { item ->
                     PosterCard(item = item, onClick = onOpenDetail)
                 }
             }
@@ -245,24 +166,16 @@ fun ViewingHomeScreen(
             SectionHeader("Featured lists", "Curated release, timeline, phase, and collection orders", action = "View all", onAction = onOpenLibrary)
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(
-                    featuredLists,
-                    key = { it.id },
-                    contentType = { "list-card" }
-                ) { list ->
+                items(ViewingLists.allLists.take(8)) { list ->
                     ViewingListCard(list = list, onClick = onOpenLibrary)
                 }
             }
         }
         item {
-            SectionHeader("Phase-based sections", "Browse by MCU-style phases")
+            SectionHeader("Phase-based sections", "Browse by MCU-style phases without changing Rhythm's navigation")
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                items(
-                    phaseLists,
-                    key = { it.id },
-                    contentType = { "phase-chip" }
-                ) { list ->
+                items(ViewingLists.allLists.filter { it.phase?.startsWith("Phase") == true }) { list ->
                     AssistChip(onClick = onOpenLibrary, label = { Text("${list.title} • ${list.items.size}") })
                 }
             }
@@ -744,7 +657,6 @@ private fun PosterBackdrop(
 }
 
 @Composable
-@Composable
 private fun ArtworkImage(data: String?, description: String, modifier: Modifier, contentScale: ContentScale) {
     if (data.isNullOrBlank()) {
         Box(
@@ -753,25 +665,10 @@ private fun ArtworkImage(data: String?, description: String, modifier: Modifier,
                 .semantics { contentDescription = description },
             contentAlignment = Alignment.Center
         ) {
-            Text("Marvel", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
+            Text("Rhythm", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
         }
     } else {
-        val context = LocalContext.current
-        val request = remember(data) {
-            ImageRequest.Builder(context)
-                .data(data)
-                .crossfade(false)
-                .memoryCacheKey(data)
-                .diskCacheKey(data)
-                .build()
-        }
-
-        AsyncImage(
-            model = request,
-            contentDescription = description,
-            contentScale = contentScale,
-            modifier = modifier
-        )
+        AsyncImage(model = data, contentDescription = description, contentScale = contentScale, modifier = modifier)
     }
 }
 
