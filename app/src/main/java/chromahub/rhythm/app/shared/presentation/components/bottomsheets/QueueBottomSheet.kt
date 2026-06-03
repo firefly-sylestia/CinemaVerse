@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
+package chromahub.rhythm.app.shared.presentation.components.bottomsheets
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -83,16 +83,16 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.lazy.rememberLazyListState
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.shared.presentation.components.common.DragDropLazyColumn
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveClickableSurface
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledTonalIconButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.util.ImageUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.common.DragDropLazyColumn
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveClickableSurface
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledTonalIconButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.util.ImageUtils
 import androidx.compose.ui.res.stringResource
 
 private fun groupedQueueItemShape(index: Int, totalCount: Int): RoundedCornerShape {

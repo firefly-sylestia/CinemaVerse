@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
-package com.cinemaverse.mcu.shared.presentation.screens.viewing
+package chromahub.rhythm.app.shared.presentation.screens.viewing
 
 import android.content.Intent
 import android.net.Uri
@@ -72,17 +72,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.data.service.MovieMetadataService
-import com.cinemaverse.mcu.shared.data.viewing.MetadataResult
-import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
-import com.cinemaverse.mcu.shared.data.viewing.ViewingList
-import com.cinemaverse.mcu.shared.data.viewing.ViewingLists
-import com.cinemaverse.mcu.shared.data.viewing.ViewingSortMode
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.data.service.MovieMetadataService
+import chromahub.rhythm.app.shared.data.viewing.MetadataResult
+import chromahub.rhythm.app.shared.data.viewing.ViewingItem
+import chromahub.rhythm.app.shared.data.viewing.ViewingList
+import chromahub.rhythm.app.shared.data.viewing.ViewingLists
+import chromahub.rhythm.app.shared.data.viewing.ViewingSortMode
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.util.ViewingArtworkUtils
 
 private object ViewingUiDefaults {
     val ScreenHorizontalPadding = 20.dp

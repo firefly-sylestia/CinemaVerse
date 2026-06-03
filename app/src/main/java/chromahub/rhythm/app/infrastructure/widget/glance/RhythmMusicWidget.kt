@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.widget.glance
+package chromahub.rhythm.app.infrastructure.widget.glance
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -59,8 +59,8 @@ import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import com.cinemaverse.mcu.activities.MainActivity
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.activities.MainActivity
+import chromahub.rhythm.app.R
 import androidx.glance.appwidget.state.getAppWidgetState
 
 /**
@@ -130,7 +130,7 @@ class RhythmMusicWidget : GlanceAppWidget() {
     
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appSettings = try {
-            com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context)
+            chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
         } catch (e: Exception) {
             null
         }
@@ -1414,7 +1414,7 @@ class RhythmMusicWidget : GlanceAppWidget() {
         }
     }
     
-    private fun getWidgetData(prefs: Preferences, appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings?): WidgetData {
+    private fun getWidgetData(prefs: Preferences, appSettings: chromahub.rhythm.app.shared.data.model.AppSettings?): WidgetData {
         return try {
             WidgetData(
                 songTitle = prefs[stringPreferencesKey(KEY_SONG_TITLE)] ?: "Rhythm",

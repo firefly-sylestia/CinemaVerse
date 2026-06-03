@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.data.model
+package chromahub.rhythm.app.shared.data.model
 
 /**
  * Defines transition modes for crossfade between tracks.

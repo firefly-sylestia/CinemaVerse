@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.widget.glance
+package chromahub.rhythm.app.infrastructure.widget.glance
 
 import android.content.Context
 import androidx.glance.appwidget.GlanceAppWidgetManager
@@ -6,7 +6,7 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.cinemaverse.mcu.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.Song
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.components.icons
+package chromahub.rhythm.app.shared.presentation.components.icons
 
 /**
  * Material Symbols icon definitions for the Rhythm app.

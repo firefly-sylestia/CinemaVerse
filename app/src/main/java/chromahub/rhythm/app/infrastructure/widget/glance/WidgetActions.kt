@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.widget.glance
+package chromahub.rhythm.app.infrastructure.widget.glance
 
 import android.content.Context
 import android.content.Intent
@@ -8,8 +8,8 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.updateAll
-import com.cinemaverse.mcu.activities.MainActivity
-import com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService
+import chromahub.rhythm.app.activities.MainActivity
+import chromahub.rhythm.app.infrastructure.service.MediaPlaybackService
 import kotlinx.coroutines.delay
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.appwidget.state.updateAppWidgetState

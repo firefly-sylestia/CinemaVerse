@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.local.presentation.navigation
+package chromahub.rhythm.app.features.local.presentation.navigation
 
 /**
  * Navigation screens for the local music feature.

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.os.Bundle
 import android.util.Log

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.ui.theme
+package chromahub.rhythm.app.ui.theme
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape

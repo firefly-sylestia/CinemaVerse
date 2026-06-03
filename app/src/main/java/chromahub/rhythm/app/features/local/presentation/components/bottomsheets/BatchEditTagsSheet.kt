@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
+package chromahub.rhythm.app.shared.presentation.components.bottomsheets
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 
 import android.net.Uri
 import android.widget.Toast
@@ -55,17 +55,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.unit.dp
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
-import com.cinemaverse.mcu.util.ImageUtils
-import com.cinemaverse.mcu.util.MediaUtils
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
+import chromahub.rhythm.app.util.ImageUtils
+import chromahub.rhythm.app.util.MediaUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 import androidx.compose.ui.res.stringResource
 
 private fun resolveBatchEditArtworkUri(context: android.content.Context, song: Song): Uri? {

@@ -1,11 +1,11 @@
-package com.cinemaverse.mcu.utils
+package chromahub.rhythm.app.utils
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import com.cinemaverse.mcu.shared.data.model.UserAudioDevice
+import chromahub.rhythm.app.shared.data.model.UserAudioDevice
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.Dispatchers

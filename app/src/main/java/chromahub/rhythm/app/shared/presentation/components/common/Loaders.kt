@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.cinemaverse.mcu.shared.presentation.components.common
+package chromahub.rhythm.app.shared.presentation.components.common
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material3.CircularWavyProgressIndicator

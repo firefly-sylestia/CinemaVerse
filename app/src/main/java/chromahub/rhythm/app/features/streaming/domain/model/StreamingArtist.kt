@@ -1,9 +1,9 @@
-package com.cinemaverse.mcu.features.streaming.domain.model
+package chromahub.rhythm.app.features.streaming.domain.model
 
-import com.cinemaverse.mcu.core.domain.model.AlbumItem
-import com.cinemaverse.mcu.core.domain.model.ArtistItem
-import com.cinemaverse.mcu.core.domain.model.PlayableItem
-import com.cinemaverse.mcu.core.domain.model.SourceType
+import chromahub.rhythm.app.core.domain.model.AlbumItem
+import chromahub.rhythm.app.core.domain.model.ArtistItem
+import chromahub.rhythm.app.core.domain.model.PlayableItem
+import chromahub.rhythm.app.core.domain.model.SourceType
 
 /**
  * Represents an artist from a streaming service.

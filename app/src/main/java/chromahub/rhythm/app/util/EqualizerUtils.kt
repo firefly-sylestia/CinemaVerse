@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -12,7 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 
 /**
  * Utility class for handling equalizer-related functionality

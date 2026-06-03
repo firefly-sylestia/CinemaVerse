@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.streaming.di
+package chromahub.rhythm.app.features.streaming.di
 
 import android.content.Context
-import com.cinemaverse.mcu.features.streaming.data.repository.StreamingMusicRepositoryImpl
-import com.cinemaverse.mcu.features.streaming.domain.repository.StreamingMusicRepository
+import chromahub.rhythm.app.features.streaming.data.repository.StreamingMusicRepositoryImpl
+import chromahub.rhythm.app.features.streaming.domain.repository.StreamingMusicRepository
 
 /**
  * Dependency injection module for streaming music feature.

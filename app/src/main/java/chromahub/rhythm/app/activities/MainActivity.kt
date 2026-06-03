@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.activities
+package chromahub.rhythm.app.activities
 
 import android.Manifest
 import android.content.Intent
@@ -61,14 +61,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.navigation.RhythmNavigation
-import com.cinemaverse.mcu.ui.theme.RhythmTheme
-import com.cinemaverse.mcu.ui.theme.festive.FestiveOverlayFromSettings
-import com.cinemaverse.mcu.shared.presentation.viewmodel.ThemeViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppUpdaterViewModel
-import com.cinemaverse.mcu.util.CrashReporter // Import CrashReporter
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.navigation.RhythmNavigation
+import chromahub.rhythm.app.ui.theme.RhythmTheme
+import chromahub.rhythm.app.ui.theme.festive.FestiveOverlayFromSettings
+import chromahub.rhythm.app.shared.presentation.viewmodel.ThemeViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.util.CrashReporter // Import CrashReporter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -77,8 +77,8 @@ import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.Image
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.util.MediaUtils
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.util.MediaUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.platform.LocalContext
@@ -92,10 +92,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.animation.Crossfade
 import androidx.compose.ui.text.font.FontWeight
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-//import com.cinemaverse.mcu.ui.annotations.RhythmAnimation
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+//import chromahub.rhythm.app.ui.annotations.RhythmAnimation
 import android.provider.Settings
-import com.cinemaverse.mcu.util.ServiceStartUtils
+import chromahub.rhythm.app.util.ServiceStartUtils
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -110,22 +110,22 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
-import com.cinemaverse.mcu.shared.data.model.AppSettings // Import AppSettings
+import chromahub.rhythm.app.shared.data.model.AppSettings // Import AppSettings
 import java.util.Locale // Import Locale
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.rememberCoroutineScope
-import com.cinemaverse.mcu.shared.presentation.components.common.M3LinearLoader // Import M3LinearLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.M3FourColorCircularLoader // Import M3FourColorCircularLoader
+import chromahub.rhythm.app.shared.presentation.components.common.M3LinearLoader // Import M3LinearLoader
+import chromahub.rhythm.app.shared.presentation.components.common.M3FourColorCircularLoader // Import M3FourColorCircularLoader
 import androidx.compose.ui.platform.LocalHapticFeedback // Import LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType // Import HapticFeedbackType
 import androidx.compose.material3.ButtonDefaults // Import ButtonDefaults
-import com.cinemaverse.mcu.features.local.presentation.screens.SplashScreen
-import com.cinemaverse.mcu.shared.presentation.components.PermissionHandler
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.BetaProgramPopup
-import com.cinemaverse.mcu.features.local.presentation.screens.OnboardingScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.onboarding.OnboardingStep
-import com.cinemaverse.mcu.features.local.presentation.screens.onboarding.PermissionScreenState
+import chromahub.rhythm.app.features.local.presentation.screens.SplashScreen
+import chromahub.rhythm.app.shared.presentation.components.PermissionHandler
+import chromahub.rhythm.app.shared.presentation.components.dialogs.BetaProgramPopup
+import chromahub.rhythm.app.features.local.presentation.screens.OnboardingScreen
+import chromahub.rhythm.app.features.local.presentation.screens.onboarding.OnboardingStep
+import chromahub.rhythm.app.features.local.presentation.screens.onboarding.PermissionScreenState
 
 class MainActivity : FragmentActivity() {
     private val TAG = "MainActivity"
@@ -510,8 +510,8 @@ class MainActivity : FragmentActivity() {
     
     private suspend fun startMediaServiceAndWait(): Boolean {
         return try {
-            val serviceIntent = Intent(this, com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService::class.java)
-            serviceIntent.action = com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService.ACTION_INIT_SERVICE
+            val serviceIntent = Intent(this, chromahub.rhythm.app.infrastructure.service.MediaPlaybackService::class.java)
+            serviceIntent.action = chromahub.rhythm.app.infrastructure.service.MediaPlaybackService.ACTION_INIT_SERVICE
 
             val started = ServiceStartUtils.startServiceSafely(
                 context = this,
@@ -569,8 +569,8 @@ class MainActivity : FragmentActivity() {
     private suspend fun fallbackPlayExternalFile(uri: Uri) {
         try {
             Log.d(TAG, "Using direct service intent as fallback")
-            val playIntent = Intent(applicationContext, com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService::class.java)
-            playIntent.action = com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService.ACTION_PLAY_EXTERNAL_FILE
+            val playIntent = Intent(applicationContext, chromahub.rhythm.app.infrastructure.service.MediaPlaybackService::class.java)
+            playIntent.action = chromahub.rhythm.app.infrastructure.service.MediaPlaybackService.ACTION_PLAY_EXTERNAL_FILE
             playIntent.data = uri
 
             val started = ServiceStartUtils.startServiceSafely(

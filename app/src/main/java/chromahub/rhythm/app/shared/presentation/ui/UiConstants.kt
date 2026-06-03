@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.ui
+package chromahub.rhythm.app.ui
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.compositionLocalOf

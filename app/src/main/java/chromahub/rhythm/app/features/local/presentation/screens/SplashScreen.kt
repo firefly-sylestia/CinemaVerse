@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.local.presentation.screens
+package chromahub.rhythm.app.features.local.presentation.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -52,15 +52,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.core.domain.model.AppMode
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeProvider
-import com.cinemaverse.mcu.ui.theme.festive.FestiveConfig
-import com.cinemaverse.mcu.ui.theme.festive.FestiveThemeEngine
-import com.cinemaverse.mcu.ui.theme.festive.FestiveThemeType
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.core.domain.model.AppMode
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeProvider
+import chromahub.rhythm.app.ui.theme.festive.FestiveConfig
+import chromahub.rhythm.app.ui.theme.festive.FestiveThemeEngine
+import chromahub.rhythm.app.ui.theme.festive.FestiveThemeType
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random

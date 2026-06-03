@@ -14,8 +14,8 @@
     <string name="widget_name_glance">Rhythm Music</string>
     <string name="no_song_playing">Aucune musique en lecture</string>
     <string name="unknown_artist">Artiste inconnu</string>
-    <string name="unknown_album">saga inconnu</string>
-    <string name="album_art">Pochette d\'saga</string>
+    <string name="unknown_album">Album inconnu</string>
+    <string name="album_art">Pochette d\'album</string>
     <string name="play_pause">Lecture/Pause</string>
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
@@ -26,12 +26,12 @@
     <string name="widget_preview_desc">Les modifications seront appliquées à tous les widgets actifs sur votre écran d\'accueil. Appuyez longuement sur le widget pour le redimensionner et voir différentes mises en page.</string>
     <string name="widget_refresh_all">Actualiser tous les widgets</string>
     <string name="widget_display_options">Options d\'affichage</string>
-    <string name="widget_show_album_art">Afficher la pochette d\'saga</string>
+    <string name="widget_show_album_art">Afficher la pochette d\'album</string>
     <string name="widget_show_album_art_desc">Afficher la pochette dans le widget</string>
     <string name="widget_show_artist">Afficher le nom de l\'artiste</string>
     <string name="widget_show_artist_desc">Afficher les informations de l\'artiste</string>
-    <string name="widget_show_album">Afficher le nom de l\'saga</string>
-    <string name="widget_show_album_desc">Afficher les informations de l\'saga</string>
+    <string name="widget_show_album">Afficher le nom de l\'album</string>
+    <string name="widget_show_album_desc">Afficher les informations de l\'album</string>
     <string name="widget_appearance">Apparence</string>
     <string name="widget_use_system_colors">Utiliser les couleurs du système</string>
     <string name="widget_use_system_colors_desc">Suivre le schéma de couleurs Material You</string>
@@ -255,7 +255,7 @@
     <string name="home_settings_cd">Paramètres</string>
     <string name="home_discover_albums">Découvrir des albums</string>
     <string name="home_explore_music">Explorez une musique incroyable</string>
-    <string name="home_no_featured_albums">Aucun saga en vedette</string>
+    <string name="home_no_featured_albums">Aucun album en vedette</string>
     <string name="home_no_featured_albums_desc">Ajoutez des albums à votre bibliothèque pour voir du contenu en vedette</string>
     <string name="home_artists">Artistes</string>
     <string name="home_explore_musicians">Explorez vos musiciens favoris</string>
@@ -267,7 +267,7 @@
     <string name="home_no_new_releases_desc">Les nouveaux albums apparaîtront ici lorsqu\'ils seront ajoutés à votre bibliothèque</string>
     <string name="home_recently_added">Récemment ajoutés</string>
     <string name="home_latest_additions">Vos derniers ajouts</string>
-    <string name="home_no_recently_added">Aucun saga récemment ajouté</string>
+    <string name="home_no_recently_added">Aucun album récemment ajouté</string>
     <string name="home_no_recently_added_desc">Les albums que vous ajoutez à votre bibliothèque apparaîtront ici</string>
     
     <string name="home_quote_late_night_1">Ambiance nocturne pour les rêveurs 🌙</string>
@@ -362,10 +362,10 @@
     <string name="library_playlist_name_empty">Le nom de la playlist ne peut être vide</string>
     <string name="library_no_playlists">Aucune playlist pour l\'instant</string>
     <string name="library_no_playlists_desc">Créez votre première playlist avec le bouton +</string>
-    <string name="library_no_albums">Aucun saga pour l\'instant</string>
+    <string name="library_no_albums">Aucun album pour l\'instant</string>
     <string name="library_playlist_count">%1$d playlist</string>
     <string name="library_playlists_count">%1$d playlists</string>
-    <string name="library_album_count">%1$d saga</string>
+    <string name="library_album_count">%1$d album</string>
     <string name="library_albums_count">%1$d albums</string>
     
     <string name="sort_name">Nom</string>
@@ -575,7 +575,7 @@
     <string name="onboarding_system_volume_title">Contrôle du volume système</string>
     <string name="onboarding_system_volume_desc">Permettre aux boutons physiques de volume de contrôler le volume de lecture de Rhythm.</string>
     <string name="onboarding_auto_queue_title">Ajout auto à la file</string>
-    <string name="onboarding_auto_queue_desc">Créer automatiquement une file d\'attente contextuelle depuis l\'saga/artiste lors de la lecture.</string>
+    <string name="onboarding_auto_queue_desc">Créer automatiquement une file d\'attente contextuelle depuis l\'album/artiste lors de la lecture.</string>
     <string name="onboarding_clear_queue_title">Vider la file sur nouvelle chanson</string>
     <string name="onboarding_clear_queue_desc">Remplacer toute la file d\'attente lors de la lecture d\'une nouvelle chanson au lieu de l\'ajouter.</string>
     <string name="onboarding_repeat_mode_title">Mémoriser le mode répétition</string>
@@ -948,7 +948,7 @@
     <string name="settings_sleep_timer_title">Minuterie de veille</string>
     <string name="settings_sleep_timer_desc">Arrêt auto de la lecture après un temps défini</string>
     <string name="settings_section_library_content">Bibliothèque et contenu</string>
-    <string name="settings_group_by_album_artist">Grouper par Artiste de l\'saga</string>
+    <string name="settings_group_by_album_artist">Grouper par Artiste de l\'album</string>
     <string name="settings_group_by_album_artist_desc">Afficher les collaborations sous l\'artiste principal</string>
     <string name="settings_media_scan_title">Analyse multimédia</string>
     <string name="settings_media_scan_desc">Gérer la liste noire et l\'analyse</string>
@@ -992,7 +992,7 @@
     
     <string name="metadata_title">Titre</string>
     <string name="metadata_artist">Artiste</string>
-    <string name="metadata_album">saga</string>
+    <string name="metadata_album">Album</string>
     <string name="metadata_genre">Genre</string>
     <string name="metadata_year">Année</string>
     <string name="metadata_track">Piste</string>
@@ -1042,7 +1042,7 @@
     <string name="cd_play">Lire</string>
     <string name="cd_play_all">Tout lire</string>
     <string name="cd_shuffle">Aléatoire</string>
-    <string name="cd_play_album">Lire l\'saga</string>
+    <string name="cd_play_album">Lire l\'album</string>
     <string name="cd_shuffle_play">Lecture aléatoire</string>
     <string name="cd_previous_track">Piste précédente</string>
     <string name="cd_next_track">Piste suivante</string>
@@ -1074,7 +1074,7 @@
     <string name="cd_open_storage">Ouvrir le stockage</string>
     <string name="cd_minimize">Minimiser</string>
     <string name="cd_song_info">Infos de la chanson</string>
-    <string name="cd_album_artwork">Pochette de l\'saga pour %1$s</string>
+    <string name="cd_album_artwork">Pochette de l\'album pour %1$s</string>
     <string name="cd_no_song_playing">Aucune musique en lecture</string>
     <string name="cd_toggle_shuffle">Basculer l\'aléatoire</string>
     <string name="cd_toggle_lyrics">Basculer les paroles</string>
@@ -1083,7 +1083,7 @@
     <string name="cd_add_to_playlist_action">Ajouter à la playlist</string>
     <string name="cd_toggle_favorite">Basculer les favoris</string>
     <string name="cd_playback_speed_action">Vitesse de lecture</string>
-    <string name="cd_show_album">Afficher l\'saga</string>
+    <string name="cd_show_album">Afficher l\'album</string>
     <string name="cd_show_artist">Afficher l\'artiste</string>
     <string name="cd_reorder_chips">Réorganiser les puces</string>
     <string name="cd_search">Rechercher</string>
@@ -1111,7 +1111,7 @@
     <string name="cd_media_scan_filtering">Filtrage de l\'analyse multimédia</string>
     <string name="cd_open_media_scan_settings">Ouvrir les paramètres d\'analyse multimédia</string>
     <string name="cd_close">Fermer</string>
-    <string name="cd_album_artwork_generic">Pochette de l\'saga</string>
+    <string name="cd_album_artwork_generic">Pochette de l\'album</string>
     <string name="cd_language">Langue</string>
     <string name="cd_view_license">Voir la licence</string>
     <string name="cd_refresh_devices">Actualiser les appareils</string>
@@ -1176,7 +1176,7 @@
     <string name="bottomsheet_play_all">Tout lire</string>
     <string name="bottomsheet_tracks">Pistes</string>
     <string name="bottomsheet_sort_by">Trier par</string>
-    <string name="bottomsheet_no_songs_album">Aucune chanson dans cet saga</string>
+    <string name="bottomsheet_no_songs_album">Aucune chanson dans cet album</string>
     
     <string name="bottomsheet_home_section_order">Ordre des sections Accueil</string>
     <string name="bottomsheet_reorder_toggle_visibility">Réorganiser et basculer la visibilité</string>
@@ -1241,7 +1241,7 @@
     <string name="bottomsheet_remove">Retirer</string>
     <string name="bottomsheet_title">Titre</string>
     <string name="bottomsheet_artist">Artiste</string>
-    <string name="bottomsheet_album">saga</string>
+    <string name="bottomsheet_album">Album</string>
     <string name="bottomsheet_genre">Genre</string>
     <string name="bottomsheet_year">Année</string>
     <string name="bottomsheet_track">Piste</string>
@@ -1273,7 +1273,7 @@
     <string name="device_unknown">Appareil inconnu</string>
     
     <string name="fallback_unknown_artist">Artiste inconnu</string>
-    <string name="fallback_unknown_album">saga inconnu</string>
+    <string name="fallback_unknown_album">Album inconnu</string>
     <string name="fallback_unknown_file">Fichier inconnu</string>
     
     <string name="service_app_updates">Mises à jour de l\'appli</string>
@@ -1435,7 +1435,7 @@
     <string name="artist_configure_delimiters">Configurer les délimiteurs</string>
     <string name="artist_current_delimiters">Actuel : %1$s</string>
     <string name="artist_library_organization">Organisation de la bibliothèque</string>
-    <string name="artist_group_by_album_artist">Grouper par Artiste de l\'saga</string>
+    <string name="artist_group_by_album_artist">Grouper par Artiste de l\'album</string>
     <string name="artist_group_by_album_artist_desc">Afficher les collaborations sous l\'artiste principal</string>
     <string name="artist_about_multi_parsing">À propos de l\'analyse multi-artistes</string>
     <string name="artist_parsing_description">Lorsqu\'activé, Rhythm séparera automatiquement les tags contenant plusieurs artistes. C\'est utile pour les chansons téléchargées avec yt-dlp ou autres outils utilisant des délimiteurs comme \'/\'.\n\nL\'antislash (\\\\) peut être utilisé pour échapper les délimiteurs.</string>
@@ -1487,7 +1487,7 @@
     <string name="content_desc_remove_from_queue">Retirer de la file</string>
     <string name="content_desc_add_songs">Ajouter des chansons</string>
     <string name="content_desc_clear_queue">Vider la file</string>
-    <string name="content_desc_play_album">Lire l\'saga</string>
+    <string name="content_desc_play_album">Lire l\'album</string>
     <string name="content_desc_move_up">Déplacer vers le haut</string>
     <string name="content_desc_move_down">Déplacer vers le bas</string>
     <string name="content_desc_show_hide">Afficher/masquer</string>
@@ -1498,7 +1498,7 @@
     <string name="content_desc_hide_chip">Masquer la puce</string>
     <string name="content_desc_show_chip">Afficher la puce</string>
     <string name="content_desc_edit_metadata">Modifier les métadonnées</string>
-    <string name="content_desc_album_artwork">Pochette de l\'saga</string>
+    <string name="content_desc_album_artwork">Pochette de l\'album</string>
     
     <string name="playlist_play_one">Lire uniquement la chanson sélectionnée</string>
     <string name="up_next_section">À SUIVRE</string>
@@ -1592,7 +1592,7 @@
     <string name="player_chip_equalizer">Égaliseur</string>
     <string name="player_chip_sleep_timer">Minuterie de veille</string>
     <string name="player_chip_lyrics">Paroles</string>
-    <string name="player_chip_album">saga</string>
+    <string name="player_chip_album">Album</string>
     <string name="player_chip_artist">Artiste</string>
     <string name="player_chip_cast">Cast</string>
     <string name="player_chip_one_visible">Au moins une puce doit être visible</string>
@@ -1680,7 +1680,7 @@
     
     <string name="settings_about_lyrics">À propos des sources de paroles</string>
     <string name="settings_adjust_decorations">Ajuster la quantité de décorations festives affichées</string>
-    <string name="settings_artwork_corner_radius">Ajuste la rondeur des coins de la pochette d\'saga</string>
+    <string name="settings_artwork_corner_radius">Ajuste la rondeur des coins de la pochette d\'album</string>
     <string name="settings_canvas_backgrounds_desc">Les arrière-plans Canvas ajoutent des visuels animés aux chansons compatibles</string>
     <string name="settings_choose_header">Choisir quoi afficher dans l\'en-tête</string>
     <string name="settings_customize_compact_player">Personnalisez le lecteur compact qui apparaît au bas de votre écran.</string>
@@ -1771,7 +1771,7 @@
     <string name="settings_about_multi_artist">À propos de l\'analyse multi-artistes</string>
     <string name="settings_adjust_snowflake_size">Ajuster la taille des flocons (taille plus petite = plus de flocons)</string>
     <string name="settings_adjust_festive_decorations">Ajuster la quantité de décorations festives affichées</string>
-    <string name="settings_adjust_artwork_corners">Ajuste la rondeur des coins de la pochette d\'saga</string>
+    <string name="settings_adjust_artwork_corners">Ajuste la rondeur des coins de la pochette d\'album</string>
     <string name="settings_always_start_collapsed">Toujours démarrer réduit</string>
     <string name="settings_artwork">Pochette</string>
     <string name="settings_artwork_size">Taille de la pochette</string>

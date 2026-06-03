@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.network
+package chromahub.rhythm.app.network
 
 import retrofit2.Response
 import retrofit2.http.GET

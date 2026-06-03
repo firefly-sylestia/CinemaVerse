@@ -1,12 +1,12 @@
-package com.cinemaverse.mcu
+package chromahub.rhythm.app
 
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
 import android.util.Log
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.util.ANRWatchdog
-import com.cinemaverse.mcu.util.CrashReporter
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.util.ANRWatchdog
+import chromahub.rhythm.app.util.CrashReporter
 
 /**
  * Custom Application class for Rhythm Music Player.
@@ -17,7 +17,7 @@ import com.cinemaverse.mcu.util.CrashReporter
  * - LeakCanary (debug builds)
  * - ANR Watchdog (debug builds)
  */
-class CinemaVerseApplication : Application() {
+class RhythmApplication : Application() {
     
     companion object {
         private const val TAG = "RhythmApplication"
@@ -55,7 +55,7 @@ class CinemaVerseApplication : Application() {
         Log.d(TAG, "✓ CrashReporter initialized")
         
         // Initialize NetworkClient with AppSettings
-        com.cinemaverse.mcu.network.NetworkClient.initialize(
+        chromahub.rhythm.app.network.NetworkClient.initialize(
             AppSettings.getInstance(applicationContext)
         )
         Log.d(TAG, "✓ NetworkClient initialized")
@@ -76,7 +76,7 @@ class CinemaVerseApplication : Application() {
         try {
             // LeakCanary 2.x auto-configures itself, but we can still apply debug-only tuning.
             // Reflection keeps main source free from debugImplementation class references.
-            val debugConfigClass = Class.forName("com.cinemaverse.mcu.debug.LeakCanaryDebugConfig")
+            val debugConfigClass = Class.forName("chromahub.rhythm.app.debug.LeakCanaryDebugConfig")
             val applyMethod = debugConfigClass.getDeclaredMethod("applyKnownReferenceMatchers")
             applyMethod.invoke(null)
 

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.core.domain.model
+package chromahub.rhythm.app.core.domain.model
 
 /**
  * Represents the current application mode.

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.components.common
+package chromahub.rhythm.app.shared.presentation.components.common
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -32,7 +32,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
-import com.cinemaverse.mcu.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.AppSettings
 
 @Composable
 fun AutoScrollingTextOnDemand(

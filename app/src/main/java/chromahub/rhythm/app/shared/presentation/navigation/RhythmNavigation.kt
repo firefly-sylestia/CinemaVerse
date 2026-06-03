@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.shared.presentation.navigation
+package chromahub.rhythm.app.shared.presentation.navigation
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -80,21 +80,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cinemaverse.mcu.activities.MainActivity
-import com.cinemaverse.mcu.activities.RhythmGuardTimeoutActivity
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.core.domain.model.AppMode
-import com.cinemaverse.mcu.features.local.presentation.navigation.LocalNavigation
-import com.cinemaverse.mcu.features.streaming.presentation.navigation.StreamingNavigation
-import com.cinemaverse.mcu.shared.data.repository.UserPreferencesRepository
-import com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository
-import com.cinemaverse.mcu.shared.data.repository.StatsTimeRange
-import com.cinemaverse.mcu.shared.presentation.components.common.RhythmWavyProgressLoader
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppModeViewModel
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.ThemeViewModel
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.util.AudioDeviceManager
+import chromahub.rhythm.app.activities.MainActivity
+import chromahub.rhythm.app.activities.RhythmGuardTimeoutActivity
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.core.domain.model.AppMode
+import chromahub.rhythm.app.features.local.presentation.navigation.LocalNavigation
+import chromahub.rhythm.app.features.streaming.presentation.navigation.StreamingNavigation
+import chromahub.rhythm.app.shared.data.repository.UserPreferencesRepository
+import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
+import chromahub.rhythm.app.shared.data.repository.StatsTimeRange
+import chromahub.rhythm.app.shared.presentation.components.common.RhythmWavyProgressLoader
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppModeViewModel
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.ThemeViewModel
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.util.AudioDeviceManager
 import androidx.core.app.NotificationCompat
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
@@ -211,7 +211,7 @@ fun RhythmNavigation(
                         )
                 }
             ) {
-                com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsScreenWrapper(
+                chromahub.rhythm.app.shared.presentation.screens.settings.SettingsScreenWrapper(
                     onBack = {
                         val popped = rootNavController.popBackStack()
                         if (!popped) {
@@ -1624,7 +1624,7 @@ fun ModeSelectorScreen(
 private fun ModeCard(
     title: String,
     description: String,
-    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier

@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.local.di
+package chromahub.rhythm.app.features.local.di
 
 import android.content.Context
-import com.cinemaverse.mcu.core.domain.repository.MusicRepository as MusicRepositoryInterface
-import com.cinemaverse.mcu.features.local.data.repository.MusicRepository
+import chromahub.rhythm.app.core.domain.repository.MusicRepository as MusicRepositoryInterface
+import chromahub.rhythm.app.features.local.data.repository.MusicRepository
 
 /**
  * Dependency injection module for local music feature.

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.local.presentation.viewmodel
+package chromahub.rhythm.app.features.local.presentation.viewmodel
 
 import android.app.Application
 import android.content.Context
@@ -7,12 +7,12 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.util.MediaUtils
-import com.cinemaverse.mcu.util.PendingLyricsWriteRequest
-import com.cinemaverse.mcu.util.PendingWriteRequest
-import com.cinemaverse.mcu.util.RecoverableSecurityExceptionWrapper
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.util.MediaUtils
+import chromahub.rhythm.app.util.PendingLyricsWriteRequest
+import chromahub.rhythm.app.util.PendingWriteRequest
+import chromahub.rhythm.app.util.RecoverableSecurityExceptionWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

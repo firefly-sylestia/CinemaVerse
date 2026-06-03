@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.local.presentation.screens.onboarding
+package chromahub.rhythm.app.features.local.presentation.screens.onboarding
 
 enum class OnboardingStep {
     WELCOME,

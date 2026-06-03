@@ -1,11 +1,11 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import com.cinemaverse.mcu.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.AppSettings
 
 /**
  * Utility object for haptic feedback that respects user settings

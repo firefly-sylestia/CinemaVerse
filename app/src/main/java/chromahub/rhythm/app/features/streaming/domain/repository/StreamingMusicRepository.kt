@@ -1,12 +1,12 @@
-package com.cinemaverse.mcu.features.streaming.domain.repository
+package chromahub.rhythm.app.features.streaming.domain.repository
 
-import com.cinemaverse.mcu.core.domain.model.SourceType
-import com.cinemaverse.mcu.core.domain.repository.MusicRepository
-import com.cinemaverse.mcu.features.streaming.domain.model.BrowseCategory
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingArtist
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingSong
+import chromahub.rhythm.app.core.domain.model.SourceType
+import chromahub.rhythm.app.core.domain.repository.MusicRepository
+import chromahub.rhythm.app.features.streaming.domain.model.BrowseCategory
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
 import kotlinx.coroutines.flow.Flow
 
 /**

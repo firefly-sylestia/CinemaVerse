@@ -14,7 +14,7 @@
     <string name="widget_name_glance">Rhythm Muziek</string>
     <string name="no_song_playing">Geen nummer aan het afspelen</string>
     <string name="unknown_artist">Onbekende artiest</string>
-    <string name="unknown_album">Onbekend saga</string>
+    <string name="unknown_album">Onbekend album</string>
     <string name="album_art">Albumhoes</string>
     <string name="play_pause">Afspelen/Pauzeren</string>
     <string name="skip_next">Volgende</string>
@@ -365,7 +365,7 @@
     <string name="library_no_albums">Nog geen albums</string>
     <string name="library_playlist_count">%1$d afspeellijst</string>
     <string name="library_playlists_count">%1$d afspeellijsten</string>
-    <string name="library_album_count">%1$d saga</string>
+    <string name="library_album_count">%1$d album</string>
     <string name="library_albums_count">%1$d albums</string>
     
     <string name="sort_name">Naam</string>
@@ -575,7 +575,7 @@
     <string name="onboarding_system_volume_title">Systeemvolumeregeling</string>
     <string name="onboarding_system_volume_desc">Sta toe dat de fysieke volumeknoppen van je apparaat het afspeelvolume van Rhythm regelen.</string>
     <string name="onboarding_auto_queue_title">Automatisch toevoegen aan wachtrij</string>
-    <string name="onboarding_auto_queue_desc">Maak automatisch een contextuele wachtrij van het saga/artiest bij het afspelen van een nummer.</string>
+    <string name="onboarding_auto_queue_desc">Maak automatisch een contextuele wachtrij van het album/artiest bij het afspelen van een nummer.</string>
     <string name="onboarding_clear_queue_title">Wachtrij wissen bij nieuw nummer</string>
     <string name="onboarding_clear_queue_desc">Vervang de hele wachtrij bij het afspelen van een nieuw nummer in plaats van eraan toe te voegen.</string>
     <string name="onboarding_repeat_mode_title">Herhaalmodus onthouden</string>
@@ -992,10 +992,10 @@
     
     <string name="metadata_title">Titel</string>
     <string name="metadata_artist">Artiest</string>
-    <string name="metadata_album">saga</string>
+    <string name="metadata_album">Album</string>
     <string name="metadata_genre">Genre</string>
     <string name="metadata_year">Jaar</string>
-    <string name="metadata_track">movie</string>
+    <string name="metadata_track">Track</string>
     <string name="metadata_saving">Opslaan...</string>
     <string name="metadata_save_changes">Wijzigingen opslaan</string>
     <string name="metadata_irreversible_changes">Onomkeerbare wijzigingen</string>
@@ -1042,7 +1042,7 @@
     <string name="cd_play">Afspelen</string>
     <string name="cd_play_all">Alles afspelen</string>
     <string name="cd_shuffle">Shuffle</string>
-    <string name="cd_play_album">saga afspelen</string>
+    <string name="cd_play_album">Album afspelen</string>
     <string name="cd_shuffle_play">Shuffle afspelen</string>
     <string name="cd_previous_track">Vorig nummer</string>
     <string name="cd_next_track">Volgend nummer</string>
@@ -1083,7 +1083,7 @@
     <string name="cd_add_to_playlist_action">Toevoegen aan afspeellijst</string>
     <string name="cd_toggle_favorite">Favoriet wisselen</string>
     <string name="cd_playback_speed_action">Afspeelsnelheid</string>
-    <string name="cd_show_album">saga tonen</string>
+    <string name="cd_show_album">Album tonen</string>
     <string name="cd_show_artist">Artiest tonen</string>
     <string name="cd_reorder_chips">Chips herschikken</string>
     <string name="cd_search">Zoeken</string>
@@ -1176,7 +1176,7 @@
     <string name="bottomsheet_play_all">Alles afspelen</string>
     <string name="bottomsheet_tracks">Tracks</string>
     <string name="bottomsheet_sort_by">Sorteren op</string>
-    <string name="bottomsheet_no_songs_album">Geen nummers in dit saga</string>
+    <string name="bottomsheet_no_songs_album">Geen nummers in dit album</string>
     
     <string name="bottomsheet_home_section_order">Volgorde homestructuren</string>
     <string name="bottomsheet_reorder_toggle_visibility">Herschikken en zichtbaarheid wisselen</string>
@@ -1241,10 +1241,10 @@
     <string name="bottomsheet_remove">Verwijderen</string>
     <string name="bottomsheet_title">Titel</string>
     <string name="bottomsheet_artist">Artiest</string>
-    <string name="bottomsheet_album">saga</string>
+    <string name="bottomsheet_album">Album</string>
     <string name="bottomsheet_genre">Genre</string>
     <string name="bottomsheet_year">Jaar</string>
-    <string name="bottomsheet_track">movie</string>
+    <string name="bottomsheet_track">Track</string>
     <string name="bottomsheet_saving">Opslaan…</string>
     <string name="bottomsheet_save_changes">Wijzigingen opslaan</string>
     <string name="bottomsheet_irreversible">Onomkeerbare wijzigingen</string>
@@ -1273,7 +1273,7 @@
     <string name="device_unknown">Onbekend apparaat</string>
     
     <string name="fallback_unknown_artist">Onbekende artiest</string>
-    <string name="fallback_unknown_album">Onbekend saga</string>
+    <string name="fallback_unknown_album">Onbekend album</string>
     <string name="fallback_unknown_file">Onbekend bestand</string>
     
     <string name="service_app_updates">App-updates</string>
@@ -1487,7 +1487,7 @@
     <string name="content_desc_remove_from_queue">Verwijderen uit wachtrij</string>
     <string name="content_desc_add_songs">Nummers toevoegen</string>
     <string name="content_desc_clear_queue">Wachtrij wissen</string>
-    <string name="content_desc_play_album">saga afspelen</string>
+    <string name="content_desc_play_album">Album afspelen</string>
     <string name="content_desc_move_up">Omhoog verplaatsen</string>
     <string name="content_desc_move_down">Omlaag verplaatsen</string>
     <string name="content_desc_show_hide">Tonen/verbergen</string>
@@ -1518,12 +1518,12 @@
     <string name="action_hide_song">Nummer verbergen</string>
     <string name="action_play_all">Alles afspelen</string>
     
-    <string name="blacklist_track">movie blokkeren</string>
-    <string name="unblacklist_track">movie deblokkeren</string>
+    <string name="blacklist_track">Track blokkeren</string>
+    <string name="unblacklist_track">Track deblokkeren</string>
     <string name="blacklist_folder">Map blokkeren</string>
     <string name="unblacklist_folder">Map deblokkeren</string>
-    <string name="whitelist_track">movie op witte lijst zetten</string>
-    <string name="unwhitelist_track">movie van witte lijst halen</string>
+    <string name="whitelist_track">Track op witte lijst zetten</string>
+    <string name="unwhitelist_track">Track van witte lijst halen</string>
     <string name="whitelist_folder">Map op witte lijst zetten</string>
     <string name="unwhitelist_folder">Map van witte lijst halen</string>
     <string name="song_added_to_blacklist">Nummer toegevoegd aan zwarte lijst</string>
@@ -1592,7 +1592,7 @@
     <string name="player_chip_equalizer">Equalizer</string>
     <string name="player_chip_sleep_timer">Slaaptimer</string>
     <string name="player_chip_lyrics">Tekst</string>
-    <string name="player_chip_album">saga</string>
+    <string name="player_chip_album">Album</string>
     <string name="player_chip_artist">Artiest</string>
     <string name="player_chip_cast">Cast</string>
     <string name="player_chip_one_visible">Ten minste één chip moet zichtbaar zijn</string>

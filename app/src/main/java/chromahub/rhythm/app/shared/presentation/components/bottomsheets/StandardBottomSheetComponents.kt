@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
+package chromahub.rhythm.app.shared.presentation.components.bottomsheets
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

@@ -14,8 +14,8 @@
     <string name="widget_name_glance">Rhythm Music</string>
     <string name="no_song_playing">Nessun brano in riproduzione</string>
     <string name="unknown_artist">Artista sconosciuto</string>
-    <string name="unknown_album">saga sconosciuto</string>
-    <string name="album_art">Copertina saga</string>
+    <string name="unknown_album">Album sconosciuto</string>
+    <string name="album_art">Copertina album</string>
     <string name="play_pause">Riproduci/Pausa</string>
     <string name="skip_next">Salta al successivo</string>
     <string name="skip_previous">Salta al precedente</string>
@@ -26,12 +26,12 @@
     <string name="widget_preview_desc">Le modifiche verranno applicate a tutti i widget attivi sulla tua schermata home. Tieni premuto il widget per ridimensionarlo e vedere layout diversi.</string>
     <string name="widget_refresh_all">Aggiorna tutti i widget</string>
     <string name="widget_display_options">Opzioni di visualizzazione</string>
-    <string name="widget_show_album_art">Mostra copertina saga</string>
-    <string name="widget_show_album_art_desc">Visualizza la copertina dell\'saga nel widget</string>
+    <string name="widget_show_album_art">Mostra copertina album</string>
+    <string name="widget_show_album_art_desc">Visualizza la copertina dell\'album nel widget</string>
     <string name="widget_show_artist">Mostra nome artista</string>
     <string name="widget_show_artist_desc">Visualizza le informazioni sull\'artista</string>
-    <string name="widget_show_album">Mostra nome saga</string>
-    <string name="widget_show_album_desc">Visualizza le informazioni sull\'saga</string>
+    <string name="widget_show_album">Mostra nome album</string>
+    <string name="widget_show_album_desc">Visualizza le informazioni sull\'album</string>
     <string name="widget_appearance">Aspetto</string>
     <string name="widget_use_system_colors">Usa colori di sistema</string>
     <string name="widget_use_system_colors_desc">Segui lo schema colori Material You</string>
@@ -253,10 +253,10 @@
     
     <string name="home_title">Rhythm</string>
     <string name="home_settings_cd">Impostazioni</string>
-    <string name="home_discover_albums">Scopri saga</string>
+    <string name="home_discover_albums">Scopri Album</string>
     <string name="home_explore_music">Esplora musica fantastica</string>
-    <string name="home_no_featured_albums">Nessun saga in evidenza</string>
-    <string name="home_no_featured_albums_desc">Aggiungi degli saga alla tua libreria per vedere i contenuti in evidenza</string>
+    <string name="home_no_featured_albums">Nessun album in evidenza</string>
+    <string name="home_no_featured_albums_desc">Aggiungi degli album alla tua libreria per vedere i contenuti in evidenza</string>
     <string name="home_artists">Artisti</string>
     <string name="home_explore_musicians">Esplora i tuoi musicisti preferiti</string>
     <string name="home_no_artists">Nessun artista trovato</string>
@@ -264,11 +264,11 @@
     <string name="home_new_releases">Nuove Uscite</string>
     <string name="home_fresh_music">Musica fresca solo per te</string>
     <string name="home_no_new_releases">Nessuna nuova uscita</string>
-    <string name="home_no_new_releases_desc">I nuovi saga appariranno qui man mano che vengono aggiunti alla libreria</string>
+    <string name="home_no_new_releases_desc">I nuovi album appariranno qui man mano che vengono aggiunti alla libreria</string>
     <string name="home_recently_added">Aggiunti di Recente</string>
     <string name="home_latest_additions">Le tue ultime aggiunte</string>
-    <string name="home_no_recently_added">Nessun saga aggiunto di recente</string>
-    <string name="home_no_recently_added_desc">Gli saga che aggiungi alla libreria appariranno qui</string>
+    <string name="home_no_recently_added">Nessun album aggiunto di recente</string>
+    <string name="home_no_recently_added_desc">Gli album che aggiungi alla libreria appariranno qui</string>
     
     <string name="home_quote_late_night_1">Vibrazioni notturne per i sognatori 🌙</string>
     <string name="home_quote_late_night_2">L\'ora perfetta per la tua playlist notturna 🎧</string>
@@ -338,11 +338,11 @@
     <string name="library_title">Libreria</string>
     <string name="library_your_music">La tua Musica</string>
     <string name="library_your_playlists">Le tue Playlist</string>
-    <string name="library_your_albums">I tuoi saga</string>
+    <string name="library_your_albums">I tuoi Album</string>
     <string name="library_your_artists">I tuoi Artisti</string>
     <string name="library_loading_songs">Caricamento brani…</string>
     <string name="library_loading_playlists">Caricamento playlist…</string>
-    <string name="library_loading_albums">Caricamento saga…</string>
+    <string name="library_loading_albums">Caricamento album…</string>
     <string name="library_loading_artists">Caricamento artisti…</string>
     <string name="library_tracks_count">%1$d di %2$d tracce</string>
     <string name="library_no_songs">Ancora nessun brano</string>
@@ -362,11 +362,11 @@
     <string name="library_playlist_name_empty">Il nome della playlist non può essere vuoto</string>
     <string name="library_no_playlists">Ancora nessuna playlist</string>
     <string name="library_no_playlists_desc">Crea la tua prima playlist usando il pulsante +</string>
-    <string name="library_no_albums">Ancora nessun saga</string>
+    <string name="library_no_albums">Ancora nessun album</string>
     <string name="library_playlist_count">%1$d playlist</string>
     <string name="library_playlists_count">%1$d playlist</string>
-    <string name="library_album_count">%1$d saga</string>
-    <string name="library_albums_count">%1$d saga</string>
+    <string name="library_album_count">%1$d album</string>
+    <string name="library_albums_count">%1$d album</string>
     
     <string name="sort_name">Nome</string>
     <string name="sort_date_created">Data creazione</string>
@@ -395,7 +395,7 @@
     <string name="search_filter_results">Filtra risultati</string>
     <string name="search_results">Risultati ricerca</string>
     <string name="search_songs">Brani</string>
-    <string name="search_albums">saga</string>
+    <string name="search_albums">Album</string>
     <string name="search_artists">Artisti</string>
     <string name="search_playlists">Playlist</string>
     <string name="search_view_all_songs">Vedi tutti i brani</string>
@@ -501,7 +501,7 @@
     <string name="onboarding_equalizer_desc">Equalizzatore: Regola le frequenze audio in Impostazioni > Equalizzatore</string>
     <string name="onboarding_sleep_timer_desc">Sleep Timer: Ferma automaticamente la riproduzione dopo un tempo impostato (accedi dalla schermata In Riproduzione)</string>
     <string name="onboarding_library_title">Organizza la tua Libreria Musicale</string>
-    <string name="onboarding_library_desc">Personalizza come vengono visualizzati i tuoi saga, artisti e brani. Scegli il layout preferito, l\'ordine di smistamento e la disposizione delle schede.</string>
+    <string name="onboarding_library_desc">Personalizza come vengono visualizzati i tuoi album, artisti e brani. Scegli il layout preferito, l\'ordine di smistamento e la disposizione delle schede.</string>
     <string name="onboarding_library_how_works">Come funziona l\'organizzazione della libreria</string>
     <string name="onboarding_library_1">Personalizza l\'ordine delle schede nella Libreria per un accesso rapido ai preferiti</string>
     <string name="onboarding_library_2">Crea e gestisci playlist direttamente dalla schermata Libreria</string>
@@ -514,14 +514,14 @@
     <string name="onboarding_container">Contenitore</string>
     <string name="onboarding_accent">Accento</string>
     <string name="onboarding_advanced_custom">Personalizzazione Avanzata</string>
-    <string name="onboarding_advanced_custom_desc">Schemi colori personalizzati, colori copertina saga e caratteri</string>
+    <string name="onboarding_advanced_custom_desc">Schemi colori personalizzati, colori copertina album e caratteri</string>
     <string name="onboarding_more_tuner">Più Personalizzazione nelle Impostazioni</string>
-    <string name="onboarding_tuner_1">Schemi colori personalizzati ed estrazione colori copertina saga</string>
+    <string name="onboarding_tuner_1">Schemi colori personalizzati ed estrazione colori copertina album</string>
     <string name="onboarding_tuner_2">Personalizzazione caratteri e impostazioni tipografia</string>
     <string name="onboarding_tuner_3">Opzioni tema avanzate disponibili in Impostazioni > Personalizzazione Tema</string>
     <string name="onboarding_step_progress">%1$d di %2$d</string>
     <string name="onboarding_advanced_customization">Personalizzazione Avanzata</string>
-    <string name="onboarding_advanced_customization_desc">Schemi colori personalizzati, colori copertina saga e caratteri</string>
+    <string name="onboarding_advanced_customization_desc">Schemi colori personalizzati, colori copertina album e caratteri</string>
     
     <string name="onboarding_media_scan_title">Filtra la tua Libreria Musicale</string>
     <string name="onboarding_media_scan_desc">Controlla quali file audio appaiono nella tua libreria. Usa la modalità Blacklist per nascondere file indesiderati (suonerie, notifiche), o la modalità Whitelist per mostrare solo specifiche cartelle musicali.</string>
@@ -537,7 +537,7 @@
     <string name="onboarding_complete_title">È tutto pronto!</string>
     <string name="onboarding_complete_desc">Rhythm è pronto a suonare! La tua libreria musicale viene scansionata in background. Ecco cosa è stato configurato:</string>
     <string name="onboarding_whats_next">Cosa fare ora?</string>
-    <string name="onboarding_next_browse">Sfoglia i tuoi brani, saga e artisti</string>
+    <string name="onboarding_next_browse">Sfoglia i tuoi brani, album e artisti</string>
     <string name="onboarding_next_create">Crea la tua prima playlist</string>
     <string name="onboarding_next_finetune">Ottimizza l\'audio con l\'Equalizzatore</string>
     <string name="onboarding_next_explore">Esplora altre impostazioni in qualsiasi momento</string>
@@ -575,7 +575,7 @@
     <string name="onboarding_system_volume_title">Controllo Volume di Sistema</string>
     <string name="onboarding_system_volume_desc">Consenti ai tasti fisici del volume del tuo dispositivo di controllare il volume di riproduzione di Rhythm.</string>
     <string name="onboarding_auto_queue_title">Aggiungi Auto. alla Coda</string>
-    <string name="onboarding_auto_queue_desc">Crea automaticamente una coda contestuale dall\'saga/artista quando riproduci un brano.</string>
+    <string name="onboarding_auto_queue_desc">Crea automaticamente una coda contestuale dall\'album/artista quando riproduci un brano.</string>
     <string name="onboarding_clear_queue_title">Svuota Coda su Nuovo Brano</string>
     <string name="onboarding_clear_queue_desc">Sostituisci l\'intera coda quando riproduci un nuovo brano invece di aggiungerlo.</string>
     <string name="onboarding_repeat_mode_title">Ricorda Modalità Ripetizione</string>
@@ -590,7 +590,7 @@
     <string name="onboarding_lyrics_source_desc">Scegli quale fonte di testi provare per prima (con fallback automatico alle altre)</string>
     
     <string name="onboarding_tab_order_title">Ordine Schede Libreria</string>
-    <string name="onboarding_tab_order_desc">Riordina le schede Brani, Playlist, saga, Artisti ed Esplora</string>
+    <string name="onboarding_tab_order_desc">Riordina le schede Brani, Playlist, Album, Artisti ed Esplora</string>
     
     <string name="onboarding_follow_system_title">Segui Tema di Sistema</string>
     <string name="onboarding_follow_system_desc">Passa automaticamente tra temi chiari e scuri in base alle impostazioni di sistema del tuo dispositivo.</string>
@@ -948,8 +948,8 @@
     <string name="settings_sleep_timer_title">Sleep Timer</string>
     <string name="settings_sleep_timer_desc">Ferma auto. la riproduzione dopo un tempo impostato</string>
     <string name="settings_section_library_content">Libreria e Contenuti</string>
-    <string name="settings_group_by_album_artist">Raggruppa per Artista saga</string>
-    <string name="settings_group_by_album_artist_desc">Mostra saga in collaborazione sotto l\'artista principale</string>
+    <string name="settings_group_by_album_artist">Raggruppa per Artista Album</string>
+    <string name="settings_group_by_album_artist_desc">Mostra album in collaborazione sotto l\'artista principale</string>
     <string name="settings_media_scan_title">Scansione Media</string>
     <string name="settings_media_scan_desc">Gestisci blacklist e scansione media</string>
     <string name="settings_playlists_title">Playlist</string>
@@ -986,13 +986,13 @@
     <string name="player_retry_canvas">Riprova Canvas</string>
     
     <string name="search_songs_count">Brani (%1$d)</string>
-    <string name="search_albums_count">saga (%1$d)</string>
+    <string name="search_albums_count">Album (%1$d)</string>
     <string name="search_artists_count">Artisti (%1$d)</string>
     <string name="search_playlists_count">Playlist (%1$d)</string>
     
     <string name="metadata_title">Titolo</string>
     <string name="metadata_artist">Artista</string>
-    <string name="metadata_album">saga</string>
+    <string name="metadata_album">Album</string>
     <string name="metadata_genre">Genere</string>
     <string name="metadata_year">Anno</string>
     <string name="metadata_track">Traccia</string>
@@ -1042,7 +1042,7 @@
     <string name="cd_play">Riproduci</string>
     <string name="cd_play_all">Riproduci tutto</string>
     <string name="cd_shuffle">Shuffle</string>
-    <string name="cd_play_album">Riproduci saga</string>
+    <string name="cd_play_album">Riproduci album</string>
     <string name="cd_shuffle_play">Riproduzione casuale</string>
     <string name="cd_previous_track">Traccia precedente</string>
     <string name="cd_next_track">Traccia successiva</string>
@@ -1074,7 +1074,7 @@
     <string name="cd_open_storage">Apri archiviazione</string>
     <string name="cd_minimize">Minimizza</string>
     <string name="cd_song_info">Info brano</string>
-    <string name="cd_album_artwork">Copertina saga per %1$s</string>
+    <string name="cd_album_artwork">Copertina album per %1$s</string>
     <string name="cd_no_song_playing">Nessun brano in riproduzione</string>
     <string name="cd_toggle_shuffle">Attiva/disattiva shuffle</string>
     <string name="cd_toggle_lyrics">Attiva/disattiva testi</string>
@@ -1083,12 +1083,12 @@
     <string name="cd_add_to_playlist_action">Aggiungi a playlist</string>
     <string name="cd_toggle_favorite">Attiva/disattiva preferito</string>
     <string name="cd_playback_speed_action">Velocità riproduzione</string>
-    <string name="cd_show_album">Mostra saga</string>
+    <string name="cd_show_album">Mostra album</string>
     <string name="cd_show_artist">Mostra artista</string>
     <string name="cd_reorder_chips">Riordina chip</string>
     <string name="cd_search">Cerca</string>
     <string name="cd_view_all">Vedi tutto</string>
-    <string name="cd_albums">saga</string>
+    <string name="cd_albums">Album</string>
     <string name="cd_artists">Artisti</string>
     <string name="cd_songs">Brani</string>
     <string name="cd_rhythm_splash">Rhythm</string>
@@ -1111,7 +1111,7 @@
     <string name="cd_media_scan_filtering">Filtro Scansione Media</string>
     <string name="cd_open_media_scan_settings">Apri impostazioni scansione media</string>
     <string name="cd_close">Chiudi</string>
-    <string name="cd_album_artwork_generic">Copertina saga</string>
+    <string name="cd_album_artwork_generic">Copertina album</string>
     <string name="cd_language">Lingua</string>
     <string name="cd_view_license">Vedi Licenza</string>
     <string name="cd_refresh_devices">Aggiorna dispositivi</string>
@@ -1144,7 +1144,7 @@
     <string name="bottomsheet_metadata">Metadati</string>
     <string name="bottomsheet_queue">Coda</string>
     <string name="bottomsheet_up_next">IN ARRIVO</string>
-    <string name="bottomsheet_albums">saga</string>
+    <string name="bottomsheet_albums">Album</string>
     <string name="bottomsheet_songs">Brani</string>
     
     <string name="bottomsheet_reset">Ripristina</string>
@@ -1176,7 +1176,7 @@
     <string name="bottomsheet_play_all">Riproduci Tutto</string>
     <string name="bottomsheet_tracks">Tracce</string>
     <string name="bottomsheet_sort_by">Ordina per</string>
-    <string name="bottomsheet_no_songs_album">Nessun brano in questo saga</string>
+    <string name="bottomsheet_no_songs_album">Nessun brano in questo album</string>
     
     <string name="bottomsheet_home_section_order">Ordine Sezioni Home</string>
     <string name="bottomsheet_reorder_toggle_visibility">Riordina e cambia visibilità</string>
@@ -1241,7 +1241,7 @@
     <string name="bottomsheet_remove">Rimuovi</string>
     <string name="bottomsheet_title">Titolo</string>
     <string name="bottomsheet_artist">Artista</string>
-    <string name="bottomsheet_album">saga</string>
+    <string name="bottomsheet_album">Album</string>
     <string name="bottomsheet_genre">Genere</string>
     <string name="bottomsheet_year">Anno</string>
     <string name="bottomsheet_track">Traccia</string>
@@ -1273,7 +1273,7 @@
     <string name="device_unknown">Dispositivo Sconosciuto</string>
     
     <string name="fallback_unknown_artist">Artista Sconosciuto</string>
-    <string name="fallback_unknown_album">saga Sconosciuto</string>
+    <string name="fallback_unknown_album">Album Sconosciuto</string>
     <string name="fallback_unknown_file">File Sconosciuto</string>
     
     <string name="service_app_updates">Aggiornamenti App</string>
@@ -1344,7 +1344,7 @@
     <string name="stats_sage">Sommo saggio della musica! 👑</string>
     
     <string name="cache_artwork_images">Immagini Copertina</string>
-    <string name="cache_artwork_images_desc">Copertine saga, foto artisti e miniature</string>
+    <string name="cache_artwork_images_desc">Copertine album, foto artisti e miniature</string>
     <string name="cache_lyrics">Cache Testi</string>
     <string name="cache_lyrics_desc">Dati testi scaricati e sincronizzati</string>
     <string name="cache_canvas_videos">Video Canvas</string>
@@ -1435,8 +1435,8 @@
     <string name="artist_configure_delimiters">Configura Delimitatori</string>
     <string name="artist_current_delimiters">Attuale: %1$s</string>
     <string name="artist_library_organization">Organizzazione Libreria</string>
-    <string name="artist_group_by_album_artist">Raggruppa per Artista saga</string>
-    <string name="artist_group_by_album_artist_desc">Mostra saga in collaborazione sotto l\'artista principale</string>
+    <string name="artist_group_by_album_artist">Raggruppa per Artista Album</string>
+    <string name="artist_group_by_album_artist_desc">Mostra album in collaborazione sotto l\'artista principale</string>
     <string name="artist_about_multi_parsing">Info Parsing Multi-Artista</string>
     <string name="artist_parsing_description">Quando abilitato, Rhythm dividerà automaticamente i tag artista contenenti più artisti. Questo è utile per i brani scaricati con yt-dlp o altri strumenti che usano delimitatori come \'/\' per separare gli artisti.\n\nIl backslash (\\\\) può essere usato per eseguire l\'escape dei delimitatori.</string>
     <string name="artist_examples">Esempi</string>
@@ -1487,7 +1487,7 @@
     <string name="content_desc_remove_from_queue">Rimuovi dalla coda</string>
     <string name="content_desc_add_songs">Aggiungi brani</string>
     <string name="content_desc_clear_queue">Svuota coda</string>
-    <string name="content_desc_play_album">Riproduci saga</string>
+    <string name="content_desc_play_album">Riproduci album</string>
     <string name="content_desc_move_up">Sposta su</string>
     <string name="content_desc_move_down">Sposta giù</string>
     <string name="content_desc_show_hide">Mostra/nascondi</string>
@@ -1498,7 +1498,7 @@
     <string name="content_desc_hide_chip">Nascondi chip</string>
     <string name="content_desc_show_chip">Mostra chip</string>
     <string name="content_desc_edit_metadata">Modifica metadati</string>
-    <string name="content_desc_album_artwork">Copertina saga</string>
+    <string name="content_desc_album_artwork">Copertina album</string>
     
     <string name="playlist_play_one">Riproduci solo brano selezionato</string>
     <string name="up_next_section">IN ARRIVO</string>
@@ -1580,7 +1580,7 @@
     
     <string name="library_tab_songs">Brani</string>
     <string name="library_tab_playlists">Playlist</string>
-    <string name="library_tab_albums">saga</string>
+    <string name="library_tab_albums">Album</string>
     <string name="library_tab_artists">Artisti</string>
     <string name="library_tab_explorer">Esplora</string>
     <string name="library_tab_one_visible">Almeno una scheda deve essere visibile</string>
@@ -1592,7 +1592,7 @@
     <string name="player_chip_equalizer">Equalizzatore</string>
     <string name="player_chip_sleep_timer">Sleep Timer</string>
     <string name="player_chip_lyrics">Testo</string>
-    <string name="player_chip_album">saga</string>
+    <string name="player_chip_album">Album</string>
     <string name="player_chip_artist">Artista</string>
     <string name="player_chip_cast">Cast</string>
     <string name="player_chip_one_visible">Almeno un chip deve essere visibile</string>
@@ -1781,7 +1781,7 @@
     <string name="settings_canvas_backgrounds_info">Gli sfondi Canvas aggiungono visuali animate ai brani supportati</string>
     <string name="settings_carousel_style">Stile Carosello</string>
     <string name="settings_choose_festive_theme">Scegli tema festivo</string>
-    <string name="settings_choose_album_display">Scegli come vengono visualizzati gli saga</string>
+    <string name="settings_choose_album_display">Scegli come vengono visualizzati gli album</string>
     <string name="settings_choose_header_content">Scegli cosa mostrare nell\'intestazione</string>
     <string name="settings_clear_all_cache">Pulisci Tutta la Cache</string>
     <string name="settings_coming_soon">Prossimamente</string>
@@ -1795,7 +1795,7 @@
     <string name="settings_disable_unused_gestures">Disabilita gesti non usati per una risposta più rapida</string>
     <string name="settings_disable_unused_sections">Disabilita sezioni non usate per un caricamento più rapido</string>
     <string name="settings_discover_carousel">Carosello Scoperta</string>
-    <string name="settings_discover_carousel_info">Il carosello scoperta mette in mostra saga in evidenza</string>
+    <string name="settings_discover_carousel_info">Il carosello scoperta mette in mostra album in evidenza</string>
     <string name="settings_display_options">Opzioni Visualizzazione</string>
     <string name="settings_examples">Esempi</string>
     <string name="settings_intensity">Intensità</string>

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.streaming.presentation.screens
+package chromahub.rhythm.app.features.streaming.presentation.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,8 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
 
 /**
  * Default first-use screen for streaming mode.

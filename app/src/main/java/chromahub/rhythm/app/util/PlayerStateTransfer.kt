@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.util.Log
 import androidx.media3.common.PlaybackParameters

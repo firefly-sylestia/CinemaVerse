@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
+package chromahub.rhythm.app.shared.presentation.components.bottomsheets
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.content.Context
 import android.media.AudioManager
@@ -87,18 +87,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.delay
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.PlaybackLocation
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.PlaybackLocation
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
 import androidx.compose.ui.res.stringResource
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShape
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.AppRestartDialog
-import com.cinemaverse.mcu.util.AppRestarter
-import com.cinemaverse.mcu.core.domain.model.StreamingQuality
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShape
+import chromahub.rhythm.app.shared.presentation.components.dialogs.AppRestartDialog
+import chromahub.rhythm.app.util.AppRestarter
+import chromahub.rhythm.app.core.domain.model.StreamingQuality
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1140,7 +1140,7 @@ private fun PlaybackSpeedCard(
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
+                chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
                     checked = syncEnabled,
                     onCheckedChange = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
@@ -1288,7 +1288,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onStopPlaybackOnZeroVolumeChange(!stopPlaybackOnZeroVolume)
@@ -1309,7 +1309,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onResumeOnDeviceReconnectChange(!resumeOnDeviceReconnect)
@@ -1330,7 +1330,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onGaplessPlaybackChange(!gaplessPlayback)
@@ -1351,7 +1351,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onShowPlayedQueueSongsChange(!showPlayedQueueSongs)
@@ -1372,7 +1372,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
+                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onCrossfadeEnabledChange(!crossfadeEnabled)
@@ -1453,7 +1453,7 @@ private fun PlaybackQuickSettingsCard(
                             navigateToSettings.invoke()
                         }
                     }
-                    ,scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH
+                    ,scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH
                 )
             )
         }
@@ -1610,7 +1610,7 @@ private fun PlaybackPitchCard(
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
+                chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
                     checked = syncEnabled,
                     onCheckedChange = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
@@ -1706,7 +1706,7 @@ private fun AnimatedAudioSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
+    chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier
@@ -1954,8 +1954,8 @@ private fun QualitySelectionBottomSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         StandardBottomSheetHeader(
-            title = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_quality),
-            subtitle = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_quality_sheet_desc),
+            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality),
+            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality_sheet_desc),
             visible = true
         )
         Column(
@@ -1968,10 +1968,10 @@ private fun QualitySelectionBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             val streamingQualityOptions = listOf(
-                Pair("LOW", com.cinemaverse.mcu.R.string.streaming_quality_low),
-                Pair("NORMAL", com.cinemaverse.mcu.R.string.streaming_quality_normal),
-                Pair("HIGH", com.cinemaverse.mcu.R.string.streaming_quality_high),
-                Pair("LOSSLESS", com.cinemaverse.mcu.R.string.streaming_quality_lossless)
+                Pair("LOW", chromahub.rhythm.app.R.string.streaming_quality_low),
+                Pair("NORMAL", chromahub.rhythm.app.R.string.streaming_quality_normal),
+                Pair("HIGH", chromahub.rhythm.app.R.string.streaming_quality_high),
+                Pair("LOSSLESS", chromahub.rhythm.app.R.string.streaming_quality_lossless)
             )
 
             streamingQualityOptions.forEach { option ->

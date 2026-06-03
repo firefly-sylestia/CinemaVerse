@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.screens.player
+package chromahub.rhythm.app.shared.presentation.screens.player
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -11,7 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
-import com.cinemaverse.mcu.shared.presentation.components.lyrics.FullScreenLyricsView
+import chromahub.rhythm.app.shared.presentation.components.lyrics.FullScreenLyricsView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,37 +48,37 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 import androidx.compose.foundation.layout.fillMaxSize
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.ExtraControlBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.ArtistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.PlaybackBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.QueueBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaybackPitchDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaybackSpeedDialog
-import com.cinemaverse.mcu.shared.presentation.components.player.SleepTimerBottomSheetNew
-import com.cinemaverse.mcu.shared.presentation.components.lyrics.LyricsEditorBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.player.formatDuration
-import com.cinemaverse.mcu.features.local.presentation.navigation.Screen
-import com.cinemaverse.mcu.features.local.presentation.screens.LibraryTab
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.data.model.Album
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Artist
-import com.cinemaverse.mcu.shared.data.model.LyricsData
-import com.cinemaverse.mcu.shared.data.model.PlaybackLocation
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ExtraControlBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ArtistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.PlaybackBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.QueueBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaybackPitchDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaybackSpeedDialog
+import chromahub.rhythm.app.shared.presentation.components.player.SleepTimerBottomSheetNew
+import chromahub.rhythm.app.shared.presentation.components.lyrics.LyricsEditorBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
+import chromahub.rhythm.app.features.local.presentation.navigation.Screen
+import chromahub.rhythm.app.features.local.presentation.screens.LibraryTab
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.LyricsData
+import chromahub.rhythm.app.shared.data.model.PlaybackLocation
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.R
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -195,7 +195,7 @@ fun PlayerScreen(
 
         val splitArtistNames: (String) -> List<String> = remember {
             { artistName ->
-                com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
+                chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
                     artistName = artistName,
                     delimiters = artistSeparatorDelimiters,
                     enabled = artistSeparatorEnabled
@@ -704,7 +704,7 @@ fun PlayerScreen(
                                         color = MaterialTheme.colorScheme.secondaryContainer,
                                         modifier = Modifier.size(56.dp)
                                     ) {
-                                        com.cinemaverse.mcu.util.M3ImageUtils.ArtistImage(
+                                        chromahub.rhythm.app.util.M3ImageUtils.ArtistImage(
                                             imageUrl = artist.artworkUri,
                                             artistName = artist.name,
                                             modifier = Modifier.fillMaxSize(),
