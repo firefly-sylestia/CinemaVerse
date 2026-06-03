@@ -5201,21 +5201,32 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     
     // Default section order for home screen
     private val defaultHomeSectionOrder = listOf(
-        "DISCOVER", "RECENTLY_PLAYED", "ARTISTS", "RHYTHM_GUARD",
+        "DISCOVER", "RECENTLY_PLAYED", "VIEWING", "ARTISTS", "RHYTHM_GUARD",
         "NEW_RELEASES", "RECENTLY_ADDED", "RECOMMENDED", "STATS", "MOOD"
     )
+    private fun normalizeHomeSectionOrder(rawSections: List<String>): List<String> {
+        val cleaned = rawSections
+            .map(String::trim)
+            .filter { it.isNotBlank() && it != "GREETING" }
+            .distinct()
+        if (cleaned.isEmpty()) return defaultHomeSectionOrder
+        val knownSections = defaultHomeSectionOrder.toSet()
+        val retained = cleaned.filter { it in knownSections }
+        val missing = defaultHomeSectionOrder.filter { it !in retained }
+        return (retained + missing).ifEmpty { defaultHomeSectionOrder }
+    }
+
     private val _homeSectionOrder = MutableStateFlow(
         prefs.getString(KEY_HOME_SECTION_ORDER, null)
             ?.split(",")
-            ?.map(String::trim)
-            ?.filter { it.isNotBlank() && it != "GREETING" }
-            ?.takeIf { it.isNotEmpty() }
+            ?.let(::normalizeHomeSectionOrder)
             ?: defaultHomeSectionOrder
     )
     val homeSectionOrder: StateFlow<List<String>> = _homeSectionOrder.asStateFlow()
     fun setHomeSectionOrder(value: List<String>) {
-        _homeSectionOrder.value = value
-        prefs.edit().putString(KEY_HOME_SECTION_ORDER, value.joinToString(",")).apply()
+        val normalizedValue = normalizeHomeSectionOrder(value)
+        _homeSectionOrder.value = normalizedValue
+        prefs.edit().putString(KEY_HOME_SECTION_ORDER, normalizedValue.joinToString(",")).apply()
     }
 
     private val defaultStreamingHomeSectionOrder = listOf(

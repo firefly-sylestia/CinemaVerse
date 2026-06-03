@@ -39,6 +39,7 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -168,6 +169,10 @@ import chromahub.rhythm.app.R
 import chromahub.rhythm.app.shared.data.model.Album
 import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.service.MovieMetadataService
+import chromahub.rhythm.app.shared.data.viewing.ViewingItem
+import chromahub.rhythm.app.shared.data.viewing.ViewingLists
+import chromahub.rhythm.app.shared.util.ViewingArtworkUtils
 import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
 import chromahub.rhythm.app.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
@@ -616,6 +621,12 @@ private fun ModernScrollableContent(
     val recentlyAddedCount by appSettings.homeRecentlyAddedCount.collectAsState()
     val recommendedCount by appSettings.homeRecommendedCount.collectAsState()
 
+    val marvelPicks = remember {
+        ViewingLists.featuredList.items
+            .sortedBy { it.releaseOrder ?: Int.MAX_VALUE }
+            .take(8)
+    }
+
     // Rhythm Guard States (pulled up from LazyColumn block)
     val rhythmGuardMode by appSettings.rhythmGuardMode.collectAsState()
     val rhythmGuardAge by appSettings.rhythmGuardAge.collectAsState()
@@ -1043,6 +1054,19 @@ private fun ModernScrollableContent(
                             }
                         }
                     }
+                    "VIEWING" -> {
+                        if (marvelPicks.isNotEmpty()) {
+                            item(key = "section_viewing_marvel") {
+                                Box(modifier = Modifier.padding(horizontal = horizontalPadding)) {
+                                    ModernViewingPicksSection(
+                                        items = marvelPicks,
+                                        widthSizeClass = widthSizeClass,
+                                        heightSizeClass = heightSizeClass
+                                    )
+                                }
+                            }
+                        }
+                    }
                     "RHYTHM_GUARD" -> {
                         if (rhythmGuardMode != AppSettings.RHYTHM_GUARD_MODE_OFF) {
                             val rhythmGuardTimeoutRemainingMs = (rhythmGuardTimeoutUntilMs - System.currentTimeMillis()).coerceAtLeast(0L)
@@ -1344,6 +1368,182 @@ private fun ModernRecentlyPlayedSection(
                 title = context.getString(R.string.home_no_recent_activity),
                 subtitle = context.getString(R.string.home_no_recent_activity_desc),
                 iconSize = 48.dp
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun ModernViewingPicksSection(
+    items: List<ViewingItem>,
+    widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
+    heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
+) {
+    val metadataService = remember { MovieMetadataService() }
+    var enrichedItems by remember(items) { mutableStateOf(items) }
+
+    LaunchedEffect(items) {
+        enrichedItems = items
+        enrichedItems = items.map { item ->
+            metadataService.getEnrichedViewingItem(item).item
+        }
+    }
+
+    Column {
+        ModernSectionTitle(
+            title = "Marvel picks",
+            subtitle = "Release order, phases, and featured details"
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+
+        val viewingListState = rememberLazyListState()
+        LazyRow(
+            state = viewingListState,
+            contentPadding = PaddingValues(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(
+                items = enrichedItems,
+                key = { "viewing_${it.id}" },
+                contentType = { "viewing" }
+            ) { item ->
+                ModernViewingCard(
+                    item = item,
+                    widthSizeClass = widthSizeClass,
+                    heightSizeClass = heightSizeClass
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModernViewingCard(
+    item: ViewingItem,
+    widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
+    heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
+) {
+    val imageUrl = remember(item) { ViewingArtworkUtils.resolvePoster(item) ?: ViewingArtworkUtils.resolveBackdrop(item) }
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium),
+        label = "viewing_card_scale"
+    )
+    val cardWidth = when (widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 180.dp
+        WindowWidthSizeClass.Medium -> 200.dp
+        WindowWidthSizeClass.Expanded -> 220.dp
+        else -> 180.dp
+    }
+    val cardHeight = when (heightSizeClass) {
+        WindowHeightSizeClass.Compact -> 270.dp
+        else -> when (widthSizeClass) {
+            WindowWidthSizeClass.Expanded -> 340.dp
+            WindowWidthSizeClass.Medium -> 320.dp
+            else -> 300.dp
+        }
+    }
+
+    ExpressiveCard(
+        modifier = Modifier
+            .width(cardWidth)
+            .height(cardHeight)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
+            },
+        shape = ExpressiveShapes.SquircleLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+            Surface(
+                shape = rememberExpressiveShapeFor(ExpressiveShapeTarget.ALBUM_ART),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (imageUrl != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = item.title,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.secondaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = MaterialSymbolIcon("movie", filled = true),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        }
+                    }
+
+                    item.releaseOrder?.let { order ->
+                        Surface(
+                            modifier = Modifier.align(Alignment.TopStart).padding(10.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f),
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            shape = CircleShape
+                        ) {
+                            Text(
+                                text = "#$order",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 18.sp
+            )
+            Text(
+                text = listOfNotNull(item.phase, item.year).joinToString(" • "),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                text = item.genres.take(2).joinToString(" • ").ifBlank { item.saga.orEmpty() },
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

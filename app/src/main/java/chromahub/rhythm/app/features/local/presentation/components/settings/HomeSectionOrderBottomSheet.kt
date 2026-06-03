@@ -98,6 +98,7 @@ fun HomeSectionOrderBottomSheet(
                 "RECENTLY_PLAYED" to showRecentlyPlayed,
                 "DISCOVER" to showDiscoverCarousel,
                 "ARTISTS" to showArtists,
+                "VIEWING" to true,
                 "NEW_RELEASES" to showNewReleases,
                 "RECENTLY_ADDED" to showRecentlyAdded,
                 "RECOMMENDED" to showRecommended,
@@ -117,6 +118,7 @@ fun HomeSectionOrderBottomSheet(
             "RECENTLY_PLAYED" -> Pair("Recently Played", MaterialSymbolIcon("history"))
             "DISCOVER" -> Pair("Discover Carousel", MaterialSymbolIcon("explore"))
             "ARTISTS" -> Pair("Top Artists", RhythmIcons.Artist)
+            "VIEWING" -> Pair("Marvel picks", MaterialSymbolIcon("movie"))
             "NEW_RELEASES" -> Pair("New Releases", MaterialSymbolIcon("new_releases"))
             "RECENTLY_ADDED" -> Pair("Recently Added", RhythmIcons.Music.Album)
             "RECOMMENDED" -> Pair("Recommended", MaterialSymbolIcon("recommend"))
@@ -444,7 +446,7 @@ fun HomeSectionOrderBottomSheet(
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                         val defaultOrder = listOf(
-                            "RECENTLY_PLAYED", "ARTISTS", "RHYTHM_GUARD",
+                            "RECENTLY_PLAYED", "VIEWING", "ARTISTS", "RHYTHM_GUARD",
                             "NEW_RELEASES", "RECENTLY_ADDED", "RECOMMENDED", "STATS"
                         )
                         reorderableList = defaultOrder
@@ -452,6 +454,7 @@ fun HomeSectionOrderBottomSheet(
                             "RECENTLY_PLAYED" to true,
                             "DISCOVER" to true,
                             "ARTISTS" to true,
+                            "VIEWING" to true,
                             "RHYTHM_GUARD" to true,
                             "NEW_RELEASES" to true,
                             "RECENTLY_ADDED" to true,

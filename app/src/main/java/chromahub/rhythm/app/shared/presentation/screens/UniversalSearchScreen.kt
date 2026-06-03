@@ -66,6 +66,10 @@ import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.shared.data.model.Artist
 import chromahub.rhythm.app.shared.data.model.Playlist
 import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.viewing.ViewingItem
+import chromahub.rhythm.app.shared.data.viewing.ViewingList
+import chromahub.rhythm.app.shared.data.viewing.ViewingLists
+import chromahub.rhythm.app.shared.util.ViewingArtworkUtils
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
 import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 import chromahub.rhythm.app.shared.presentation.components.SettingScope
@@ -236,10 +240,46 @@ fun UniversalSearchScreen(
     val matchedStreamingArtists = if (filterArtists) streamingResults.artists else emptyList()
     val matchedStreamingPlaylists = if (filterPlaylists) streamingResults.playlists else emptyList()
 
+    val matchedViewingResults = remember(query) {
+        if (query.isBlank()) emptyList()
+        else {
+            val lowerQuery = query.trim().lowercase()
+            val items = ViewingLists.allItems.filter { item ->
+                listOfNotNull(
+                    item.title,
+                    item.phase,
+                    item.saga,
+                    item.releaseOrder?.toString(),
+                    item.chronologicalOrder?.toString(),
+                    item.year,
+                    item.runtime,
+                    item.overview,
+                    item.plot,
+                    item.imdbRating,
+                    item.tmdbRating?.toString()
+                ).any { it.lowercase().contains(lowerQuery) } ||
+                    item.genres.any { it.lowercase().contains(lowerQuery) } ||
+                    item.ratings.any { rating ->
+                        rating.source.lowercase().contains(lowerQuery) || rating.value.lowercase().contains(lowerQuery)
+                    }
+            }
+            val lists = ViewingLists.allLists.filter { list ->
+                listOfNotNull(list.title, list.description, list.phase, list.saga)
+                    .any { it.lowercase().contains(lowerQuery) } ||
+                    list.items.any { it.title.lowercase().contains(lowerQuery) }
+            }
+            buildList {
+                items.take(4).forEach { item -> add(ViewingSearchResult.ItemResult(item)) }
+                lists.take(2).forEach { list -> add(ViewingSearchResult.ListResult(list)) }
+            }
+        }
+    }
+
     val hasResults = matchedLocalSongs.isNotEmpty() || matchedStreamingSongs.isNotEmpty() ||
             matchedLocalAlbums.isNotEmpty() || matchedStreamingAlbums.isNotEmpty() ||
             matchedLocalArtists.isNotEmpty() || matchedStreamingArtists.isNotEmpty() ||
-            matchedLocalPlaylists.isNotEmpty() || matchedStreamingPlaylists.isNotEmpty()
+            matchedLocalPlaylists.isNotEmpty() || matchedStreamingPlaylists.isNotEmpty() ||
+            matchedViewingResults.isNotEmpty()
 
     val handleAction = { itemMode: String, action: () -> Unit ->
         if (itemMode == appMode) {
@@ -670,6 +710,37 @@ fun UniversalSearchScreen(
                                 }
                                 Box(modifier = Modifier.animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
                                     Material3SettingsGroup(title = stringResource(R.string.settings_tab_playlists), items = playlistItems)
+                                }
+                            }
+                        }
+
+                        if (matchedViewingResults.isNotEmpty()) {
+                            item(key = "viewing_group") {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .animateItem(spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+                                ) {
+                                    Text(
+                                        text = "Marvel picks",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                                    )
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        matchedViewingResults.forEach { result ->
+                                            UniversalViewingSearchItem(
+                                                result = result,
+                                                onClick = {
+                                                    if (query.isNotBlank()) localViewModel.addSearchQuery(query)
+                                                },
+                                                haptics = haptics
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1930,6 +2001,136 @@ private fun UniversalGenreBrowseSection(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+
+private sealed class ViewingSearchResult {
+    data class ItemResult(val item: ViewingItem) : ViewingSearchResult()
+    data class ListResult(val list: ViewingList) : ViewingSearchResult()
+}
+
+@Composable
+private fun UniversalViewingSearchItem(
+    result: ViewingSearchResult,
+    onClick: () -> Unit,
+    haptics: androidx.compose.ui.hapticfeedback.HapticFeedback
+) {
+    val context = LocalContext.current
+    val title = when (result) {
+        is ViewingSearchResult.ItemResult -> result.item.title
+        is ViewingSearchResult.ListResult -> result.list.title
+    }
+    val subtitle = when (result) {
+        is ViewingSearchResult.ItemResult -> buildList {
+            result.item.phase?.let(::add)
+            result.item.year?.let(::add)
+            result.item.runtime?.let(::add)
+        }.joinToString(" • ")
+        is ViewingSearchResult.ListResult -> buildList {
+            result.list.saga?.let(::add)
+            result.list.phase?.let(::add)
+            add("${result.list.items.size} titles")
+        }.joinToString(" • ")
+    }.ifBlank { "Featured details" }
+    val imageUrl = when (result) {
+        is ViewingSearchResult.ItemResult -> ViewingArtworkUtils.resolvePoster(result.item) ?: ViewingArtworkUtils.resolveBackdrop(result.item)
+        is ViewingSearchResult.ListResult -> ViewingArtworkUtils.resolvePoster(result.list) ?: ViewingArtworkUtils.resolveBackdrop(result.list)
+    }
+    val description = when (result) {
+        is ViewingSearchResult.ItemResult -> result.item.overview ?: result.item.plot ?: result.item.saga
+        is ViewingSearchResult.ListResult -> result.list.description
+    }
+
+    Card(
+        onClick = {
+            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+            onClick()
+        },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(width = 58.dp, height = 78.dp)
+            ) {
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(imageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = MaterialSymbolIcon("movie", filled = true),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                description?.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = CircleShape
+            ) {
+                Text(
+                    text = when (result) {
+                        is ViewingSearchResult.ItemResult -> result.item.releaseOrder?.let { "#$it" } ?: result.item.saga ?: "Pick"
+                        is ViewingSearchResult.ListResult -> result.list.phase ?: "List"
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
