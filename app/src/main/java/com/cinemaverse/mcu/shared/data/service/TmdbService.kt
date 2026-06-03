@@ -159,13 +159,17 @@ class TmdbService(
     private fun request(path: String, query: String = ""): JSONObject {
         val apiQuery = if (apiKey.isNotBlank()) "api_key=${apiKey.urlEncode()}" else ""
         val fullQuery = listOf(apiQuery, query).filter { it.isNotBlank() }.joinToString("&")
-        val url = URL("https://api.themoviedb.org/3$path?$fullQuery")
+        val url = URL("https://api.themoviedb.org/3$path?$fullQuery&language=en-US&include_image_language=en,null")
         val connection = (url.openConnection() as HttpURLConnection).apply {
             connectTimeout = 8_000
             readTimeout = 8_000
             if (readAccessToken.isNotBlank()) setRequestProperty("Authorization", "Bearer $readAccessToken")
         }
-        return connection.inputStream.bufferedReader().use { JSONObject(it.readText()) }
+        val code = connection.responseCode
+        val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+        val body = stream?.bufferedReader()?.use { it.readText() }.orEmpty()
+        if (code !in 200..299) throw IllegalStateException("TMDB request failed ($code): ${body.take(180)}")
+        return JSONObject(body)
     }
 }
 

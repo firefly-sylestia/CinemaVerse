@@ -8,11 +8,11 @@ object ViewingArtworkUtils {
 
     fun tmdbPoster(path: String?, size: String = "w500"): String? = path
         ?.takeIf { it.isNotBlank() }
-        ?.let { if (it.startsWith("http")) it else "$TMDB_IMAGE_BASE_URL/$size$it" }
+        ?.let { path -> if (path.startsWith("http")) path else "$TMDB_IMAGE_BASE_URL/$size/${path.trimStart('/')}" }
 
     fun tmdbBackdrop(path: String?, size: String = "w1280"): String? = path
         ?.takeIf { it.isNotBlank() }
-        ?.let { if (it.startsWith("http")) it else "$TMDB_IMAGE_BASE_URL/$size$it" }
+        ?.let { path -> if (path.startsWith("http")) path else "$TMDB_IMAGE_BASE_URL/$size/${path.trimStart('/')}" }
 
     fun resolvePoster(item: ViewingItem): String? = firstUsable(
         item.localPoster?.takeIf { isLocalAssetArtwork(it) },
@@ -48,11 +48,19 @@ object ViewingArtworkUtils {
         list.items.firstOrNull()?.backdrop
     )
 
-    fun isLocalAssetArtwork(value: String): Boolean = value.startsWith("file:///android_asset/mcu_posters/")
+    fun isLocalAssetArtwork(value: String): Boolean = value.startsWith("file:///android_asset/mcu_posters/") || value.startsWith("mcu_posters/") || value.startsWith("android_asset/mcu_posters/")
 
     fun isUsableArtwork(value: String?): Boolean = !value.isNullOrBlank() &&
         !value.contains("[I WILL PROVIDE POSTER FOLDER PATH LATER]") &&
-        value != "N/A"
+        !value.contains("provide poster", ignoreCase = true) &&
+        value != "N/A" &&
+        value != "null"
 
-    private fun firstUsable(vararg values: String?): String? = values.firstOrNull(::isUsableArtwork)
+    private fun firstUsable(vararg values: String?): String? = values.firstOrNull(::isUsableArtwork)?.normalizeArtworkUri()
+
+    private fun String.normalizeArtworkUri(): String = when {
+        startsWith("mcu_posters/") -> "file:///android_asset/$this"
+        startsWith("android_asset/mcu_posters/") -> "file:///$this"
+        else -> this
+    }
 }

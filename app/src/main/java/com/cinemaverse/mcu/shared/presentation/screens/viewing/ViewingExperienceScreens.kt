@@ -162,6 +162,12 @@ private fun ViewingHomeContent(
     val dc = remember(data) { data.allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }.take(14) }
     val lists = remember(data) { data.allLists.take(12) }
 
+    LaunchedEffect(data) {
+        if (!ViewingMetadataStore.isFetching.value && data.allItems.any { ViewingArtworkUtils.resolvePoster(ViewingMetadataStore.itemFor(it)).isNullOrBlank() }) {
+            ViewingMetadataStore.fetchAll(data)
+        }
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
