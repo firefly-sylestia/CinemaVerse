@@ -438,7 +438,8 @@ fun LocalNavigation(
 
     // Provide dynamic mini-player padding with comprehensive navigation handling
     val showMiniPlayer =
-        currentSong != null &&
+        localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING &&
+            currentSong != null &&
             !isMiniPlayerDismissed &&
             currentRoute != Screen.Player.route &&
             currentRoute != Screen.Search.route
@@ -519,7 +520,8 @@ fun LocalNavigation(
                         navController = navController,
                         firstVisibleLibraryTab = firstVisibleLibraryTab,
                         context = context,
-                        haptic = haptic
+                        haptic = haptic,
+                        localExperienceMode = localExperienceMode
                     )
                 }
                 
@@ -976,19 +978,21 @@ private fun LocalNavigationContent(
                                         Screen.Library.createRoute(firstVisibleLibraryTab)
                                     val items = listOf(
                                         Triple(
-                                            Screen.Home.route, "Home",
+                                            Screen.Home.route,
+                                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) "View" else "Home",
                                             Pair(RhythmIcons.HomeFilled, RhythmIcons.Home)
                                         ),
                                         Triple(
-                                            libraryRoute, "Library",
+                                            libraryRoute,
+                                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) "Orders" else "Library",
                                             Pair(RhythmIcons.Navigation.Library, RhythmIcons.Navigation.LibraryOutlined)
                                         )
                                     )
 
                                     items.forEachIndexed { index, (route, title, icons) ->
                                         val isSelected = when (title) {
-                                            "Home" -> currentRoute == Screen.Home.route
-                                            "Library" -> currentRoute.startsWith("library")
+                                            "Home", "View" -> currentRoute == Screen.Home.route
+                                            "Library", "Orders" -> currentRoute.startsWith("library")
                                             else -> false
                                         }
 
@@ -2813,7 +2817,8 @@ private fun LocalNavigationRail(
     navController: NavHostController,
     firstVisibleLibraryTab: LibraryTab,
     context: android.content.Context,
-    haptic: androidx.compose.ui.hapticfeedback.HapticFeedback
+    haptic: androidx.compose.ui.hapticfeedback.HapticFeedback,
+    localExperienceMode: String
 ) {
     val navigateToTopLevel: (String) -> Unit = { route ->
         navController.navigate(route) {
@@ -2853,7 +2858,7 @@ private fun LocalNavigationRail(
             val items = listOf(
                 LocalNavRailItem(
                     route = Screen.Home.route,
-                    title = stringResource(R.string.settings_home_screen),
+                    title = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) "View" else stringResource(R.string.settings_home_screen),
                     selectedIcon = RhythmIcons.HomeFilled,
                     unselectedIcon = RhythmIcons.Home,
                     onClick = {
@@ -2862,14 +2867,14 @@ private fun LocalNavigationRail(
                 ),
                 LocalNavRailItem(
                     route = libraryRoute,
-                    title = stringResource(R.string.option_library),
+                    title = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) "Orders" else stringResource(R.string.option_library),
                     selectedIcon = RhythmIcons.Navigation.Library,
                     unselectedIcon = RhythmIcons.Navigation.LibraryOutlined,
                     onClick = {
                         navigateToTopLevel(libraryRoute)
                     }
                 ),
-                LocalNavRailItem(
+                if (localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) LocalNavRailItem(
                     route = Screen.RhythmStats.route,
                     title = stringResource(R.string.localnavigation_stats),
                     selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
@@ -2877,7 +2882,7 @@ private fun LocalNavigationRail(
                     onClick = {
                         navigateToTopLevel(Screen.RhythmStats.route)
                     }
-                ),
+                ) else null,
                 LocalNavRailItem(
                     route = Screen.Search.route,
                     title = stringResource(R.string.cd_search),
@@ -2896,14 +2901,14 @@ private fun LocalNavigationRail(
                         navigateToTopLevel(Screen.Settings.route)
                     }
                 )
-            )
+            ).filterNotNull()
             
             items.forEach { item ->
                 LocalNavigationRailItemWithAnimation(
                     item = item,
                     isSelected = when (item.title) {
-                        "Home" -> currentRoute == Screen.Home.route
-                        "Library" -> currentRoute.substringBefore("?") == Screen.Library.route.substringBefore("?")
+                        "Home", "View" -> currentRoute == Screen.Home.route
+                        "Library", "Orders" -> currentRoute.substringBefore("?") == Screen.Library.route.substringBefore("?")
                         "Search" -> currentRoute == Screen.Search.route
                         "Settings" -> currentRoute.contains("settings")
                         "Stats" -> currentRoute == Screen.RhythmStats.route

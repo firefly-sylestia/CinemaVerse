@@ -61,7 +61,7 @@ class MovieMetadataService(
         if (!omdbService.hasApiKey) append("OMDb key missing. ")
         if (!tmdbService.hasCredentials) append("TMDB key/token missing. ")
         if (isBlank()) append("OMDb and TMDB metadata enrichment configured.")
-        else append("Rhythm remains usable with bundled viewing-list data.")
+        else append("Marvel Spectrum remains usable with bundled MCU viewing data.")
     }
 
     private fun mergePreservingLocal(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(

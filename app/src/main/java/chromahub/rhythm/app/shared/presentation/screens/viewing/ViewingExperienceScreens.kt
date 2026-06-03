@@ -72,12 +72,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 import chromahub.rhythm.app.shared.data.service.MovieMetadataService
 import chromahub.rhythm.app.shared.data.viewing.MetadataResult
 import chromahub.rhythm.app.shared.data.viewing.ViewingItem
 import chromahub.rhythm.app.shared.data.viewing.ViewingList
+import chromahub.rhythm.app.shared.data.viewing.McuAssetDataSource
+import chromahub.rhythm.app.shared.data.viewing.ViewingCatalog
 import chromahub.rhythm.app.shared.data.viewing.ViewingLists
 import chromahub.rhythm.app.shared.data.viewing.ViewingSortMode
 import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
@@ -120,6 +123,13 @@ private object ViewingUiDefaults {
     )
 }
 
+
+@Composable
+private fun rememberViewingCatalog(): ViewingCatalog {
+    val context = LocalContext.current.applicationContext
+    return remember(context) { McuAssetDataSource(context).loadCatalog() }
+}
+
 @Composable
 fun ViewingHomeScreen(
     onOpenLibrary: () -> Unit,
@@ -130,8 +140,12 @@ fun ViewingHomeScreen(
 ) {
     val metadataService = remember { MovieMetadataService() }
     val message = remember { metadataService.getConfigurationMessage() }
-    val featuredList = ViewingLists.featuredList
-    val featuredItem = ViewingLists.featuredItem
+    val catalog = rememberViewingCatalog()
+    val featuredList = remember(catalog) { catalog.featuredList }
+    val featuredItem = remember(catalog) { catalog.featuredItem }
+    val continueBrowsingItems = remember(catalog) { catalog.allItems.drop(18).take(8).ifEmpty { catalog.allItems.take(8) } }
+    val featuredLists = remember(catalog) { catalog.allLists.take(8) }
+    val phaseLists = remember(catalog) { catalog.allLists.filter { it.phase?.startsWith("Phase") == true } }
 
     LazyColumn(
         modifier = modifier
@@ -140,47 +154,61 @@ fun ViewingHomeScreen(
         contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.ScreenTopPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
         verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.SectionSpacing)
     ) {
-        item {
+        item(key = "marvel-header", contentType = "header") {
+            MarvelSpectrumHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings)
+        }
+        item(key = "hero", contentType = "hero") {
             HeroViewingCard(
                 item = featuredItem,
                 list = featuredList,
                 subtitle = "Featured viewing order • ${featuredList.items.size} titles",
                 onOpenDetail = onOpenDetail,
-                onOpenLibrary = onOpenLibrary,
-                onOpenSettings = onOpenSettings
+                onOpenLibrary = onOpenLibrary
             )
         }
-        item {
+        item(key = "api-state", contentType = "info-card") {
             ApiStateCard(message = message, onOpenSettings = onOpenSettings)
         }
-        item {
-            SectionHeader("Continue browsing", "Recently viewed and watchlist-ready picks", action = "Search", onAction = onOpenSearch)
+        item(key = "continue", contentType = "section") {
+            SectionHeader("Continue the timeline", "Poster-first picks from the bundled MCU order", action = "Search", onAction = onOpenSearch)
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(ViewingLists.allItems.drop(18).take(8)) { item ->
+                items(
+                    items = continueBrowsingItems,
+                    key = { it.id },
+                    contentType = { "poster-card" }
+                ) { item ->
                     PosterCard(item = item, onClick = onOpenDetail)
                 }
             }
         }
-        item {
+        item(key = "featured-lists", contentType = "section") {
             SectionHeader("Featured lists", "Curated release, timeline, phase, and collection orders", action = "View all", onAction = onOpenLibrary)
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(ViewingLists.allLists.take(8)) { list ->
+                items(
+                    items = featuredLists,
+                    key = { it.id },
+                    contentType = { "viewing-list-card" }
+                ) { list ->
                     ViewingListCard(list = list, onClick = onOpenLibrary)
                 }
             }
         }
-        item {
-            SectionHeader("Phase-based sections", "Browse by MCU-style phases without changing Rhythm's navigation")
+        item(key = "phases", contentType = "section") {
+            SectionHeader("Phase collections", "Explore the saga by MCU phase")
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                items(ViewingLists.allLists.filter { it.phase?.startsWith("Phase") == true }) { list ->
+                items(
+                    items = phaseLists,
+                    key = { it.id },
+                    contentType = { "phase-chip" }
+                ) { list ->
                     AssistChip(onClick = onOpenLibrary, label = { Text("${list.title} • ${list.items.size}") })
                 }
             }
         }
-        item {
+        item(key = "watchlist", contentType = "shortcut") {
             WatchlistShortcut(onOpenLibrary)
         }
     }
@@ -193,12 +221,15 @@ fun ViewingLibraryScreen(
     modifier: Modifier = Modifier
 ) {
     var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
-    val items = remember(sortMode) {
+    val catalog = rememberViewingCatalog()
+    val allLists = remember(catalog) { catalog.allLists }
+    val sortModes = remember { ViewingSortMode.values().toList() }
+    val items = remember(catalog, sortMode) {
         when (sortMode) {
-            ViewingSortMode.RELEASE -> ViewingLists.allItems.sortedBy { it.releaseOrder ?: Int.MAX_VALUE }
-            ViewingSortMode.CHRONOLOGICAL -> ViewingLists.allItems.sortedBy { it.chronologicalOrder ?: Int.MAX_VALUE }
-            ViewingSortMode.PHASE -> ViewingLists.allItems.sortedWith(compareBy<ViewingItem> { it.phase ?: "" }.thenBy { it.phaseOrder ?: it.releaseOrder ?: Int.MAX_VALUE })
-            ViewingSortMode.CUSTOM -> ViewingLists.featuredList.items
+            ViewingSortMode.RELEASE -> catalog.allItems.sortedBy { it.releaseOrder ?: Int.MAX_VALUE }
+            ViewingSortMode.CHRONOLOGICAL -> catalog.allItems.sortedBy { it.chronologicalOrder ?: Int.MAX_VALUE }
+            ViewingSortMode.PHASE -> catalog.allItems.sortedWith(compareBy<ViewingItem> { it.phase ?: "" }.thenBy { it.phaseOrder ?: it.releaseOrder ?: Int.MAX_VALUE })
+            ViewingSortMode.CUSTOM -> catalog.featuredList.items
         }
     }
 
@@ -207,31 +238,46 @@ fun ViewingLibraryScreen(
         contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.ScreenTopPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
         verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.ScreenHorizontalPadding)
     ) {
-        item {
+        item(key = "library-header", contentType = "header") {
+            MarvelSpectrumHeader(onOpenSettings = onOpenSettings)
+        }
+        item(key = "library-title", contentType = "section") {
             SectionHeader(
-                title = "Library",
+                title = "Explore the saga",
                 subtitle = "Viewing lists, collections, phases, and watch orders",
                 action = "Settings",
                 onAction = onOpenSettings
             )
         }
-        item {
-            SectionHeader("Lists / Collections", "All bundled viewing lists remain editable in the local data file")
+        item(key = "lists", contentType = "section") {
+            SectionHeader("Featured lists", "Bundled collections from release, timeline, phase, and heroes")
             Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(ViewingLists.allLists) { list -> ViewingListCard(list, onClick = {}) }
+                items(
+                    items = allLists,
+                    key = { it.id },
+                    contentType = { "viewing-list-card" }
+                ) { list -> ViewingListCard(list, onClick = {}) }
             }
         }
-        item {
-            SectionHeader("Viewing Order", "Switch between release, chronological, phase, and custom order")
+        item(key = "sort", contentType = "section") {
+            SectionHeader("Timeline order", "Switch between release, chronological, phase, and custom order")
             Spacer(Modifier.height(ViewingUiDefaults.CompactSpacing))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.MicroSpacing)) {
-                items(ViewingSortMode.values().toList()) { mode ->
+                items(
+                    items = sortModes,
+                    key = { it.name },
+                    contentType = { "sort-chip" }
+                ) { mode ->
                     FilterChip(selected = sortMode == mode, onClick = { sortMode = mode }, label = { Text(mode.label) })
                 }
             }
         }
-        items(items) { item ->
+        items(
+            items = items,
+            key = { it.id },
+            contentType = { "viewing-order-row" }
+        ) { item ->
             ViewingOrderRow(item = item, order = when (sortMode) {
                 ViewingSortMode.CHRONOLOGICAL -> item.chronologicalOrder
                 ViewingSortMode.PHASE -> item.phaseOrder
@@ -250,12 +296,13 @@ fun ViewingSearchScreen(
     modifier: Modifier = Modifier
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-    val (movies, lists) = remember(query) { ViewingLists.search(query) }
+    val catalog = rememberViewingCatalog()
+    val (movies, lists) = remember(catalog, query) { catalog.search(query) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Search Rhythm") },
+                title = { Text("Search titles, phases, sagas, heroes") },
                 actions = {
                     SettingsIconAction(onOpenSettings)
                 },
@@ -271,28 +318,36 @@ fun ViewingSearchScreen(
             contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.DenseCardPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
             verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardPadding)
         ) {
-            item {
+            item(key = "search-field", contentType = "search-field") {
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    placeholder = { Text("Movies, lists, phases, sagas, actors, directors, genres") },
+                    placeholder = { Text("Search titles, phases, sagas, heroes") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
             if (movies.isEmpty() && lists.isEmpty()) {
-                item { EmptyState("No viewing results", "Try a movie title, phase, saga, director, actor, or genre.") }
+                item(key = "empty", contentType = "empty") { EmptyState("No viewing results", "Try a movie title, phase, saga, director, actor, or genre.") }
             } else {
                 if (lists.isNotEmpty()) {
-                    item { SectionHeader("Lists", "${lists.size} matching collections") }
-                    items(lists) { list -> CompactListResult(list = list) }
+                    item(key = "matching-lists", contentType = "section") { SectionHeader("Collections", "${lists.size} matching collections") }
+                    items(
+                        items = lists,
+                        key = { it.id },
+                        contentType = { "compact-list-result" }
+                    ) { list -> CompactListResult(list = list) }
                 }
                 if (movies.isNotEmpty()) {
-                    item { SectionHeader("Movies / Titles", "${movies.size} matching titles") }
-                    items(movies) { item -> ViewingOrderRow(item = item, order = item.releaseOrder ?: 0, onClick = onOpenDetail) }
+                    item(key = "matching-titles", contentType = "section") { SectionHeader("Titles", "${movies.size} matching titles") }
+                    items(
+                        items = movies,
+                        key = { it.id },
+                        contentType = { "viewing-order-row" }
+                    ) { item -> ViewingOrderRow(item = item, order = item.releaseOrder ?: 0, onClick = onOpenDetail) }
                 }
             }
-            item { TextButton(onClick = onBack) { Text("Back") } }
+            item(key = "back", contentType = "action") { TextButton(onClick = onBack) { Text("Back") } }
         }
     }
 }
@@ -304,25 +359,27 @@ fun ViewingDetailScreen(
     baseItem: ViewingItem = ViewingLists.featuredItem
 ) {
     val context = LocalContext.current
+    val catalog = rememberViewingCatalog()
+    val catalogItem = remember(catalog, baseItem.id) { catalog.findItem(baseItem.id) ?: baseItem }
     val viewingPrefs = remember { context.getSharedPreferences("rhythm_viewing_state", android.content.Context.MODE_PRIVATE) }
     val metadataService = remember { MovieMetadataService() }
-    var result by remember { mutableStateOf(MetadataResult(baseItem)) }
+    var result by remember(catalogItem.id) { mutableStateOf(MetadataResult(catalogItem)) }
     var isLoading by remember { mutableStateOf(true) }
-    var isWatchlisted by rememberSaveable(baseItem.id) { mutableStateOf(viewingPrefs.getBoolean("watchlist_${baseItem.id}", false)) }
-    var isWatched by rememberSaveable(baseItem.id) { mutableStateOf(viewingPrefs.getBoolean("watched_${baseItem.id}", false)) }
-    var isFavorite by rememberSaveable(baseItem.id) { mutableStateOf(viewingPrefs.getBoolean("favorite_${baseItem.id}", false)) }
+    var isWatchlisted by rememberSaveable(catalogItem.id) { mutableStateOf(viewingPrefs.getBoolean("watchlist_${catalogItem.id}", false)) }
+    var isWatched by rememberSaveable(catalogItem.id) { mutableStateOf(viewingPrefs.getBoolean("watched_${catalogItem.id}", false)) }
+    var isFavorite by rememberSaveable(catalogItem.id) { mutableStateOf(viewingPrefs.getBoolean("favorite_${catalogItem.id}", false)) }
 
-    LaunchedEffect(baseItem.id) {
+    LaunchedEffect(catalogItem.id) {
         isLoading = true
-        result = metadataService.getEnrichedViewingItem(baseItem)
+        result = metadataService.getEnrichedViewingItem(catalogItem)
         isLoading = false
     }
 
-    LaunchedEffect(baseItem.id, isWatchlisted, isWatched, isFavorite) {
+    LaunchedEffect(catalogItem.id, isWatchlisted, isWatched, isFavorite) {
         viewingPrefs.edit()
-            .putBoolean("watchlist_${baseItem.id}", isWatchlisted)
-            .putBoolean("watched_${baseItem.id}", isWatched)
-            .putBoolean("favorite_${baseItem.id}", isFavorite)
+            .putBoolean("watchlist_${catalogItem.id}", isWatchlisted)
+            .putBoolean("watched_${catalogItem.id}", isWatched)
+            .putBoolean("favorite_${catalogItem.id}", isFavorite)
             .apply()
     }
 
@@ -332,10 +389,10 @@ fun ViewingDetailScreen(
         contentPadding = PaddingValues(bottom = ViewingUiDefaults.DetailBottomPadding),
         verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DetailContentSpacing)
     ) {
-        item {
+        item(key = "detail-hero", contentType = "hero") {
             DetailHero(item = item, isLoading = isLoading, onBack = onBack)
         }
-        item {
+        item(key = "detail-actions", contentType = "section") {
             Column(Modifier.padding(horizontal = ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
                 Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 Text(listOfNotNull(item.year, item.phase, item.runtime, item.genres.take(2).joinToString(" / ").takeIf { it.isNotBlank() }).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -352,8 +409,55 @@ fun ViewingDetailScreen(
                 }
             }
         }
-        item { InfoPanel(item = item) }
-        item { TrailerPanel(item = item) }
+        item(key = "detail-info", contentType = "section") { InfoPanel(item = item) }
+        item(key = "detail-trailer", contentType = "section") { TrailerPanel(item = item) }
+    }
+}
+
+@Composable
+private fun MarvelSpectrumHeader(
+    onOpenSearch: (() -> Unit)? = null,
+    onOpenSettings: () -> Unit
+) {
+    ElevatedCard(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.48f),
+                            MaterialTheme.colorScheme.surfaceContainerHigh
+                        )
+                    )
+                )
+                .padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardPadding)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(MaterialTheme.shapes.large)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("MS", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Black)
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("Marvel Spectrum", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text("MCU viewing order", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Bundled local posters and metadata are available offline", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            }
+            if (onOpenSearch != null) {
+                TextButton(onClick = onOpenSearch) { Text("Search") }
+            }
+            FilledTonalButton(onClick = onOpenSettings) { Text("Settings") }
+        }
     }
 }
 
@@ -363,45 +467,33 @@ private fun HeroViewingCard(
     list: ViewingList,
     subtitle: String,
     onOpenDetail: () -> Unit,
-    onOpenLibrary: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenLibrary: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(ViewingUiDefaults.HomeHeroHeight)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         PosterBackdrop(item = item, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0f), MaterialTheme.colorScheme.surfaceContainerHigh))))
-        FilledTonalButton(
-            onClick = onOpenSettings,
-            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .semantics { contentDescription = "Open viewing settings" }
-        ) {
-            Icon(
-                icon = MaterialSymbolIcon("settings", filled = true),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                size = 18.dp
-            )
-            Spacer(Modifier.width(8.dp))
-            Text("Settings")
-        }
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surface.copy(alpha = 0.05f), MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)))))
         Column(
             Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.SectionSpacing),
             verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.MicroSpacing)
         ) {
-            Text("Selected Movie", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+            Text("Featured MCU pick", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, maxLines = 2)
-            Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                listOfNotNull(item.saga, item.phase, item.year, item.runtime).joinToString(" • "),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text("$subtitle • ${list.items.size} titles", color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                Button(onClick = onOpenDetail) { Text("Open detail") }
-                OutlinedButton(onClick = onOpenLibrary) { Text("View list") }
+                Button(onClick = onOpenDetail) { Text("Open details") }
+                OutlinedButton(onClick = onOpenLibrary) { Text("View order") }
             }
         }
     }
@@ -541,7 +633,7 @@ private fun InfoPanel(item: ViewingItem) {
 @Composable
 private fun TrailerPanel(item: ViewingItem) {
     Column(Modifier.padding(horizontal = ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)) {
-        SectionHeader("Trailer", "Rhythm's focused media space is now a trailer panel")
+        SectionHeader("Trailer gallery", "Clips and trailers for this MCU title")
         Card(shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
             Column(Modifier.fillMaxWidth().padding(ViewingUiDefaults.EmptyStatePadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
                 if (item.trailerUrl.isNullOrBlank()) {
@@ -665,10 +757,19 @@ private fun ArtworkImage(data: String?, description: String, modifier: Modifier,
                 .semantics { contentDescription = description },
             contentAlignment = Alignment.Center
         ) {
-            Text("Rhythm", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
+            Text("Marvel", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
         }
     } else {
-        AsyncImage(model = data, contentDescription = description, contentScale = contentScale, modifier = modifier)
+        val context = LocalContext.current
+        val request = remember(data) {
+            ImageRequest.Builder(context)
+                .data(data)
+                .crossfade(false)
+                .memoryCacheKey(data)
+                .diskCacheKey(data)
+                .build()
+        }
+        AsyncImage(model = request, contentDescription = description, contentScale = contentScale, modifier = modifier)
     }
 }
 

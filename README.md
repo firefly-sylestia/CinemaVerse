@@ -174,13 +174,56 @@ We welcome contributions! See our [CONTRIBUTING.md](https://github.com/cromaguy/
 
 </div>
 
-## Rhythm viewing-list metadata setup
+## Marvel Spectrum viewing metadata setup
 
-Rhythm now includes a movie/list viewing-order data layer while preserving the app name, navigation shell, theme system, and reusable Compose UI patterns.
+Marvel Spectrum is viewing-first by default and ships with MCU viewing-order metadata plus bundled poster assets, so the app works offline without requiring movie API keys.
 
-### OMDb and TMDB keys
+### Bundled JSON metadata
 
-The Android build reads API credentials from environment variables when Gradle configures the app:
+Local MCU metadata lives in:
+
+```text
+app/src/main/assets/mcu_data/mcu_titles.json
+app/src/main/assets/mcu_data/posters.json
+```
+
+`mcu_titles.json` provides title, type, series, saga, viewing-order, release-date, and poster filename information. `posters.json` provides additional poster filename lookups by JSON id or title. The app reads both files through `context.assets.open(...)` and merges them with the richer curated metadata in `ViewingLists.kt`, preserving phase, runtime, plot, genre, saga, order, trailer, and TMDB/OMDb identifiers where the curated data is more complete.
+
+### Bundled local posters
+
+Poster images should be placed locally in:
+
+```text
+app/src/main/assets/mcu_posters/
+```
+
+Poster binaries are intentionally ignored by git and are not committed. Copy the poster folder into that assets path in your local checkout before packaging a build that should include offline posters. The app uses assets instead of Android drawable resource IDs because the poster filenames are referenced directly by JSON and do not need Android resource-safe renaming. A JSON `posterPath` such as:
+
+```json
+"001-captain-america-the-first-avenger.jpg"
+```
+
+maps to this Coil-loadable asset URL:
+
+```text
+file:///android_asset/mcu_posters/001-captain-america-the-first-avenger.jpg
+```
+
+During data loading the asset data source verifies whether a referenced poster file exists. Missing or uncommitted poster entries are ignored with a warning and the title remains in the viewing order with fallback artwork. Asset existence is not checked during Compose recomposition.
+
+### Artwork priority
+
+Marvel Spectrum resolves artwork in this order:
+
+1. Bundled local asset poster/backdrop: `file:///android_asset/mcu_posters/...`
+2. Valid local curated poster/backdrop override
+3. TMDB poster/backdrop
+4. OMDb poster
+5. Built-in Marvel Spectrum fallback artwork
+
+### Optional OMDb and TMDB enrichment
+
+TMDB and OMDb are optional metadata enrichment sources. Missing keys do not break the app because bundled local JSON and poster assets are included. If you want remote enrichment while developing, provide keys as environment variables before building:
 
 ```bash
 export OMDB_API_KEY="YOUR_OMDB_API_KEY_HERE"
@@ -189,17 +232,8 @@ export TMDB_READ_ACCESS_TOKEN="YOUR_TMDB_READ_ACCESS_TOKEN_HERE"
 ./gradlew :app:assembleGithubDebug
 ```
 
-Real keys must not be committed. `.env.example` contains placeholder names only. If keys are missing, Rhythm stays usable with bundled local viewing-list data.
-
-### Local posters and backdrops
-
-Viewing items include `localPoster` and `localBackdrop` fields in `app/src/main/java/chromahub/rhythm/app/shared/data/viewing/ViewingLists.kt`. Replace the placeholder path `[I WILL PROVIDE POSTER FOLDER PATH LATER]` with your final asset path when you provide posters. Artwork priority is:
-
-1. Local poster/backdrop override
-2. TMDB poster/backdrop
-3. OMDb poster
-4. Rhythm fallback artwork
+Real keys must not be committed. `.env.example` contains placeholder names only.
 
 ### Editing viewing lists
 
-Add or edit curated lists in `ViewingLists.kt`. Local data defines membership, order, phase, saga, local artwork, and manual trailer URLs; OMDb/TMDB enrichment fills missing metadata through the service layer in `shared/data/service`.
+Add or edit curated orders in `app/src/main/java/chromahub/rhythm/app/shared/data/viewing/ViewingLists.kt`. Use the JSON/poster assets for offline artwork and metadata, and keep curated fields there for app-specific phase, saga, runtime, plot, genre, trailer, and ordering details.

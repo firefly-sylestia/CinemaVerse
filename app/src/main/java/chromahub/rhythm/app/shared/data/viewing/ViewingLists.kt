@@ -1,7 +1,7 @@
 package chromahub.rhythm.app.shared.data.viewing
 
 object ViewingLists {
-    private val releaseItems = listOf(
+    internal val releaseItems = listOf(
         item("iron-man", "Iron Man", "2008", "tt0371746", 1726, "Phase One", "Infinity Saga", 1, 3, "126 min", listOf("Action", "Adventure", "Sci-Fi"), "Tony Stark builds the first Iron Man armor and begins a new cinematic universe."),
         item("incredible-hulk", "The Incredible Hulk", "2008", "tt0800080", 1724, "Phase One", "Infinity Saga", 2, 5, "112 min", listOf("Action", "Adventure", "Sci-Fi"), "Bruce Banner searches for a cure while being hunted by forces that want his power."),
         item("iron-man-2", "Iron Man 2", "2010", "tt1228705", 10138, "Phase One", "Infinity Saga", 3, 4, "124 min", listOf("Action", "Adventure", "Sci-Fi"), "Tony Stark faces legacy, rivalry, and the consequences of revealing his identity."),
@@ -106,8 +106,6 @@ object ViewingLists {
         genres = genres,
         plot = plot,
         overview = plot,
-        localPoster = "[I WILL PROVIDE POSTER FOLDER PATH LATER]/$id.jpg",
-        localBackdrop = "[I WILL PROVIDE POSTER FOLDER PATH LATER]/backdrops/$id.jpg",
         trailerUrl = "https://www.youtube.com/results?search_query=${title.replace(" ", "+")}+trailer",
         trailerSource = TrailerSource.MANUAL
     )

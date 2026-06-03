@@ -15,6 +15,7 @@ object ViewingArtworkUtils {
         ?.let { if (it.startsWith("http")) it else "$TMDB_IMAGE_BASE_URL/$size$it" }
 
     fun resolvePoster(item: ViewingItem): String? = firstUsable(
+        item.localPoster?.takeIf { isAssetArtwork(it) },
         item.localPoster,
         item.tmdbPoster,
         item.poster,
@@ -22,6 +23,8 @@ object ViewingArtworkUtils {
     )
 
     fun resolvePoster(list: ViewingList): String? = firstUsable(
+        list.localPoster?.takeIf { isAssetArtwork(it) },
+        list.items.firstOrNull()?.localPoster?.takeIf { isAssetArtwork(it) },
         list.localPoster,
         list.poster,
         list.items.firstOrNull()?.localPoster,
@@ -31,18 +34,23 @@ object ViewingArtworkUtils {
     )
 
     fun resolveBackdrop(item: ViewingItem): String? = firstUsable(
+        item.localBackdrop?.takeIf { isAssetArtwork(it) },
         item.localBackdrop,
         item.tmdbBackdrop,
         item.backdrop
     )
 
     fun resolveBackdrop(list: ViewingList): String? = firstUsable(
+        list.localBackdrop?.takeIf { isAssetArtwork(it) },
+        list.items.firstOrNull()?.localBackdrop?.takeIf { isAssetArtwork(it) },
         list.localBackdrop,
         list.backdrop,
         list.items.firstOrNull()?.localBackdrop,
         list.items.firstOrNull()?.tmdbBackdrop,
         list.items.firstOrNull()?.backdrop
     )
+
+    private fun isAssetArtwork(value: String): Boolean = value.startsWith("file:///android_asset/mcu_posters/")
 
     private fun firstUsable(vararg values: String?): String? = values.firstOrNull { value ->
         !value.isNullOrBlank() && !value.contains("[I WILL PROVIDE POSTER FOLDER PATH LATER]") && value != "N/A"
