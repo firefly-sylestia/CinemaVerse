@@ -454,8 +454,12 @@ fun LocalNavigation(
                 currentRoute == Screen.RhythmStats.route
         }
     }
-    val showBottomNav = remember(currentRoute) {
-        currentRoute == Screen.Home.route || isLibraryRoute
+    val showBottomNav = remember(currentRoute, localExperienceMode) {
+        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+            currentRoute == Screen.Home.route || isLibraryRoute || currentRoute == Screen.Search.route
+        } else {
+            currentRoute == Screen.Home.route || isLibraryRoute
+        }
     }
     
     // Calculate content bottom padding based on visible UI elements
@@ -727,12 +731,13 @@ private fun LocalNavigationContent(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val navigateToTopLevel: (String) -> Unit = { route ->
+        val preserveState = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
         navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+                saveState = preserveState
             }
             launchSingleTop = true
-            restoreState = true
+            restoreState = preserveState
         }
     }
     val navigateBackOrToLanding: () -> Unit = {
@@ -1051,13 +1056,7 @@ private fun LocalNavigationContent(
                                                         haptic,
                                                         HapticFeedbackType.LongPress
                                                     )
-                                                    navController.navigate(route) {
-                                                        popUpTo(navController.graph.findStartDestination().id) {
-                                                            saveState = true
-                                                        }
-                                                        launchSingleTop = true
-                                                        restoreState = true
-                                                    }
+                                                    navigateToTopLevel(route)
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
@@ -1161,13 +1160,7 @@ private fun LocalNavigationContent(
                                         haptic,
                                         HapticFeedbackType.LongPress
                                     )
-                                    navController.navigate(Screen.Search.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+                                    navigateToTopLevel(Screen.Search.route)
                                 },
                                 colors = IconButtonDefaults.filledIconButtonColors(
                                     containerColor = MaterialTheme.colorScheme.primary,
@@ -1263,15 +1256,9 @@ private fun LocalNavigationContent(
                 ) {
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
                         ViewingHomeScreen(
-                            onOpenLibrary = {
-                                navController.navigate(Screen.Library.createRoute(firstVisibleLibraryTab)) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
+                            onOpenLibrary = { navigateToTopLevel(Screen.Library.createRoute(firstVisibleLibraryTab)) },
                             onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
-                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenDetail = {},
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
                         )
                     } else {
@@ -1385,7 +1372,7 @@ private fun LocalNavigationContent(
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
                         ViewingSearchScreen(
                             onBack = { navigateBackOrToLanding() },
-                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenDetail = {},
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
                         )
                     } else {
@@ -1843,7 +1830,7 @@ private fun LocalNavigationContent(
 
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
                         ViewingLibraryScreen(
-                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenDetail = {},
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
                         )
                     } else {
@@ -2881,12 +2868,13 @@ private fun LocalNavigationRail(
     localExperienceMode: String
 ) {
     val navigateToTopLevel: (String) -> Unit = { route ->
+        val preserveState = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
         navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+                saveState = preserveState
             }
             launchSingleTop = true
-            restoreState = true
+            restoreState = preserveState
         }
     }
 

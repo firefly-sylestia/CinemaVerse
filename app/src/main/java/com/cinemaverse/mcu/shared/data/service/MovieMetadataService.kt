@@ -21,8 +21,8 @@ class MovieMetadataService(
         var source = MetadataSource.LOCAL
         val messages = mutableListOf<String>()
 
-        if (tmdbService.hasCredentials && localItem.tmdbId != null) {
-            tmdbService.getTmdbMovieDetails(localItem.tmdbId).fold(
+        if (tmdbService.hasCredentials) {
+            tmdbService.getTmdbViewingDetails(localItem).fold(
                 onSuccess = { tmdb ->
                     merged = mergePreservingLocal(merged, tmdb)
                     source = MetadataSource.TMDB
@@ -30,7 +30,7 @@ class MovieMetadataService(
                 onFailure = { messages += it.message ?: "TMDB lookup failed." }
             )
         } else {
-            messages += "TMDB key/token not configured; using local/TMDB fallback fields."
+            messages += "TMDB token not configured; using local fallback fields."
         }
 
         if (omdbService.hasApiKey) {
@@ -59,7 +59,7 @@ class MovieMetadataService(
 
     fun getConfigurationMessage(): String = buildString {
         if (!omdbService.hasApiKey) append("OMDb key missing. ")
-        if (!tmdbService.hasCredentials) append("TMDB key/token missing. ")
+        if (!tmdbService.hasCredentials) append("TMDB token missing. ")
         if (isBlank()) append("OMDb and TMDB metadata enrichment configured; YouTube trailers use stored IDs or optional Data API discovery.")
         else append("Cinemaverse remains usable with the offline Marvel/DC viewing catalog.")
     }
@@ -72,22 +72,22 @@ class MovieMetadataService(
         tmdbId = local.tmdbId ?: api.tmdbId,
         runtime = local.runtime ?: api.runtime,
         genres = local.genres.ifEmpty { api.genres },
-        plot = local.plot ?: api.plot,
-        overview = local.overview ?: api.overview,
-        poster = local.poster ?: api.poster,
-        tmdbPoster = local.tmdbPoster ?: api.tmdbPoster,
-        omdbPoster = local.omdbPoster ?: api.omdbPoster,
-        backdrop = local.backdrop ?: api.backdrop,
-        tmdbBackdrop = local.tmdbBackdrop ?: api.tmdbBackdrop,
+        plot = api.plot ?: local.plot,
+        overview = api.overview ?: local.overview,
+        poster = api.poster ?: local.poster,
+        tmdbPoster = api.tmdbPoster ?: local.tmdbPoster,
+        omdbPoster = api.omdbPoster ?: local.omdbPoster,
+        backdrop = api.backdrop ?: local.backdrop,
+        tmdbBackdrop = api.tmdbBackdrop ?: local.tmdbBackdrop,
         trailerUrl = local.trailerUrl ?: api.trailerUrl,
         trailerSource = local.trailerSource ?: api.trailerSource,
         director = local.director ?: api.director,
         writer = local.writer ?: api.writer,
-        actors = local.actors.ifEmpty { api.actors },
-        cast = local.cast.ifEmpty { api.cast },
-        crew = local.crew.ifEmpty { api.crew },
+        actors = api.actors.ifEmpty { local.actors },
+        cast = api.cast.ifEmpty { local.cast },
+        crew = api.crew.ifEmpty { local.crew },
         imdbRating = local.imdbRating ?: api.imdbRating,
-        tmdbRating = local.tmdbRating ?: api.tmdbRating,
+        tmdbRating = api.tmdbRating ?: local.tmdbRating,
         ratings = local.ratings.ifEmpty { api.ratings },
         awards = local.awards ?: api.awards,
         language = local.language ?: api.language,

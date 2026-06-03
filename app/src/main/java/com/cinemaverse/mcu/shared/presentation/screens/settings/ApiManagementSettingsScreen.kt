@@ -86,6 +86,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cinemaverse.mcu.BuildConfig
 import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.service.ViewingMetadataStore
+import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
 import com.cinemaverse.mcu.shared.data.model.Playlist
 import com.cinemaverse.mcu.shared.data.model.Song
 import com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository
@@ -95,6 +97,7 @@ import com.cinemaverse.mcu.util.HapticUtils
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
 import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
@@ -160,6 +163,10 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
     val appSettings = AppSettings.getInstance(context)
+    val coroutineScope = rememberCoroutineScope()
+    val viewingData = remember(context) { McuAssetDataSource.load(context) }
+    val viewingFetchMessage by ViewingMetadataStore.statusMessage
+    val viewingFetchInProgress by ViewingMetadataStore.isFetching
 
     // API states
     val deezerApiEnabled by appSettings.deezerApiEnabled.collectAsState()
@@ -206,10 +213,17 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
                         )
                         Text(
-                            text = "Local poster/backdrop overrides are edited in ViewingLists.kt and take priority over TMDB and OMDb artwork.",
+                            text = viewingFetchMessage,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.72f)
                         )
+                        Button(
+                            onClick = { coroutineScope.launch { ViewingMetadataStore.fetchAll(viewingData) } },
+                            enabled = !viewingFetchInProgress,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(if (viewingFetchInProgress) "Loading database…" else "Fetch and load movie database")
+                        }
                     }
                 }
             }
