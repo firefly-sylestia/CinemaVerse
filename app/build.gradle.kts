@@ -10,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.cinemaverse.mcu"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.cinemaverse.mcu"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 503941039
         versionName = "5.0.394.1039 Beta"
 
