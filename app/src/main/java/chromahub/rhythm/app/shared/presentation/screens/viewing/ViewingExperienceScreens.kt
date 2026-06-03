@@ -12,6 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -364,43 +366,42 @@ private fun HeroViewingCard(
     onOpenLibrary: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
-    ElevatedCard(
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(ViewingUiDefaults.HomeHeroHeight)
+            .clip(RoundedCornerShape(16.dp))
     ) {
-        Box(Modifier.fillMaxWidth().height(ViewingUiDefaults.HomeHeroHeight)) {
-            PosterBackdrop(item = item, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0f), MaterialTheme.colorScheme.surfaceContainerHigh))))
-            FilledTonalButton(
-                onClick = onOpenSettings,
-                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .semantics { contentDescription = "Open viewing settings" }
-            ) {
-                Icon(
-                    icon = MaterialSymbolIcon("settings", filled = true),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    size = 18.dp
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Settings")
-            }
-            Column(
-                Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.SectionSpacing),
-                verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.MicroSpacing)
-            ) {
-                Text("Selected Movie", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
-                Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, maxLines = 2)
-                Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                    Button(onClick = onOpenDetail) { Text("Open detail") }
-                    OutlinedButton(onClick = onOpenLibrary) { Text("View list") }
-                }
+        PosterBackdrop(item = item, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0f), MaterialTheme.colorScheme.surfaceContainerHigh))))
+        FilledTonalButton(
+            onClick = onOpenSettings,
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+                .semantics { contentDescription = "Open viewing settings" }
+        ) {
+            Icon(
+                icon = MaterialSymbolIcon("settings", filled = true),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                size = 18.dp
+            )
+            Spacer(Modifier.width(8.dp))
+            Text("Settings")
+        }
+        Column(
+            Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.SectionSpacing),
+            verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.MicroSpacing)
+        ) {
+            Text("Selected Movie", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+            Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, maxLines = 2)
+            Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
+                Button(onClick = onOpenDetail) { Text("Open detail") }
+                OutlinedButton(onClick = onOpenLibrary) { Text("View list") }
             }
         }
     }
@@ -427,13 +428,21 @@ private fun SettingsIconAction(onOpenSettings: () -> Unit) {
 
 @Composable
 private fun PosterCard(item: ViewingItem, onClick: () -> Unit) {
-    val posterShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.SONG_ART, MaterialTheme.shapes.medium)
-    PressableCard(onClick = onClick, modifier = Modifier.width(ViewingUiDefaults.PosterWidth)) {
+    Column(modifier = Modifier
+        .width(ViewingUiDefaults.PosterWidth)
+        .clip(RoundedCornerShape(8.dp))
+        .background(MaterialTheme.colorScheme.surfaceContainer)
+        .clickable(onClick = onClick)
+        .padding(8.dp)
+    ) {
         PosterBackdrop(
             item = item,
-            modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f)
+                .clip(RoundedCornerShape(6.dp)),
             contentScale = ContentScale.Crop,
-            shape = posterShape
+            shape = RoundedCornerShape(6.dp)
         )
         Spacer(Modifier.height(ViewingUiDefaults.MicroSpacing))
         Text(item.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -443,9 +452,18 @@ private fun PosterCard(item: ViewingItem, onClick: () -> Unit) {
 
 @Composable
 private fun ViewingListCard(list: ViewingList, onClick: () -> Unit) {
-    val playlistShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYLIST_ART, MaterialTheme.shapes.large)
-    PressableCard(onClick = onClick, modifier = Modifier.width(ViewingUiDefaults.ListCardWidth)) {
-        Box(Modifier.fillMaxWidth().height(ViewingUiDefaults.ListArtworkHeight).clip(playlistShape)) {
+    Column(modifier = Modifier
+        .width(ViewingUiDefaults.ListCardWidth)
+        .clip(RoundedCornerShape(12.dp))
+        .background(MaterialTheme.colorScheme.surfaceContainer)
+        .clickable(onClick = onClick)
+        .padding(8.dp)
+    ) {
+        Box(Modifier
+            .fillMaxWidth()
+            .height(ViewingUiDefaults.ListArtworkHeight)
+            .clip(RoundedCornerShape(10.dp))
+        ) {
             val poster = ViewingArtworkUtils.resolveBackdrop(list) ?: ViewingArtworkUtils.resolvePoster(list)
             ArtworkImage(data = poster, description = "${list.title} collection artwork", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surface.copy(alpha = 0f), MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)))))
@@ -459,21 +477,29 @@ private fun ViewingListCard(list: ViewingList, onClick: () -> Unit) {
 
 @Composable
 private fun ViewingOrderRow(item: ViewingItem, order: Int, onClick: () -> Unit) {
-    Card(onClick = onClick, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.large) {
-        Row(Modifier.fillMaxWidth().padding(ViewingUiDefaults.DenseCardPadding), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)) {
-            Text(order.toString().padStart(2, '0'), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-            val rowPosterShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.SONG_ART, MaterialTheme.shapes.small)
-            PosterBackdrop(
-                item = item,
-                modifier = Modifier.size(ViewingUiDefaults.RowPosterWidth, ViewingUiDefaults.RowPosterHeight),
-                contentScale = ContentScale.Crop,
-                shape = rowPosterShape
-            )
-            Column(Modifier.weight(1f)) {
-                Text(item.title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(listOfNotNull(item.year, item.phase, item.runtime).joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-                Text(item.genres.joinToString(" / "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clickable(onClick = onClick)
+            .padding(ViewingUiDefaults.DenseCardPadding),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)
+    ) {
+        Text(order.toString().padStart(2, '0'), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        PosterBackdrop(
+            item = item,
+            modifier = Modifier
+                .size(ViewingUiDefaults.RowPosterWidth, ViewingUiDefaults.RowPosterHeight)
+                .clip(RoundedCornerShape(6.dp)),
+            contentScale = ContentScale.Crop,
+            shape = RoundedCornerShape(6.dp)
+        )
+        Column(Modifier.weight(1f)) {
+            Text(item.title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(listOfNotNull(item.year, item.phase, item.runtime).joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            Text(item.genres.joinToString(" / "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
     }
 }
@@ -485,12 +511,13 @@ private fun DetailHero(item: ViewingItem, isLoading: Boolean, onBack: () -> Unit
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surface.copy(alpha = 0.35f), MaterialTheme.colorScheme.background))))
         Column(Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)) {
             TextButton(onClick = onBack) { Text("Back") }
-            val detailPosterShape = rememberExpressiveShapeFor(ExpressiveShapeTarget.PLAYER_ART, MaterialTheme.shapes.extraLarge)
             PosterBackdrop(
                 item = item,
-                modifier = Modifier.size(ViewingUiDefaults.DetailPosterWidth, ViewingUiDefaults.DetailPosterHeight),
+                modifier = Modifier
+                    .size(ViewingUiDefaults.DetailPosterWidth, ViewingUiDefaults.DetailPosterHeight)
+                    .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop,
-                shape = detailPosterShape
+                shape = RoundedCornerShape(8.dp)
             )
             AnimatedVisibility(visible = isLoading, enter = fadeIn(), exit = fadeOut()) {
                 LinearProgressIndicator(Modifier.fillMaxWidth())
