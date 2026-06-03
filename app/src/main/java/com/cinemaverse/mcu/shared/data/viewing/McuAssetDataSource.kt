@@ -15,6 +15,8 @@ object McuAssetDataSource {
      */
     private const val TAG = "ViewingCatalogDataSource"
     private const val CATALOG_PATH = "viewing/viewing_catalog.json"
+    private const val MCU_TITLES_PATH = "mcu_data/mcu_titles.json"
+    private const val POSTERS_PATH = "mcu_data/posters.json"
 
     data class ViewingAssetData(
         val allItems: List<ViewingItem>,
@@ -60,13 +62,78 @@ object McuAssetDataSource {
 
     fun load(assetManager: AssetManager): ViewingAssetData = runCatching {
         val root = JSONObject(assetManager.open(CATALOG_PATH).bufferedReader().use { it.readText() })
-        val items = root.optJSONArray("items").orEmptyObjects()
+        val posterIndex = loadPosterIndex(assetManager)
+        val catalogItems = root.optJSONArray("items").orEmptyObjects()
             .map { it.toViewingItem() }
+            .map { it.withLocalPosterFrom(posterIndex) }
+        val legacyMcuItems = loadLegacyMcuTitles(assetManager, posterIndex)
+        val items = (catalogItems + legacyMcuItems)
             .distinctBy { it.id }
         buildData(items, root.optString("updated").takeUsable())
     }.getOrElse { error ->
-        Log.w(TAG, "Unable to load $CATALOG_PATH; falling back to built-in seed data", error)
-        buildData(ViewingLists.allItems, null)
+        Log.w(TAG, "Unable to load $CATALOG_PATH; falling back to MCU title assets and built-in seed data", error)
+        val posterIndex = loadPosterIndex(assetManager)
+        val fallbackItems = loadLegacyMcuTitles(assetManager, posterIndex).ifEmpty { ViewingLists.allItems.map { it.withLocalPosterFrom(posterIndex) } }
+        buildData(fallbackItems, null)
+    }
+
+
+
+    private data class PosterIndex(
+        val byId: Map<String, String> = emptyMap(),
+        val byTitle: Map<String, String> = emptyMap()
+    )
+
+    private fun loadPosterIndex(assetManager: AssetManager): PosterIndex = runCatching {
+        val root = JSONObject(assetManager.open(POSTERS_PATH).bufferedReader().use { it.readText() })
+        PosterIndex(
+            byId = root.optJSONObject("byId")?.toStringMap().orEmpty(),
+            byTitle = root.optJSONObject("byTitle")?.toStringMap().orEmpty()
+        )
+    }.getOrElse { error ->
+        Log.w(TAG, "Unable to load $POSTERS_PATH", error)
+        PosterIndex()
+    }
+
+    private fun loadLegacyMcuTitles(assetManager: AssetManager, posterIndex: PosterIndex): List<ViewingItem> = runCatching {
+        JSONArray(assetManager.open(MCU_TITLES_PATH).bufferedReader().use { it.readText() })
+            .orEmptyObjects()
+            .map { json -> json.toLegacyMcuViewingItem(posterIndex) }
+    }.getOrElse { error ->
+        Log.w(TAG, "Unable to load $MCU_TITLES_PATH", error)
+        emptyList()
+    }
+
+    private fun ViewingItem.withLocalPosterFrom(posterIndex: PosterIndex): ViewingItem {
+        if (!localPoster.isNullOrBlank()) return this
+        val local = posterIndex.byId[id]
+            ?: tmdbId?.toString()?.let { posterIndex.byId[it] }
+            ?: posterIndex.byTitle[title]
+            ?: poster?.substringAfterLast('/')?.takeIf { it.endsWith(".jpg", ignoreCase = true) || it.endsWith(".png", ignoreCase = true) }
+        return if (local.isNullOrBlank()) this else copy(localPoster = local)
+    }
+
+    private fun JSONObject.toLegacyMcuViewingItem(posterIndex: PosterIndex): ViewingItem {
+        val id = optString("id")
+        val title = optString("title")
+        val releaseMillis = optLong("releaseDate").takeIf { it > 0L }
+        val releaseDate = releaseMillis?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() }
+        val posterPath = optString("posterPath").takeUsable() ?: posterIndex.byId[id] ?: posterIndex.byTitle[title]
+        return ViewingItem(
+            id = id,
+            title = title,
+            universe = "MCU",
+            franchise = optString("series").takeUsable(),
+            studio = "Marvel Studios",
+            type = optString("type").toViewingType(),
+            saga = optString("saga").takeUsable(),
+            category = "MCU Core",
+            releaseDate = releaseDate,
+            localPoster = posterPath,
+            releaseOrder = optInt("viewingOrder").takeIf { it > 0 },
+            chronologicalOrder = optInt("viewingOrder").takeIf { it > 0 },
+            metadataSource = MetadataSource.LOCAL
+        )
     }
 
     private fun buildData(items: List<ViewingItem>, updated: String?): ViewingAssetData {
@@ -195,6 +262,7 @@ object McuAssetDataSource {
 
     private fun JSONArray?.orEmptyObjects(): List<JSONObject> = if (this == null) emptyList() else (0 until length()).mapNotNull { optJSONObject(it) }
     private fun JSONArray?.orEmptyStrings(): List<String> = if (this == null) emptyList() else (0 until length()).mapNotNull { optString(it).takeUsable() }
+    private fun JSONObject.toStringMap(): Map<String, String> = keys().asSequence().mapNotNull { key -> optString(key).takeUsable()?.let { key to it } }.toMap()
 
     private fun String?.takeUsable(): String? = this?.takeIf { it.isNotBlank() && it != "N/A" }
     private fun String.toViewingType(): ViewingType = when (uppercase()) {
@@ -211,5 +279,13 @@ object McuAssetDataSource {
         else -> ViewingStatus.RELEASED
     }
     private fun String.slug(): String = lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
-    private fun String.extractYoutubeVideoId(): String? = Regex("(?:v=|youtu\\.be/|embed/)([A-Za-z0-9_-]{11})").find(this)?.groupValues?.getOrNull(1)
+    private fun String.extractYoutubeVideoId(): String? {
+        val trimmed = trim()
+        if (Regex("""^[A-Za-z0-9_-]{11}$""").matches(trimmed)) return trimmed
+        return listOf(
+            Regex("""(?:youtube\.com|m\.youtube\.com)/watch(?:\?[^#]*)?[?&]v=([A-Za-z0-9_-]{11})"""),
+            Regex("""(?:youtu\.be/|youtube\.com/embed/|youtube-nocookie\.com/embed/|youtube\.com/shorts/)([A-Za-z0-9_-]{11})"""),
+            Regex("""[?&]v=([A-Za-z0-9_-]{11})""")
+        ).firstNotNullOfOrNull { regex -> regex.find(trimmed)?.groupValues?.getOrNull(1) }
+    }
 }

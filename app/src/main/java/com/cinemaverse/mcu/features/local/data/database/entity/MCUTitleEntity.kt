@@ -15,5 +15,18 @@ data class MCUTitleEntity(
     val watched: Boolean = false,
     val watchedDate: Long? = null, // Date when user watched it
     val dateAdded: Long,
-    val dateModified: Long
+    val dateModified: Long,
+    val favorite: Boolean = false,
+    val watchlisted: Boolean = false,
+    val notes: String? = null,
+    val userRating: Int = 0,
+    val openedCount: Int = 0,
+    val lastOpenedDate: Long? = null,
+    val saga: String? = null,
+    val phase: String? = null,
+    val genres: String? = null,
+    val runtime: String? = null,
+    val trailerUrl: String? = null,
+    val youtubeVideoId: String? = null,
+    val overview: String? = null
 )

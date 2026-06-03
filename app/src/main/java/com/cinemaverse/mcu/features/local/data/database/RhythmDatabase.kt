@@ -17,7 +17,7 @@ import com.cinemaverse.mcu.features.local.data.database.entity.SongEntity
 import com.cinemaverse.mcu.features.local.data.database.entity.MCUTitleEntity
 import com.cinemaverse.mcu.features.local.data.database.entity.MCUSeriesEntity
 
-@Database(entities = [SongEntity::class, ArtistEntity::class, SongArtistEntity::class, MCUTitleEntity::class, MCUSeriesEntity::class], version = 7, exportSchema = false)
+@Database(entities = [SongEntity::class, ArtistEntity::class, SongArtistEntity::class, MCUTitleEntity::class, MCUSeriesEntity::class], version = 8, exportSchema = false)
 abstract class RhythmDatabase : RoomDatabase() {
     abstract fun songDao(): SongDao
     abstract fun artistDao(): ArtistDao
@@ -122,6 +122,27 @@ abstract class RhythmDatabase : RoomDatabase() {
             }
         }
 
+
+
+        // Migration from version 7 to 8: Persist MCU viewing state and richer catalog metadata.
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN watchlisted INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN notes TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN userRating INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN openedCount INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN lastOpenedDate INTEGER")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN saga TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN phase TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN genres TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN runtime TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN trailerUrl TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN youtubeVideoId TEXT")
+                db.execSQL("ALTER TABLE mcu_titles ADD COLUMN overview TEXT")
+            }
+        }
+
         fun getInstance(context: Context): RhythmDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -129,7 +150,7 @@ abstract class RhythmDatabase : RoomDatabase() {
                     RhythmDatabase::class.java,
                     "rhythm_database"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                     .build()
                     .also { INSTANCE = it }
             }

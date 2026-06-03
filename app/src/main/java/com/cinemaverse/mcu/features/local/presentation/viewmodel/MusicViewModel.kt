@@ -83,6 +83,10 @@ import com.cinemaverse.mcu.util.LyricsParser
 import com.cinemaverse.mcu.util.ServiceStartUtils
 import com.cinemaverse.mcu.utils.StatusBroadcaster
 import com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository // Import for enhanced stats tracking
+import com.cinemaverse.mcu.features.local.data.database.RhythmDatabase
+import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
+import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
+import com.cinemaverse.mcu.shared.data.viewing.ViewingMusicMapper
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -151,6 +155,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     
     // Settings manager
     val appSettings = AppSettings.getInstance(application)
+    private val rhythmDatabase = RhythmDatabase.getInstance(application)
+    private val mcuTitleDao = rhythmDatabase.mcuTitleDao()
+    private var viewingCatalogItems: List<ViewingItem> = emptyList()
 
     private val statusBroadcaster = StatusBroadcaster(application)
     
@@ -1075,14 +1082,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
         if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
             loadAllSettings()
-            _songs.value = emptyList()
-            _albums.value = emptyList()
-            _artists.value = emptyList()
-            _currentQueue.value = Queue(emptyList(), -1)
+            loadViewingModeLibrary()
             _isMediaScanning.value = false
             _isLibraryRefreshing.value = false
             _isInitialized.value = true
-            Log.d(TAG, "Viewing mode initialization complete without music service, scans, or player queue")
+            Log.d(TAG, "Viewing mode initialization complete with MCU mapped Rhythm library")
             return
         }
         
@@ -1147,10 +1151,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      */
     private suspend fun initializeCoreDataParallel(): InitializationResult {
         if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            Log.d(TAG, "Viewing mode active; skipping device song scan during initialization")
-            _songs.value = emptyList()
-            _albums.value = emptyList()
-            _artists.value = emptyList()
+            Log.d(TAG, "Viewing mode active; loading MCU catalog instead of device songs")
+            loadViewingModeLibrary()
             return InitializationResult(true)
         }
 
@@ -1192,6 +1194,75 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
+
+    private suspend fun loadViewingModeLibrary() = withContext(Dispatchers.IO) {
+        runCatching {
+            val assetData = McuAssetDataSource.load(getApplication<Application>())
+            val existingById = mcuTitleDao.getAllTitles().first().associateBy { it.id }
+            val entities = assetData.allItems.map { item ->
+                ViewingMusicMapper.itemToEntity(item, existingById[item.id])
+            }
+            if (entities.isNotEmpty()) {
+                mcuTitleDao.insertTitles(entities)
+            }
+
+            val persistedItems = mcuTitleDao.getAllTitles().first().map(ViewingMusicMapper::entityToViewingItem)
+            val items = if (persistedItems.isNotEmpty()) persistedItems else assetData.allItems
+            val lists = assetData.allLists.map { list ->
+                list.copy(items = list.itemIds.mapNotNull { id -> items.firstOrNull { it.id == id } }.ifEmpty { list.items })
+            }
+
+            viewingCatalogItems = items
+            val mappedSongs = items.sortedWith(compareBy<ViewingItem> { it.chronologicalOrder ?: it.releaseOrder ?: Int.MAX_VALUE }.thenBy { it.title })
+                .map(ViewingMusicMapper::itemToSong)
+            val mappedPlaylists = buildList {
+                add(Playlist(id = "1", name = "MCU Favorites", songs = mappedSongs.filter { song -> items.firstOrNull { it.id == song.id }?.favorite == true }))
+                add(Playlist(id = "2", name = "MCU Watchlist", songs = mappedSongs.filter { song -> items.firstOrNull { it.id == song.id }?.watchlisted == true }))
+                add(Playlist(id = "3", name = "Recently Opened", songs = mappedSongs.filter { song -> items.firstOrNull { it.id == song.id }?.let { item -> item.watched || existingById[item.id]?.lastOpenedDate != null } == true }.take(50)))
+                addAll(lists.map(ViewingMusicMapper::listToPlaylist))
+            }.distinctBy { it.id }
+
+            withContext(Dispatchers.Main) {
+                _songs.value = mappedSongs
+                _albums.value = ViewingMusicMapper.phaseAlbums(items).ifEmpty { ViewingMusicMapper.sagaAlbums(items) }
+                _artists.value = ViewingMusicMapper.franchiseArtists(items)
+                _playlists.value = mappedPlaylists
+                _favoriteSongs.value = items.filter { it.favorite }.map { it.id }.toSet()
+                _recentlyPlayed.value = existingById.values
+                    .filter { it.lastOpenedDate != null }
+                    .sortedByDescending { it.lastOpenedDate ?: 0L }
+                    .map(ViewingMusicMapper::entityToViewingItem)
+                    .map(ViewingMusicMapper::itemToSong)
+                if (_currentSong.value == null && mappedSongs.isNotEmpty()) {
+                    _currentQueue.value = Queue(mappedSongs, 0)
+                }
+            }
+        }.onFailure { error ->
+            Log.e(TAG, "Failed to load MCU viewing library", error)
+        }
+    }
+
+    private fun isViewingMode(): Boolean = appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
+
+    private fun openViewingSong(song: Song, queueSongs: List<Song> = _currentQueue.value.songs.ifEmpty { _songs.value }, startIndex: Int = queueSongs.indexOfFirst { it.id == song.id }.coerceAtLeast(0)) {
+        val validQueue = queueSongs.ifEmpty { listOf(song) }
+        val validIndex = startIndex.coerceIn(0, validQueue.lastIndex)
+        val selected = validQueue[validIndex]
+        _currentQueue.value = Queue(validQueue, validIndex)
+        _currentSong.value = selected
+        _isPlaying.value = true
+        _progress.value = 0f
+        _duration.value = selected.duration
+        _isFavorite.value = _favoriteSongs.value.contains(selected.id)
+        _currentSongRating.value = appSettings.getSongRating(selected.id)
+        updateRecentlyPlayed(selected)
+        viewModelScope.launch(Dispatchers.IO) {
+            mcuTitleDao.recordOpened(selected.id, System.currentTimeMillis())
+            mcuTitleDao.markAsWatched(selected.id, System.currentTimeMillis())
+            loadViewingModeLibrary()
+        }
+    }
+
     private suspend fun loadAllSettings(): Boolean {
         var allSuccess = true
         
@@ -1891,7 +1962,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun refreshLibrary(showMediaScanLoader: Boolean = true) {
         if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            Log.d(TAG, "Viewing mode active; ignoring music library refresh request")
+            Log.d(TAG, "Viewing mode active; refreshing MCU viewing library")
+            viewModelScope.launch { loadViewingModeLibrary() }
             _isMediaScanning.value = false
             _isLibraryRefreshing.value = false
             _isInitialized.value = true
@@ -3557,6 +3629,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * Play a song - finds it in the queue or adds it
      */
     fun playSong(song: Song) {
+        if (isViewingMode()) {
+            openViewingSong(song, _songs.value.ifEmpty { listOf(song) })
+            return
+        }
+
         Log.d(TAG, "Playing song: ${song.title}")
 
         if (!canStartPlayback("playSong")) {
@@ -4315,6 +4392,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playQueue(songs: List<Song>, enableShuffle: Boolean? = null, startIndex: Int = 0) {
+        if (isViewingMode()) {
+            val queue = if (enableShuffle == true) songs.shuffled() else songs
+            if (queue.isNotEmpty()) openViewingSong(queue[startIndex.coerceIn(0, queue.lastIndex)], queue, startIndex.coerceIn(0, queue.lastIndex))
+            return
+        }
+
         Log.d(TAG, "Playing queue with ${songs.size} songs, shuffle: $enableShuffle, startIndex: $startIndex")
 
         if (!canStartPlayback("playQueue")) {
@@ -4501,6 +4584,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun togglePlayPause() {
+        if (isViewingMode()) {
+            _isPlaying.value = !_isPlaying.value
+            return
+        }
         Log.d(TAG, "Toggle play/pause, current state: ${_isPlaying.value}")
         mediaController?.let { controller ->
             if (controller.isPlaying) {
@@ -4573,6 +4660,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val SKIP_DEBOUNCE_MS = 400L
 
     fun skipToNext() {
+        if (isViewingMode()) {
+            val queue = _currentQueue.value
+            if (queue.songs.isNotEmpty()) {
+                val nextIndex = if (queue.currentIndex < queue.songs.lastIndex) queue.currentIndex + 1 else 0
+                openViewingSong(queue.songs[nextIndex], queue.songs, nextIndex)
+            }
+            return
+        }
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastSkipTime < SKIP_DEBOUNCE_MS) {
             Log.d(TAG, "Ignored skipToNext: debouncing rapid clicks.")
@@ -4623,6 +4718,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun skipToPrevious() {
+        if (isViewingMode()) {
+            val queue = _currentQueue.value
+            if (queue.songs.isNotEmpty()) {
+                val previousIndex = if (queue.currentIndex > 0) queue.currentIndex - 1 else queue.songs.lastIndex
+                openViewingSong(queue.songs[previousIndex], queue.songs, previousIndex)
+            }
+            return
+        }
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastSkipTime < SKIP_DEBOUNCE_MS) {
             Log.d(TAG, "Ignored skipToPrevious: debouncing rapid clicks.")
@@ -4754,6 +4857,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun toggleShuffle() {
+        if (isViewingMode()) {
+            val currentSong = _currentSong.value
+            val shuffled = _currentQueue.value.songs.shuffled()
+            val reordered = if (currentSong != null) listOf(currentSong) + shuffled.filter { it.id != currentSong.id } else shuffled
+            _isShuffleEnabled.value = !_isShuffleEnabled.value
+            _currentQueue.value = Queue(reordered, if (reordered.isEmpty()) -1 else 0)
+            return
+        }
         commandSerializer.executeCommand {
             mediaController?.let { controller ->
             // Don't allow shuffle toggle if queue is empty
@@ -5027,6 +5138,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun toggleRepeatMode() {
+        if (isViewingMode()) {
+            _repeatMode.value = when (_repeatMode.value) {
+                Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+                Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+                else -> Player.REPEAT_MODE_OFF
+            }
+            return
+        }
         mediaController?.let { controller ->
             val currentMode = controller.repeatMode
             val newMode = when (currentMode) {
@@ -5068,6 +5187,19 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * Toggle favorite status for a specific song
      */
     fun toggleFavorite(song: Song) {
+        if (isViewingMode()) {
+            val songId = song.id
+            val currentFavorites = _favoriteSongs.value.toMutableSet()
+            val isFavoriteNow = !currentFavorites.contains(songId)
+            if (isFavoriteNow) currentFavorites.add(songId) else currentFavorites.remove(songId)
+            _favoriteSongs.value = currentFavorites
+            if (_currentSong.value?.id == songId) _isFavorite.value = isFavoriteNow
+            _playlists.value = _playlists.value.map { playlist ->
+                if (playlist.id == "1") playlist.copy(songs = if (isFavoriteNow) (playlist.songs + song).distinctBy { it.id } else playlist.songs.filter { it.id != songId }) else playlist
+            }
+            viewModelScope.launch(Dispatchers.IO) { mcuTitleDao.setFavorite(songId, isFavoriteNow) }
+            return
+        }
         val songId = song.id
         val currentFavorites = _favoriteSongs.value.toMutableSet()
         

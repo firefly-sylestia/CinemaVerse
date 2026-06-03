@@ -34,10 +34,11 @@ fun parseYouTubeVideoId(value: String?): String? {
     if (value.isNullOrBlank()) return null
     val trimmed = value.trim()
     if (YouTubeIdPattern.matches(trimmed)) return trimmed
-    return Regex("(?:youtube\\.com/watch\\?v=|youtu\\.be/|youtube\\.com/embed/)([A-Za-z0-9_-]{11})")
-        .find(trimmed)
-        ?.groupValues
-        ?.getOrNull(1)
+    return listOf(
+        Regex("""(?:youtube\.com|m\.youtube\.com)/watch(?:\?[^#]*)?[?&]v=([A-Za-z0-9_-]{11})"""),
+        Regex("""(?:youtu\.be/|youtube\.com/embed/|youtube-nocookie\.com/embed/|youtube\.com/shorts/)([A-Za-z0-9_-]{11})"""),
+        Regex("""[?&]v=([A-Za-z0-9_-]{11})""")
+    ).firstNotNullOfOrNull { regex -> regex.find(trimmed)?.groupValues?.getOrNull(1) }
 }
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -50,11 +51,12 @@ fun YouTubeTrailerWebPlayer(
 ) {
     val context = LocalContext.current
     val safeVideoId = remember(youtubeVideoId, trailerUrl) { parseYouTubeVideoId(youtubeVideoId) ?: parseYouTubeVideoId(trailerUrl) }
+    val openUrl = remember(safeVideoId, trailerUrl) { trailerUrl ?: safeVideoId?.let { "https://www.youtube.com/watch?v=$it" } }
     if (safeVideoId == null) {
         TrailerFallback(
             title = "Trailer unavailable",
             body = if (trailerUrl.isNullOrBlank()) "Fetch trailers from TMDb or add a YouTube trailer ID later." else "Open this title on YouTube in your browser.",
-            action = trailerUrl?.let { { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) } },
+            action = openUrl?.let { { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) } },
             modifier = modifier
         )
         return
@@ -69,7 +71,10 @@ fun YouTubeTrailerWebPlayer(
             webViewClient = WebViewClient()
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
-            settings.mediaPlaybackRequiresUserGesture = true
+            settings.mediaPlaybackRequiresUserGesture = false
+            settings.loadsImagesAutomatically = true
+            settings.allowContentAccess = true
+            settings.allowFileAccess = false
         }
     }
 
@@ -92,7 +97,7 @@ fun YouTubeTrailerWebPlayer(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { webView },
-            update = { it.loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null) }
+            update = { it.loadDataWithBaseURL("https://www.youtube.com/", html, "text/html", "utf-8", null) }
         )
     }
 }

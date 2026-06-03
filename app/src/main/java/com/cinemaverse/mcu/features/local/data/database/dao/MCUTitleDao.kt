@@ -3,6 +3,7 @@ package com.cinemaverse.mcu.features.local.data.database.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import androidx.room.Delete
 import com.cinemaverse.mcu.features.local.data.database.entity.MCUTitleEntity
@@ -28,10 +29,10 @@ interface MCUTitleDao {
     @Query("SELECT COUNT(*) FROM mcu_titles WHERE watched = 1")
     fun getWatchedCount(): Flow<Int>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTitle(title: MCUTitleEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTitles(titles: List<MCUTitleEntity>)
 
     @Update
@@ -48,4 +49,19 @@ interface MCUTitleDao {
 
     @Query("UPDATE mcu_titles SET watched = 0, watchedDate = NULL WHERE id = :id")
     suspend fun markAsUnwatched(id: String)
+
+    @Query("UPDATE mcu_titles SET favorite = :favorite WHERE id = :id")
+    suspend fun setFavorite(id: String, favorite: Boolean)
+
+    @Query("UPDATE mcu_titles SET watchlisted = :watchlisted WHERE id = :id")
+    suspend fun setWatchlisted(id: String, watchlisted: Boolean)
+
+    @Query("UPDATE mcu_titles SET userRating = :rating WHERE id = :id")
+    suspend fun setRating(id: String, rating: Int)
+
+    @Query("UPDATE mcu_titles SET notes = :notes WHERE id = :id")
+    suspend fun setNotes(id: String, notes: String?)
+
+    @Query("UPDATE mcu_titles SET openedCount = openedCount + 1, lastOpenedDate = :openedDate WHERE id = :id")
+    suspend fun recordOpened(id: String, openedDate: Long)
 }

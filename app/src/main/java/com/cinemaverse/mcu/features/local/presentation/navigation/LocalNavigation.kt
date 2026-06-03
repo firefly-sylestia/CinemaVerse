@@ -438,13 +438,12 @@ fun LocalNavigation(
 
     // Provide dynamic mini-player padding with comprehensive navigation handling
     val showMiniPlayer =
-        localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING &&
-            currentSong != null &&
+        currentSong != null &&
             !isMiniPlayerDismissed &&
             currentRoute != Screen.Player.route &&
             currentRoute != Screen.Search.route
     val showNavBar = remember(currentRoute, localExperienceMode) {
-        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+        if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
             currentRoute == Screen.Home.route || isLibraryRoute || currentRoute == Screen.Search.route || currentRoute == Screen.Settings.route
         } else {
             currentRoute == Screen.Home.route ||
@@ -1261,7 +1260,7 @@ private fun LocalNavigationContent(
                         fadeOut(animationSpec = tween(200))
                     }
                 ) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                    if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
                         ViewingHomeScreen(
                             onOpenLibrary = {
                                 navController.navigate(Screen.Library.createRoute(firstVisibleLibraryTab)) {
@@ -1382,7 +1381,7 @@ private fun LocalNavigationContent(
                                 )
                     }
                 ) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                    if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
                         ViewingSearchScreen(
                             onBack = { navigateBackOrToLanding() },
                             onOpenDetail = { navController.navigate(Screen.Player.route) },
@@ -1598,7 +1597,7 @@ private fun LocalNavigationContent(
                 }
 
                 composable(Screen.TunerUpdates.route) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                    if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
                         DisabledViewingSettingsPanel(
                             title = "Updates disabled",
                             message = "Marvel Spectrum keeps offline MCU metadata bundled with the app. Automatic update checks are disabled in viewing mode.",
@@ -1610,7 +1609,7 @@ private fun LocalNavigationContent(
                 }
 
                 composable(Screen.TunerMediaScan.route) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                    if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
                         DisabledViewingSettingsPanel(
                             title = "Audio scans disabled",
                             message = "Viewing mode uses bundled MCU JSON and poster assets, so device music scans are hidden.",
@@ -1841,7 +1840,7 @@ private fun LocalNavigationContent(
                         else -> LibraryTab.SONGS
                     }
 
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                    if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
                         ViewingLibraryScreen(
                             onOpenDetail = { navController.navigate(Screen.Player.route) },
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
@@ -2080,7 +2079,7 @@ private fun LocalNavigationContent(
                         }
                     }
 
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                    if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) {
                         ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
                     } else {
                         PlayerScreen(
@@ -2934,7 +2933,7 @@ private fun LocalNavigationRail(
                         navigateToTopLevel(libraryRoute)
                     }
                 ),
-                if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) null else LocalNavRailItem(
+                if (false /* Rhythm UI renders MCU-mapped data in viewing mode */) null else LocalNavRailItem(
                     route = Screen.RhythmStats.route,
                     title = stringResource(R.string.localnavigation_stats),
                     selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
