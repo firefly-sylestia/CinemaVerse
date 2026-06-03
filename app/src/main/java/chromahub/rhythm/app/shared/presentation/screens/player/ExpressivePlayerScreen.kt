@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.screens.player
+package chromahub.rhythm.app.shared.presentation.screens.player
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Spring
@@ -40,51 +40,51 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.ExtraControlBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.ArtistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.PlaybackBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.QueueBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaybackPitchDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaybackSpeedDialog
-import com.cinemaverse.mcu.shared.presentation.components.player.SleepTimerBottomSheetNew
-import com.cinemaverse.mcu.shared.presentation.components.lyrics.LyricsEditorBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.lyrics.SyncedLyricsView
-import com.cinemaverse.mcu.shared.presentation.components.lyrics.WordByWordLyricsView
-import com.cinemaverse.mcu.shared.presentation.components.player.formatDuration
-import com.cinemaverse.mcu.features.local.presentation.navigation.Screen
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.data.model.Album
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Artist
-import com.cinemaverse.mcu.shared.data.model.LyricsData
-import com.cinemaverse.mcu.shared.data.model.PlaybackLocation
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.presentation.components.common.AutoScrollingTextOnDemand
-import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.FixedHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.common.M3LinearLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.shared.presentation.components.common.PlaybackBufferingLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.ProgressStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.StyledProgressBar
-import com.cinemaverse.mcu.shared.presentation.components.common.ThumbStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.WaveSlider
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.common.M3CircularLoader
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ExtraControlBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ArtistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.PlaybackBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.QueueBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaybackPitchDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaybackSpeedDialog
+import chromahub.rhythm.app.shared.presentation.components.player.SleepTimerBottomSheetNew
+import chromahub.rhythm.app.shared.presentation.components.lyrics.LyricsEditorBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.lyrics.SyncedLyricsView
+import chromahub.rhythm.app.shared.presentation.components.lyrics.WordByWordLyricsView
+import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
+import chromahub.rhythm.app.features.local.presentation.navigation.Screen
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.LyricsData
+import chromahub.rhythm.app.shared.data.model.PlaybackLocation
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.presentation.components.common.AutoScrollingTextOnDemand
+import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.FixedHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.common.M3LinearLoader
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.common.PlaybackBufferingLoader
+import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
+import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
+import chromahub.rhythm.app.shared.presentation.components.common.ThumbStyle
+import chromahub.rhythm.app.shared.presentation.components.common.WaveSlider
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.common.M3CircularLoader
 import androidx.compose.material3.ContainedLoadingIndicator
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.util.M3ImageUtils
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.util.M3ImageUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.Toast
@@ -1140,7 +1140,7 @@ private fun RhythmPlayerLyricsPanel(
                             .containsMatchIn(lyricsText)
                     }
 
-                    val parsedLyrics by produceState<List<com.cinemaverse.mcu.util.LyricLine>?>(
+                    val parsedLyrics by produceState<List<chromahub.rhythm.app.util.LyricLine>?>(
                         initialValue = if (likelySyncedLyrics) null else emptyList(),
                         key1 = lyricsText,
                         key2 = likelySyncedLyrics
@@ -1149,7 +1149,7 @@ private fun RhythmPlayerLyricsPanel(
                             emptyList()
                         } else {
                             withContext(kotlinx.coroutines.Dispatchers.Default) {
-                                com.cinemaverse.mcu.util.LyricsParser.parseLyrics(
+                                chromahub.rhythm.app.util.LyricsParser.parseLyrics(
                                     lyricsText
                                 )
                             }

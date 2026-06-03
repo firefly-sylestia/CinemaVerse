@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.streaming.domain.model
+package chromahub.rhythm.app.features.streaming.domain.model
 
 /**
  * Represents a browse category/genre from a streaming service.

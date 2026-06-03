@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
-import com.cinemaverse.mcu.shared.data.model.Artist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.Album
 
 /**
  * Utility object for handling artist collaborations and separating individual artists

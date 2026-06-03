@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.network
+package chromahub.rhythm.app.network
 
 import com.google.gson.annotations.SerializedName
 import retrofit2.Response

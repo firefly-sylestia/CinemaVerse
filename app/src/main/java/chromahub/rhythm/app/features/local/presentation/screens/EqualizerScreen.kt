@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.local.presentation.screens
+package chromahub.rhythm.app.features.local.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.app.Activity
 import android.content.ClipData
@@ -65,31 +65,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.cinemaverse.mcu.BuildConfig
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.util.GsonUtils
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.util.EqualizerUtils
-import com.cinemaverse.mcu.activities.MainActivity
+import chromahub.rhythm.app.BuildConfig
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.util.GsonUtils
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.util.EqualizerUtils
+import chromahub.rhythm.app.activities.MainActivity
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import kotlin.system.exitProcess
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.common.ArcProgressSlider
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
-import com.cinemaverse.mcu.shared.presentation.components.common.StyledProgressBar
-import com.cinemaverse.mcu.shared.presentation.components.common.ProgressStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.ThumbStyle
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.LicensesBottomSheet
-import com.cinemaverse.mcu.ui.utils.LazyListStateSaver
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppUpdaterViewModel
-import com.cinemaverse.mcu.ui.theme.getFontPreviewStyle
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.common.ArcProgressSlider
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
+import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
+import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ThumbStyle
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.LicensesBottomSheet
+import chromahub.rhythm.app.ui.utils.LazyListStateSaver
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.ui.theme.getFontPreviewStyle
 import kotlinx.coroutines.delay
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -123,7 +123,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
-import com.cinemaverse.mcu.features.local.presentation.screens.LibraryTab
+import chromahub.rhythm.app.features.local.presentation.screens.LibraryTab
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.runtime.remember
@@ -258,27 +258,27 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.features.local.presentation.screens.AddToPlaylistScreen
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.QueueActionDialog
-import com.cinemaverse.mcu.shared.presentation.components.player.MiniPlayer
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons.Delete
-import com.cinemaverse.mcu.features.local.presentation.screens.LibraryScreen
-import com.cinemaverse.mcu.shared.presentation.components.common.SmallTabAnimation
-import com.cinemaverse.mcu.shared.presentation.screens.player.PlayerScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.PlaylistDetailScreen
-import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsScreenWrapper
-import com.cinemaverse.mcu.shared.presentation.screens.settings.*
-import com.cinemaverse.mcu.shared.presentation.components.MediaScanLoader
-import com.cinemaverse.mcu.shared.presentation.viewmodel.ThemeViewModel
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.features.local.presentation.screens.AddToPlaylistScreen
+import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.QueueActionDialog
+import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Delete
+import chromahub.rhythm.app.features.local.presentation.screens.LibraryScreen
+import chromahub.rhythm.app.shared.presentation.components.common.SmallTabAnimation
+import chromahub.rhythm.app.shared.presentation.screens.player.PlayerScreen
+import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
+import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsScreenWrapper
+import chromahub.rhythm.app.shared.presentation.screens.settings.*
+import chromahub.rhythm.app.shared.presentation.components.MediaScanLoader
+import chromahub.rhythm.app.shared.presentation.viewmodel.ThemeViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -323,9 +323,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AutoEQPresetPickerBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.DeviceConfigurationBottomSheet
-import com.cinemaverse.mcu.shared.data.model.AutoEQProfile
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AutoEQPresetPickerBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.DeviceConfigurationBottomSheet
+import chromahub.rhythm.app.shared.data.model.AutoEQProfile
 import androidx.compose.ui.res.stringResource
 
 data class EqualizerPreset(
@@ -340,7 +340,7 @@ fun TunerAnimatedSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
+    chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier

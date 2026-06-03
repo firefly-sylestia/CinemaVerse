@@ -1,7 +1,7 @@
-package com.cinemaverse.mcu.features.local.presentation.components.settings
+package chromahub.rhythm.app.features.local.presentation.components.settings
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.app.LocaleManager
 import android.content.Context
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import java.util.Locale
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 import androidx.compose.ui.res.stringResource
 
 data class LanguageOption(

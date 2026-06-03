@@ -1,9 +1,9 @@
 
 
-package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
+package chromahub.rhythm.app.shared.presentation.components.bottomsheets
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -48,19 +48,19 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.Album
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.player.PlayingEqIcon
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.presentation.components.player.formatDuration
-import com.cinemaverse.mcu.shared.presentation.components.common.AutoScrollingTextOnDemand
-import com.cinemaverse.mcu.shared.presentation.components.AudioQualityBadges
-import com.cinemaverse.mcu.util.ImageUtils
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.player.PlayingEqIcon
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
+import chromahub.rhythm.app.shared.presentation.components.common.AutoScrollingTextOnDemand
+import chromahub.rhythm.app.shared.presentation.components.AudioQualityBadges
+import chromahub.rhythm.app.util.ImageUtils
+import chromahub.rhythm.app.util.HapticUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

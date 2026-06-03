@@ -1,7 +1,7 @@
-package com.cinemaverse.mcu.shared.presentation.components
+package chromahub.rhythm.app.shared.presentation.components
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.util.Log
 import androidx.compose.animation.*
@@ -20,12 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.util.AudioQualityDetector
-import com.cinemaverse.mcu.util.AudioFormatDetector
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.util.AudioQualityDetector
+import chromahub.rhythm.app.util.AudioFormatDetector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 import androidx.compose.ui.res.stringResource
 
 /**
@@ -236,7 +236,7 @@ fun AudioQualityBadges(
 @Composable
 private fun QualityBadge(
     text: String,
-    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {
@@ -302,7 +302,7 @@ private fun QualityBadge(
 @Composable
 private fun LegacyQualityBadge(
     text: String,
-    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {

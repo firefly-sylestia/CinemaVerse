@@ -1,11 +1,11 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 
-package com.cinemaverse.mcu.shared.presentation.screens.settings
+package chromahub.rhythm.app.shared.presentation.screens.settings
 
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.app.Activity
 import android.content.ClipData
@@ -25,7 +25,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -84,38 +84,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cinemaverse.mcu.BuildConfig
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository
-import com.cinemaverse.mcu.shared.data.repository.StatsTimeRange
-import com.cinemaverse.mcu.util.GsonUtils
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.BuildConfig
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
+import chromahub.rhythm.app.shared.data.repository.StatsTimeRange
+import chromahub.rhythm.app.util.GsonUtils
+import chromahub.rhythm.app.util.HapticUtils
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import kotlin.system.exitProcess
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveScrollBar
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
-import com.cinemaverse.mcu.shared.presentation.components.common.StyledProgressBar
-import com.cinemaverse.mcu.shared.presentation.components.common.ProgressStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.ThumbStyle
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.LicensesBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.UpdateBottomSheet
-import com.cinemaverse.mcu.ui.utils.LazyListStateSaver
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeProvider
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
-import com.cinemaverse.mcu.shared.presentation.components.common.buildSplashBackdropShapes
-import com.cinemaverse.mcu.shared.presentation.components.common.SplashBackgroundOrbs
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppUpdaterViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppVersion
-import com.cinemaverse.mcu.ui.theme.getFontPreviewStyle
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveScrollBar
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
+import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
+import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ThumbStyle
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.LicensesBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.UpdateBottomSheet
+import chromahub.rhythm.app.ui.utils.LazyListStateSaver
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeProvider
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
+import chromahub.rhythm.app.shared.presentation.components.common.buildSplashBackdropShapes
+import chromahub.rhythm.app.shared.presentation.components.common.SplashBackgroundOrbs
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppVersion
+import chromahub.rhythm.app.ui.theme.getFontPreviewStyle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
@@ -124,34 +124,34 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.io.File
-import com.cinemaverse.mcu.utils.FontLoader
-import com.cinemaverse.mcu.ui.theme.parseCustomColorScheme
+import chromahub.rhythm.app.utils.FontLoader
+import chromahub.rhythm.app.ui.theme.parseCustomColorScheme
 import androidx.compose.ui.viewinterop.AndroidView
 import android.widget.TextView
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.text.HtmlCompat
-import com.cinemaverse.mcu.shared.presentation.components.common.M3FourColorCircularLoader
-import com.cinemaverse.mcu.shared.presentation.components.player.PlayingEqIcon
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.BulkPlaylistExportDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistImportDialog
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShape
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistOperationProgressDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistOperationResultDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.AppRestartDialog
-import com.cinemaverse.mcu.shared.presentation.components.player.PlayerChipOrderBottomSheet
-import com.cinemaverse.mcu.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
-import com.cinemaverse.mcu.features.local.presentation.components.settings.LibraryTabOrderBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.common.M3FourColorCircularLoader
+import chromahub.rhythm.app.shared.presentation.components.player.PlayingEqIcon
+import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.BulkPlaylistExportDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistImportDialog
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShape
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistOperationProgressDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistOperationResultDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.AppRestartDialog
+import chromahub.rhythm.app.shared.presentation.components.player.PlayerChipOrderBottomSheet
+import chromahub.rhythm.app.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
+import chromahub.rhythm.app.features.local.presentation.components.settings.LibraryTabOrderBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
 
-import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerSettingRow
-import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch
-import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerSettingCard
-import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingItem
-import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingGroup
+import chromahub.rhythm.app.shared.presentation.screens.settings.TunerSettingRow
+import chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch
+import chromahub.rhythm.app.shared.presentation.screens.settings.TunerSettingCard
+import chromahub.rhythm.app.shared.presentation.screens.settings.SettingItem
+import chromahub.rhythm.app.shared.presentation.screens.settings.SettingGroup
 
 
 // ✅ REDESIGNED Media Scan Screen with improved UI
@@ -178,8 +178,8 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
     // Mode state
     var currentMode by remember {
         mutableStateOf(
-            if (mediaScanMode == "whitelist") com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.WHITELIST
-            else com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST
+            if (mediaScanMode == "whitelist") chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST
+            else chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST
         )
     }
 
@@ -218,7 +218,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             }
                         }
 
-                        if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                        if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                             appSettings.addFolderToBlacklist(fullPath)
                         } else {
                             appSettings.addFolderToWhitelist(fullPath)
@@ -234,17 +234,17 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
     // Computed values OUTSIDE LazyColumn
     val filteredSongDetails = remember(allSongs, blacklistedSongs, whitelistedSongs, currentMode) {
         when (currentMode) {
-            com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST ->
+            chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST ->
                 allSongs.filter { song -> blacklistedSongs.contains(song.id) }
-            com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.WHITELIST ->
+            chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST ->
                 allSongs.filter { song -> whitelistedSongs.contains(song.id) }
         }
     }
 
     val filteredFoldersList = remember(blacklistedFolders, whitelistedFolders, currentMode) {
         when (currentMode) {
-            com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST -> blacklistedFolders
-            com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.WHITELIST -> whitelistedFolders
+            chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST -> blacklistedFolders
+            chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST -> whitelistedFolders
         }
     }
 
@@ -256,11 +256,11 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     RhythmIcons.Block,
                     context.getString(R.string.settings_blacklist_mode),
                     context.getString(R.string.settings_blacklist_mode_desc),
-                    toggleState = currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST,
+                    toggleState = currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST,
                     onToggleChange = { enabled ->
                         if (enabled) {
                             HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            currentMode = com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST
+                            currentMode = chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST
                             appSettings.setMediaScanMode("blacklist")
                         }
                     }
@@ -269,11 +269,11 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     RhythmIcons.CheckCircle,
                     context.getString(R.string.settings_whitelist_mode),
                     context.getString(R.string.settings_whitelist_mode_desc),
-                    toggleState = currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.WHITELIST,
+                    toggleState = currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST,
                     onToggleChange = { enabled ->
                         if (enabled) {
                             HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                            currentMode = com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.WHITELIST
+                            currentMode = chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST
                             appSettings.setMediaScanMode("whitelist")
                         }
                     }
@@ -286,7 +286,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                 SettingItem(
                     RhythmIcons.Queue,
                     context.getString(R.string.settings_manage_songs),
-                    context.getString(R.string.settings_manage_songs_desc, filteredSongDetails.size, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
+                    context.getString(R.string.settings_manage_songs_desc, filteredSongDetails.size, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
                         showSongsBottomSheet = true
@@ -295,10 +295,10 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                 SettingItem(
                     MaterialSymbolIcon("clear"),
                     context.getString(R.string.settings_clear_all_songs),
-                    context.getString(R.string.settings_clear_all_songs_desc, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
+                    context.getString(R.string.settings_clear_all_songs_desc, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                        if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                        if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                             appSettings.clearBlacklist()
                         } else {
                             appSettings.clearWhitelist()
@@ -313,7 +313,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                 SettingItem(
                     RhythmIcons.Folder,
                     context.getString(R.string.settings_manage_folders),
-                    context.getString(R.string.settings_manage_folders_desc, filteredFoldersList.size, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
+                    context.getString(R.string.settings_manage_folders_desc, filteredFoldersList.size, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
                         showFoldersBottomSheet = true
@@ -322,7 +322,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                 SettingItem(
                     RhythmIcons.Add,
                     context.getString(R.string.settings_add_folder),
-                    context.getString(R.string.settings_add_folder_desc, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_block) else context.getString(R.string.settings_whitelist)),
+                    context.getString(R.string.settings_add_folder_desc, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_block) else context.getString(R.string.settings_whitelist)),
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -332,10 +332,10 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                 SettingItem(
                     MaterialSymbolIcon("clear"),
                     context.getString(R.string.settings_clear_all_folders),
-                    context.getString(R.string.settings_clear_all_folders_desc, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
+                    context.getString(R.string.settings_clear_all_folders_desc, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)),
                     onClick = {
                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                        if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                        if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                             blacklistedFolders.forEach { folder ->
                                 appSettings.removeFolderFromBlacklist(folder)
                             }
@@ -394,15 +394,15 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     context.getString(R.string.settings_blacklist_mode),
                                     context.getString(R.string.settings_whitelist_mode)
                                 ),
-                                selectedIndex = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) 0 else 1,
+                                selectedIndex = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) 0 else 1,
                                 onItemClick = { index ->
                                     HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
                                     currentMode = if (index == 0) {
                                         appSettings.setMediaScanMode("blacklist")
-                                        com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST
+                                        chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST
                                     } else {
                                         appSettings.setMediaScanMode("whitelist")
-                                        com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.WHITELIST
+                                        chromahub.rhythm.app.shared.presentation.components.MediaScanMode.WHITELIST
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -411,7 +411,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             Spacer(modifier = Modifier.height(12.dp))
                             
                             Text(
-                                text = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                text = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                     context.getString(R.string.settings_blacklist_mode_desc)
                                 else
                                     context.getString(R.string.settings_whitelist_mode_desc),
@@ -578,7 +578,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             Text(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 style = MaterialTheme.typography.labelLarge,
-                                text = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked_songs) else context.getString(R.string.settings_whitelisted_songs),
+                                text = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked_songs) else context.getString(R.string.settings_whitelisted_songs),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -608,9 +608,9 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) RhythmIcons.Block else RhythmIcons.CheckCircle,
+                                imageVector = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) RhythmIcons.Block else RhythmIcons.CheckCircle,
                                 contentDescription = null,
-                                tint = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                     MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -622,7 +622,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted),
+                                text = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -697,7 +697,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                         .size(48.dp)
                                         .clip(CircleShape)
                                         .background(
-                                            if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                            if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                                 MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
                                             else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                         ),
@@ -706,7 +706,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.MusicNote,
                                         contentDescription = null,
-                                        tint = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                        tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.error
                                         else MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(24.dp)
@@ -736,14 +736,14 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                 FilledIconButton(
                                     onClick = {
                                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                                        if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                                        if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                                             appSettings.removeFromBlacklist(song.id)
                                         } else {
                                             appSettings.removeFromWhitelist(song.id)
                                         }
                                     },
                                     colors = IconButtonDefaults.filledIconButtonColors(
-                                        containerColor = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                        containerColor = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.errorContainer
                                         else MaterialTheme.colorScheme.primaryContainer
                                     )
@@ -751,7 +751,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.Close,
                                         contentDescription = stringResource(R.string.content_desc_remove),
-                                        tint = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                        tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
@@ -766,14 +766,14 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                     OutlinedButton(
                         onClick = {
                             HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                            if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                            if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                                 appSettings.clearBlacklist()
                             } else {
                                 appSettings.clearWhitelist()
                             }
                             showSongsBottomSheet = false
                         },
-                        border = BorderStroke(2.dp, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                        border = BorderStroke(2.dp, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                             MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -783,7 +783,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(context.getString(R.string.settings_clear_all_button, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)))
+                        Text(context.getString(R.string.settings_clear_all_button, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked) else context.getString(R.string.settings_whitelisted)))
                     }
                 }
             }
@@ -853,7 +853,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             Text(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 style = MaterialTheme.typography.labelLarge,
-                                text = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked_folders) else context.getString(R.string.settings_whitelisted_folders),
+                                text = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked_folders) else context.getString(R.string.settings_whitelisted_folders),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -879,9 +879,9 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) MaterialSymbolIcon("folder_off") else RhythmIcons.Folder,
+                            imageVector = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) MaterialSymbolIcon("folder_off") else RhythmIcons.Folder,
                             contentDescription = null,
-                            tint = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                            tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                 MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp)
                         )
@@ -893,7 +893,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked_folders) else context.getString(R.string.settings_whitelisted_folders),
+                            text = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) context.getString(R.string.settings_blocked_folders) else context.getString(R.string.settings_whitelisted_folders),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -929,7 +929,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                         .size(48.dp)
                                         .clip(CircleShape)
                                         .background(
-                                            if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                            if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                                 MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
                                             else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                         ),
@@ -938,7 +938,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.Folder,
                                         contentDescription = null,
-                                        tint = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                        tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -967,14 +967,14 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                 FilledIconButton(
                                     onClick = {
                                         HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.TextHandleMove)
-                                        if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                                        if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                                             appSettings.removeFolderFromBlacklist(folder)
                                         } else {
                                             appSettings.removeFolderFromWhitelist(folder)
                                         }
                                     },
                                     colors = IconButtonDefaults.filledIconButtonColors(
-                                        containerColor = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                        containerColor = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.errorContainer
                                         else MaterialTheme.colorScheme.primaryContainer
                                     )
@@ -982,7 +982,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                     Icon(
                                         imageVector = RhythmIcons.Close,
                                         contentDescription = context.getString(R.string.cd_remove),
-                                        tint = if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                                        tint = if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                             MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
@@ -1021,7 +1021,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                         OutlinedButton(
                             onClick = {
                                 HapticUtils.performHapticFeedback(context, haptic, HapticFeedbackType.LongPress)
-                                if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST) {
+                                if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST) {
                                     blacklistedFolders.forEach { folder ->
                                         appSettings.removeFolderFromBlacklist(folder)
                                     }
@@ -1032,7 +1032,7 @@ fun MediaScanSettingsScreen(onBackClick: () -> Unit) {
                                 }
                                 showFoldersBottomSheet = false
                             },
-                            border = BorderStroke(2.dp, if (currentMode == com.cinemaverse.mcu.shared.presentation.components.MediaScanMode.BLACKLIST)
+                            border = BorderStroke(2.dp, if (currentMode == chromahub.rhythm.app.shared.presentation.components.MediaScanMode.BLACKLIST)
                                 MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
                             modifier = Modifier.weight(1f)
                         ) {

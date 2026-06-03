@@ -1,7 +1,7 @@
-package com.cinemaverse.mcu.features.streaming.presentation.screens
+package chromahub.rhythm.app.features.streaming.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -38,14 +38,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOption
-import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
-import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledIconButton
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOption
+import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledIconButton
+import chromahub.rhythm.app.util.HapticUtils
 
 @Composable
 fun StreamingHomeScreen(

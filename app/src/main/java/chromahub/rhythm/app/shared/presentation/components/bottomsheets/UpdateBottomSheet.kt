@@ -1,7 +1,7 @@
-package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
+package chromahub.rhythm.app.shared.presentation.components.bottomsheets
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -20,10 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppUpdaterViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppVersion
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppVersion
+import chromahub.rhythm.app.util.HapticUtils
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)

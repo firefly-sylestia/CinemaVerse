@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.net.Uri
 import com.google.gson.*

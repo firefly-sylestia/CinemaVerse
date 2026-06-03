@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.utils
+package chromahub.rhythm.app.utils
 
 import android.content.Context
 import android.net.Uri

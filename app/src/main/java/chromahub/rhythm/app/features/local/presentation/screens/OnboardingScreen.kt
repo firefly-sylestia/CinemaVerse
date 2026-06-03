@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.local.presentation.screens
+package chromahub.rhythm.app.features.local.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.Manifest
 import android.os.Build
@@ -114,26 +114,26 @@ import android.provider.DocumentsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.AlbumViewType
-import com.cinemaverse.mcu.shared.data.model.ArtistViewType
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.presentation.components.common.DataProcessingLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.InitializationLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
-import com.cinemaverse.mcu.shared.presentation.components.common.M3LinearLoader
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.features.local.presentation.components.settings.LanguageSwitcherDialog
-import com.cinemaverse.mcu.features.local.presentation.components.settings.LibraryTabOrderBottomSheet
-import com.cinemaverse.mcu.features.local.presentation.screens.onboarding.OnboardingStep
-import com.cinemaverse.mcu.features.local.presentation.screens.onboarding.PermissionScreenState
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppUpdaterViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppVersion
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.ThemeViewModel
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.AlbumViewType
+import chromahub.rhythm.app.shared.data.model.ArtistViewType
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.common.DataProcessingLoader
+import chromahub.rhythm.app.shared.presentation.components.common.InitializationLoader
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
+import chromahub.rhythm.app.shared.presentation.components.common.M3LinearLoader
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.features.local.presentation.components.settings.LanguageSwitcherDialog
+import chromahub.rhythm.app.features.local.presentation.components.settings.LibraryTabOrderBottomSheet
+import chromahub.rhythm.app.features.local.presentation.screens.onboarding.OnboardingStep
+import chromahub.rhythm.app.features.local.presentation.screens.onboarding.PermissionScreenState
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppVersion
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.ThemeViewModel
+import chromahub.rhythm.app.util.HapticUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -152,12 +152,12 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShape
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShape
 import androidx.compose.ui.draw.shadow
-import com.cinemaverse.mcu.shared.presentation.components.common.StyledProgressBar
-import com.cinemaverse.mcu.shared.presentation.components.common.ProgressStyle
+import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
+import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -3652,9 +3652,9 @@ fun EnhancedAudioPlaybackContent(
                             description = context.getString(R.string.onboarding_lyrics_source_desc),
                             selectedOption = lyricsSourcePreference.displayName,
                             icon = MaterialSymbolIcon("cloud", filled = true),
-                            options = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
+                            options = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
                             onOptionSelected = { displayName ->
-                                val preference = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values()
+                                val preference = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values()
                                     .find { it.displayName == displayName }
                                 if (preference != null) {
                                     appSettings.setLyricsSourcePreference(preference)
@@ -3761,9 +3761,9 @@ fun EnhancedAudioPlaybackContent(
                             description = context.getString(R.string.onboarding_lyrics_source_desc),
                             selectedOption = lyricsSourcePreference.displayName,
                             icon = MaterialSymbolIcon("cloud", filled = true),
-                            options = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
+                            options = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
                             onOptionSelected = { displayName ->
-                                val preference = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values()
+                                val preference = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values()
                                     .find { it.displayName == displayName }
                                 if (preference != null) {
                                     appSettings.setLyricsSourcePreference(preference)
@@ -9967,7 +9967,7 @@ private fun IntegrationsSettingsCards(
         }
 
     val apiItems = buildList {
-        if (com.cinemaverse.mcu.BuildConfig.ENABLE_DEEZER) {
+        if (chromahub.rhythm.app.BuildConfig.ENABLE_DEEZER) {
             add(
                 onboardingToggleItem(
                     RhythmIcons.Public,
@@ -9978,7 +9978,7 @@ private fun IntegrationsSettingsCards(
                 )
             )
         }
-        if (com.cinemaverse.mcu.BuildConfig.ENABLE_APPLE_MUSIC) {
+        if (chromahub.rhythm.app.BuildConfig.ENABLE_APPLE_MUSIC) {
             add(
                 onboardingToggleItem(
                     MaterialSymbolIcon("music_note"),
@@ -9989,7 +9989,7 @@ private fun IntegrationsSettingsCards(
                 )
             )
         }
-        if (com.cinemaverse.mcu.BuildConfig.ENABLE_LRCLIB) {
+        if (chromahub.rhythm.app.BuildConfig.ENABLE_LRCLIB) {
             add(
                 onboardingToggleItem(
                     MaterialSymbolIcon("lyrics"),
@@ -10000,7 +10000,7 @@ private fun IntegrationsSettingsCards(
                 )
             )
         }
-        if (com.cinemaverse.mcu.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
+        if (chromahub.rhythm.app.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
             add(
                 onboardingToggleItem(
                     MaterialSymbolIcon("music_video"),
@@ -10383,7 +10383,7 @@ fun OnboardingAnimatedSwitch(
     enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
+    chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         enabled = enabled,

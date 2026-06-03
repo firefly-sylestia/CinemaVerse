@@ -1,6 +1,6 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
-import com.cinemaverse.mcu.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.random.Random

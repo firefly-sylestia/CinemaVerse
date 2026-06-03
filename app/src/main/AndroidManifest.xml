@@ -36,7 +36,7 @@
     </queries>
 
     <application
-        android:name=".CinemaVerseApplication"
+        android:name=".RhythmApplication"
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -46,7 +46,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:localeConfig="@xml/locale_config"
-        android:theme="@style/Theme.CinemaVerse"
+        android:theme="@style/Theme.Rhythm"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="36">
         
@@ -83,9 +83,9 @@
             android:label="Rhythm Music (Legacy)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.cinemaverse.mcu.infrastructure.widget.PLAY_PAUSE" />
-                <action android:name="com.cinemaverse.mcu.infrastructure.widget.SKIP_NEXT" />
-                <action android:name="com.cinemaverse.mcu.infrastructure.widget.SKIP_PREVIOUS" />
+                <action android:name="chromahub.rhythm.app.infrastructure.widget.PLAY_PAUSE" />
+                <action android:name="chromahub.rhythm.app.infrastructure.widget.SKIP_NEXT" />
+                <action android:name="chromahub.rhythm.app.infrastructure.widget.SKIP_PREVIOUS" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

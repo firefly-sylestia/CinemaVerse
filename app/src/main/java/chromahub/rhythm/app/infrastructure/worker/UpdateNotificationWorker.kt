@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.worker
+package chromahub.rhythm.app.worker
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,11 +10,11 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.cinemaverse.mcu.BuildConfig
-import com.cinemaverse.mcu.activities.MainActivity
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.network.NetworkManager
+import chromahub.rhythm.app.BuildConfig
+import chromahub.rhythm.app.activities.MainActivity
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.network.NetworkManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
@@ -65,8 +65,8 @@ import java.util.concurrent.TimeUnit
  * - Authenticated: 5000 requests/hour
  * - This worker typically uses <10 requests/day with smart polling
  * 
- * @see com.cinemaverse.mcu.shared.data.model.AppSettings.updateNotificationsEnabled
- * @see com.cinemaverse.mcu.shared.data.model.AppSettings.useSmartUpdatePolling
+ * @see chromahub.rhythm.app.shared.data.model.AppSettings.updateNotificationsEnabled
+ * @see chromahub.rhythm.app.shared.data.model.AppSettings.useSmartUpdatePolling
  */
 class UpdateNotificationWorker(
     context: Context,
@@ -236,9 +236,9 @@ class UpdateNotificationWorker(
                         val latestRelease = if (channel == "beta") {
                             // For beta channel, get all releases and find first non-draft
                             @Suppress("UNCHECKED_CAST")
-                            (response.body() as? List<com.cinemaverse.mcu.network.GitHubRelease>)?.firstOrNull { !it.draft }
+                            (response.body() as? List<chromahub.rhythm.app.network.GitHubRelease>)?.firstOrNull { !it.draft }
                         } else {
-                            response.body() as? com.cinemaverse.mcu.network.GitHubRelease
+                            response.body() as? chromahub.rhythm.app.network.GitHubRelease
                         }
                         
                         if (latestRelease != null) {

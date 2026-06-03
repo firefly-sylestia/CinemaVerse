@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.data.viewing
+package chromahub.rhythm.app.shared.data.viewing
 
 object ViewingLists {
     private val releaseItems = listOf(

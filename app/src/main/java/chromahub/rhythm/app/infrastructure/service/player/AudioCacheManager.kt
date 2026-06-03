@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.service.player
+package chromahub.rhythm.app.infrastructure.service.player
 
 import android.content.Context
 import androidx.annotation.OptIn

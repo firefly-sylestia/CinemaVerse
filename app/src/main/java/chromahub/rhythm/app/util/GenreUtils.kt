@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 /**
  * Utility methods for parsing and matching multi-genre metadata.

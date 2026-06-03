@@ -1,15 +1,15 @@
-package com.cinemaverse.mcu.features.local.presentation.screens
+package chromahub.rhythm.app.features.local.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.content.Context
 import androidx.compose.ui.focus.FocusRequester
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.Toast
-import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsSearchBar
+import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsSearchBar
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -83,8 +83,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongPickerBottomSheet
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongPickerBottomSheet
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.ui.platform.LocalConfiguration
@@ -100,32 +100,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.presentation.components.player.MiniPlayer
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons.Search
-import com.cinemaverse.mcu.ui.LocalMiniPlayerPadding
-import com.cinemaverse.mcu.ui.UiConstants
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistExportDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistImportDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistOperationProgressDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.PlaylistOperationResultDialog
-import com.cinemaverse.mcu.util.PlaylistImportExportUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Search
+import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
+import chromahub.rhythm.app.ui.UiConstants
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistExportDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistImportDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistOperationProgressDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.PlaylistOperationResultDialog
+import chromahub.rhythm.app.util.PlaylistImportExportUtils
 import android.net.Uri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.util.ImageUtils
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.util.M3ImageUtils
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.DragDropLazyColumn
-import com.cinemaverse.mcu.shared.presentation.components.player.formatDuration
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.PlaylistSongOptionsBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.util.ImageUtils
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.util.M3ImageUtils
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.DragDropLazyColumn
+import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.PlaylistSongOptionsBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
 import kotlinx.coroutines.delay // Import delay
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -139,7 +139,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.collectAsState
-import com.cinemaverse.mcu.shared.presentation.components.player.PlayingEqIcon
+import chromahub.rhythm.app.shared.presentation.components.player.PlayingEqIcon
 import androidx.compose.ui.graphics.Color
 import androidx.room.util.copy
 import androidx.compose.material3.BottomSheetDefaults
@@ -241,7 +241,7 @@ fun PlaylistDetailScreen(
 
     val haptics = LocalHapticFeedback.current
     val context = LocalContext.current
-    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
     val writePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->

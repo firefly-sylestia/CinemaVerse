@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -14,8 +14,8 @@ import coil.compose.AsyncImagePainter
 import coil.request.ErrorResult
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.random.Random

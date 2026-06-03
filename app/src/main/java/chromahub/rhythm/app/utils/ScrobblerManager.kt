@@ -1,9 +1,9 @@
-package com.cinemaverse.mcu.utils
+package chromahub.rhythm.app.utils
 
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.cinemaverse.mcu.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.model.Song
 
 /**
  * ScrobblerManager handles broadcasting scrobble intents to Last.fm, Pano Scrobbler,

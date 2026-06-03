@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.local.data.model
+package chromahub.rhythm.app.features.local.data.model
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp

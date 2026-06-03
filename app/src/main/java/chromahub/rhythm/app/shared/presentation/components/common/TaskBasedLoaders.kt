@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.components.common
+package chromahub.rhythm.app.shared.presentation.components.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.features.streaming.infrastructure.notification
+package chromahub.rhythm.app.features.streaming.infrastructure.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.activities.MainActivity
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.activities.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

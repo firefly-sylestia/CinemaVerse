@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.service.player
+package chromahub.rhythm.app.infrastructure.service.player
 
 import android.content.Context
 import android.net.Uri
@@ -14,8 +14,8 @@ import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.ResolvingDataSource
 import androidx.media3.datasource.DataSpec
-import com.cinemaverse.mcu.features.streaming.di.StreamingMusicModule
-import com.cinemaverse.mcu.shared.data.model.AppSettings
+import chromahub.rhythm.app.features.streaming.di.StreamingMusicModule
+import chromahub.rhythm.app.shared.data.model.AppSettings
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 

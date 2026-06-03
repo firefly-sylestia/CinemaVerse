@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.streaming.presentation.navigation
+package chromahub.rhythm.app.features.streaming.presentation.navigation
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.app.Activity
 import android.net.Uri
@@ -86,52 +86,52 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog
-import com.cinemaverse.mcu.shared.presentation.components.player.MiniPlayer
-import com.cinemaverse.mcu.features.local.presentation.navigation.Screen
-import com.cinemaverse.mcu.features.local.presentation.screens.AddToPlaylistScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.ArtistDetailScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.EqualizerScreen
-import com.cinemaverse.mcu.shared.presentation.screens.RhythmStatsScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.PlaylistDetailScreen
-import com.cinemaverse.mcu.shared.presentation.screens.player.PlayerScreen
-import com.cinemaverse.mcu.shared.presentation.screens.settings.RhythmGuardSettingsScreen
-import com.cinemaverse.mcu.shared.presentation.screens.settings.QueueSettingsScreen
-import com.cinemaverse.mcu.shared.presentation.screens.settings.PlaybackSettingsScreen
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel as LocalMusicViewModel
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingArtist
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingSong
-import com.cinemaverse.mcu.features.streaming.presentation.screens.StreamingContentHomeScreen
-import com.cinemaverse.mcu.features.streaming.presentation.screens.StreamingHomeScreen
-import com.cinemaverse.mcu.features.streaming.presentation.screens.StreamingLibraryScreen
-import com.cinemaverse.mcu.features.streaming.presentation.screens.StreamingServiceSetupScreen
-import com.cinemaverse.mcu.features.streaming.presentation.screens.GoSettingsScreen
-import com.cinemaverse.mcu.features.streaming.presentation.screens.toLibraryAlbum
-import com.cinemaverse.mcu.features.streaming.presentation.screens.toLibraryPlaylist
-import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import com.cinemaverse.mcu.shared.data.model.Album
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Artist
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
+import chromahub.rhythm.app.features.local.presentation.navigation.Screen
+import chromahub.rhythm.app.features.local.presentation.screens.AddToPlaylistScreen
+import chromahub.rhythm.app.features.local.presentation.screens.ArtistDetailScreen
+import chromahub.rhythm.app.features.local.presentation.screens.EqualizerScreen
+import chromahub.rhythm.app.shared.presentation.screens.RhythmStatsScreen
+import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
+import chromahub.rhythm.app.shared.presentation.screens.player.PlayerScreen
+import chromahub.rhythm.app.shared.presentation.screens.settings.RhythmGuardSettingsScreen
+import chromahub.rhythm.app.shared.presentation.screens.settings.QueueSettingsScreen
+import chromahub.rhythm.app.shared.presentation.screens.settings.PlaybackSettingsScreen
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel as LocalMusicViewModel
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
+import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingContentHomeScreen
+import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingHomeScreen
+import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingLibraryScreen
+import chromahub.rhythm.app.features.streaming.presentation.screens.StreamingServiceSetupScreen
+import chromahub.rhythm.app.features.streaming.presentation.screens.GoSettingsScreen
+import chromahub.rhythm.app.features.streaming.presentation.screens.toLibraryAlbum
+import chromahub.rhythm.app.features.streaming.presentation.screens.toLibraryPlaylist
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.rememberModalBottomSheetState
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongPickerBottomSheet
-import com.cinemaverse.mcu.ui.LocalMiniPlayerPadding
-import com.cinemaverse.mcu.ui.UiConstants
-import com.cinemaverse.mcu.ui.theme.MusicDimensions
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsScreenWrapper
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongPickerBottomSheet
+import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
+import chromahub.rhythm.app.ui.UiConstants
+import chromahub.rhythm.app.ui.theme.MusicDimensions
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsScreenWrapper
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -810,11 +810,11 @@ fun StreamingNavigation(
                 }
             ) {
                 var showAlbumBottomSheet by remember { mutableStateOf(false) }
-                var selectedAlbumForSheet by remember { mutableStateOf<com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum?>(null) }
+                var selectedAlbumForSheet by remember { mutableStateOf<chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum?>(null) }
                 val albumSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
                 val scope = rememberCoroutineScope()
 
-                com.cinemaverse.mcu.shared.presentation.screens.UniversalSearchScreen(
+                chromahub.rhythm.app.shared.presentation.screens.UniversalSearchScreen(
                     localViewModel = localMusicViewModel,
                     streamingViewModel = streamingMusicViewModel,
                     onLocalSongClick = { song ->
@@ -1818,7 +1818,7 @@ fun StreamingNavigation(
                 )
                 
                 if (showCreatePlaylistDialog) {
-                    com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog(
+                    chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog(
                         onDismiss = { showCreatePlaylistDialog = false },
                         onConfirm = { name ->
                             streamingMusicViewModel.createPlaylist(name)

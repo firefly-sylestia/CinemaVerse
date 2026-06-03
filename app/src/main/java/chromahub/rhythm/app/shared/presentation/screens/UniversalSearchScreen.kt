@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.shared.presentation.screens
+package chromahub.rhythm.app.shared.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -50,36 +50,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.net.Uri
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingArtist
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist
-import com.cinemaverse.mcu.features.streaming.domain.model.StreamingSong
-import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import com.cinemaverse.mcu.shared.data.model.Album
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.data.model.Artist
-import com.cinemaverse.mcu.shared.data.model.Playlist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
-import com.cinemaverse.mcu.shared.data.viewing.ViewingList
-import com.cinemaverse.mcu.shared.data.viewing.ViewingLists
-import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.components.SettingScope
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.SwitchModeDialog
-import com.cinemaverse.mcu.ui.LocalMiniPlayerPadding
-import com.cinemaverse.mcu.util.GenreUtils
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.util.ImageUtils
-import com.cinemaverse.mcu.util.M3ImageUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
+import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.Playlist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.viewing.ViewingItem
+import chromahub.rhythm.app.shared.data.viewing.ViewingList
+import chromahub.rhythm.app.shared.data.viewing.ViewingLists
+import chromahub.rhythm.app.shared.util.ViewingArtworkUtils
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.SettingScope
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.dialogs.SwitchModeDialog
+import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
+import chromahub.rhythm.app.util.GenreUtils
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.util.ImageUtils
+import chromahub.rhythm.app.util.M3ImageUtils
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.delay
@@ -1042,7 +1042,7 @@ fun UniversalSearchScreen(
                     if (isLocal) {
                         val separatorEnabled = appSettings.artistSeparatorEnabled.value
                         val delimiters = appSettings.artistSeparatorDelimiters.value.ifBlank { "/;,+&" }
-                        val songArtistNames = com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
+                        val songArtistNames = chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
                             artistName = (songObj as Song).artist,
                             delimiters = delimiters,
                             enabled = separatorEnabled
@@ -1869,7 +1869,7 @@ private fun UniversalSongOptionsHeader(
 
 @Composable
 private fun UniversalSongOptionGridItem(
-    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
     text: String,
     containerColor: Color,
     iconColor: Color,
@@ -2203,7 +2203,7 @@ private fun UniversalGenreBrowseItemCard(
     }
 }
 
-private fun universalGenreIconFor(genre: String): com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon {
+private fun universalGenreIconFor(genre: String): chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon {
     val normalized = genre.lowercase()
     return when {
         normalized.contains("hip hop") || normalized.contains("hip-hop") || normalized.contains("rap") || normalized.contains("trap") -> MaterialSymbolIcon("mic")

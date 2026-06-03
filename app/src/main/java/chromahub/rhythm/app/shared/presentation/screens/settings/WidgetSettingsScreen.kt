@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.shared.presentation.screens.settings
+package chromahub.rhythm.app.shared.presentation.screens.settings
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -30,14 +30,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.infrastructure.widget.MusicWidgetProvider
-import com.cinemaverse.mcu.infrastructure.widget.glance.RhythmWidgetReceiver
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.infrastructure.widget.MusicWidgetProvider
+import chromahub.rhythm.app.infrastructure.widget.glance.RhythmWidgetReceiver
+import chromahub.rhythm.app.R
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)

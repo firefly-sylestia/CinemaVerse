@@ -1,11 +1,11 @@
-package com.cinemaverse.mcu.worker
+package chromahub.rhythm.app.worker
 
 import android.content.Context
 import android.os.Environment
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.cinemaverse.mcu.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.util
+package chromahub.rhythm.app.util
 
 import android.content.Context
 import android.content.Intent
-import com.cinemaverse.mcu.activities.MainActivity
+import chromahub.rhythm.app.activities.MainActivity
 
 object AppRestarter {
     fun restartApp(context: Context) {

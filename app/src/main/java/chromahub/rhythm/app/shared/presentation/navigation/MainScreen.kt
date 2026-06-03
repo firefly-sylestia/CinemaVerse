@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.navigation
+package chromahub.rhythm.app.shared.presentation.navigation
 
 /**
  * Main navigation screens for mode selection and top-level routing.

@@ -5,11 +5,11 @@
 // These will become stable in future Material3 releases
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 
-package com.cinemaverse.mcu.features.local.presentation.screens
+package chromahub.rhythm.app.features.local.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -119,14 +119,14 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import com.cinemaverse.mcu.shared.presentation.components.common.RhythmGuardCard
+import chromahub.rhythm.app.shared.presentation.components.common.RhythmGuardCard
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.ui.theme.festive.FestiveConfig
-import com.cinemaverse.mcu.ui.theme.festive.FestiveThemeEngine
-import com.cinemaverse.mcu.ui.theme.festive.FestiveThemeType
-import com.cinemaverse.mcu.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.ui.theme.festive.FestiveConfig
+import chromahub.rhythm.app.ui.theme.festive.FestiveThemeEngine
+import chromahub.rhythm.app.ui.theme.festive.FestiveThemeType
+import chromahub.rhythm.app.shared.data.model.AppSettings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -163,44 +163,44 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import com.cinemaverse.mcu.util.performIfEnabled
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.shared.data.model.Album
-import com.cinemaverse.mcu.shared.data.model.Artist
-import com.cinemaverse.mcu.shared.data.model.Song
-import com.cinemaverse.mcu.shared.data.service.MovieMetadataService
-import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
-import com.cinemaverse.mcu.shared.data.viewing.ViewingLists
-import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
-import com.cinemaverse.mcu.shared.presentation.components.player.MiniPlayer
-import com.cinemaverse.mcu.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledTonalButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveOutlinedButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledIconButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledTonalIconButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveLargeIconButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveCard
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveElevatedCard
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
-import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ActionProgressLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.NetworkOperationLoader
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveAnimatedCounter
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import com.cinemaverse.mcu.util.ImageUtils
-import com.cinemaverse.mcu.util.M3ImageUtils
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppVersion
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.util.performIfEnabled
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.shared.data.model.Album
+import chromahub.rhythm.app.shared.data.model.Artist
+import chromahub.rhythm.app.shared.data.model.Song
+import chromahub.rhythm.app.shared.data.service.MovieMetadataService
+import chromahub.rhythm.app.shared.data.viewing.ViewingItem
+import chromahub.rhythm.app.shared.data.viewing.ViewingLists
+import chromahub.rhythm.app.shared.util.ViewingArtworkUtils
+import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
+import chromahub.rhythm.app.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledTonalButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveOutlinedButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledIconButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledTonalIconButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveLargeIconButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveCard
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveElevatedCard
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
+import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
+import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
+import chromahub.rhythm.app.shared.presentation.components.common.ActionProgressLoader
+import chromahub.rhythm.app.shared.presentation.components.common.NetworkOperationLoader
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveAnimatedCounter
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.util.ImageUtils
+import chromahub.rhythm.app.util.M3ImageUtils
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppVersion
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -215,7 +215,7 @@ import androidx.compose.ui.res.stringResource
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
+    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
     songs: List<Song>,
     albums: List<Album>,
     artists: List<Artist>,
@@ -594,7 +594,7 @@ private fun ModernScrollableContent(
     onNavigateToLibrary: () -> Unit = {},
     onNavigateToPlaylist: (String) -> Unit = {},
     onNavigateToStats: () -> Unit = {},
-    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
+    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
     coroutineScope: CoroutineScope
 ) {
     val context = LocalContext.current
@@ -1118,7 +1118,7 @@ private fun ModernWelcomeSection(
     onSearchClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
     val recentlyPlayed by viewModel.recentlyPlayed.collectAsState()
     val haptic = LocalHapticFeedback.current
 
@@ -1281,7 +1281,7 @@ private fun ModernWelcomeSection(
 private fun ModernRecentlyPlayedSection(
     recentlyPlayed: List<Song>,
     onSongClick: (Song) -> Unit,
-    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
+    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
     coroutineScope: CoroutineScope,
     widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
@@ -1764,7 +1764,7 @@ private fun ModernFeaturedSection(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -2014,7 +2014,7 @@ private fun ModernArtistCard(
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
     val haptic = LocalHapticFeedback.current
 
     val cardSize = when (widthSizeClass) {
@@ -2108,7 +2108,7 @@ private fun ModernAlbumCard(
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
     val haptic = LocalHapticFeedback.current
 
     val (cardWidth, cardHeight) = when (widthSizeClass) {
@@ -2337,13 +2337,13 @@ private fun ModernListeningStatsSection(
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
     val songs by viewModel.songs.collectAsState()
 
-    var statsSummary by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.PlaybackStatsSummary?>(null) }
+    var statsSummary by remember { mutableStateOf<chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.PlaybackStatsSummary?>(null) }
 
     LaunchedEffect(songs) {
-        statsSummary = viewModel.loadPlaybackStats(com.cinemaverse.mcu.shared.data.repository.StatsTimeRange.ALL_TIME)
+        statsSummary = viewModel.loadPlaybackStats(chromahub.rhythm.app.shared.data.repository.StatsTimeRange.ALL_TIME)
     }
 
     val listeningTimeHours = remember(statsSummary) {

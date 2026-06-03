@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.service.player
+package chromahub.rhythm.app.infrastructure.service.player
 
 import android.content.Context
 import android.media.AudioFocusRequest
@@ -20,15 +20,15 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.DataSpec
 import android.os.Build
 import androidx.media3.common.TrackSelectionParameters
-import com.cinemaverse.mcu.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.data.model.AppSettings
 import android.net.Uri
-import com.cinemaverse.mcu.features.streaming.di.StreamingMusicModule
+import chromahub.rhythm.app.features.streaming.di.StreamingMusicModule
 import kotlinx.coroutines.runBlocking
 import androidx.media3.datasource.cache.CacheDataSource
-import com.cinemaverse.mcu.infrastructure.audio.RhythmBassBoostProcessor
-import com.cinemaverse.mcu.infrastructure.audio.RhythmSpatializationProcessor
-import com.cinemaverse.mcu.shared.data.model.TransitionSettings
-import com.cinemaverse.mcu.util.envelope
+import chromahub.rhythm.app.infrastructure.audio.RhythmBassBoostProcessor
+import chromahub.rhythm.app.infrastructure.audio.RhythmSpatializationProcessor
+import chromahub.rhythm.app.shared.data.model.TransitionSettings
+import chromahub.rhythm.app.util.envelope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

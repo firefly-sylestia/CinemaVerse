@@ -1,11 +1,11 @@
-package com.cinemaverse.mcu.shared.data.repository
+package chromahub.rhythm.app.shared.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.cinemaverse.mcu.core.domain.model.AppMode
-import com.cinemaverse.mcu.core.domain.model.SourceType
-import com.cinemaverse.mcu.core.domain.model.StreamingConfig
-import com.cinemaverse.mcu.core.domain.model.StreamingQuality
+import chromahub.rhythm.app.core.domain.model.AppMode
+import chromahub.rhythm.app.core.domain.model.SourceType
+import chromahub.rhythm.app.core.domain.model.StreamingConfig
+import chromahub.rhythm.app.core.domain.model.StreamingQuality
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

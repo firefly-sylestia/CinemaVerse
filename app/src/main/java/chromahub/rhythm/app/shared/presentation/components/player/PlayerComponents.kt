@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.shared.presentation.components.player
+package chromahub.rhythm.app.shared.presentation.components.player
 
 import java.util.concurrent.TimeUnit
 

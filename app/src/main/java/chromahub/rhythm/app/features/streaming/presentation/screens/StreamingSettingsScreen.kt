@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.streaming.presentation.screens
+package chromahub.rhythm.app.features.streaming.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.content.Context
 import androidx.annotation.StringRes
@@ -41,17 +41,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.core.domain.model.StreamingQuality
-import com.cinemaverse.mcu.core.utils.NetworkUtils
-import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch
-import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
-import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.core.domain.model.StreamingQuality
+import chromahub.rhythm.app.core.utils.NetworkUtils
+import chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch
+import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.util.HapticUtils
 
 @Composable
 fun StreamingSettingsScreen(
@@ -204,7 +204,7 @@ fun StreamingSettingsScreen(
                             description = { Text(text = stringResource(id = R.string.exp_go_mode_desc)) },
                             onClick = {
                                 // Set settings host to open the Go Settings pane, then open settings
-                                appSettings.setInitialSettingsSubroute(com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsRoutes.GO_SETTINGS)
+                                appSettings.setInitialSettingsSubroute(chromahub.rhythm.app.shared.presentation.screens.settings.SettingsRoutes.GO_SETTINGS)
                                 onOpenGlobalSettings()
                             }
                         )
@@ -419,7 +419,7 @@ private fun StreamingStatusCard(
 @Composable
 private fun ServiceSelectionBottomSheet(
     selectedService: String,
-    sessions: Map<String, com.cinemaverse.mcu.features.streaming.data.repository.StreamingServiceSession>,
+    sessions: Map<String, chromahub.rhythm.app.features.streaming.data.repository.StreamingServiceSession>,
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit
 ) {

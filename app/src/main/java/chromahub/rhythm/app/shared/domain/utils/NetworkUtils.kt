@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.core.utils
+package chromahub.rhythm.app.core.utils
 
 import android.content.Context
 import android.net.ConnectivityManager

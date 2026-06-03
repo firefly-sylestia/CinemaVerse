@@ -1,7 +1,7 @@
-package com.cinemaverse.mcu.network
+package chromahub.rhythm.app.network
 
 import android.util.Log
-import com.cinemaverse.mcu.BuildConfig
+import chromahub.rhythm.app.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -14,10 +14,10 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import kotlin.math.pow
-import com.cinemaverse.mcu.network.LRCLibApiService
-import com.cinemaverse.mcu.network.DeezerApiService
-import com.cinemaverse.mcu.network.SpotifySearchApiService
-import com.cinemaverse.mcu.network.YTMusicApiService
+import chromahub.rhythm.app.network.LRCLibApiService
+import chromahub.rhythm.app.network.DeezerApiService
+import chromahub.rhythm.app.network.SpotifySearchApiService
+import chromahub.rhythm.app.network.YTMusicApiService
 
 object NetworkClient {
     private const val TAG = "NetworkClient"
@@ -38,9 +38,9 @@ object NetworkClient {
     private val connectionPool = ConnectionPool(5, 30, TimeUnit.SECONDS)
     
     // Store reference to AppSettings for dynamic API key
-    private var appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings? = null
+    private var appSettings: chromahub.rhythm.app.shared.data.model.AppSettings? = null
     
-    fun initialize(appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings) {
+    fun initialize(appSettings: chromahub.rhythm.app.shared.data.model.AppSettings) {
         this.appSettings = appSettings
     }
     

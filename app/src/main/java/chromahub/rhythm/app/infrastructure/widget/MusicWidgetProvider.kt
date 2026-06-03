@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.widget
+package chromahub.rhythm.app.infrastructure.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -12,9 +12,9 @@ import android.net.Uri
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.graphics.drawable.toBitmap
-import com.cinemaverse.mcu.activities.MainActivity
-import com.cinemaverse.mcu.R
-import com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService
+import chromahub.rhythm.app.activities.MainActivity
+import chromahub.rhythm.app.R
+import chromahub.rhythm.app.infrastructure.service.MediaPlaybackService
 import coil.ImageLoader
 import coil.request.ImageRequest
 import kotlinx.coroutines.CoroutineScope
@@ -28,9 +28,9 @@ class MusicWidgetProvider : AppWidgetProvider() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     companion object {
-        const val ACTION_PLAY_PAUSE = "com.cinemaverse.mcu.infrastructure.widget.PLAY_PAUSE"
-        const val ACTION_SKIP_NEXT = "com.cinemaverse.mcu.infrastructure.widget.SKIP_NEXT"
-        const val ACTION_SKIP_PREVIOUS = "com.cinemaverse.mcu.infrastructure.widget.SKIP_PREVIOUS"
+        const val ACTION_PLAY_PAUSE = "chromahub.rhythm.app.infrastructure.widget.PLAY_PAUSE"
+        const val ACTION_SKIP_NEXT = "chromahub.rhythm.app.infrastructure.widget.SKIP_NEXT"
+        const val ACTION_SKIP_PREVIOUS = "chromahub.rhythm.app.infrastructure.widget.SKIP_PREVIOUS"
         
         fun updateWidgets(context: Context) {
             val intent = Intent(context, MusicWidgetProvider::class.java).apply {

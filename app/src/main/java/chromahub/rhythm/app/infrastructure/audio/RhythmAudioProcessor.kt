@@ -1,4 +1,4 @@
-package com.cinemaverse.mcu.infrastructure.audio
+package chromahub.rhythm.app.infrastructure.audio
 
 import android.util.Log
 import androidx.annotation.OptIn

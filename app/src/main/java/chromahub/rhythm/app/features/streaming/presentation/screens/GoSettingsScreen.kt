@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.streaming.presentation.screens
+package chromahub.rhythm.app.features.streaming.presentation.screens
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloatAsState
@@ -21,14 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.cinemaverse.mcu.core.domain.model.StreamingQuality
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
-import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
-import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch
-import com.cinemaverse.mcu.util.HapticUtils
+import chromahub.rhythm.app.core.domain.model.StreamingQuality
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
+import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
+import chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch
+import chromahub.rhythm.app.util.HapticUtils
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.BottomSheetDefaults
@@ -39,13 +39,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.dp
-import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
-import com.cinemaverse.mcu.util.AppRestarter
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.AppRestartDialog
-import com.cinemaverse.mcu.core.utils.NetworkUtils
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
+import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
+import chromahub.rhythm.app.util.AppRestarter
+import chromahub.rhythm.app.shared.presentation.components.dialogs.AppRestartDialog
+import chromahub.rhythm.app.core.utils.NetworkUtils
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
 import androidx.compose.ui.text.style.TextOverflow
-import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOption
+import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOption
 import androidx.annotation.StringRes
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +53,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -275,7 +275,7 @@ fun GoSettingsScreen(
             },
             title = {
                 Text(
-                    text = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_switch_provider_confirm_title),
+                    text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_switch_provider_confirm_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -284,7 +284,7 @@ fun GoSettingsScreen(
                 val currentLabel = selectedServiceLabel(selectedService, context)
                 val pendingLabel = selectedServiceLabel(pendingId, context)
                 Text(
-                    text = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_switch_provider_confirm_desc, currentLabel, pendingLabel),
+                    text = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_switch_provider_confirm_desc, currentLabel, pendingLabel),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -298,12 +298,12 @@ fun GoSettingsScreen(
                     pendingServiceSelection = null
                     showServiceSheet = false
                 }) {
-                    Text(text = stringResource(id = com.cinemaverse.mcu.R.string.action_switch))
+                    Text(text = stringResource(id = chromahub.rhythm.app.R.string.action_switch))
                 }
             },
             dismissButton = {
                 OutlinedButton(onClick = { pendingServiceSelection = null }) {
-                    Text(text = stringResource(id = com.cinemaverse.mcu.R.string.action_cancel))
+                    Text(text = stringResource(id = chromahub.rhythm.app.R.string.action_cancel))
                 }
             }
         )
@@ -343,9 +343,9 @@ private fun StreamingStatusCard(
     serverUrl: String
 ) {
     val badgeText = when {
-        isLoading -> stringResource(id = com.cinemaverse.mcu.R.string.streaming_status_badge_refreshing)
-        isConnected -> stringResource(id = com.cinemaverse.mcu.R.string.streaming_status_badge_connected)
-        else -> stringResource(id = com.cinemaverse.mcu.R.string.streaming_status_badge_pending)
+        isLoading -> stringResource(id = chromahub.rhythm.app.R.string.streaming_status_badge_refreshing)
+        isConnected -> stringResource(id = chromahub.rhythm.app.R.string.streaming_status_badge_connected)
+        else -> stringResource(id = chromahub.rhythm.app.R.string.streaming_status_badge_pending)
     }
 
     val badgeContainerColor = when {
@@ -436,7 +436,7 @@ private fun StreamingStatusCard(
                 )
             } else {
                 Text(
-                    text = stringResource(id = com.cinemaverse.mcu.R.string.streaming_status_connect_hint),
+                    text = stringResource(id = chromahub.rhythm.app.R.string.streaming_status_connect_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
                 )
@@ -448,7 +448,7 @@ private fun StreamingStatusCard(
 @Composable
 private fun ServiceSelectionBottomSheet(
     selectedService: String,
-    sessions: Map<String, com.cinemaverse.mcu.features.streaming.data.repository.StreamingServiceSession>,
+    sessions: Map<String, chromahub.rhythm.app.features.streaming.data.repository.StreamingServiceSession>,
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit
 ) {
@@ -463,8 +463,8 @@ private fun ServiceSelectionBottomSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         StandardBottomSheetHeader(
-            title = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_preferred_service),
-            subtitle = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_service_sheet_desc),
+            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_preferred_service),
+            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_service_sheet_desc),
             visible = true
         )
         Column(
@@ -527,9 +527,9 @@ private fun ServiceSelectionBottomSheet(
                             )
                             Text(
                                 text = if (isConnected) {
-                                    stringResource(id = com.cinemaverse.mcu.R.string.streaming_status_connected)
+                                    stringResource(id = chromahub.rhythm.app.R.string.streaming_status_connected)
                                 } else {
-                                    stringResource(id = com.cinemaverse.mcu.R.string.streaming_status_not_connected)
+                                    stringResource(id = chromahub.rhythm.app.R.string.streaming_status_not_connected)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (isSelected) {
@@ -574,8 +574,8 @@ private fun QualitySelectionBottomSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         StandardBottomSheetHeader(
-            title = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_quality),
-            subtitle = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_quality_sheet_desc),
+            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality),
+            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality_sheet_desc),
             visible = true
         )
         Column(
@@ -588,10 +588,10 @@ private fun QualitySelectionBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             val streamingQualityOptions = listOf(
-                Pair("LOW", com.cinemaverse.mcu.R.string.streaming_quality_low),
-                Pair("NORMAL", com.cinemaverse.mcu.R.string.streaming_quality_normal),
-                Pair("HIGH", com.cinemaverse.mcu.R.string.streaming_quality_high),
-                Pair("LOSSLESS", com.cinemaverse.mcu.R.string.streaming_quality_lossless)
+                Pair("LOW", chromahub.rhythm.app.R.string.streaming_quality_low),
+                Pair("NORMAL", chromahub.rhythm.app.R.string.streaming_quality_normal),
+                Pair("HIGH", chromahub.rhythm.app.R.string.streaming_quality_high),
+                Pair("LOSSLESS", chromahub.rhythm.app.R.string.streaming_quality_lossless)
             )
 
             streamingQualityOptions.forEach { option ->
@@ -663,5 +663,5 @@ private fun QualitySelectionBottomSheet(
 
 private fun selectedServiceLabel(selectedService: String, context: Context): String {
     val matching = StreamingServiceOptions.defaults.firstOrNull { it.id == selectedService }
-    return matching?.let { context.getString(it.nameRes) } ?: context.getString(com.cinemaverse.mcu.R.string.streaming_not_selected)
+    return matching?.let { context.getString(it.nameRes) } ?: context.getString(chromahub.rhythm.app.R.string.streaming_not_selected)
 }

@@ -1,8 +1,8 @@
-package com.cinemaverse.mcu.features.local.presentation.navigation
+package chromahub.rhythm.app.features.local.presentation.navigation
 
-import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
 
 import android.content.Context
 import android.net.Uri
@@ -51,7 +51,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import com.cinemaverse.mcu.ui.theme.MusicDimensions
+import chromahub.rhythm.app.ui.theme.MusicDimensions
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -67,10 +67,10 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongPickerBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledIconButton
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongPickerBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledIconButton
+import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
@@ -87,8 +87,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.cinemaverse.mcu.ui.LocalMiniPlayerPadding
-import com.cinemaverse.mcu.ui.UiConstants
+import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
+import chromahub.rhythm.app.ui.UiConstants
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
@@ -96,43 +96,43 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cinemaverse.mcu.R
+import chromahub.rhythm.app.R
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.ArtistBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.UpdateBottomSheet
-import com.cinemaverse.mcu.shared.data.model.AppSettings
-import com.cinemaverse.mcu.features.local.presentation.screens.AddToPlaylistScreen
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.QueueActionDialog
-import com.cinemaverse.mcu.shared.presentation.components.dialogs.QueueListActionDialog
-import com.cinemaverse.mcu.shared.presentation.components.player.MiniPlayer
-import com.cinemaverse.mcu.shared.presentation.components.player.SleepTimerBottomSheetNew
-import com.cinemaverse.mcu.features.local.presentation.screens.LibraryScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.HomeScreen
-import com.cinemaverse.mcu.shared.presentation.screens.RhythmStatsScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.EqualizerScreen
-import com.cinemaverse.mcu.shared.presentation.screens.player.PlayerScreen
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AddToPlaylistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ArtistBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import chromahub.rhythm.app.shared.presentation.components.bottomsheets.UpdateBottomSheet
+import chromahub.rhythm.app.shared.data.model.AppSettings
+import chromahub.rhythm.app.features.local.presentation.screens.AddToPlaylistScreen
+import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.QueueActionDialog
+import chromahub.rhythm.app.shared.presentation.components.dialogs.QueueListActionDialog
+import chromahub.rhythm.app.shared.presentation.components.player.MiniPlayer
+import chromahub.rhythm.app.shared.presentation.components.player.SleepTimerBottomSheetNew
+import chromahub.rhythm.app.features.local.presentation.screens.LibraryScreen
+import chromahub.rhythm.app.features.local.presentation.screens.HomeScreen
+import chromahub.rhythm.app.shared.presentation.screens.RhythmStatsScreen
+import chromahub.rhythm.app.features.local.presentation.screens.EqualizerScreen
+import chromahub.rhythm.app.shared.presentation.screens.player.PlayerScreen
 
-import com.cinemaverse.mcu.features.local.presentation.screens.PlaylistDetailScreen
-import com.cinemaverse.mcu.features.local.presentation.screens.ArtistDetailScreen
-import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsScreenWrapper
-import com.cinemaverse.mcu.shared.presentation.screens.settings.*
-import com.cinemaverse.mcu.shared.data.model.PlaybackLocation
-import com.cinemaverse.mcu.shared.presentation.components.MediaScanLoader // Add MediaScanLoader import
-import com.cinemaverse.mcu.util.ArtistSeparator
-import com.cinemaverse.mcu.util.HapticUtils
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
-import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel.SortOrder
-import com.cinemaverse.mcu.shared.presentation.viewmodel.ThemeViewModel
-import com.cinemaverse.mcu.shared.presentation.viewmodel.AppUpdaterViewModel
+import chromahub.rhythm.app.features.local.presentation.screens.PlaylistDetailScreen
+import chromahub.rhythm.app.features.local.presentation.screens.ArtistDetailScreen
+import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsScreenWrapper
+import chromahub.rhythm.app.shared.presentation.screens.settings.*
+import chromahub.rhythm.app.shared.data.model.PlaybackLocation
+import chromahub.rhythm.app.shared.presentation.components.MediaScanLoader // Add MediaScanLoader import
+import chromahub.rhythm.app.util.ArtistSeparator
+import chromahub.rhythm.app.util.HapticUtils
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel.SortOrder
+import chromahub.rhythm.app.shared.presentation.viewmodel.ThemeViewModel
+import chromahub.rhythm.app.shared.presentation.viewmodel.AppUpdaterViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -172,7 +172,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
-import com.cinemaverse.mcu.features.local.presentation.screens.LibraryTab
+import chromahub.rhythm.app.features.local.presentation.screens.LibraryTab
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.runtime.remember
@@ -190,10 +190,10 @@ import androidx.compose.material3.OutlinedTextField // Redundant, but ensuring i
 import androidx.compose.foundation.shape.CircleShape // Redundant, but ensuring it's there
 import androidx.compose.ui.text.style.TextAlign // Redundant, but ensuring it's there
 import androidx.compose.ui.res.stringResource
-import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingDetailScreen
-import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingHomeScreen
-import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingLibraryScreen
-import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingSearchScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingDetailScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingHomeScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingLibraryScreen
+import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingSearchScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -371,13 +371,13 @@ fun LocalNavigation(
         Log.d("RhythmNavigation", "Lyrics seek: timestampMs=$timestampMs")
         viewModel.seekTo(timestampMs)
     }
-    val onPlaySong = { song: com.cinemaverse.mcu.shared.data.model.Song -> viewModel.playSong(song) }
-    val onPlayAlbum = { album: com.cinemaverse.mcu.shared.data.model.Album -> viewModel.playAlbum(album) }
-    val onPlayAlbumShuffled = { album: com.cinemaverse.mcu.shared.data.model.Album -> viewModel.playAlbumShuffled(album) }
-    val onPlayArtist = { artist: com.cinemaverse.mcu.shared.data.model.Artist -> viewModel.playArtist(artist) }
+    val onPlaySong = { song: chromahub.rhythm.app.shared.data.model.Song -> viewModel.playSong(song) }
+    val onPlayAlbum = { album: chromahub.rhythm.app.shared.data.model.Album -> viewModel.playAlbum(album) }
+    val onPlayAlbumShuffled = { album: chromahub.rhythm.app.shared.data.model.Album -> viewModel.playAlbumShuffled(album) }
+    val onPlayArtist = { artist: chromahub.rhythm.app.shared.data.model.Artist -> viewModel.playArtist(artist) }
     val onPlayPlaylist =
-        { playlist: com.cinemaverse.mcu.shared.data.model.Playlist -> viewModel.playPlaylist(playlist) }
-    val onPlayPlaylistShuffled = { playlist: com.cinemaverse.mcu.shared.data.model.Playlist -> viewModel.playPlaylistShuffled(playlist) }
+        { playlist: chromahub.rhythm.app.shared.data.model.Playlist -> viewModel.playPlaylist(playlist) }
+    val onPlayPlaylistShuffled = { playlist: chromahub.rhythm.app.shared.data.model.Playlist -> viewModel.playPlaylistShuffled(playlist) }
     val onToggleShuffle = { viewModel.toggleShuffle() }
     val onToggleRepeat = { viewModel.toggleRepeatMode() }
     val onToggleFavorite = { viewModel.toggleFavorite() }
@@ -671,7 +671,7 @@ private fun LocalNavigationContent(
     localExperienceMode: String,
     snackbarHostState: SnackbarHostState,
     coroutineScope: kotlinx.coroutines.CoroutineScope,
-    currentSong: com.cinemaverse.mcu.shared.data.model.Song?,
+    currentSong: chromahub.rhythm.app.shared.data.model.Song?,
     currentRoute: String,
     isPlaying: Boolean,
     progress: () -> Float,
@@ -684,20 +684,20 @@ private fun LocalNavigationContent(
     showBottomNav: Boolean,
     isTablet: Boolean,
     startDestination: String,
-    songs: List<com.cinemaverse.mcu.shared.data.model.Song>,
-    allSongs: List<com.cinemaverse.mcu.shared.data.model.Song>,
-    albums: List<com.cinemaverse.mcu.shared.data.model.Album>,
-    artists: List<com.cinemaverse.mcu.shared.data.model.Artist>,
-    playlists: List<com.cinemaverse.mcu.shared.data.model.Playlist>,
+    songs: List<chromahub.rhythm.app.shared.data.model.Song>,
+    allSongs: List<chromahub.rhythm.app.shared.data.model.Song>,
+    albums: List<chromahub.rhythm.app.shared.data.model.Album>,
+    artists: List<chromahub.rhythm.app.shared.data.model.Artist>,
+    playlists: List<chromahub.rhythm.app.shared.data.model.Playlist>,
     isShuffleEnabled: Boolean,
     repeatMode: Int,
     isFavorite: Boolean,
     sortOrder: MusicViewModel.SortOrder,
     showLyrics: Boolean,
     showOnlineOnlyLyrics: Boolean,
-    lyrics: com.cinemaverse.mcu.shared.data.model.LyricsData?,
+    lyrics: chromahub.rhythm.app.shared.data.model.LyricsData?,
     isLoadingLyrics: Boolean,
-    recentlyPlayed: List<com.cinemaverse.mcu.shared.data.model.Song>,
+    recentlyPlayed: List<chromahub.rhythm.app.shared.data.model.Song>,
     currentDevice: PlaybackLocation?,
     isMediaScanning: Boolean,
     useSystemTheme: Boolean,
@@ -706,12 +706,12 @@ private fun LocalNavigationContent(
     libraryTabOrder: List<String>,
     hiddenLibraryTabs: Set<String>,
     firstVisibleLibraryTab: LibraryTab,
-    onPlaySong: (com.cinemaverse.mcu.shared.data.model.Song) -> Unit,
-    onPlayAlbum: (com.cinemaverse.mcu.shared.data.model.Album) -> Unit,
-    onPlayAlbumShuffled: (com.cinemaverse.mcu.shared.data.model.Album) -> Unit,
-    onPlayArtist: (com.cinemaverse.mcu.shared.data.model.Artist) -> Unit,
-    onPlayPlaylist: (com.cinemaverse.mcu.shared.data.model.Playlist) -> Unit,
-    onPlayPlaylistShuffled: (com.cinemaverse.mcu.shared.data.model.Playlist) -> Unit,
+    onPlaySong: (chromahub.rhythm.app.shared.data.model.Song) -> Unit,
+    onPlayAlbum: (chromahub.rhythm.app.shared.data.model.Album) -> Unit,
+    onPlayAlbumShuffled: (chromahub.rhythm.app.shared.data.model.Album) -> Unit,
+    onPlayArtist: (chromahub.rhythm.app.shared.data.model.Artist) -> Unit,
+    onPlayPlaylist: (chromahub.rhythm.app.shared.data.model.Playlist) -> Unit,
+    onPlayPlaylistShuffled: (chromahub.rhythm.app.shared.data.model.Playlist) -> Unit,
     onToggleShuffle: () -> Unit,
     onToggleRepeat: () -> Unit,
     onToggleFavorite: () -> Unit,
@@ -1383,18 +1383,18 @@ private fun LocalNavigationContent(
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
                         )
                     } else {
-                        val streamingViewModel: com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+                        val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
                     var showAlbumBottomSheet by remember { mutableStateOf(false) }
-                    var selectedAlbumForSheet by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Album?>(null) }
+                    var selectedAlbumForSheet by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Album?>(null) }
                     val albumBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
                     val favoriteSongs by viewModel.favoriteSongs.collectAsState()
                     val context = LocalContext.current
 
                     var showAddToPlaylistSheet by remember { mutableStateOf(false) }
-                    var selectedSongForPlaylist by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Song?>(null) }
+                    var selectedSongForPlaylist by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Song?>(null) }
                     var showSongInfoSheet by remember { mutableStateOf(false) }
-                    var selectedSongForInfo by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Song?>(null) }
+                    var selectedSongForInfo by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Song?>(null) }
 
                     val writePermissionLauncher = rememberLauncherForActivityResult(
                         contract = androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()
@@ -1414,7 +1414,7 @@ private fun LocalNavigationContent(
                         }
                     }
 
-                    com.cinemaverse.mcu.shared.presentation.screens.UniversalSearchScreen(
+                    chromahub.rhythm.app.shared.presentation.screens.UniversalSearchScreen(
                         localViewModel = viewModel,
                         streamingViewModel = streamingViewModel,
                         onLocalSongClick = { song ->
@@ -1585,7 +1585,7 @@ private fun LocalNavigationContent(
                 }
 
                 composable(Screen.TunerAbout.route) {
-                    com.cinemaverse.mcu.shared.presentation.screens.settings.AboutScreen(
+                    chromahub.rhythm.app.shared.presentation.screens.settings.AboutScreen(
                         onBackClick = navigateBackOrToSettings,
                         onNavigateToUpdates = { navController.navigate(Screen.TunerUpdates.route) }
                     )
@@ -2260,7 +2260,7 @@ private fun LocalNavigationContent(
 
                     // Album/Artist data for bottom sheets
                     val allAlbums by viewModel.albums.collectAsState()
-                    var selectedAlbumForSheet by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Album?>(null) }
+                    var selectedAlbumForSheet by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Album?>(null) }
                     var showAlbumSheet by remember { mutableStateOf(false) }
                     val playlistHaptics = LocalHapticFeedback.current
 
@@ -2419,11 +2419,11 @@ private fun LocalNavigationContent(
                     
                     // State for bottom sheets
                     var showAddToPlaylistSheet by remember { mutableStateOf(false) }
-                    var selectedSongForPlaylist by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Song?>(null) }
+                    var selectedSongForPlaylist by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Song?>(null) }
                     var showSongInfoSheet by remember { mutableStateOf(false) }
-                    var selectedSongForInfo by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Song?>(null) }
+                    var selectedSongForInfo by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Song?>(null) }
                     var showAlbumBottomSheet by remember { mutableStateOf(false) }
-                    var selectedAlbum by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.Album?>(null) }
+                    var selectedAlbum by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Album?>(null) }
                     val albumBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
                     
                     ArtistDetailScreen(
