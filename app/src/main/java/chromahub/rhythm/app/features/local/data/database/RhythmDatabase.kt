@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.features.local.data.database
+package com.cinemaverse.mcu.features.local.data.database
 
 import android.content.Context
 import androidx.room.Database
@@ -6,16 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import chromahub.rhythm.app.features.local.data.database.dao.ArtistDao
-import chromahub.rhythm.app.features.local.data.database.dao.SongArtistDao
-import chromahub.rhythm.app.features.local.data.database.dao.SongDao
-import chromahub.rhythm.app.features.local.data.database.dao.MCUTitleDao
-import chromahub.rhythm.app.features.local.data.database.dao.MCUSeriesDao
-import chromahub.rhythm.app.features.local.data.database.entity.ArtistEntity
-import chromahub.rhythm.app.features.local.data.database.entity.SongArtistEntity
-import chromahub.rhythm.app.features.local.data.database.entity.SongEntity
-import chromahub.rhythm.app.features.local.data.database.entity.MCUTitleEntity
-import chromahub.rhythm.app.features.local.data.database.entity.MCUSeriesEntity
+import com.cinemaverse.mcu.features.local.data.database.dao.ArtistDao
+import com.cinemaverse.mcu.features.local.data.database.dao.SongArtistDao
+import com.cinemaverse.mcu.features.local.data.database.dao.SongDao
+import com.cinemaverse.mcu.features.local.data.database.dao.MCUTitleDao
+import com.cinemaverse.mcu.features.local.data.database.dao.MCUSeriesDao
+import com.cinemaverse.mcu.features.local.data.database.entity.ArtistEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.SongArtistEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.SongEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.MCUTitleEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.MCUSeriesEntity
 
 @Database(entities = [SongEntity::class, ArtistEntity::class, SongArtistEntity::class, MCUTitleEntity::class, MCUSeriesEntity::class], version = 7, exportSchema = false)
 abstract class RhythmDatabase : RoomDatabase() {

@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "chromahub.rhythm.app"
+    namespace = "com.cinemaverse.mcu"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "chromahub.rhythm.app"
+        applicationId = "com.cinemaverse.mcu"
         minSdk = 26
         targetSdk = 37
         versionCode = 503941039
@@ -31,7 +31,7 @@ android {
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
-            applicationId = "chromahub.rhythm.app"
+            applicationId = "com.cinemaverse.mcu"
             
             // F-Droid build: Enable all features (FOSS ethos)
             buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")
@@ -46,7 +46,7 @@ android {
         
         create("github") {
             dimension = "distribution"
-            applicationId = "chromahub.rhythm.universe"
+            applicationId = "com.cinemaverse.mcu"
             
             // GitHub releases: Enable all features. This is the only variant built by CI.
             buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "true")

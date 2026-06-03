@@ -14,8 +14,8 @@
     <string name="widget_name_glance">Rhythm Music</string>
     <string name="no_song_playing">Không có bài hát nào đang phát</string>
     <string name="unknown_artist">Nghệ sĩ không xác định</string>
-    <string name="unknown_album">Album không xác định</string>
-    <string name="album_art">Ảnh bìa Album</string>
+    <string name="unknown_album">saga không xác định</string>
+    <string name="album_art">Ảnh bìa saga</string>
     <string name="play_pause">Phát/Tạm dừng</string>
     <string name="skip_next">Chuyển tiếp</string>
     <string name="skip_previous">Về trước</string>
@@ -26,12 +26,12 @@
     <string name="widget_preview_desc">Thay đổi sẽ được áp dụng cho tất cả các tiện ích đang hoạt động trên màn hình chính của bạn. Nhấn giữ tiện ích để thay đổi kích thước và xem các bố cục khác nhau.</string>
     <string name="widget_refresh_all">Làm mới tất cả tiện ích</string>
     <string name="widget_display_options">Tùy chọn hiển thị</string>
-    <string name="widget_show_album_art">Hiện ảnh bìa Album</string>
-    <string name="widget_show_album_art_desc">Hiển thị ảnh bìa album trong tiện ích</string>
+    <string name="widget_show_album_art">Hiện ảnh bìa saga</string>
+    <string name="widget_show_album_art_desc">Hiển thị ảnh bìa saga trong tiện ích</string>
     <string name="widget_show_artist">Hiện tên nghệ sĩ</string>
     <string name="widget_show_artist_desc">Hiển thị thông tin nghệ sĩ</string>
-    <string name="widget_show_album">Hiện tên Album</string>
-    <string name="widget_show_album_desc">Hiển thị thông tin album</string>
+    <string name="widget_show_album">Hiện tên saga</string>
+    <string name="widget_show_album_desc">Hiển thị thông tin saga</string>
     <string name="widget_appearance">Giao diện</string>
     <string name="widget_use_system_colors">Sử dụng màu hệ thống</string>
     <string name="widget_use_system_colors_desc">Tuân theo bảng màu Material You</string>
@@ -253,10 +253,10 @@
 
     <string name="home_title">Rhythm</string>
     <string name="home_settings_cd">Cài đặt</string>
-    <string name="home_discover_albums">Khám phá Album</string>
+    <string name="home_discover_albums">Khám phá saga</string>
     <string name="home_explore_music">Khám phá âm nhạc tuyệt vời</string>
-    <string name="home_no_featured_albums">Không có Album nổi bật</string>
-    <string name="home_no_featured_albums_desc">Thêm album vào thư viện để xem nội dung nổi bật</string>
+    <string name="home_no_featured_albums">Không có saga nổi bật</string>
+    <string name="home_no_featured_albums_desc">Thêm saga vào thư viện để xem nội dung nổi bật</string>
     <string name="home_artists">Nghệ sĩ</string>
     <string name="home_explore_musicians">Khám phá nghệ sĩ yêu thích của bạn</string>
     <string name="home_no_artists">Không tìm thấy nghệ sĩ</string>
@@ -264,11 +264,11 @@
     <string name="home_new_releases">Phát hành mới</string>
     <string name="home_fresh_music">Nhạc mới dành riêng cho bạn</string>
     <string name="home_no_new_releases">Không có phát hành mới</string>
-    <string name="home_no_new_releases_desc">Album mới sẽ xuất hiện ở đây khi chúng được thêm vào thư viện</string>
+    <string name="home_no_new_releases_desc">saga mới sẽ xuất hiện ở đây khi chúng được thêm vào thư viện</string>
     <string name="home_recently_added">Mới thêm gần đây</string>
     <string name="home_latest_additions">Những bổ sung mới nhất của bạn</string>
-    <string name="home_no_recently_added">Không có Album nào được thêm gần đây</string>
-    <string name="home_no_recently_added_desc">Album bạn thêm vào thư viện sẽ xuất hiện ở đây</string>
+    <string name="home_no_recently_added">Không có saga nào được thêm gần đây</string>
+    <string name="home_no_recently_added_desc">saga bạn thêm vào thư viện sẽ xuất hiện ở đây</string>
 
     <string name="home_quote_late_night_1">Giai điệu đêm khuya cho những kẻ mộng mơ 🌙</string>
     <string name="home_quote_late_night_2">Thời điểm hoàn hảo cho danh sách phát đêm khuya 🎧</string>
@@ -338,11 +338,11 @@
     <string name="library_title">Thư viện</string>
     <string name="library_your_music">Nhạc của bạn</string>
     <string name="library_your_playlists">Danh sách phát của bạn</string>
-    <string name="library_your_albums">Album của bạn</string>
+    <string name="library_your_albums">saga của bạn</string>
     <string name="library_your_artists">Nghệ sĩ của bạn</string>
     <string name="library_loading_songs">Đang tải bài hát…</string>
     <string name="library_loading_playlists">Đang tải danh sách phát…</string>
-    <string name="library_loading_albums">Đang tải album…</string>
+    <string name="library_loading_albums">Đang tải saga…</string>
     <string name="library_loading_artists">Đang tải nghệ sĩ…</string>
     <string name="library_tracks_count">%1$d trên %2$d bài</string>
     <string name="library_no_songs">Chưa có bài hát nào</string>
@@ -362,11 +362,11 @@
     <string name="library_playlist_name_empty">Tên danh sách phát không được để trống</string>
     <string name="library_no_playlists">Chưa có danh sách phát nào</string>
     <string name="library_no_playlists_desc">Tạo danh sách phát đầu tiên của bạn bằng nút +</string>
-    <string name="library_no_albums">Chưa có album nào</string>
+    <string name="library_no_albums">Chưa có saga nào</string>
     <string name="library_playlist_count">%1$d danh sách phát</string>
     <string name="library_playlists_count">%1$d danh sách phát</string>
-    <string name="library_album_count">%1$d album</string>
-    <string name="library_albums_count">%1$d album</string>
+    <string name="library_album_count">%1$d saga</string>
+    <string name="library_albums_count">%1$d saga</string>
 
     <string name="sort_name">Tên</string>
     <string name="sort_date_created">Ngày tạo</string>
@@ -395,7 +395,7 @@
     <string name="search_filter_results">Lọc kết quả</string>
     <string name="search_results">Kết quả tìm kiếm</string>
     <string name="search_songs">Bài hát</string>
-    <string name="search_albums">Album</string>
+    <string name="search_albums">saga</string>
     <string name="search_artists">Nghệ sĩ</string>
     <string name="search_playlists">Danh sách phát</string>
     <string name="search_view_all_songs">Xem tất cả bài hát</string>
@@ -501,7 +501,7 @@
     <string name="onboarding_equalizer_desc">Equalizer: Tinh chỉnh tần số âm thanh trong Cài đặt > Equalizer</string>
     <string name="onboarding_sleep_timer_desc">Hẹn giờ ngủ: Tự động dừng phát sau thời gian cài đặt (truy cập từ màn hình Đang phát)</string>
     <string name="onboarding_library_title">Sắp xếp thư viện nhạc của bạn</string>
-    <string name="onboarding_library_desc">Tùy chỉnh cách hiển thị album, nghệ sĩ và bài hát của bạn. Chọn bố cục, thứ tự sắp xếp và sắp xếp tab ưa thích của bạn.</string>
+    <string name="onboarding_library_desc">Tùy chỉnh cách hiển thị saga, nghệ sĩ và bài hát của bạn. Chọn bố cục, thứ tự sắp xếp và sắp xếp tab ưa thích của bạn.</string>
     <string name="onboarding_library_how_works">Cách tổ chức thư viện hoạt động</string>
     <string name="onboarding_library_1">Tùy chỉnh thứ tự tab trong Thư viện để truy cập nhanh vào mục yêu thích</string>
     <string name="onboarding_library_2">Tạo và quản lý danh sách phát trực tiếp từ màn hình Thư viện</string>
@@ -514,14 +514,14 @@
     <string name="onboarding_container">Vùng chứa (Container)</string>
     <string name="onboarding_accent">Nhấn (Accent)</string>
     <string name="onboarding_advanced_custom">Tùy chỉnh nâng cao</string>
-    <string name="onboarding_advanced_custom_desc">Phối màu tùy chỉnh, màu ảnh bìa album và phông chữ</string>
+    <string name="onboarding_advanced_custom_desc">Phối màu tùy chỉnh, màu ảnh bìa saga và phông chữ</string>
     <string name="onboarding_more_tuner">Tùy chỉnh thêm trong Cài đặt</string>
-    <string name="onboarding_tuner_1">Phối màu tùy chỉnh và trích xuất màu ảnh bìa album</string>
+    <string name="onboarding_tuner_1">Phối màu tùy chỉnh và trích xuất màu ảnh bìa saga</string>
     <string name="onboarding_tuner_2">Tùy chỉnh phông chữ và cài đặt kiểu chữ</string>
     <string name="onboarding_tuner_3">Tùy chọn chủ đề nâng cao có sẵn trong Cài đặt > Tùy chỉnh chủ đề</string>
     <string name="onboarding_step_progress">%1$d trên %2$d</string>
     <string name="onboarding_advanced_customization">Tùy chỉnh nâng cao</string>
-    <string name="onboarding_advanced_customization_desc">Phối màu tùy chỉnh, màu ảnh bìa album và phông chữ</string>
+    <string name="onboarding_advanced_customization_desc">Phối màu tùy chỉnh, màu ảnh bìa saga và phông chữ</string>
 
     <string name="onboarding_media_scan_title">Lọc thư viện nhạc của bạn</string>
     <string name="onboarding_media_scan_desc">Kiểm soát các tệp âm thanh xuất hiện trong thư viện của bạn. Sử dụng chế độ Danh sách đen để ẩn các tệp không mong muốn (nhạc chuông, thông báo), hoặc chế độ Danh sách trắng để chỉ hiển thị các thư mục nhạc cụ thể.</string>
@@ -537,7 +537,7 @@
     <string name="onboarding_complete_title">Bạn đã sẵn sàng!</string>
     <string name="onboarding_complete_desc">Rhythm đã sẵn sàng để phát nhạc! Thư viện nhạc của bạn đang được quét trong nền. Dưới đây là những gì đã được cấu hình:</string>
     <string name="onboarding_whats_next">Làm gì tiếp theo?</string>
-    <string name="onboarding_next_browse">Duyệt bài hát, album và nghệ sĩ của bạn</string>
+    <string name="onboarding_next_browse">Duyệt bài hát, saga và nghệ sĩ của bạn</string>
     <string name="onboarding_next_create">Tạo danh sách phát đầu tiên của bạn</string>
     <string name="onboarding_next_finetune">Tinh chỉnh âm thanh với Equalizer</string>
     <string name="onboarding_next_explore">Khám phá thêm cài đặt bất cứ lúc nào</string>
@@ -575,7 +575,7 @@
     <string name="onboarding_system_volume_title">Điều khiển âm lượng hệ thống</string>
     <string name="onboarding_system_volume_desc">Cho phép các nút âm lượng vật lý của thiết bị điều khiển âm lượng phát nhạc của Rhythm.</string>
     <string name="onboarding_auto_queue_title">Tự động thêm vào hàng đợi</string>
-    <string name="onboarding_auto_queue_desc">Tự động tạo hàng đợi theo ngữ cảnh từ album/nghệ sĩ khi phát một bài hát.</string>
+    <string name="onboarding_auto_queue_desc">Tự động tạo hàng đợi theo ngữ cảnh từ saga/nghệ sĩ khi phát một bài hát.</string>
     <string name="onboarding_clear_queue_title">Xóa hàng đợi khi phát bài mới</string>
     <string name="onboarding_clear_queue_desc">Thay thế toàn bộ hàng đợi khi phát một bài hát mới thay vì thêm vào đó.</string>
     <string name="onboarding_repeat_mode_title">Ghi nhớ chế độ lặp lại</string>
@@ -590,7 +590,7 @@
     <string name="onboarding_lyrics_source_desc">Chọn nguồn lời bài hát để thử trước (với tính năng tự động chuyển sang nguồn khác)</string>
 
     <string name="onboarding_tab_order_title">Thứ tự tab Thư viện</string>
-    <string name="onboarding_tab_order_desc">Sắp xếp lại các tab Bài hát, Danh sách phát, Album, Nghệ sĩ và Trình khám phá</string>
+    <string name="onboarding_tab_order_desc">Sắp xếp lại các tab Bài hát, Danh sách phát, saga, Nghệ sĩ và Trình khám phá</string>
 
     <string name="onboarding_follow_system_title">Theo chủ đề hệ thống</string>
     <string name="onboarding_follow_system_desc">Tự động chuyển đổi giữa chủ đề sáng và tối dựa trên cài đặt hệ thống của thiết bị.</string>
@@ -679,7 +679,7 @@
     <string name="lyrics_embedded_note">Lời bài hát nhúng được trích xuất từ thẻ ID3v2 USLT trong các tệp âm thanh của bạn. Để có kết quả tốt nhất, hãy sử dụng các tệp MP3/FLAC được gắn thẻ đúng cách.</string>
 
     <string name="theme_good_to_know">Thông tin hữu ích</string>
-    <string name="theme_tip_album_art">Màu sắc ảnh bìa Album thích ứng linh hoạt với âm nhạc của bạn</string>
+    <string name="theme_tip_album_art">Màu sắc ảnh bìa saga thích ứng linh hoạt với âm nhạc của bạn</string>
     <string name="theme_tip_material_you">Material You sử dụng màu hình nền hệ thống (Android 12+)</string>
     <string name="theme_tip_custom_fonts">Nhập phông chữ tùy chỉnh để cá nhân hóa kiểu chữ</string>
     <string name="theme_color_source">Nguồn màu sắc</string>
@@ -951,8 +951,8 @@
     <string name="settings_sleep_timer_title">Hẹn giờ ngủ</string>
     <string name="settings_sleep_timer_desc">Tự động dừng phát sau thời gian cài đặt</string>
     <string name="settings_section_library_content">Thư viện &amp; Nội dung</string>
-    <string name="settings_group_by_album_artist">Nhóm theo Nghệ sĩ Album</string>
-    <string name="settings_group_by_album_artist_desc">Hiển thị các album hợp tác dưới tên nghệ sĩ chính</string>
+    <string name="settings_group_by_album_artist">Nhóm theo Nghệ sĩ saga</string>
+    <string name="settings_group_by_album_artist_desc">Hiển thị các saga hợp tác dưới tên nghệ sĩ chính</string>
     <string name="settings_media_scan_title">Quét phương tiện</string>
     <string name="settings_media_scan_desc">Quản lý danh sách đen và quét phương tiện</string>
     <string name="settings_playlists_title">Danh sách phát</string>
@@ -989,16 +989,16 @@
     <string name="player_retry_canvas">Thử lại Canvas</string>
 
     <string name="search_songs_count">Bài hát (%1$d)</string>
-    <string name="search_albums_count">Album (%1$d)</string>
+    <string name="search_albums_count">saga (%1$d)</string>
     <string name="search_artists_count">Nghệ sĩ (%1$d)</string>
     <string name="search_playlists_count">Danh sách phát (%1$d)</string>
 
     <string name="metadata_title">Tiêu đề</string>
     <string name="metadata_artist">Nghệ sĩ</string>
-    <string name="metadata_album">Album</string>
+    <string name="metadata_album">saga</string>
     <string name="metadata_genre">Thể loại</string>
     <string name="metadata_year">Năm</string>
-    <string name="metadata_track">Bài hát (Track)</string>
+    <string name="metadata_track">Bài hát (movie)</string>
     <string name="metadata_saving">Đang lưu...</string>
     <string name="metadata_save_changes">Lưu thay đổi</string>
     <string name="metadata_irreversible_changes">Thay đổi không thể đảo ngược</string>
@@ -1045,7 +1045,7 @@
     <string name="cd_play">Phát</string>
     <string name="cd_play_all">Phát tất cả</string>
     <string name="cd_shuffle">Trộn bài</string>
-    <string name="cd_play_album">Phát album</string>
+    <string name="cd_play_album">Phát saga</string>
     <string name="cd_shuffle_play">Phát ngẫu nhiên</string>
     <string name="cd_previous_track">Bài trước</string>
     <string name="cd_next_track">Bài tiếp theo</string>
@@ -1077,7 +1077,7 @@
     <string name="cd_open_storage">Mở bộ nhớ</string>
     <string name="cd_minimize">Thu nhỏ</string>
     <string name="cd_song_info">Thông tin bài hát</string>
-    <string name="cd_album_artwork">Ảnh bìa album cho %1$s</string>
+    <string name="cd_album_artwork">Ảnh bìa saga cho %1$s</string>
     <string name="cd_no_song_playing">Không có bài hát nào đang phát</string>
     <string name="cd_toggle_shuffle">Chuyển đổi trộn bài</string>
     <string name="cd_toggle_lyrics">Chuyển đổi lời bài hát</string>
@@ -1086,12 +1086,12 @@
     <string name="cd_add_to_playlist_action">Thêm vào danh sách phát</string>
     <string name="cd_toggle_favorite">Chuyển đổi yêu thích</string>
     <string name="cd_playback_speed_action">Tốc độ phát</string>
-    <string name="cd_show_album">Hiện album</string>
+    <string name="cd_show_album">Hiện saga</string>
     <string name="cd_show_artist">Hiện nghệ sĩ</string>
     <string name="cd_reorder_chips">Sắp xếp lại các chip</string>
     <string name="cd_search">Tìm kiếm</string>
     <string name="cd_view_all">Xem tất cả</string>
-    <string name="cd_albums">Album</string>
+    <string name="cd_albums">saga</string>
     <string name="cd_artists">Nghệ sĩ</string>
     <string name="cd_songs">Bài hát</string>
     <string name="cd_rhythm_splash">Rhythm</string>
@@ -1114,7 +1114,7 @@
     <string name="cd_media_scan_filtering">Lọc quét phương tiện</string>
     <string name="cd_open_media_scan_settings">Mở cài đặt quét phương tiện</string>
     <string name="cd_close">Đóng</string>
-    <string name="cd_album_artwork_generic">Ảnh bìa album</string>
+    <string name="cd_album_artwork_generic">Ảnh bìa saga</string>
     <string name="cd_language">Ngôn ngữ</string>
     <string name="cd_view_license">Xem giấy phép</string>
     <string name="cd_refresh_devices">Làm mới thiết bị</string>
@@ -1147,7 +1147,7 @@
     <string name="bottomsheet_metadata">Metadata</string>
     <string name="bottomsheet_queue">Hàng đợi</string>
     <string name="bottomsheet_up_next">TIẾP THEO</string>
-    <string name="bottomsheet_albums">Album</string>
+    <string name="bottomsheet_albums">saga</string>
     <string name="bottomsheet_songs">Bài hát</string>
 
     <string name="bottomsheet_reset">Đặt lại</string>
@@ -1179,7 +1179,7 @@
     <string name="bottomsheet_play_all">Phát tất cả</string>
     <string name="bottomsheet_tracks">Bài hát</string>
     <string name="bottomsheet_sort_by">Sắp xếp theo</string>
-    <string name="bottomsheet_no_songs_album">Không có bài hát nào trong album này</string>
+    <string name="bottomsheet_no_songs_album">Không có bài hát nào trong saga này</string>
 
     <string name="bottomsheet_home_section_order">Thứ tự mục Trang chủ</string>
     <string name="bottomsheet_reorder_toggle_visibility">Sắp xếp lại và chuyển đổi hiển thị</string>
@@ -1244,10 +1244,10 @@
     <string name="bottomsheet_remove">Gỡ bỏ</string>
     <string name="bottomsheet_title">Tiêu đề</string>
     <string name="bottomsheet_artist">Nghệ sĩ</string>
-    <string name="bottomsheet_album">Album</string>
+    <string name="bottomsheet_album">saga</string>
     <string name="bottomsheet_genre">Thể loại</string>
     <string name="bottomsheet_year">Năm</string>
-    <string name="bottomsheet_track">Bài hát (Track)</string>
+    <string name="bottomsheet_track">Bài hát (movie)</string>
     <string name="bottomsheet_saving">Đang lưu…</string>
     <string name="bottomsheet_save_changes">Lưu thay đổi</string>
     <string name="bottomsheet_irreversible">Thay đổi không thể đảo ngược</string>
@@ -1276,7 +1276,7 @@
     <string name="device_unknown">Thiết bị không xác định</string>
 
     <string name="fallback_unknown_artist">Nghệ sĩ không xác định</string>
-    <string name="fallback_unknown_album">Album không xác định</string>
+    <string name="fallback_unknown_album">saga không xác định</string>
     <string name="fallback_unknown_file">Tệp không xác định</string>
 
     <string name="service_app_updates">Cập nhật ứng dụng</string>
@@ -1347,7 +1347,7 @@
     <string name="stats_sage">Hiền triết âm nhạc tối thượng! 👑</string>
 
     <string name="cache_artwork_images">Hình ảnh Artwork</string>
-    <string name="cache_artwork_images_desc">Bìa album, ảnh nghệ sĩ và hình thu nhỏ</string>
+    <string name="cache_artwork_images_desc">Bìa saga, ảnh nghệ sĩ và hình thu nhỏ</string>
     <string name="cache_lyrics">Bộ nhớ đệm lời bài hát</string>
     <string name="cache_lyrics_desc">Dữ liệu lời bài hát đã tải xuống và đồng bộ</string>
     <string name="cache_canvas_videos">Video Canvas</string>
@@ -1438,8 +1438,8 @@
     <string name="artist_configure_delimiters">Cấu hình dấu phân cách</string>
     <string name="artist_current_delimiters">Hiện tại: %1$s</string>
     <string name="artist_library_organization">Tổ chức thư viện</string>
-    <string name="artist_group_by_album_artist">Nhóm theo Nghệ sĩ Album</string>
-    <string name="artist_group_by_album_artist_desc">Hiển thị các album hợp tác dưới tên nghệ sĩ chính</string>
+    <string name="artist_group_by_album_artist">Nhóm theo Nghệ sĩ saga</string>
+    <string name="artist_group_by_album_artist_desc">Hiển thị các saga hợp tác dưới tên nghệ sĩ chính</string>
     <string name="artist_about_multi_parsing">Về phân tích đa nghệ sĩ</string>
     <string name="artist_parsing_description">Khi được bật, Rhythm sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\n\nDấu gạch chéo ngược (\\\\) có thể được sử dụng để thoát dấu phân cách.</string>
     <string name="artist_examples">Ví dụ</string>
@@ -1490,7 +1490,7 @@
     <string name="content_desc_remove_from_queue">Xóa khỏi hàng đợi</string>
     <string name="content_desc_add_songs">Thêm bài hát</string>
     <string name="content_desc_clear_queue">Xóa hàng đợi</string>
-    <string name="content_desc_play_album">Phát album</string>
+    <string name="content_desc_play_album">Phát saga</string>
     <string name="content_desc_move_up">Di chuyển lên</string>
     <string name="content_desc_move_down">Di chuyển xuống</string>
     <string name="content_desc_show_hide">Hiện/ẩn</string>
@@ -1501,7 +1501,7 @@
     <string name="content_desc_hide_chip">Ẩn chip</string>
     <string name="content_desc_show_chip">Hiện chip</string>
     <string name="content_desc_edit_metadata">Sửa metadata</string>
-    <string name="content_desc_album_artwork">Ảnh bìa album</string>
+    <string name="content_desc_album_artwork">Ảnh bìa saga</string>
 
     <string name="playlist_play_one">Chỉ phát bài hát đã chọn</string>
     <string name="up_next_section">TIẾP THEO</string>
@@ -1583,7 +1583,7 @@
 
     <string name="library_tab_songs">Bài hát</string>
     <string name="library_tab_playlists">Danh sách phát</string>
-    <string name="library_tab_albums">Album</string>
+    <string name="library_tab_albums">saga</string>
     <string name="library_tab_artists">Nghệ sĩ</string>
     <string name="library_tab_explorer">Trình khám phá</string>
     <string name="library_tab_one_visible">Ít nhất một tab phải hiển thị</string>
@@ -1595,7 +1595,7 @@
     <string name="player_chip_equalizer">Equalizer</string>
     <string name="player_chip_sleep_timer">Hẹn giờ ngủ</string>
     <string name="player_chip_lyrics">Lời bài hát</string>
-    <string name="player_chip_album">Album</string>
+    <string name="player_chip_album">saga</string>
     <string name="player_chip_artist">Nghệ sĩ</string>
     <string name="player_chip_cast">Phát (Cast)</string>
     <string name="player_chip_one_visible">Ít nhất một chip phải hiển thị</string>
@@ -1684,7 +1684,7 @@
 
     <string name="settings_about_lyrics">Về nguồn lời bài hát</string>
     <string name="settings_adjust_decorations">Điều chỉnh lượng trang trí lễ hội hiển thị</string>
-    <string name="settings_artwork_corner_radius">Điều chỉnh độ tròn của góc ảnh bìa album</string>
+    <string name="settings_artwork_corner_radius">Điều chỉnh độ tròn của góc ảnh bìa saga</string>
     <string name="settings_canvas_backgrounds_desc">Nền Canvas thêm hình ảnh động vào các bài hát được hỗ trợ</string>
     <string name="settings_choose_header">Chọn những gì hiển thị trong tiêu đề</string>
     <string name="settings_customize_compact_player">Tùy chỉnh trình phát nhỏ gọn xuất hiện ở cuối màn hình của bạn.</string>
@@ -1775,7 +1775,7 @@
     <string name="settings_about_multi_artist">Về phân tích đa nghệ sĩ</string>
     <string name="settings_adjust_snowflake_size">Điều chỉnh kích thước bông tuyết (kích thước nhỏ hơn = nhiều bông tuyết hơn)</string>
     <string name="settings_adjust_festive_decorations">Điều chỉnh lượng trang trí lễ hội hiển thị</string>
-    <string name="settings_adjust_artwork_corners">Điều chỉnh độ tròn của góc ảnh bìa album</string>
+    <string name="settings_adjust_artwork_corners">Điều chỉnh độ tròn của góc ảnh bìa saga</string>
     <string name="settings_always_start_collapsed">Luôn bắt đầu thu gọn</string>
     <string name="settings_artwork">Ảnh bìa (Artwork)</string>
     <string name="settings_artwork_size">Kích thước ảnh bìa</string>
@@ -1785,7 +1785,7 @@
     <string name="settings_canvas_backgrounds_info">Nền Canvas thêm hình ảnh động vào các bài hát được hỗ trợ</string>
     <string name="settings_carousel_style">Kiểu băng chuyền</string>
     <string name="settings_choose_festive_theme">Chọn chủ đề lễ hội</string>
-    <string name="settings_choose_album_display">Chọn cách hiển thị album</string>
+    <string name="settings_choose_album_display">Chọn cách hiển thị saga</string>
     <string name="settings_choose_header_content">Chọn những gì hiển thị trong tiêu đề</string>
     <string name="settings_clear_all_cache">Xóa tất cả bộ nhớ đệm</string>
     <string name="settings_coming_soon">Sắp ra mắt</string>
@@ -1799,7 +1799,7 @@
     <string name="settings_disable_unused_gestures">Tắt các cử chỉ không sử dụng để phản hồi nhanh hơn</string>
     <string name="settings_disable_unused_sections">Tắt các mục không sử dụng để tải nhanh hơn</string>
     <string name="settings_discover_carousel">Băng chuyền khám phá</string>
-    <string name="settings_discover_carousel_info">Băng chuyền khám phá giới thiệu các album nổi bật</string>
+    <string name="settings_discover_carousel_info">Băng chuyền khám phá giới thiệu các saga nổi bật</string>
     <string name="settings_display_options">Tùy chọn hiển thị</string>
     <string name="settings_examples">Ví dụ</string>
     <string name="settings_intensity">Cường độ</string>

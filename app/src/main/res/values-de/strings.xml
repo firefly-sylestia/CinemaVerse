@@ -14,7 +14,7 @@
     <string name="widget_name_glance">Rhythm Musik</string>
     <string name="no_song_playing">Kein Titel wird abgespielt</string>
     <string name="unknown_artist">Unbekannter Künstler</string>
-    <string name="unknown_album">Unbekanntes Album</string>
+    <string name="unknown_album">Unbekanntes saga</string>
     <string name="album_art">Albumcover</string>
     <string name="play_pause">Wiedergabe/Pause</string>
     <string name="skip_next">Weiter</string>
@@ -365,7 +365,7 @@
     <string name="library_no_albums">Noch keine Alben</string>
     <string name="library_playlist_count">%1$d Playlist</string>
     <string name="library_playlists_count">%1$d Playlists</string>
-    <string name="library_album_count">%1$d Album</string>
+    <string name="library_album_count">%1$d saga</string>
     <string name="library_albums_count">%1$d Alben</string>
     
     <string name="sort_name">Name</string>
@@ -575,7 +575,7 @@
     <string name="onboarding_system_volume_title">Systemlautstärkeregelung</string>
     <string name="onboarding_system_volume_desc">Erlaube den physischen Lautstärketasten deines Geräts, die Wiedergabelautstärke von Rhythm zu steuern.</string>
     <string name="onboarding_auto_queue_title">Automatisch zur Warteschlange hinzufügen</string>
-    <string name="onboarding_auto_queue_desc">Automatisch eine kontextbezogene Warteschlange aus dem Album/Künstler erstellen, wenn ein Titel abgespielt wird.</string>
+    <string name="onboarding_auto_queue_desc">Automatisch eine kontextbezogene Warteschlange aus dem saga/Künstler erstellen, wenn ein Titel abgespielt wird.</string>
     <string name="onboarding_clear_queue_title">Warteschlange bei neuem Titel leeren</string>
     <string name="onboarding_clear_queue_desc">Die gesamte Warteschlange ersetzen, wenn ein neuer Titel abgespielt wird, anstatt ihn hinzuzufügen.</string>
     <string name="onboarding_repeat_mode_title">Wiederholungsmodus merken</string>
@@ -992,7 +992,7 @@
     
     <string name="metadata_title">Titel</string>
     <string name="metadata_artist">Künstler</string>
-    <string name="metadata_album">Album</string>
+    <string name="metadata_album">saga</string>
     <string name="metadata_genre">Genre</string>
     <string name="metadata_year">Jahr</string>
     <string name="metadata_track">Titelnummer</string>
@@ -1042,7 +1042,7 @@
     <string name="cd_play">Abspielen</string>
     <string name="cd_play_all">Alle abspielen</string>
     <string name="cd_shuffle">Mischen</string>
-    <string name="cd_play_album">Album abspielen</string>
+    <string name="cd_play_album">saga abspielen</string>
     <string name="cd_shuffle_play">Zufallswiedergabe</string>
     <string name="cd_previous_track">Vorheriger Titel</string>
     <string name="cd_next_track">Nächster Titel</string>
@@ -1083,7 +1083,7 @@
     <string name="cd_add_to_playlist_action">Zu Playlist hinzufügen</string>
     <string name="cd_toggle_favorite">Favorit umschalten</string>
     <string name="cd_playback_speed_action">Wiedergabegeschwindigkeit</string>
-    <string name="cd_show_album">Album anzeigen</string>
+    <string name="cd_show_album">saga anzeigen</string>
     <string name="cd_show_artist">Künstler anzeigen</string>
     <string name="cd_reorder_chips">Chips neu ordnen</string>
     <string name="cd_search">Suche</string>
@@ -1176,7 +1176,7 @@
     <string name="bottomsheet_play_all">Alle abspielen</string>
     <string name="bottomsheet_tracks">Titel</string>
     <string name="bottomsheet_sort_by">Sortieren nach</string>
-    <string name="bottomsheet_no_songs_album">Keine Titel in diesem Album</string>
+    <string name="bottomsheet_no_songs_album">Keine Titel in diesem saga</string>
     
     <string name="bottomsheet_home_section_order">Startseite-Sektionsreihenfolge</string>
     <string name="bottomsheet_reorder_toggle_visibility">Neu ordnen und Sichtbarkeit umschalten</string>
@@ -1241,7 +1241,7 @@
     <string name="bottomsheet_remove">Entfernen</string>
     <string name="bottomsheet_title">Titel</string>
     <string name="bottomsheet_artist">Künstler</string>
-    <string name="bottomsheet_album">Album</string>
+    <string name="bottomsheet_album">saga</string>
     <string name="bottomsheet_genre">Genre</string>
     <string name="bottomsheet_year">Jahr</string>
     <string name="bottomsheet_track">Titelnummer</string>
@@ -1273,7 +1273,7 @@
     <string name="device_unknown">Unbekanntes Gerät</string>
     
     <string name="fallback_unknown_artist">Unbekannter Künstler</string>
-    <string name="fallback_unknown_album">Unbekanntes Album</string>
+    <string name="fallback_unknown_album">Unbekanntes saga</string>
     <string name="fallback_unknown_file">Unbekannte Datei</string>
     
     <string name="service_app_updates">App-Updates</string>
@@ -1487,7 +1487,7 @@
     <string name="content_desc_remove_from_queue">Aus Warteschlange entfernen</string>
     <string name="content_desc_add_songs">Titel hinzufügen</string>
     <string name="content_desc_clear_queue">Warteschlange leeren</string>
-    <string name="content_desc_play_album">Album abspielen</string>
+    <string name="content_desc_play_album">saga abspielen</string>
     <string name="content_desc_move_up">Nach oben bewegen</string>
     <string name="content_desc_move_down">Nach unten bewegen</string>
     <string name="content_desc_show_hide">Anzeigen/Ausblenden</string>
@@ -1592,7 +1592,7 @@
     <string name="player_chip_equalizer">Equalizer</string>
     <string name="player_chip_sleep_timer">Schlaftimer</string>
     <string name="player_chip_lyrics">Texte</string>
-    <string name="player_chip_album">Album</string>
+    <string name="player_chip_album">saga</string>
     <string name="player_chip_artist">Künstler</string>
     <string name="player_chip_cast">Cast</string>
     <string name="player_chip_one_visible">Mindestens ein Chip muss sichtbar sein</string>
