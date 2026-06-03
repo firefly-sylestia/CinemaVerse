@@ -241,10 +241,20 @@ fun SettingsScreen(
             // 2. Home & Widgets - only show in LOCAL mode
             if (appMode == "LOCAL") SettingGroup(
                 title = context.getString(R.string.settings_section_home_widgets),
-                items = listOf(
-                    SettingItem(RhythmIcons.Home, context.getString(R.string.settings_home_customization), context.getString(R.string.settings_home_customization_desc), onClick = { onNavigateTo(SettingsRoutes.HOME_SCREEN) }),
-                    SettingItem(MaterialSymbolIcon("widgets"), context.getString(R.string.settings_widget), context.getString(R.string.settings_widget_desc), onClick = { onNavigateTo(SettingsRoutes.WIDGET) })
-                )
+                items = buildList {
+                    add(SettingItem(RhythmIcons.Home, context.getString(R.string.settings_home_customization), context.getString(R.string.settings_home_customization_desc), onClick = { onNavigateTo(SettingsRoutes.HOME_SCREEN) }))
+                    add(SettingItem(MaterialSymbolIcon("widgets"), context.getString(R.string.settings_widget), context.getString(R.string.settings_widget_desc), onClick = { onNavigateTo(SettingsRoutes.WIDGET) }))
+                    add(SettingItem(
+                        MaterialSymbolIcon("movie_filter"),
+                        context.getString(R.string.settings_local_experience),
+                        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                            context.getString(R.string.settings_local_experience_viewing)
+                        } else {
+                            context.getString(R.string.settings_local_experience_rhythm)
+                        },
+                        onClick = { showLocalExperienceModeDialog = true }
+                    ))
+                }
             ) else null,
             // 3. Navigation & Controls
             SettingGroup(
@@ -286,16 +296,7 @@ fun SettingsScreen(
                         onToggleChange = { appSettings.setShowKeyboardOnSearchOpen(it) }
                     ))
                     if (appMode == "LOCAL") {
-                        add(SettingItem(
-                            MaterialSymbolIcon("movie_filter"),
-                            context.getString(R.string.settings_local_experience),
-                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                                context.getString(R.string.settings_local_experience_viewing)
-                            } else {
-                                context.getString(R.string.settings_local_experience_rhythm)
-                            },
-                            onClick = { showLocalExperienceModeDialog = true }
-                        ))
+                        //add(SettingItem(MaterialSymbolIcon("reorder"), context.getString(R.string.settings_library_tab_order), context.getString(R.string.settings_library_tab_order_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_TAB_ORDER) }))
                     }
                     add(SettingItem(
                         MaterialSymbolIcon("lightbulb"),
