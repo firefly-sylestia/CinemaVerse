@@ -367,11 +367,11 @@
     <string name="settings_about_team_chromahub">Team ChromaHub &amp; Contributors</string>
     <string name="settings_about_special_thanks">Special Thanks</string>
     <string name="settings_about_community">Community</string>
-    <string name="settings_about_community_desc">Special thanks to the Rhythm Music Player community and MCU fans who have contributed to making CinemaVerse better through testing, feedback, suggestions, and collaboration. Built on the foundation of Rhythms powerful player infrastructure.</string>
+    <string name="settings_about_community_desc">Special thanks to the Rhythm Music Player community and MCU fans who have contributed to making CinemaVerse better through testing, feedback, suggestions, and collaboration. Built on the foundation of Rhythm's powerful player infrastructure.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">Manages updates on IzzyOnDroid</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
-    <string name="settings_about_contributor_christian_role">Collab &amp; Project Boomings Lead Dev</string>
+    <string name="settings_about_contributor_christian_role">Collab &amp; Project Booming's Lead Dev</string>
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Spotify Canvas API Integration</string>
     <string name="settings_about_want_featured">Want to be featured here?</string>
@@ -2183,7 +2183,7 @@
     <string name="about_arm_arch">ARM64 &amp; ARM32</string>
     <string name="about_lead_developer">Lead Developer &amp; Project Architect</string>
     <string name="about_manages_izzyondroid">Manages updates on IzzyOnDroid</string>
-    <string name="about_collab_lead">Collab &amp; Project Boomings Lead Dev</string>
+    <string name="about_collab_lead">Collab &amp; Project Booming's Lead Dev</string>
     <string name="about_canvas_api">Spotify Canvas API Integration</string>
     
     <!-- Equalizer -->
