@@ -191,6 +191,7 @@ import androidx.compose.foundation.shape.CircleShape // Redundant, but ensuring 
 import androidx.compose.ui.text.style.TextAlign // Redundant, but ensuring it's there
 import androidx.compose.ui.res.stringResource
 import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingDetailScreen
+import chromahub.rhythm.app.shared.data.viewing.ViewingLists
 import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingHomeScreen
 import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingLibraryScreen
 import chromahub.rhythm.app.shared.presentation.screens.viewing.ViewingSearchScreen
@@ -202,6 +203,12 @@ sealed class Screen(val route: String) {
         fun createRoute(tab: LibraryTab = LibraryTab.SONGS): String = "library?tab=${tab.name.lowercase()}"
     }
     object Player : Screen("player")
+    object ViewingDetail : Screen("viewing_detail") {
+        const val itemRoute = "viewing_detail/{itemId}"
+        fun createRoute(itemId: String? = null): String = itemId
+            ?.let { "viewing_detail/${Uri.encode(it)}" }
+            ?: route
+    }
     object Settings : Screen("settings")
     object AddToPlaylist : Screen("add_to_playlist")
     object PlaylistDetail : Screen("playlist/{playlistId}") {
@@ -382,9 +389,15 @@ fun LocalNavigation(
     val onToggleRepeat = { viewModel.toggleRepeatMode() }
     val onToggleFavorite = { viewModel.toggleFavorite() }
 
-    // Player click navigates to full player screen
+    // Player click navigates to full player screen in Rhythm mode. Viewing mode uses its own detail route.
     val onPlayerClick = {
         navController.navigate(Screen.Player.route)
+    }
+
+    val navigateToViewingDetail: (String?) -> Unit = { itemId ->
+        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+            navController.navigate(Screen.ViewingDetail.createRoute(itemId))
+        }
     }
 
     // Track current destination for hiding navigation bar on player screen
@@ -441,6 +454,7 @@ fun LocalNavigation(
         currentSong != null &&
             !isMiniPlayerDismissed &&
             currentRoute != Screen.Player.route &&
+            !currentRoute.startsWith(Screen.ViewingDetail.route) &&
             currentRoute != Screen.Search.route
     val showNavBar = remember(currentRoute) {
         currentRoute == Screen.Home.route ||
@@ -1265,7 +1279,7 @@ private fun LocalNavigationContent(
                                 }
                             },
                             onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
-                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenDetail = { item -> navigateToViewingDetail(item.id) },
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
                         )
                     } else {
@@ -1379,7 +1393,7 @@ private fun LocalNavigationContent(
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
                         ViewingSearchScreen(
                             onBack = { navigateBackOrToLanding() },
-                            onOpenDetail = { navController.navigate(Screen.Player.route) }
+                            onOpenDetail = { item -> navigateToViewingDetail(item.id) }
                         )
                     } else {
                         val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
@@ -1819,7 +1833,7 @@ private fun LocalNavigationContent(
                     }
 
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingLibraryScreen(onOpenDetail = { navController.navigate(Screen.Player.route) })
+                        ViewingLibraryScreen(onOpenDetail = { item -> navigateToViewingDetail(item.id) })
                     } else {
                         LibraryScreen(
                             songs = songs,
@@ -2054,11 +2068,8 @@ private fun LocalNavigationContent(
                         }
                     }
 
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
-                    } else {
-                        PlayerScreen(
-                            song = currentSong,
+                    PlayerScreen(
+                        song = currentSong,
                         isPlaying = isPlaying,
                         progress = progress,
                         location = currentDevice,
@@ -2208,6 +2219,51 @@ private fun LocalNavigationContent(
                         musicViewModel = viewModel,
                         navController = navController
                     )
+                }
+
+                composable(
+                    route = Screen.ViewingDetail.route,
+                    enterTransition = {
+                        fadeIn(animationSpec = tween(200)) +
+                            scaleIn(initialScale = 0.96f, animationSpec = tween(220, easing = EaseOutQuint))
+                    },
+                    exitTransition = { fadeOut(animationSpec = tween(180)) },
+                    popEnterTransition = { fadeIn(animationSpec = tween(180)) },
+                    popExitTransition = { fadeOut(animationSpec = tween(180)) }
+                ) {
+                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                        ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
+                    } else {
+                        LaunchedEffect(Unit) { navigateBackOrToLanding() }
+                    }
+                }
+
+                composable(
+                    route = Screen.ViewingDetail.itemRoute,
+                    arguments = listOf(
+                        navArgument("itemId") {
+                            type = NavType.StringType
+                        }
+                    ),
+                    enterTransition = {
+                        fadeIn(animationSpec = tween(200)) +
+                            scaleIn(initialScale = 0.96f, animationSpec = tween(220, easing = EaseOutQuint))
+                    },
+                    exitTransition = { fadeOut(animationSpec = tween(180)) },
+                    popEnterTransition = { fadeIn(animationSpec = tween(180)) },
+                    popExitTransition = { fadeOut(animationSpec = tween(180)) }
+                ) { backStackEntry ->
+                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                        val itemId = backStackEntry.arguments?.getString("itemId")
+                        val viewingItem = remember(itemId) {
+                            itemId?.let(ViewingLists::findItem) ?: ViewingLists.featuredItem
+                        }
+                        ViewingDetailScreen(
+                            onBack = { navigateBackOrToLanding() },
+                            baseItem = viewingItem
+                        )
+                    } else {
+                        LaunchedEffect(Unit) { navigateBackOrToLanding() }
                     }
                 }
 

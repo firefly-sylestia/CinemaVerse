@@ -87,7 +87,7 @@ import chromahub.rhythm.app.shared.util.ViewingArtworkUtils
 fun ViewingHomeScreen(
     onOpenLibrary: () -> Unit,
     onOpenSearch: () -> Unit,
-    onOpenDetail: () -> Unit,
+    onOpenDetail: (ViewingItem) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -108,7 +108,7 @@ fun ViewingHomeScreen(
                 item = featuredItem,
                 list = featuredList,
                 subtitle = "Featured viewing order • ${featuredList.items.size} titles",
-                onOpenDetail = onOpenDetail,
+                onOpenDetail = { onOpenDetail(featuredItem) },
                 onOpenLibrary = onOpenLibrary
             )
         }
@@ -120,7 +120,7 @@ fun ViewingHomeScreen(
             Spacer(Modifier.height(12.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 items(ViewingLists.allItems.drop(18).take(8)) { item ->
-                    PosterCard(item = item, onClick = onOpenDetail)
+                    PosterCard(item = item, onClick = { onOpenDetail(item) })
                 }
             }
         }
@@ -150,7 +150,7 @@ fun ViewingHomeScreen(
 
 @Composable
 fun ViewingLibraryScreen(
-    onOpenDetail: () -> Unit,
+    onOpenDetail: (ViewingItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
@@ -193,7 +193,7 @@ fun ViewingLibraryScreen(
                 ViewingSortMode.CHRONOLOGICAL -> item.chronologicalOrder
                 ViewingSortMode.PHASE -> item.phaseOrder
                 else -> item.releaseOrder
-            } ?: 0, onClick = onOpenDetail)
+            } ?: 0, onClick = { onOpenDetail(item) })
         }
     }
 }
@@ -202,7 +202,7 @@ fun ViewingLibraryScreen(
 @Composable
 fun ViewingSearchScreen(
     onBack: () -> Unit,
-    onOpenDetail: () -> Unit,
+    onOpenDetail: (ViewingItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var query by rememberSaveable { mutableStateOf("") }
@@ -242,7 +242,7 @@ fun ViewingSearchScreen(
                 }
                 if (movies.isNotEmpty()) {
                     item { SectionHeader("Movies / Titles", "${movies.size} matching titles") }
-                    items(movies) { item -> ViewingOrderRow(item = item, order = item.releaseOrder ?: 0, onClick = onOpenDetail) }
+                    items(movies) { item -> ViewingOrderRow(item = item, order = item.releaseOrder ?: 0, onClick = { onOpenDetail(item) }) }
                 }
             }
             item { TextButton(onClick = onBack) { Text("Back") } }
