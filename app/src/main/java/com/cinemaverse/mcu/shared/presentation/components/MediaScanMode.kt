@@ -1,16 +1,16 @@
 package com.cinemaverse.mcu.shared.presentation.components
 
 /**
- * Enum representing the media scanning mode for filtering music library
+ * Enum representing the poster/database fetch mode for the viewing catalog
  */
 enum class MediaScanMode {
     /**
-     * Blacklist mode: Exclude specified songs/folders, include everything else
+     * Blacklist mode: Exclude specified titles/catalog folders, include everything else
      */
     BLACKLIST,
     
     /**
-     * Whitelist mode: Include only specified songs/folders, exclude everything else
+     * Whitelist mode: Include only specified titles/catalog folders, exclude everything else
      */
     WHITELIST
 }

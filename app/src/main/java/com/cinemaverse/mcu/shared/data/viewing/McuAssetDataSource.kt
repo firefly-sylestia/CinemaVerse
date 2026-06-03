@@ -3,198 +3,213 @@ package com.cinemaverse.mcu.shared.data.viewing
 import android.content.Context
 import android.content.res.AssetManager
 import android.util.Log
-import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
+import org.json.JSONArray
 import org.json.JSONObject
-import java.time.Instant
-import java.time.ZoneId
 
 object McuAssetDataSource {
-    private const val TAG = "McuAssetDataSource"
-    private const val TITLE_DATA_PATH = "mcu_data/mcu_titles.json"
-    private const val POSTER_DATA_PATH = "mcu_data/posters.json"
-    private const val POSTER_ASSET_DIR = "mcu_posters"
-    private const val POSTER_ASSET_URL_PREFIX = "file:///android_asset/$POSTER_ASSET_DIR/"
+    /**
+     * Offline-first catalog seed. Ordering is cross-checked against Marvel's official Disney+
+     * MCU timeline article (published June 2, 2026), DC's official catalog pages, and TMDb/OMDb
+     * metadata docs. YouTube is intentionally stored only as trailer IDs for IFrame playback,
+     * never as poster artwork.
+     */
+    private const val TAG = "ViewingCatalogDataSource"
+    private const val CATALOG_PATH = "viewing/viewing_catalog.json"
 
     data class ViewingAssetData(
         val allItems: List<ViewingItem>,
         val allLists: List<ViewingList>,
         val featuredItem: ViewingItem,
-        val featuredList: ViewingList
+        val featuredList: ViewingList,
+        val lastUpdated: String? = null
     ) {
+        fun findItem(id: String?): ViewingItem? = allItems.firstOrNull { it.id == id }
+        fun findList(id: String?): ViewingList? = allLists.firstOrNull { it.id == id }
+
         fun search(query: String): Pair<List<ViewingItem>, List<ViewingList>> {
             val normalized = query.trim().lowercase()
-            if (normalized.isBlank()) return allItems.take(8) to allLists.take(6)
+            if (normalized.isBlank()) return allItems.take(18) to allLists.take(12)
             return allItems.filter { item ->
-                listOfNotNull(item.title, item.year, item.releaseDate, item.phase, item.saga, item.franchise, item.director)
-                    .any { it.lowercase().contains(normalized) } ||
+                listOfNotNull(
+                    item.title,
+                    item.originalTitle,
+                    item.year,
+                    item.releaseDate,
+                    item.phase,
+                    item.saga,
+                    item.franchise,
+                    item.universe,
+                    item.category,
+                    item.studio,
+                    item.director,
+                    item.writer,
+                    item.imdbId
+                ).any { it.lowercase().contains(normalized) } ||
                     item.genres.any { it.lowercase().contains(normalized) } ||
-                    item.actors.any { it.lowercase().contains(normalized) }
+                    item.actors.any { it.lowercase().contains(normalized) } ||
+                    item.cast.any { it.name.lowercase().contains(normalized) || it.character.orEmpty().lowercase().contains(normalized) }
             } to allLists.filter { list ->
-                listOfNotNull(list.title, list.description, list.phase, list.saga, list.franchise)
+                listOfNotNull(list.title, list.description, list.universe, list.category, list.phase, list.saga, list.franchise)
                     .any { it.lowercase().contains(normalized) } ||
                     list.items.any { it.title.lowercase().contains(normalized) }
             }
         }
     }
 
-    private data class JsonTitle(
-        val id: String,
-        val title: String,
-        val type: ViewingType,
-        val series: String?,
-        val saga: String?,
-        val viewingOrder: Int?,
-        val releaseDate: String?,
-        val year: String?,
-        val posterPath: String?
-    )
-
     fun load(context: Context): ViewingAssetData = load(context.assets)
 
-    fun load(assetManager: AssetManager): ViewingAssetData {
-        val curatedItems = ViewingLists.allItems
-        val curatedLists = ViewingLists.allLists
-        val availablePosterFiles = assetManager.list(POSTER_ASSET_DIR).orEmpty().toSet()
-        val jsonTitles = readJsonTitles(assetManager)
-        val posterMap = readPosterMap(assetManager)
-
-        val jsonByTitle = jsonTitles.associateBy { normalize(it.title) }
-        val jsonByOrder = jsonTitles.mapNotNull { title -> title.viewingOrder?.let { it to title } }.toMap()
-        val availableBySlug = availablePosterFiles.associateBy { normalizePosterFilename(it) }
-
-        val enrichedCurated = curatedItems.map { curated ->
-            val json = jsonByTitle[normalize(curated.title)]
-                ?: jsonByOrder[curated.chronologicalOrder]
-                ?: jsonByOrder[curated.releaseOrder]
-            val posterPath = json?.posterPath
-                ?: posterMap.byTitle[normalize(curated.title)]
-                ?: availableBySlug[normalize(curated.title)]
-            curated.mergeJson(json, assetPosterUrl(assetManager, availablePosterFiles, posterPath))
-        }
-
-        val curatedByTitle = enrichedCurated.associateBy { normalize(it.title) }
-        val additions = jsonTitles
-            .filterNot { curatedByTitle.containsKey(normalize(it.title)) }
-            .map { json -> json.toViewingItem(assetPosterUrl(assetManager, availablePosterFiles, json.posterPath ?: posterMap.byId[json.id])) }
-
-        val allItems = (enrichedCurated + additions)
-            .distinctBy { normalize(it.title) }
-            .sortedBy { it.chronologicalOrder ?: it.order ?: it.releaseOrder ?: Int.MAX_VALUE }
-        val byId = allItems.associateBy { it.id }
-        val byTitle = allItems.associateBy { normalize(it.title) }
-        val allLists = curatedLists.map { list ->
-            val items = list.items.map { original -> byId[original.id] ?: byTitle[normalize(original.title)] ?: original }
-            val listPoster = list.localPoster ?: items.firstNotNullOfOrNull { it.localPoster }
-            list.copy(items = items, localPoster = listPoster, localBackdrop = list.localBackdrop ?: listPoster)
-        }
-        val featuredList = allLists.firstOrNull() ?: ViewingList("mcu-timeline", "MCU Timeline", items = allItems)
-        val featuredItem = allItems.firstOrNull { it.id == ViewingLists.featuredItem.id }
-            ?: allItems.firstOrNull { it.title == ViewingLists.featuredItem.title }
-            ?: allItems.first()
-
-        return ViewingAssetData(allItems, allLists, featuredItem, featuredList)
+    fun load(assetManager: AssetManager): ViewingAssetData = runCatching {
+        val root = JSONObject(assetManager.open(CATALOG_PATH).bufferedReader().use { it.readText() })
+        val items = root.optJSONArray("items").orEmptyObjects()
+            .map { it.toViewingItem() }
+            .distinctBy { it.id }
+        buildData(items, root.optString("updated").takeUsable())
+    }.getOrElse { error ->
+        Log.w(TAG, "Unable to load $CATALOG_PATH; falling back to built-in seed data", error)
+        buildData(ViewingLists.allItems, null)
     }
 
-    private fun ViewingItem.mergeJson(json: JsonTitle?, localPosterUrl: String?): ViewingItem = copy(
-        type = json?.type ?: type,
-        saga = saga ?: json?.saga,
-        franchise = franchise ?: json?.series ?: "Marvel Cinematic Universe",
-        order = order ?: json?.viewingOrder,
-        chronologicalOrder = chronologicalOrder ?: json?.viewingOrder,
-        releaseDate = releaseDate ?: json?.releaseDate,
-        year = year ?: json?.year,
-        localPoster = localPosterUrl ?: localPoster,
-        localBackdrop = localBackdrop?.takeIf { ViewingArtworkUtils.isUsableArtwork(it) } ?: localPosterUrl
-    )
-
-    private fun JsonTitle.toViewingItem(localPosterUrl: String?): ViewingItem = ViewingItem(
-        id = "mcu-$id",
-        title = title,
-        year = year,
-        releaseDate = releaseDate,
-        type = type,
-        saga = saga,
-        franchise = series ?: "Marvel Cinematic Universe",
-        studio = "Marvel Studios",
-        order = viewingOrder,
-        chronologicalOrder = viewingOrder,
-        phaseOrder = viewingOrder,
-        localPoster = localPosterUrl,
-        localBackdrop = localPosterUrl,
-        trailerUrl = "https://www.youtube.com/results?search_query=${title.replace(" ", "+")}+trailer",
-        trailerSource = TrailerSource.MANUAL
-    )
-
-    private fun assetPosterUrl(assetManager: AssetManager, availableFiles: Set<String>, posterPath: String?): String? {
-        val safePath = posterPath?.takeIf { it.isNotBlank() } ?: return null
-        val assetPath = "$POSTER_ASSET_DIR/$safePath"
-        return if (safePath in availableFiles || assetManager.exists(assetPath)) {
-            "$POSTER_ASSET_URL_PREFIX$safePath"
-        } else {
-            Log.w(TAG, "Missing bundled poster asset: $assetPath")
-            null
-        }
+    private fun buildData(items: List<ViewingItem>, updated: String?): ViewingAssetData {
+        val sortedItems = items.sortedWith(compareBy<ViewingItem> { it.universe ?: "" }.thenBy { it.releaseDate ?: "9999-99-99" }.thenBy { it.releaseOrder ?: Int.MAX_VALUE })
+        val lists = buildViewingLists(sortedItems)
+        val featuredList = lists.firstOrNull { it.id == "mcu-release-order" } ?: lists.first()
+        val featuredItem = sortedItems.firstOrNull { it.id == "mcu-iron-man" }
+            ?: featuredList.items.firstOrNull()
+            ?: sortedItems.first()
+        return ViewingAssetData(sortedItems, lists, featuredItem, featuredList, updated)
     }
 
-    private data class PosterMap(val byId: Map<String, String>, val byTitle: Map<String, String>)
-
-    private fun readPosterMap(assetManager: AssetManager): PosterMap = runCatching {
-        val root = JSONObject(assetManager.readText(POSTER_DATA_PATH))
-        val byIdJson = root.optJSONObject("byId") ?: JSONObject()
-        val byTitleJson = root.optJSONObject("byTitle") ?: JSONObject()
-        PosterMap(
-            byId = byIdJson.keys().asSequence().associateWith { byIdJson.optString(it) },
-            byTitle = byTitleJson.keys().asSequence().associate { normalize(it) to byTitleJson.optString(it) }
-        )
-    }.getOrElse {
-        Log.w(TAG, "Unable to read $POSTER_DATA_PATH", it)
-        PosterMap(emptyMap(), emptyMap())
-    }
-
-    private fun readJsonTitles(assetManager: AssetManager): List<JsonTitle> = runCatching {
-        val array = org.json.JSONArray(assetManager.readText(TITLE_DATA_PATH))
-        (0 until array.length()).map { index ->
-            val item = array.getJSONObject(index)
-            val releaseDate = item.optLong("releaseDate").takeIf { it > 0L }?.let { epochMillis ->
-                Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate().toString()
-            }
-            JsonTitle(
-                id = item.optString("id"),
-                title = item.optString("title"),
-                type = item.optString("type").toViewingType(),
-                series = item.optString("series").takeIf { it.isNotBlank() },
-                saga = item.optString("saga").takeIf { it.isNotBlank() },
-                viewingOrder = item.optInt("viewingOrder").takeIf { it > 0 },
-                releaseDate = releaseDate,
-                year = releaseDate?.take(4),
-                posterPath = item.optString("posterPath").takeIf { it.isNotBlank() }
+    private fun buildViewingLists(items: List<ViewingItem>): List<ViewingList> {
+        val lists = mutableListOf<ViewingList>()
+        fun list(
+            id: String,
+            title: String,
+            description: String,
+            filtered: List<ViewingItem>,
+            universe: String? = null,
+            category: String? = null,
+            phase: String? = null,
+            saga: String? = null,
+            franchise: String? = null,
+            sort: Comparator<ViewingItem> = releaseComparator()
+        ) {
+            if (filtered.isEmpty()) return
+            val listItems = filtered.sortedWith(sort)
+            val art = listItems.firstOrNull { !it.poster.isNullOrBlank() || !it.backdrop.isNullOrBlank() }
+            lists += ViewingList(
+                id = id,
+                title = title,
+                description = description,
+                universe = universe,
+                category = category,
+                phase = phase,
+                saga = saga,
+                franchise = franchise,
+                poster = art?.poster,
+                backdrop = art?.backdrop,
+                itemIds = listItems.map { it.id },
+                items = listItems
             )
         }
-    }.getOrElse {
-        Log.w(TAG, "Unable to read $TITLE_DATA_PATH", it)
-        emptyList()
+
+        val marvel = items.filter { it.universe == "MCU" || it.universe == "Marvel" }
+        val dc = items.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }
+        list("all-release-order", "Cinemaverse Release Order", "Marvel and DC titles sorted by public release date.", items, category = "Release Order")
+        list("mcu-release-order", "MCU Release Order", "Marvel Studios films, series, specials, and One-Shots by release date.", marvel, universe = "MCU", category = "Release Order")
+        list("mcu-chronological-order", "MCU Chronological Order", "Official Disney+ timeline-inspired MCU order with Defenders and multiverse labels kept visible.", marvel, universe = "MCU", category = "Chronological Order", sort = chronologicalComparator())
+        list("dc-release-order", "DC Release Order", "DCU, DCEU, and Elseworlds titles by public release date.", dc, universe = "DC", category = "Release Order")
+        list("dceu-release-order", "DCEU Release Order", "The DCEU theatrical and streaming-era watch order.", items.filter { it.universe == "DCEU" }, universe = "DCEU", category = "Release Order")
+        list("dceu-chronological-order", "DCEU Chronological Order", "DCEU stories ordered by in-universe placement where clear.", items.filter { it.universe == "DCEU" }, universe = "DCEU", category = "Chronological Order", sort = chronologicalComparator())
+        list("dcu-release-order", "DCU Release Order", "DC Studios Chapter One titles, including clearly marked upcoming entries.", items.filter { it.universe == "DCU" }, universe = "DCU", category = "Release Order")
+        list("dc-elseworlds", "DC Elseworlds", "Standalone DC film and TV universes such as Joker and The Batman.", items.filter { it.universe == "Elseworlds" }, universe = "Elseworlds", category = "DC Elseworlds")
+
+        items.groupBy { it.phase }.forEach { (phase, phaseItems) ->
+            if (!phase.isNullOrBlank()) list(phase.slug(), phase, "${phaseItems.size} titles in $phase.", phaseItems, phase = phase, category = "Phases / Chapters", sort = phaseComparator())
+        }
+        items.groupBy { it.saga }.forEach { (saga, sagaItems) ->
+            if (!saga.isNullOrBlank()) list(saga.slug(), saga, "${sagaItems.size} titles across $saga.", sagaItems, saga = saga, category = "Saga Order")
+        }
+        items.groupBy { it.franchise }.forEach { (franchise, franchiseItems) ->
+            if (!franchise.isNullOrBlank() && franchiseItems.size > 1) list(franchise.slug(), franchise, "A focused viewing collection for $franchise.", franchiseItems, franchise = franchise, category = "Collections", sort = collectionComparator())
+        }
+        list("marvel-one-shots", "Marvel One-Shots", "Short-form MCU connective tissue.", items.filter { it.type == ViewingType.ONE_SHOT }, universe = "MCU", category = "Marvel One-Shots", sort = releaseComparator())
+        list("marvel-specials", "Marvel Specials", "Special Presentations and seasonal MCU entries.", items.filter { it.type == ViewingType.SPECIAL }, universe = "MCU", category = "Specials", sort = releaseComparator())
+        list("disney-plus-series", "Disney+ Series", "Marvel Studios streaming series in release order.", items.filter { it.category == "Disney+ Series" }, universe = "MCU", category = "Disney+ Series", sort = releaseComparator())
+        list("defenders-saga", "Defenders Saga", "Street-level Marvel Television and Disney+ continuity entries.", items.filter { it.category == "Defenders Saga" }, universe = "MCU", category = "Defenders Saga", sort = releaseComparator())
+        return lists.distinctBy { it.id }
     }
 
-    private fun String.toViewingType(): ViewingType = when (lowercase()) {
-        "series", "tv", "show" -> ViewingType.SERIES
-        "episode" -> ViewingType.EPISODE
-        "special" -> ViewingType.SPECIAL
-        "short" -> ViewingType.SHORT
+    private fun JSONObject.toViewingItem(): ViewingItem {
+        val type = optString("type").toViewingType()
+        val releaseDate = optString("releaseDate").takeUsable()
+        val youtubeId = optString("youtubeVideoId").takeUsable() ?: optString("trailerUrl").takeUsable()?.extractYoutubeVideoId()
+        return ViewingItem(
+            id = optString("id"),
+            title = optString("title"),
+            originalTitle = optString("originalTitle").takeUsable(),
+            universe = optString("universe").takeUsable(),
+            franchise = optString("franchise").takeUsable(),
+            studio = optString("studio").takeUsable(),
+            type = type,
+            phase = optString("phase").takeUsable(),
+            saga = optString("saga").takeUsable(),
+            category = optString("category").takeUsable(),
+            releaseDate = releaseDate,
+            year = optString("year").takeUsable() ?: releaseDate?.take(4),
+            runtime = optString("runtime").takeUsable(),
+            genres = optJSONArray("genres").orEmptyStrings(),
+            language = optString("language").takeUsable(),
+            country = optString("country").takeUsable(),
+            imdbId = optString("imdbId").takeUsable(),
+            tmdbId = optInt("tmdbId").takeIf { it > 0 },
+            imdbRating = optString("imdbRating").takeUsable(),
+            tmdbRating = optDouble("tmdbRating").takeIf { !it.isNaN() && it > 0.0 },
+            director = optString("director").takeUsable(),
+            writer = optString("writer").takeUsable(),
+            actors = optJSONArray("actors").orEmptyStrings(),
+            description = optString("description").takeUsable(),
+            overview = optString("overview").takeUsable(),
+            plot = optString("plot").takeUsable(),
+            poster = optString("poster").takeUsable(),
+            tmdbPoster = optString("tmdbPoster").takeUsable(),
+            omdbPoster = optString("omdbPoster").takeUsable(),
+            backdrop = optString("backdrop").takeUsable(),
+            tmdbBackdrop = optString("tmdbBackdrop").takeUsable(),
+            trailerUrl = optString("trailerUrl").takeUsable() ?: youtubeId?.let { "https://www.youtube.com/watch?v=$it" },
+            youtubeVideoId = youtubeId,
+            trailerSource = youtubeId?.let { TrailerSource.YOUTUBE },
+            releaseOrder = optInt("releaseOrder").takeIf { it > 0 },
+            chronologicalOrder = optInt("chronologicalOrder").takeIf { it >= 0 },
+            phaseOrder = optInt("phaseOrder").takeIf { it > 0 },
+            collectionOrder = optInt("collectionOrder").takeIf { it > 0 },
+            metadataSource = MetadataSource.LOCAL,
+            lastUpdated = optString("lastUpdated").takeUsable(),
+            status = optString("status").toViewingStatus()
+        )
+    }
+
+    private fun releaseComparator() = compareBy<ViewingItem> { it.releaseDate ?: "9999-99-99" }.thenBy { it.releaseOrder ?: Int.MAX_VALUE }.thenBy { it.title }
+    private fun chronologicalComparator() = compareBy<ViewingItem> { it.chronologicalOrder ?: Int.MAX_VALUE }.thenBy { it.releaseDate ?: "9999-99-99" }.thenBy { it.title }
+    private fun phaseComparator() = compareBy<ViewingItem> { it.phaseOrder ?: it.releaseOrder ?: Int.MAX_VALUE }.thenBy { it.releaseDate ?: "9999-99-99" }.thenBy { it.title }
+    private fun collectionComparator() = compareBy<ViewingItem> { it.collectionOrder ?: it.releaseOrder ?: Int.MAX_VALUE }.thenBy { it.releaseDate ?: "9999-99-99" }.thenBy { it.title }
+
+    private fun JSONArray?.orEmptyObjects(): List<JSONObject> = if (this == null) emptyList() else (0 until length()).mapNotNull { optJSONObject(it) }
+    private fun JSONArray?.orEmptyStrings(): List<String> = if (this == null) emptyList() else (0 until length()).mapNotNull { optString(it).takeUsable() }
+
+    private fun String?.takeUsable(): String? = this?.takeIf { it.isNotBlank() && it != "N/A" }
+    private fun String.toViewingType(): ViewingType = when (uppercase()) {
+        "SERIES", "TV", "SHOW" -> ViewingType.SERIES
+        "EPISODE" -> ViewingType.EPISODE
+        "SPECIAL" -> ViewingType.SPECIAL
+        "SHORT" -> ViewingType.SHORT
+        "ONE_SHOT", "ONESHOT", "ONE-SHOT" -> ViewingType.ONE_SHOT
         else -> ViewingType.MOVIE
     }
-
-    private fun AssetManager.readText(path: String): String = open(path).bufferedReader().use { it.readText() }
-
-    private fun AssetManager.exists(path: String): Boolean = runCatching { open(path).close() }.isSuccess
-
-    private fun normalize(value: String): String = value
-        .lowercase()
-        .replace(Regex("\\b(the|and|in|of|a|an)\\b"), "")
-        .replace(Regex("[^a-z0-9]+"), "")
-        .trim()
-
-    private fun normalizePosterFilename(value: String): String = normalize(
-        value.substringBeforeLast('.')
-            .replace(Regex("^\\d+-"), "")
-    )
+    private fun String.toViewingStatus(): ViewingStatus = when (uppercase()) {
+        "UPCOMING" -> ViewingStatus.UPCOMING
+        "ANNOUNCED" -> ViewingStatus.ANNOUNCED
+        else -> ViewingStatus.RELEASED
+    }
+    private fun String.slug(): String = lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+    private fun String.extractYoutubeVideoId(): String? = Regex("(?:v=|youtu\\.be/|embed/)([A-Za-z0-9_-]{11})").find(this)?.groupValues?.getOrNull(1)
 }

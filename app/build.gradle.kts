@@ -23,16 +23,11 @@ android {
         buildConfigField("String", "OMDB_API_KEY", "\"${System.getenv("OMDB_API_KEY") ?: System.getenv("VITE_OMDB_API_KEY") ?: System.getenv("NEXT_PUBLIC_OMDB_API_KEY") ?: ""}\"")
         buildConfigField("String", "TMDB_API_KEY", "\"${System.getenv("TMDB_API_KEY") ?: System.getenv("VITE_TMDB_API_KEY") ?: System.getenv("NEXT_PUBLIC_TMDB_API_KEY") ?: ""}\"")
         buildConfigField("String", "TMDB_READ_ACCESS_TOKEN", "\"${System.getenv("TMDB_READ_ACCESS_TOKEN") ?: System.getenv("VITE_TMDB_READ_ACCESS_TOKEN") ?: System.getenv("NEXT_PUBLIC_TMDB_READ_ACCESS_TOKEN") ?: ""}\"")
+        buildConfigField("String", "YOUTUBE_DATA_API_KEY", "\"${System.getenv("YOUTUBE_DATA_API_KEY") ?: System.getenv("YOUTUBE_API_KEY") ?: System.getenv("VITE_YOUTUBE_API_KEY") ?: ""}\"")
     }
 
     // Product flavors for different distribution channels
     flavorDimensions += "distribution"
-    sourceSets {
-        getByName("main") {
-            assets.srcDirs("src/main/assets", "src/main/res/drawable-xxhdpi")
-        }
-    }
-    
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
