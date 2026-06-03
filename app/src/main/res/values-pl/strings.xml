@@ -14,7 +14,7 @@
     <string name="widget_name_glance">Rhythm Music</string>
     <string name="no_song_playing">Brak odtwarzanego utworu</string>
     <string name="unknown_artist">Nieznany artysta</string>
-    <string name="unknown_album">Nieznany album</string>
+    <string name="unknown_album">Nieznany saga</string>
     <string name="album_art">Okładka albumu</string>
     <string name="play_pause">Odtwórz/Pauza</string>
     <string name="skip_next">Następny</string>
@@ -255,7 +255,7 @@
     <string name="home_settings_cd">Ustawienia</string>
     <string name="home_discover_albums">Odkrywaj albumy</string>
     <string name="home_explore_music">Odkrywaj niesamowitą muzykę</string>
-    <string name="home_no_featured_albums">Brak wyróżnionych albumów</string>
+    <string name="home_no_featured_albums">Brak wyróżnionych sagaów</string>
     <string name="home_no_featured_albums_desc">Dodaj albumy do biblioteki, aby zobaczyć polecane treści</string>
     <string name="home_artists">Artyści</string>
     <string name="home_explore_musicians">Odkrywaj swoich ulubionych muzyków</string>
@@ -267,7 +267,7 @@
     <string name="home_no_new_releases_desc">Nowe albumy pojawią się tutaj po dodaniu do biblioteki</string>
     <string name="home_recently_added">Ostatnio dodane</string>
     <string name="home_latest_additions">Twoje najnowsze dodatki</string>
-    <string name="home_no_recently_added">Brak ostatnio dodanych albumów</string>
+    <string name="home_no_recently_added">Brak ostatnio dodanych sagaów</string>
     <string name="home_no_recently_added_desc">Albumy dodane do biblioteki pojawią się tutaj</string>
     
     <string name="home_quote_late_night_1">Nocny klimat dla marzycieli 🌙</string>
@@ -342,7 +342,7 @@
     <string name="library_your_artists">Twoi artyści</string>
     <string name="library_loading_songs">Ładowanie utworów…</string>
     <string name="library_loading_playlists">Ładowanie playlist…</string>
-    <string name="library_loading_albums">Ładowanie albumów…</string>
+    <string name="library_loading_albums">Ładowanie sagaów…</string>
     <string name="library_loading_artists">Ładowanie artystów…</string>
     <string name="library_tracks_count">%1$d z %2$d utworów</string>
     <string name="library_no_songs">Brak utworów</string>
@@ -362,11 +362,11 @@
     <string name="library_playlist_name_empty">Nazwa playlisty nie może być pusta</string>
     <string name="library_no_playlists">Brak playlist</string>
     <string name="library_no_playlists_desc">Utwórz swoją pierwszą playlistę używając przycisku +</string>
-    <string name="library_no_albums">Brak albumów</string>
+    <string name="library_no_albums">Brak sagaów</string>
     <string name="library_playlist_count">%1$d playlista</string>
     <string name="library_playlists_count">%1$d playlisty</string>
-    <string name="library_album_count">%1$d album</string>
-    <string name="library_albums_count">%1$d albumów</string>
+    <string name="library_album_count">%1$d saga</string>
+    <string name="library_albums_count">%1$d sagaów</string>
     
     <string name="sort_name">Nazwa</string>
     <string name="sort_date_created">Data utworzenia</string>
@@ -502,7 +502,7 @@
     <string name="onboarding_equalizer_desc">Korektor: Dostrój częstotliwości dźwięku w Ustawienia > Korektor</string>
     <string name="onboarding_sleep_timer_desc">Wyłącznik czasowy: Auto-stop odtwarzania po ustalonym czasie (dostęp z ekranu Odtwarzania)</string>
     <string name="onboarding_library_title">Uporządkuj swoją bibliotekę</string>
-    <string name="onboarding_library_desc">Dostosuj sposób wyświetlania albumów, artystów i utworów. Wybierz preferowany układ, kolejność sortowania i układ kart.</string>
+    <string name="onboarding_library_desc">Dostosuj sposób wyświetlania sagaów, artystów i utworów. Wybierz preferowany układ, kolejność sortowania i układ kart.</string>
     <string name="onboarding_library_how_works">Jak działa organizacja biblioteki</string>
     <string name="onboarding_library_1">Dostosuj kolejność kart w Bibliotece dla szybkiego dostępu do ulubionych</string>
     <string name="onboarding_library_2">Twórz i zarządzaj playlistami bezpośrednio z ekranu Biblioteki</string>
@@ -680,7 +680,7 @@
     <string name="lyrics_embedded_note">Wbudowane teksty są wyodrębniane z tagów ID3v2 USLT w plikach audio. Dla najlepszych wyników używaj poprawnie otagowanych plików MP3/FLAC.</string>
     
     <string name="theme_good_to_know">Warto wiedzieć</string>
-    <string name="theme_tip_album_art">Kolory okładek albumów dostosowują się dynamicznie do muzyki</string>
+    <string name="theme_tip_album_art">Kolory okładek sagaów dostosowują się dynamicznie do muzyki</string>
     <string name="theme_tip_material_you">Material You używa kolorów tapety systemowej (Android 12+)</string>
     <string name="theme_tip_custom_fonts">Importuj własne czcionki, aby spersonalizować typografię</string>
     <string name="theme_color_source">Źródło koloru</string>
@@ -995,7 +995,7 @@
     
     <string name="metadata_title">Tytuł</string>
     <string name="metadata_artist">Artysta</string>
-    <string name="metadata_album">Album</string>
+    <string name="metadata_album">saga</string>
     <string name="metadata_genre">Gatunek</string>
     <string name="metadata_year">Rok</string>
     <string name="metadata_track">Ścieżka</string>
@@ -1045,7 +1045,7 @@
     <string name="cd_play">Odtwórz</string>
     <string name="cd_play_all">Odtwórz wszystko</string>
     <string name="cd_shuffle">Losowo</string>
-    <string name="cd_play_album">Odtwórz album</string>
+    <string name="cd_play_album">Odtwórz saga</string>
     <string name="cd_shuffle_play">Odtwórz losowo</string>
     <string name="cd_previous_track">Poprzedni utwór</string>
     <string name="cd_next_track">Następny utwór</string>
@@ -1086,7 +1086,7 @@
     <string name="cd_add_to_playlist_action">Dodaj do playlisty</string>
     <string name="cd_toggle_favorite">Przełącz ulubione</string>
     <string name="cd_playback_speed_action">Prędkość odtwarzania</string>
-    <string name="cd_show_album">Pokaż album</string>
+    <string name="cd_show_album">Pokaż saga</string>
     <string name="cd_show_artist">Pokaż artystę</string>
     <string name="cd_reorder_chips">Zmień kolejność elementów</string>
     <string name="cd_search">Szukaj</string>
@@ -1244,7 +1244,7 @@
     <string name="bottomsheet_remove">Usuń</string>
     <string name="bottomsheet_title">Tytuł</string>
     <string name="bottomsheet_artist">Artysta</string>
-    <string name="bottomsheet_album">Album</string>
+    <string name="bottomsheet_album">saga</string>
     <string name="bottomsheet_genre">Gatunek</string>
     <string name="bottomsheet_year">Rok</string>
     <string name="bottomsheet_track">Ścieżka</string>
@@ -1276,7 +1276,7 @@
     <string name="device_unknown">Nieznane urządzenie</string>
     
     <string name="fallback_unknown_artist">Nieznany artysta</string>
-    <string name="fallback_unknown_album">Nieznany album</string>
+    <string name="fallback_unknown_album">Nieznany saga</string>
     <string name="fallback_unknown_file">Nieznany plik</string>
     
     <string name="service_app_updates">Aktualizacje aplikacji</string>
@@ -1347,7 +1347,7 @@
     <string name="stats_sage">Ostateczny mędrzec muzyki! 👑</string>
     
     <string name="cache_artwork_images">Obrazy okładek</string>
-    <string name="cache_artwork_images_desc">Okładki albumów, zdjęcia artystów i miniatury</string>
+    <string name="cache_artwork_images_desc">Okładki sagaów, zdjęcia artystów i miniatury</string>
     <string name="cache_lyrics">Pamięć tekstów</string>
     <string name="cache_lyrics_desc">Pobrane i zsynchronizowane dane tekstów</string>
     <string name="cache_canvas_videos">Filmy Canvas</string>
@@ -1490,7 +1490,7 @@
     <string name="content_desc_remove_from_queue">Usuń z kolejki</string>
     <string name="content_desc_add_songs">Dodaj utwory</string>
     <string name="content_desc_clear_queue">Wyczyść kolejkę</string>
-    <string name="content_desc_play_album">Odtwórz album</string>
+    <string name="content_desc_play_album">Odtwórz saga</string>
     <string name="content_desc_move_up">Przesuń w górę</string>
     <string name="content_desc_move_down">Przesuń w dół</string>
     <string name="content_desc_show_hide">Pokaż/ukryj</string>
@@ -1595,7 +1595,7 @@
     <string name="player_chip_equalizer">Korektor</string>
     <string name="player_chip_sleep_timer">Wyłącznik czasowy</string>
     <string name="player_chip_lyrics">Tekst</string>
-    <string name="player_chip_album">Album</string>
+    <string name="player_chip_album">saga</string>
     <string name="player_chip_artist">Artysta</string>
     <string name="player_chip_cast">Cast</string>
     <string name="player_chip_one_visible">Przynajmniej jeden element musi być widoczny</string>
@@ -1785,7 +1785,7 @@
     <string name="settings_canvas_backgrounds_info">Tła Canvas dodają animowane wizualizacje do obsługiwanych utworów</string>
     <string name="settings_carousel_style">Styl karuzeli</string>
     <string name="settings_choose_festive_theme">Wybierz motyw świąteczny</string>
-    <string name="settings_choose_album_display">Wybierz sposób wyświetlania albumów</string>
+    <string name="settings_choose_album_display">Wybierz sposób wyświetlania sagaów</string>
     <string name="settings_choose_header_content">Wybierz co pokazać w nagłówku</string>
     <string name="settings_clear_all_cache">Wyczyść całą pamięć</string>
     <string name="settings_coming_soon">Wkrótce</string>
