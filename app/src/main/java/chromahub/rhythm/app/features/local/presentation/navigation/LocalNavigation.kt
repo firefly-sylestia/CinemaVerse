@@ -108,6 +108,7 @@ import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBot
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ArtistBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
 import chromahub.rhythm.app.shared.presentation.components.bottomsheets.UpdateBottomSheet
+import chromahub.rhythm.app.shared.data.model.AppSettings
 import chromahub.rhythm.app.features.local.presentation.screens.AddToPlaylistScreen
 import chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog
 import chromahub.rhythm.app.shared.presentation.components.dialogs.QueueActionDialog
@@ -276,9 +277,10 @@ fun LocalNavigation(
     navController: NavHostController = rememberNavController(),
     viewModel: MusicViewModel = viewModel(),
     themeViewModel: ThemeViewModel = viewModel(),
-    appSettings: chromahub.rhythm.app.shared.data.model.AppSettings // Add appSettings parameter
+    appSettings: AppSettings // Add appSettings parameter
 ) {
     val miniPlayerThemeId by appSettings.miniPlayerThemeId.collectAsState()
+    val localExperienceMode by appSettings.localExperienceMode.collectAsState()
     // Update monitoring
     val updaterViewModel: AppUpdaterViewModel = viewModel()
     val updateAvailable by updaterViewModel.updateAvailable.collectAsState()
@@ -530,6 +532,7 @@ fun LocalNavigation(
                     viewModel = viewModel,
                     themeViewModel = themeViewModel,
                     appSettings = appSettings,
+                    localExperienceMode = localExperienceMode,
                     snackbarHostState = snackbarHostState,
                     coroutineScope = coroutineScope,
                     currentSong = currentSong,
@@ -589,6 +592,7 @@ fun LocalNavigation(
                 viewModel = viewModel,
                 themeViewModel = themeViewModel,
                 appSettings = appSettings,
+                localExperienceMode = localExperienceMode,
                 snackbarHostState = snackbarHostState,
                 coroutineScope = coroutineScope,
                 currentSong = currentSong,
@@ -663,7 +667,8 @@ private fun LocalNavigationContent(
     navController: NavHostController,
     viewModel: MusicViewModel,
     themeViewModel: ThemeViewModel,
-    appSettings: chromahub.rhythm.app.shared.data.model.AppSettings,
+    appSettings: AppSettings,
+    localExperienceMode: String,
     snackbarHostState: SnackbarHostState,
     coroutineScope: kotlinx.coroutines.CoroutineScope,
     currentSong: chromahub.rhythm.app.shared.data.model.Song?,
@@ -1249,22 +1254,23 @@ private fun LocalNavigationContent(
                         // Simple faster fade animation when being popped from
                         fadeOut(animationSpec = tween(200))
                     }
-                ) homeRoute@ {
-                    ViewingHomeScreen(
-                        onOpenLibrary = {
-                            navController.navigate(Screen.Library.createRoute(firstVisibleLibraryTab)) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
-                        onOpenDetail = { navController.navigate(Screen.Player.route) },
-                        onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
-                    )
-                    return@homeRoute
-                    HomeScreen(
-                        musicViewModel = viewModel,
+                ) {
+                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                        ViewingHomeScreen(
+                            onOpenLibrary = {
+                                navController.navigate(Screen.Library.createRoute(firstVisibleLibraryTab)) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
+                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
+                        )
+                    } else {
+                        HomeScreen(
+                            musicViewModel = viewModel,
                         songs = songs,
                         albums = albums,
                         artists = artists,
@@ -1347,6 +1353,7 @@ private fun LocalNavigationContent(
                             navController.navigate(Screen.ArtistDetail.createRoute(artist.name))
                         }
                     )
+                    }
                 }
 
                 composable(
@@ -1368,13 +1375,14 @@ private fun LocalNavigationContent(
                                     animationSpec = tween(350, easing = EaseInOutQuart)
                                 )
                     }
-                ) searchRoute@ {
-                    ViewingSearchScreen(
-                        onBack = { navigateBackOrToLanding() },
-                        onOpenDetail = { navController.navigate(Screen.Player.route) }
-                    )
-                    return@searchRoute
-                    val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+                ) {
+                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                        ViewingSearchScreen(
+                            onBack = { navigateBackOrToLanding() },
+                            onOpenDetail = { navController.navigate(Screen.Player.route) }
+                        )
+                    } else {
+                        val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
                     var showAlbumBottomSheet by remember { mutableStateOf(false) }
                     var selectedAlbumForSheet by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.Album?>(null) }
@@ -1531,6 +1539,7 @@ private fun LocalNavigationContent(
                                 )
                             }
                         )
+                    }
                     }
                 }
 
@@ -1799,7 +1808,7 @@ private fun LocalNavigationContent(
                             }
                         }
                     }
-                ) libraryRoute@ {
+                ) {
                     val tabArg = it.arguments?.getString("tab") ?: "songs"
                     val initialTab = when (tabArg) {
                         "playlists" -> LibraryTab.PLAYLISTS
@@ -1809,10 +1818,11 @@ private fun LocalNavigationContent(
                         else -> LibraryTab.SONGS
                     }
 
-                    ViewingLibraryScreen(onOpenDetail = { navController.navigate(Screen.Player.route) })
-                    return@libraryRoute
-                    LibraryScreen(
-                        songs = songs,
+                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                        ViewingLibraryScreen(onOpenDetail = { navController.navigate(Screen.Player.route) })
+                    } else {
+                        LibraryScreen(
+                            songs = songs,
                         albums = albums,
                         playlists = playlists,
                         artists = artists,
@@ -1928,6 +1938,7 @@ private fun LocalNavigationContent(
                             navController.navigate(Screen.ArtistDetail.createRoute(artist.name))
                         }
                     )
+                    }
                 }
 
                 composable(
@@ -2000,7 +2011,7 @@ private fun LocalNavigationContent(
                             animationSpec = tween(durationMillis = 200)
                         )
                     }
-                ) playerRoute@ {
+                ) {
                     val showAddToPlaylistSheet = remember { mutableStateOf(false) }
                     val showCreatePlaylistDialog = remember { mutableStateOf(false) }
 
@@ -2043,10 +2054,11 @@ private fun LocalNavigationContent(
                         }
                     }
 
-                    ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
-                    return@playerRoute
-                    PlayerScreen(
-                        song = currentSong,
+                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                        ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
+                    } else {
+                        PlayerScreen(
+                            song = currentSong,
                         isPlaying = isPlaying,
                         progress = progress,
                         location = currentDevice,
@@ -2196,6 +2208,7 @@ private fun LocalNavigationContent(
                         musicViewModel = viewModel,
                         navController = navController
                     )
+                    }
                 }
 
                 // Add playlist detail screen
