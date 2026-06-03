@@ -2297,7 +2297,7 @@
     <string name="about_izzy_role">Manages updates on IzzyOnDroid</string>
     
     <!-- Sleep Timer -->
-    <string name="sleep_timer_active_status">Active \u2022 %1$s remaining</string>
+    <string name="sleep_timer_active_status">Active &#x2022; %1$s remaining</string>
     <string name="sleep_timer_no_music">No music playing</string>
     <string name="sleep_timer_set_control">Set automatic playback control</string>
     <string name="sleep_timer_fade_out">Fade Out</string>
@@ -2349,9 +2349,9 @@
     <string name="autoeq_delete_device_msg">Are you sure you want to delete \'%1$s\'? This action cannot be undone.</string>
     <string name="autoeq_import_profile">Import EQ Profile</string>
     <string name="autoeq_import_paste_hint">Paste EQ settings from autoeq.app or other sources.</string>
-    <string name="autoeq_supported_formats">Supported formats:\\n\u2022 FixedBandEQ text (AutoEQ)\\n\u2022 JSON format\\n\u2022 CSV (10 band values)</string>
+    <string name="autoeq_supported_formats">Supported formats:\\n&#x2022; FixedBandEQ text (AutoEQ)\\n&#x2022; JSON format\\n&#x2022; CSV (10 band values)</string>
     <string name="autoeq_eq_settings_label">EQ Settings</string>
-    <string name="autoeq_paste_placeholder">Paste EQ data here\u2026</string>
+    <string name="autoeq_paste_placeholder">Paste EQ data here&#x2026;</string>
     <string name="autoeq_button_file">File</string>
     <string name="autoeq_button_paste">Paste</string>
     <string name="autoeq_button_add">Add</string>
@@ -2368,12 +2368,12 @@
     <string name="backup_status_never">Never</string>
     <string name="backup_status_enabled">Enabled</string>
     <string name="backup_status_manual">Manual</string>
-    <string name="backup_creating">Creating backup\u2026</string>
+    <string name="backup_creating">Creating backup&#x2026;</string>
     <string name="backup_create_button">Create Backup</string>
-    <string name="backup_restoring">Restoring\u2026</string>
+    <string name="backup_restoring">Restoring&#x2026;</string>
     <string name="backup_from_clipboard">From Clipboard</string>
     <string name="backup_from_file">From File</string>
-    <string name="backup_opening">Opening\u2026</string>
+    <string name="backup_opening">Opening&#x2026;</string>
     <string name="backup_no_clipboard_data">No backup data found in clipboard. Please copy a backup first.</string>
     <string name="backup_restore_clipboard_failed">Failed to restore backup: %1$s</string>
     
@@ -2465,7 +2465,7 @@
     
     <!-- GitHub & Links -->
     <string name="github_username_format">\@%1$s</string>
-    <string name="bullet_point">\u2022</string>
+    <string name="bullet_point">&#x2022;</string>
     <string name="original_quoted">\"%1$s\"</string>
     
     <!-- Contributors -->
