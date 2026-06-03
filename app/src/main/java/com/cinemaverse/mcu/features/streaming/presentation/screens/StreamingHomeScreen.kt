@@ -55,6 +55,15 @@ fun StreamingHomeScreen(
     onSwitchToLocalMode: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingHomeScreen(
+        onOpenLibrary = {},
+        onOpenSearch = {},
+        onOpenDetail = {},
+        onOpenSettings = onNavigateToSettings,
+        modifier = modifier
+    )
+    return
+
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     val appSettings = remember { AppSettings.getInstance(context) }

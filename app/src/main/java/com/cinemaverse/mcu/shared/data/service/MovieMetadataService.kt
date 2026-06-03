@@ -60,8 +60,8 @@ class MovieMetadataService(
     fun getConfigurationMessage(): String = buildString {
         if (!omdbService.hasApiKey) append("OMDb key missing. ")
         if (!tmdbService.hasCredentials) append("TMDB key/token missing. ")
-        if (isBlank()) append("OMDb and TMDB metadata enrichment configured.")
-        else append("Rhythm remains usable with bundled viewing-list data.")
+        if (isBlank()) append("OMDb and TMDB metadata enrichment configured; YouTube trailers use stored IDs or optional Data API discovery.")
+        else append("Cinemaverse remains usable with the offline Marvel/DC viewing catalog.")
     }
 
     private fun mergePreservingLocal(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(

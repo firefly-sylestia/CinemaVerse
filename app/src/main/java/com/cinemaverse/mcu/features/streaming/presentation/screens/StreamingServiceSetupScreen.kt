@@ -56,6 +56,9 @@ fun StreamingServiceSetupScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    CinemaverseSetupContent(onBackClick = onBackClick, modifier = modifier)
+    return
+
     val context = LocalContext.current
     val appSettings = remember(context) { AppSettings.getInstance(context) }
     val sessions by viewModel.serviceSessions.collectAsState()
@@ -374,6 +377,50 @@ fun StreamingServiceSetupScreen(
             item {
                 Spacer(modifier = Modifier.height(18.dp))
             }
+        }
+    }
+}
+
+
+@Composable
+private fun CinemaverseSetupContent(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize().padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item { Spacer(Modifier.height(12.dp)) }
+        item {
+            Card(
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Column(Modifier.fillMaxWidth().padding(22.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(MaterialSymbolIcon("movie_filter"), contentDescription = null, modifier = Modifier.size(42.dp))
+                    Text("Set up Cinemaverse", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text("Marvel and DC viewing libraries work offline first. Optional TMDb, OMDb, and YouTube metadata can fetch posters, ratings, and trailers later.", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
+                }
+            }
+        }
+        item { SetupChoiceCard("Choose universes", "Marvel", "DC", "Both enabled by default") }
+        item { SetupChoiceCard("Catalog scope", "Core cinematic universes", "TV, shorts, specials", "Legacy and multiverse collections") }
+        item { SetupChoiceCard("Metadata setup", "Local catalog", "TMDb / OMDb optional", "YouTube trailer IDs only") }
+        item { SetupChoiceCard("Poster & database fetch", "Load offline catalog", "Fetch TMDb posters/backdrops", "Cache ratings and trailer IDs") }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = onBackClick) { Text("Back") }
+                FilledTonalButton(onClick = onBackClick) { Text("Open Library") }
+            }
+        }
+        item { Spacer(Modifier.height(90.dp)) }
+    }
+}
+
+@Composable
+private fun SetupChoiceCard(title: String, first: String, second: String, third: String) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.large) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text("• $first\n• $second\n• $third", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

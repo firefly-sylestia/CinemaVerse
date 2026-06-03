@@ -1,18 +1,19 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-
 package com.cinemaverse.mcu.shared.presentation.screens.viewing
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -40,13 +41,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -62,10 +64,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -73,53 +77,32 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
-import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.R
 import com.cinemaverse.mcu.shared.data.service.MovieMetadataService
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
-import com.cinemaverse.mcu.shared.data.viewing.MetadataResult
+import com.cinemaverse.mcu.shared.data.viewing.MetadataSource
 import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
 import com.cinemaverse.mcu.shared.data.viewing.ViewingList
-import com.cinemaverse.mcu.shared.data.viewing.ViewingLists
 import com.cinemaverse.mcu.shared.data.viewing.ViewingSortMode
-import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
-import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.shared.data.viewing.ViewingStatus
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
 
-private object ViewingUiDefaults {
-    val ScreenHorizontalPadding = 20.dp
-    val ScreenTopPadding = 24.dp
-    val ScreenBottomPadding = 128.dp
-    val DetailBottomPadding = 36.dp
-    val SectionSpacing = 22.dp
-    val CardSpacing = 14.dp
-    val CompactSpacing = 10.dp
-    val TinySpacing = 6.dp
-    val MicroSpacing = 8.dp
-    val DetailContentSpacing = 18.dp
-    val EmptyStatePadding = 18.dp
-    val CardPadding = 16.dp
-    val CompactCardPadding = 14.dp
-    val DenseCardPadding = 12.dp
-    val DetailHeroHeight = 420.dp
-    val HomeHeroHeight = 300.dp
-    val ListArtworkHeight = 126.dp
-    val PosterWidth = 150.dp
-    val ListCardWidth = 220.dp
-    val DetailPosterWidth = 150.dp
-    val DetailPosterHeight = 225.dp
-    val RowPosterWidth = 62.dp
-    val RowPosterHeight = 92.dp
-
-    fun subtlePressSpec() = tween<Float>(
-        durationMillis = 160,
-        easing = FastOutSlowInEasing
-    )
-
-    fun subtleColorSpec() = tween<androidx.compose.ui.graphics.Color>(
-        durationMillis = 160,
-        easing = FastOutSlowInEasing
-    )
+private object ViewingUi {
+    val screenHPad = 20.dp
+    val topPad = 12.dp
+    val bottomPad = 120.dp
+    val sectionGap = 22.dp
+    val cardGap = 14.dp
+    val chipGap = 8.dp
+    val cardPad = 16.dp
+    val posterWidth = 146.dp
+    val rowPosterWidth = 58.dp
+    val rowPosterHeight = 86.dp
+    val heroHeight = 288.dp
+    fun pressSpec() = tween<Float>(durationMillis = 160, easing = FastOutSlowInEasing)
 }
 
 @Composable
@@ -131,77 +114,63 @@ fun ViewingHomeScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val viewingData = remember(context) { McuAssetDataSource.load(context) }
+    val data = remember(context) { McuAssetDataSource.load(context) }
+    var selectedItemId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedListId by rememberSaveable { mutableStateOf<String?>(null) }
+    var showSearch by rememberSaveable { mutableStateOf(false) }
+    val selectedItem = data.findItem(selectedItemId)
+    val selectedList = data.findList(selectedListId)
+
+    when {
+        selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null })
+        selectedList != null -> ViewingListDetailScreen(list = selectedList, onBack = { selectedListId = null }, onOpenTitle = { selectedItemId = it.id })
+        showSearch -> ViewingSearchScreen(onBack = { showSearch = false }, onOpenDetail = { selectedItemId = it.id }, onOpenSettings = onOpenSettings)
+        else -> ViewingHomeContent(
+            data = data,
+            onOpenLibrary = onOpenLibrary,
+            onOpenSearch = { showSearch = true; onOpenSearch() },
+            onOpenSettings = onOpenSettings,
+            onOpenItem = { selectedItemId = it.id; onOpenDetail() },
+            onOpenList = { selectedListId = it.id },
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun ViewingHomeContent(
+    data: McuAssetDataSource.ViewingAssetData,
+    onOpenLibrary: () -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenItem: (ViewingItem) -> Unit,
+    onOpenList: (ViewingList) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val metadataService = remember { MovieMetadataService() }
     val message = remember { metadataService.getConfigurationMessage() }
-    val featuredList = remember(viewingData) { viewingData.featuredList }
-    val featuredItem = remember(viewingData) { viewingData.featuredItem }
-    val continueBrowsingItems = remember(viewingData) { viewingData.allItems.drop(18).take(10) }
-    val featuredLists = remember(viewingData) { viewingData.allLists.take(8) }
-    val phaseLists = remember(viewingData) { viewingData.allLists.filter { it.phase?.startsWith("Phase") == true } }
-    val watchlistItems = remember(viewingData) { viewingData.allItems.take(6) }
+    val marvel = remember(data) { data.allItems.filter { it.universe == "MCU" }.take(14) }
+    val dc = remember(data) { data.allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }.take(14) }
+    val lists = remember(data) { data.allLists.take(12) }
 
     LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.ScreenTopPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
-        verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.SectionSpacing)
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
+        verticalArrangement = Arrangement.spacedBy(ViewingUi.sectionGap)
     ) {
-        item(key = "header", contentType = "header") {
-            MarvelSpectrumHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings)
-        }
-        item(key = "hero", contentType = "hero-card") {
+        item { CinemaverseHeader(onOpenSearch, onOpenSettings) }
+        item {
             HeroViewingCard(
-                item = featuredItem,
-                list = featuredList,
-                subtitle = "Continue the timeline • ${featuredList.items.size} titles",
-                onOpenDetail = onOpenDetail,
+                item = data.featuredItem,
+                list = data.featuredList,
+                onOpenDetail = { onOpenItem(data.featuredItem) },
                 onOpenLibrary = onOpenLibrary
             )
         }
-        item(key = "metadata", contentType = "info-card") {
-            ApiStateCard(message = message)
-        }
-        item(key = "continue", contentType = "poster-shelf") {
-            SectionHeader("Continue browsing", "Offline-ready MCU picks from bundled posters and metadata", action = "Search", onAction = onOpenSearch)
-            Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(continueBrowsingItems, key = { it.id }, contentType = { "poster-card" }) { item ->
-                    PosterCard(item = item, onClick = onOpenDetail)
-                }
-            }
-        }
-        item(key = "lists", contentType = "list-shelf") {
-            SectionHeader("Featured lists", "Curated release, timeline, phase, and collection orders", action = "View all", onAction = onOpenLibrary)
-            Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(featuredLists, key = { it.id }, contentType = { "viewing-list-card" }) { list ->
-                    ViewingListCard(list = list, onClick = onOpenLibrary)
-                }
-            }
-        }
-        item(key = "phases", contentType = "phase-shelf") {
-            SectionHeader("Phase collections", "Explore the saga by MCU phase", action = "Library", onAction = onOpenLibrary)
-            Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                items(phaseLists, key = { it.id }, contentType = { "phase-chip" }) { list ->
-                    AssistChip(onClick = onOpenLibrary, label = { Text("${list.title} • ${list.items.size}") })
-                }
-            }
-        }
-        item(key = "watchlist", contentType = "poster-shelf") {
-            SectionHeader("Watchlist", "Queue up your next MCU night", action = "View order", onAction = onOpenLibrary)
-            Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(watchlistItems, key = { it.id }, contentType = { "poster-card" }) { item ->
-                    PosterCard(item = item, onClick = onOpenDetail)
-                }
-            }
-        }
-        item(key = "timeline", contentType = "shortcut") {
-            WatchlistShortcut(onOpenLibrary)
-        }
+        item { ApiStateCard(message, onOpenSettings) }
+        item { PosterRail("Marvel", "MCU films, series, specials, One-Shots, and Defenders entries", marvel, onOpenItem) }
+        item { PosterRail("DC", "DCU, DCEU, Elseworlds, and connected TV", dc, onOpenItem) }
+        item { ListRail("Viewing orders", "Release, timeline, phase/chapter, saga, and collection lists", lists, onOpenList) }
     }
 }
 
@@ -211,54 +180,46 @@ fun ViewingLibraryScreen(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
     val context = LocalContext.current
-    val viewingData = remember(context) { McuAssetDataSource.load(context) }
-    val viewingLists = remember(viewingData) { viewingData.allLists }
-    val items = remember(sortMode, viewingData) {
-        when (sortMode) {
-            ViewingSortMode.RELEASE -> viewingData.allItems.sortedBy { it.releaseOrder ?: it.order ?: Int.MAX_VALUE }
-            ViewingSortMode.CHRONOLOGICAL -> viewingData.allItems.sortedBy { it.chronologicalOrder ?: it.order ?: Int.MAX_VALUE }
-            ViewingSortMode.PHASE -> viewingData.allItems.sortedWith(compareBy<ViewingItem> { it.phase ?: "" }.thenBy { it.phaseOrder ?: it.releaseOrder ?: it.order ?: Int.MAX_VALUE })
-            ViewingSortMode.CUSTOM -> viewingData.featuredList.items
-        }
-    }
+    val data = remember(context) { McuAssetDataSource.load(context) }
+    var tab by rememberSaveable { mutableStateOf("Titles") }
+    var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
+    var selectedItemId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedListId by rememberSaveable { mutableStateOf<String?>(null) }
+    var query by rememberSaveable { mutableStateOf("") }
+    val selectedItem = data.findItem(selectedItemId)
+    val selectedList = data.findList(selectedListId)
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.ScreenTopPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
-        verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.ScreenHorizontalPadding)
-    ) {
-        item(key = "library-header", contentType = "header") {
-            MarvelSpectrumHeader(
-                title = "Explore the saga",
-                subtitle = "Curated release, timeline, phase, and collection orders",
-                onOpenSearch = {},
-                onOpenSettings = onOpenSettings
-            )
-        }
-        item(key = "library-lists", contentType = "list-shelf") {
-            SectionHeader("Lists / Collections", "Bundled local posters and metadata are available offline")
-            Spacer(Modifier.height(ViewingUiDefaults.DenseCardPadding))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                items(viewingLists, key = { it.id }, contentType = { "viewing-list-card" }) { list -> ViewingListCard(list, onClick = {}) }
+    when {
+        selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null })
+        selectedList != null -> ViewingListDetailScreen(list = selectedList, onBack = { selectedListId = null }, onOpenTitle = { selectedItemId = it.id; onOpenDetail() })
+        else -> {
+            val filtered = remember(query, tab, sortMode, data) {
+                val base = when (tab) {
+                    "Marvel" -> data.allItems.filter { it.universe == "MCU" }
+                    "DC" -> data.allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }
+                    else -> data.allItems
+                }.filter { item ->
+                    query.isBlank() || listOfNotNull(item.title, item.franchise, item.phase, item.saga, item.category, item.director, item.writer, item.year, item.imdbId).any { it.contains(query, true) } || item.actors.any { it.contains(query, true) }
+                }
+                base.sortedFor(sortMode)
             }
-        }
-        item(key = "library-sort", contentType = "sort-controls") {
-            SectionHeader("Viewing Order", "Switch between release, chronological, phase, and custom order")
-            Spacer(Modifier.height(ViewingUiDefaults.CompactSpacing))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.MicroSpacing)) {
-                items(ViewingSortMode.values().toList(), key = { it.name }, contentType = { "sort-chip" }) { mode ->
-                    FilterChip(selected = sortMode == mode, onClick = { sortMode = mode }, label = { Text(mode.label) })
+            LazyColumn(
+                modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                item { CinemaverseHeader(title = "Library", subtitle = "Titles • Universes • Phases • Collections • Watch orders", onOpenSearch = {}, onOpenSettings = onOpenSettings) }
+                item { LibraryTabs(tab, onTab = { tab = it }) }
+                item { SearchAndSort(query, { query = it }, sortMode, { sortMode = it }) }
+                if (tab == "Collections") {
+                    items(data.allLists, key = { it.id }) { list -> WideListCard(list, onClick = { selectedListId = list.id }) }
+                } else {
+                    item { ListRail("Phases / chapters", "Tap any chip to open a functional filtered route", data.allLists.filter { it.category == "Phases / Chapters" || it.category == "Saga Order" }.take(18), onOpenList = { selectedListId = it.id }) }
+                    if (filtered.isEmpty()) item { EmptyState("Try another universe/category", "No titles match this search. The offline catalog remains available without API keys.") }
+                    items(filtered, key = { it.id }) { item -> ViewingOrderRow(item, sortMode.orderFor(item), onClick = { selectedItemId = item.id; onOpenDetail() }) }
                 }
             }
-        }
-        items(items, key = { it.id }, contentType = { "viewing-order-row" }) { item ->
-            ViewingOrderRow(item = item, order = when (sortMode) {
-                ViewingSortMode.CHRONOLOGICAL -> item.chronologicalOrder
-                ViewingSortMode.PHASE -> item.phaseOrder
-                else -> item.releaseOrder
-            } ?: 0, onClick = onOpenDetail)
         }
     }
 }
@@ -267,424 +228,318 @@ fun ViewingLibraryScreen(
 @Composable
 fun ViewingSearchScreen(
     onBack: () -> Unit,
-    onOpenDetail: () -> Unit,
+    onOpenDetail: (ViewingItem) -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
-    val viewingData = remember(context) { McuAssetDataSource.load(context) }
-    val (movies, lists) = remember(query, viewingData) { viewingData.search(query) }
+    val data = remember(context) { McuAssetDataSource.load(context) }
+    var query by rememberSaveable { mutableStateOf("") }
+    val (items, lists) = remember(query, data) { data.search(query) }
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text("Cinemaverse Search") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
+                actions = { SettingsIconAction(onOpenSettings) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f))
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(ViewingUi.screenHPad, 10.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
+            verticalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)
+        ) {
+            item { OutlinedTextField(value = query, onValueChange = { query = it }, placeholder = { Text("Search title, cast, director, phase, year, IMDb ID") }, singleLine = true, modifier = Modifier.fillMaxWidth()) }
+            if (items.isEmpty() && lists.isEmpty()) item { EmptyState("No viewing results", "Try another universe/category or fetch poster metadata later.") }
+            if (lists.isNotEmpty()) item { ListRail("Matching lists", "${lists.size} viewing orders", lists, onOpenList = {}) }
+            items(items, key = { it.id }) { item -> ViewingOrderRow(item, item.releaseOrder ?: 0, onClick = { onOpenDetail(item) }) }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ViewingDetailScreen(
+    item: ViewingItem? = null,
+    list: ViewingList? = null,
+    onBack: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val data = remember(context) { McuAssetDataSource.load(context) }
+    val selected = item ?: data.featuredItem
+    var showTrailer by rememberSaveable(selected.id) { mutableStateOf(false) }
+    var favorite by rememberSaveable(selected.id) { mutableStateOf(selected.favorite) }
+    var watched by rememberSaveable(selected.id) { mutableStateOf(selected.watched) }
+    val related = remember(selected, data) { data.allItems.filter { it.id != selected.id && (it.franchise == selected.franchise || it.universe == selected.universe) }.take(12) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Marvel Spectrum Search") },
-                actions = {
-                    SettingsIconAction(onOpenSettings)
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f))
+                title = { Text(selected.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
             )
         },
         modifier = modifier
     ) { padding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(start = ViewingUiDefaults.ScreenHorizontalPadding, end = ViewingUiDefaults.ScreenHorizontalPadding, top = ViewingUiDefaults.DenseCardPadding, bottom = ViewingUiDefaults.ScreenBottomPadding),
-            verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardPadding)
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(ViewingUi.screenHPad, 12.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            item(key = "search-field", contentType = "search-field") {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    placeholder = { Text("Search titles, phases, sagas, heroes") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            if (movies.isEmpty() && lists.isEmpty()) {
-                item(key = "empty-search", contentType = "empty-state") { EmptyState("No viewing results", "Try a title, phase, saga, hero, director, actor, or genre.") }
-            } else {
-                if (lists.isNotEmpty()) {
-                    item(key = "list-results-header", contentType = "section-header") { SectionHeader("Lists", "${lists.size} matching collections") }
-                    items(lists, key = { it.id }, contentType = { "list-result" }) { list -> CompactListResult(list = list) }
-                }
-                if (movies.isNotEmpty()) {
-                    item(key = "title-results-header", contentType = "section-header") { SectionHeader("Titles", "${movies.size} matching MCU titles") }
-                    items(movies, key = { it.id }, contentType = { "viewing-order-row" }) { item -> ViewingOrderRow(item = item, order = item.releaseOrder ?: item.order ?: 0, onClick = onOpenDetail) }
+            item {
+                Box(Modifier.fillMaxWidth().height(430.dp)) {
+                    Crossfade(showTrailer, animationSpec = tween(180), label = "posterTrailer") { trailer ->
+                        if (trailer) YouTubeTrailerWebPlayer(
+                            youtubeVideoId = selected.youtubeVideoId,
+                            trailerUrl = selected.trailerUrl,
+                            title = selected.title,
+                            modifier = Modifier.fillMaxSize()
+                        ) else PosterBackdrop(selected, Modifier.fillMaxSize(), ContentScale.Crop, RoundedCornerShape(30.dp))
+                    }
+                    FilledIconButton(
+                        onClick = { showTrailer = !showTrailer },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+                    ) { Icon(if (showTrailer) RhythmIcons.Close else RhythmIcons.Play, contentDescription = if (showTrailer) "Show poster" else "Show trailer") }
                 }
             }
-            item(key = "search-back", contentType = "action") { TextButton(onClick = onBack) { Text("Back") } }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(selected.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Text(listOfNotNull(selected.year, selected.type.name.lowercase().replaceFirstChar { it.titlecase() }, selected.universe, selected.phase ?: selected.saga).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    FlowChips(listOfNotNull(selected.universe, selected.franchise, selected.phase, selected.saga, selected.category))
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Button(onClick = { showTrailer = true }) { Text("Trailer") }
+                        OutlinedButton(onClick = { favorite = !favorite }) { Text(if (favorite) "Favorited" else "Favorite") }
+                        OutlinedButton(onClick = { watched = !watched }) { Text(if (watched) "Watched" else "Mark watched") }
+                    }
+                }
+            }
+            item { MetadataGrid(selected) }
+            item {
+                ElevatedCard(colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+                    Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Overview", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(selected.overview ?: selected.plot ?: selected.description ?: "No overview available.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+            item { CreditsBlock(selected) }
+            if (related.isNotEmpty()) item { PosterRail("Related titles", selected.franchise ?: selected.universe ?: "Cinemaverse", related, onOpenItem = {}) }
+            item { Text("Metadata source: ${selected.metadataSource} • Updated ${selected.lastUpdated ?: "offline catalog"}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpenTitle: (ViewingItem) -> Unit) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(list.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
+            )
+        }
+    ) { padding ->
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(ViewingUi.screenHPad, 12.dp, ViewingUi.screenHPad, ViewingUi.bottomPad), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            item { HeroListCard(list) }
+            items(list.items, key = { it.id }) { item -> ViewingOrderRow(item, item.releaseOrder ?: item.chronologicalOrder ?: 0, onClick = { onOpenTitle(item) }) }
         }
     }
 }
 
 @Composable
-fun ViewingDetailScreen(
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    baseItem: ViewingItem = ViewingLists.featuredItem
-) {
-    val context = LocalContext.current
-    val assetItem = remember(context, baseItem.id) {
-        McuAssetDataSource.load(context).allItems.firstOrNull { it.id == baseItem.id || it.title == baseItem.title } ?: baseItem
-    }
-    val viewingPrefs = remember { context.getSharedPreferences("rhythm_viewing_state", android.content.Context.MODE_PRIVATE) }
-    val metadataService = remember { MovieMetadataService() }
-    var result by remember { mutableStateOf(MetadataResult(assetItem)) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isWatchlisted by rememberSaveable(assetItem.id) { mutableStateOf(viewingPrefs.getBoolean("watchlist_${assetItem.id}", false)) }
-    var isWatched by rememberSaveable(assetItem.id) { mutableStateOf(viewingPrefs.getBoolean("watched_${assetItem.id}", false)) }
-    var isFavorite by rememberSaveable(assetItem.id) { mutableStateOf(viewingPrefs.getBoolean("favorite_${assetItem.id}", false)) }
-
-    LaunchedEffect(assetItem.id) {
-        isLoading = true
-        result = metadataService.getEnrichedViewingItem(assetItem)
-        isLoading = false
-    }
-
-    LaunchedEffect(assetItem.id, isWatchlisted, isWatched, isFavorite) {
-        viewingPrefs.edit()
-            .putBoolean("watchlist_${assetItem.id}", isWatchlisted)
-            .putBoolean("watched_${assetItem.id}", isWatched)
-            .putBoolean("favorite_${assetItem.id}", isFavorite)
-            .apply()
-    }
-
-    val item = result.item
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = ViewingUiDefaults.DetailBottomPadding),
-        verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DetailContentSpacing)
-    ) {
-        item(key = "detail-hero", contentType = "detail-hero") {
-            DetailHero(item = item, isLoading = isLoading, onBack = onBack)
+private fun CinemaverseHeader(title: String = "Cinemaverse", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSearch: () -> Unit, onOpenSettings: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer, tonalElevation = 3.dp) {
+            Image(painter = painterResource(R.drawable.ic_cinemaverse), contentDescription = "Cinemaverse", modifier = Modifier.size(58.dp).padding(12.dp))
         }
-        item(key = "detail-actions", contentType = "detail-actions") {
-            Column(Modifier.padding(horizontal = ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardSpacing)) {
-                Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                Text(listOfNotNull(item.year, item.phase, item.runtime, item.genres.take(2).joinToString(" / ").takeIf { it.isNotBlank() }).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                    FilledTonalButton(onClick = { isWatchlisted = !isWatchlisted }) { Text(if (isWatchlisted) "In Watchlist" else "Add to Watchlist") }
-                    OutlinedButton(onClick = { isWatched = !isWatched }) { Text(if (isWatched) "Watched" else "Mark watched") }
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                    Button(onClick = { openUrl(context, item.trailerUrl) }, enabled = !item.trailerUrl.isNullOrBlank()) { Text("Watch trailer") }
-                    OutlinedButton(onClick = { isFavorite = !isFavorite }) { Text(if (isFavorite) "Favorited" else "Favorite") }
-                }
-                if (!result.message.isNullOrBlank()) {
-                    ApiStateCard(message = result.message ?: "Using local fallback metadata.")
-                }
-            }
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        item(key = "detail-info", contentType = "metadata") { InfoPanel(item = item) }
-        item(key = "detail-trailer", contentType = "trailer") { TrailerPanel(item = item) }
+        IconButton(onClick = onOpenSearch) { Icon(RhythmIcons.Search, contentDescription = "Search") }
+        SettingsIconAction(onOpenSettings)
     }
 }
 
 @Composable
-private fun MarvelSpectrumHeader(
-    onOpenSearch: () -> Unit,
-    onOpenSettings: () -> Unit,
-    title: String = "Marvel Spectrum",
-    subtitle: String = "MCU viewing order"
-) {
-    ElevatedCard(
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f),
-                            MaterialTheme.colorScheme.surfaceContainerHigh
-                        )
-                    )
-                )
-                .padding(ViewingUiDefaults.CardPadding),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(MaterialTheme.shapes.large)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("MS", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Black)
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Bundled local posters and metadata are available offline", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            }
-            TextButton(onClick = onOpenSearch) { Text("Search") }
-            FilledTonalButton(onClick = onOpenSettings, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
-                Icon(
-                    icon = MaterialSymbolIcon("settings", filled = true),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    size = 18.dp
-                )
-                Spacer(Modifier.width(6.dp))
-                Text("Settings")
+private fun HeroViewingCard(item: ViewingItem, list: ViewingList, onOpenDetail: () -> Unit, onOpenLibrary: () -> Unit) {
+    PressableCard(onClick = onOpenDetail, modifier = Modifier.fillMaxWidth()) {
+        Box(Modifier.fillMaxWidth().height(ViewingUi.heroHeight).clip(RoundedCornerShape(28.dp))) {
+            PosterBackdrop(item, Modifier.fillMaxSize(), ContentScale.Crop)
+            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)))))
+            Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Featured order", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                Text(item.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text("${list.title} • ${list.items.size} titles", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(onClick = onOpenDetail) { Text("Details") }
+                    OutlinedButton(onClick = onOpenLibrary) { Text("Library") }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun HeroViewingCard(
-    item: ViewingItem,
-    list: ViewingList,
-    subtitle: String,
-    onOpenDetail: () -> Unit,
-    onOpenLibrary: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(ViewingUiDefaults.HomeHeroHeight)
-            .clip(RoundedCornerShape(16.dp))
-    ) {
-        PosterBackdrop(item = item, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0f), MaterialTheme.colorScheme.surfaceContainerHigh))))
-        Column(
-            Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.SectionSpacing),
-            verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.MicroSpacing)
-        ) {
-            Text("Featured MCU pick", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-            Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, maxLines = 2)
-            Text(listOfNotNull(subtitle, item.saga, item.phase, item.year, item.runtime).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Row(horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                Button(onClick = onOpenDetail) { Text("Open details") }
-                OutlinedButton(onClick = onOpenLibrary) { Text("View order") }
-            }
+private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenItem: (ViewingItem) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionHeader(title, subtitle)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
+            items(items, key = { it.id }) { PosterCard(it) { onOpenItem(it) } }
         }
     }
 }
 
 @Composable
-private fun SettingsIconAction(onOpenSettings: () -> Unit) {
-    TextButton(
-        onClick = onOpenSettings,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-        modifier = Modifier.semantics { contentDescription = "Open viewing settings" }
-    ) {
-        Icon(
-            icon = MaterialSymbolIcon("settings", filled = true),
-            contentDescription = null,
-            modifier = Modifier.size(18.dp),
-            tint = MaterialTheme.colorScheme.primary,
-            size = 18.dp
-        )
-        Spacer(Modifier.width(6.dp))
-        Text("Settings")
+private fun ListRail(title: String, subtitle: String, lists: List<ViewingList>, onOpenList: (ViewingList) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionHeader(title, subtitle)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) { items(lists, key = { it.id }) { ViewingListCard(it) { onOpenList(it) } } }
     }
 }
 
 @Composable
 private fun PosterCard(item: ViewingItem, onClick: () -> Unit) {
-    Column(modifier = Modifier
-        .width(ViewingUiDefaults.PosterWidth)
-        .clip(RoundedCornerShape(8.dp))
-        .background(MaterialTheme.colorScheme.surfaceContainer)
-        .clickable(onClick = onClick)
-        .padding(8.dp)
-    ) {
-        PosterBackdrop(
-            item = item,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(6.dp)),
-            contentScale = ContentScale.Crop,
-            shape = RoundedCornerShape(6.dp)
-        )
-        Spacer(Modifier.height(ViewingUiDefaults.MicroSpacing))
-        Text(item.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Text(listOfNotNull(item.year, item.phase).joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    PressableCard(onClick = onClick, modifier = Modifier.width(ViewingUi.posterWidth)) {
+        PosterBackdrop(item, Modifier.fillMaxWidth().aspectRatio(2f / 3f), ContentScale.Crop, RoundedCornerShape(22.dp))
+        Spacer(Modifier.height(10.dp))
+        Text(item.title, maxLines = 2, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
+        Text(listOfNotNull(item.year, item.universe).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
     }
 }
 
 @Composable
 private fun ViewingListCard(list: ViewingList, onClick: () -> Unit) {
-    Column(modifier = Modifier
-        .width(ViewingUiDefaults.ListCardWidth)
-        .clip(RoundedCornerShape(12.dp))
-        .background(MaterialTheme.colorScheme.surfaceContainer)
-        .clickable(onClick = onClick)
-        .padding(8.dp)
-    ) {
-        Box(Modifier
-            .fillMaxWidth()
-            .height(ViewingUiDefaults.ListArtworkHeight)
-            .clip(RoundedCornerShape(10.dp))
-        ) {
-            val poster = ViewingArtworkUtils.resolveBackdrop(list) ?: ViewingArtworkUtils.resolvePoster(list)
-            ArtworkImage(data = poster, description = "${list.title} collection artwork", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surface.copy(alpha = 0f), MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)))))
-            Text("${list.items.size} titles", modifier = Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.DenseCardPadding), color = MaterialTheme.colorScheme.onSurface)
-        }
-        Spacer(Modifier.height(ViewingUiDefaults.MicroSpacing))
-        Text(list.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 2)
-        Text(list.description ?: list.phase ?: "Viewing list", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+    PressableCard(onClick = onClick, modifier = Modifier.width(220.dp)) {
+        ArtworkImage(ViewingArtworkUtils.resolveBackdrop(list) ?: ViewingArtworkUtils.resolvePoster(list), "${list.title} artwork", Modifier.fillMaxWidth().height(118.dp).clip(RoundedCornerShape(22.dp)), ContentScale.Crop)
+        Spacer(Modifier.height(10.dp))
+        Text(list.title, maxLines = 2, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
+        Text("${list.items.size} titles • ${list.category ?: list.universe ?: "Viewing order"}", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
+    }
+}
+
+@Composable
+private fun WideListCard(list: ViewingList, onClick: () -> Unit) {
+    PressableCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Text(list.title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+        Text(list.description.orEmpty(), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text("${list.items.size} titles • ${list.category ?: "Collection"}", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
     }
 }
 
 @Composable
 private fun ViewingOrderRow(item: ViewingItem, order: Int, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .clickable(onClick = onClick)
-            .padding(ViewingUiDefaults.DenseCardPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)
-    ) {
-        Text(order.toString().padStart(2, '0'), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        PosterBackdrop(
-            item = item,
-            modifier = Modifier
-                .size(ViewingUiDefaults.RowPosterWidth, ViewingUiDefaults.RowPosterHeight)
-                .clip(RoundedCornerShape(6.dp)),
-            contentScale = ContentScale.Crop,
-            shape = RoundedCornerShape(6.dp)
-        )
-        Column(Modifier.weight(1f)) {
-            Text(item.title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(listOfNotNull(item.year, item.phase, item.runtime).joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-            Text(item.genres.joinToString(" / "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-        }
-    }
-}
-
-@Composable
-private fun DetailHero(item: ViewingItem, isLoading: Boolean, onBack: () -> Unit) {
-    Box(Modifier.fillMaxWidth().height(ViewingUiDefaults.DetailHeroHeight)) {
-        PosterBackdrop(item = item, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surface.copy(alpha = 0.35f), MaterialTheme.colorScheme.background))))
-        Column(Modifier.align(Alignment.BottomStart).padding(ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)) {
-            TextButton(onClick = onBack) { Text("Back") }
-            PosterBackdrop(
-                item = item,
-                modifier = Modifier
-                    .size(ViewingUiDefaults.DetailPosterWidth, ViewingUiDefaults.DetailPosterHeight)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop,
-                shape = RoundedCornerShape(8.dp)
-            )
-            AnimatedVisibility(visible = isLoading, enter = fadeIn(), exit = fadeOut()) {
-                LinearProgressIndicator(Modifier.fillMaxWidth())
-            }
-        }
-    }
-}
-
-@Composable
-private fun InfoPanel(item: ViewingItem) {
-    Column(Modifier.padding(horizontal = ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CardPadding)) {
-        SectionHeader("Detailed movie information", "Overview, cast & crew, ratings, release details, and order placement")
-        MetadataSection("Overview", listOf("Plot" to (item.plot ?: item.overview ?: "No overview available."), "Genres" to item.genres.joinToString(", ").ifBlank { "Not available" }))
-        MetadataSection("Cast & Crew", listOf("Director" to (item.director ?: "Not available"), "Writer" to (item.writer ?: "Not available"), "Actors" to (item.actors.joinToString(", ").ifBlank { item.cast.take(6).joinToString { it.name }.ifBlank { "Not available" } })))
-        MetadataSection("Ratings", listOf("IMDb" to (item.imdbRating ?: "Not available"), "TMDB" to (item.tmdbRating?.let { "%.1f".format(it) } ?: "Not available"), "Awards" to (item.awards ?: "Not available")) + item.ratings.map { it.source to it.value })
-        MetadataSection("Release details", listOf("Release date" to (item.releaseDate ?: item.year ?: "Not available"), "Runtime" to (item.runtime ?: "Not available"), "Language" to (item.language ?: "Not available"), "Country" to (item.country ?: "Not available"), "IMDb ID" to (item.imdbId ?: "Not available"), "TMDB ID" to (item.tmdbId?.toString() ?: "Not available")))
-        MetadataSection("Collection / timeline placement", listOf("Phase" to (item.phase ?: "Not available"), "Saga" to (item.saga ?: "Not available"), "Release order" to (item.releaseOrder?.toString() ?: "Not available"), "Chronological order" to (item.chronologicalOrder?.toString() ?: "Not available")))
-    }
-}
-
-@Composable
-private fun TrailerPanel(item: ViewingItem) {
-    Column(Modifier.padding(horizontal = ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)) {
-        SectionHeader("Trailer gallery", "Clips and trailers for the selected MCU title")
-        Card(shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
-            Column(Modifier.fillMaxWidth().padding(ViewingUiDefaults.EmptyStatePadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-                if (item.trailerUrl.isNullOrBlank()) {
-                    EmptyState("Trailer unavailable", "Add a manual trailerUrl in ViewingLists.kt or configure TMDB videos.")
-                } else {
-                    Text("Trailer available", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text(item.trailerUrl, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    val context = LocalContext.current
-                    Button(onClick = { openUrl(context, item.trailerUrl) }) { Text("Open trailer externally") }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MetadataSection(title: String, rows: List<Pair<String, String>>) {
-    Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
-        Column(Modifier.fillMaxWidth().padding(ViewingUiDefaults.CardPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.CompactSpacing)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            rows.forEach { (label, value) ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.4f))
-                    Text(value, modifier = Modifier.weight(0.6f), maxLines = 4, overflow = TextOverflow.Ellipsis)
-                }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApiStateCard(message: String, onOpenSettings: (() -> Unit)? = null) {
-    Card(shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
-        Row(Modifier.fillMaxWidth().padding(ViewingUiDefaults.CardPadding), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(ViewingUiDefaults.DenseCardPadding)) {
+    PressableCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(order.takeIf { it > 0 }?.toString() ?: "•", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, modifier = Modifier.width(28.dp))
+            PosterBackdrop(item, Modifier.size(ViewingUi.rowPosterWidth, ViewingUi.rowPosterHeight), ContentScale.Crop, RoundedCornerShape(16.dp))
             Column(Modifier.weight(1f)) {
-                Text("Offline-safe metadata", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
+                Text(listOfNotNull(item.year, item.universe, item.phase ?: item.saga).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                Text(listOfNotNull(item.runtime, item.imdbRating?.let { "IMDb $it" }).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+        items(listOf("Titles", "Marvel", "DC", "Collections", "Watchlists")) { tab -> FilterChip(selected = selected == tab, onClick = { onTab(tab) }, label = { Text(tab) }) }
+    }
+}
+
+@Composable
+private fun SearchAndSort(query: String, onQuery: (String) -> Unit, sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        OutlinedTextField(value = query, onValueChange = onQuery, modifier = Modifier.fillMaxWidth(), singleLine = true, placeholder = { Text("Search title, cast, director, phase, year, IMDb ID") })
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) { items(listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME)) { mode -> FilterChip(selected = sortMode == mode, onClick = { onSort(mode) }, label = { Text(mode.label) }) } }
+    }
+}
+
+@Composable
+private fun MetadataGrid(item: ViewingItem) {
+    ElevatedCard(colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            DetailLine("Release", item.releaseDate ?: item.year.orEmpty())
+            DetailLine("Runtime", item.runtime.orEmpty())
+            DetailLine("Genres", item.genres.joinToString(" • "))
+            DetailLine("Ratings", listOfNotNull(item.imdbRating?.let { "IMDb $it" }, item.tmdbRating?.let { "TMDb $it" }).joinToString(" • "))
+            DetailLine("Language", listOfNotNull(item.language, item.country).joinToString(" • "))
+            if (item.status != ViewingStatus.RELEASED) DetailLine("Status", item.status.name)
+        }
+    }
+}
+
+@Composable
+private fun CreditsBlock(item: ViewingItem) {
+    ElevatedCard(colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Cast & crew", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            DetailLine("Director", item.director.orEmpty())
+            DetailLine("Writer", item.writer.orEmpty())
+            DetailLine("Actors", item.actors.joinToString(" • "))
+        }
+    }
+}
+
+@Composable
+private fun DetailLine(label: String, value: String) {
+    if (value.isBlank()) return
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(label, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(82.dp))
+        Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun FlowChips(values: List<String>) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) { items(values.distinct()) { AssistChip(onClick = {}, label = { Text(it) }) } }
+}
+
+@Composable
+private fun HeroListCard(list: ViewingList) {
+    ElevatedCard(colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(list.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(list.description.orEmpty(), color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
+            Text("${list.items.size} titles", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun ApiStateCard(message: String, onOpenSettings: () -> Unit) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer), shape = MaterialTheme.shapes.large) {
+        Row(Modifier.fillMaxWidth().padding(ViewingUi.cardPad), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f)) {
+                Text("Poster & database fetch", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 Text(message, color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f))
             }
-            if (onOpenSettings != null) TextButton(onClick = onOpenSettings) { Text("Settings") }
+            TextButton(onClick = onOpenSettings) { Text("Settings") }
         }
     }
 }
 
 @Composable
-private fun WatchlistShortcut(onClick: () -> Unit) {
-    Card(onClick = onClick, shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-        Column(Modifier.fillMaxWidth().padding(ViewingUiDefaults.ScreenHorizontalPadding), verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.TinySpacing)) {
-            Text("Watchlist shortcut", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-            Text("Use detail cards to save favorites, mark watched, and keep a personal viewing queue.", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.76f))
-        }
-    }
-}
-
-@Composable
-private fun SectionHeader(title: String, subtitle: String, action: String? = null, onAction: (() -> Unit)? = null) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        if (action != null && onAction != null) TextButton(onClick = onAction) { Text(action) }
-    }
-}
-
-@Composable
-private fun CompactListResult(list: ViewingList) {
-    Card(shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
-        Column(Modifier.fillMaxWidth().padding(ViewingUiDefaults.CompactCardPadding)) {
-            Text(list.title, fontWeight = FontWeight.SemiBold)
-            Text(listOfNotNull(list.phase, list.saga, "${list.items.size} titles").joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
+private fun SectionHeader(title: String, subtitle: String) {
+    Column { Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold); Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
 }
 
 @Composable
 private fun EmptyState(title: String, body: String) {
-    Column(Modifier.fillMaxWidth().padding(ViewingUiDefaults.EmptyStatePadding), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(ViewingUiDefaults.TinySpacing)) {
+    Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Image(painterResource(R.drawable.ic_cinemaverse), contentDescription = null, modifier = Modifier.size(54.dp))
         Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Text(body, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -694,60 +549,47 @@ private fun EmptyState(title: String, body: String) {
 private fun PressableCard(modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed) 0.98f else 1f, ViewingUiDefaults.subtlePressSpec(), label = "pressScale")
-    val container by animateColorAsState(if (pressed) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainer, ViewingUiDefaults.subtleColorSpec(), label = "cardColor")
-    Card(
-        colors = CardDefaults.cardColors(containerColor = container),
-        shape = MaterialTheme.shapes.large,
-        onClick = onClick,
-        interactionSource = interaction,
-        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }
-    ) { Column(Modifier.padding(ViewingUiDefaults.DenseCardPadding), content = content) }
+    val scale by animateFloatAsState(if (pressed) 0.98f else 1f, ViewingUi.pressSpec(), label = "viewingPress")
+    Card(onClick = onClick, interactionSource = interaction, shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }) {
+        Column(Modifier.padding(ViewingUi.cardPad), content = content)
+    }
 }
 
 @Composable
-private fun PosterBackdrop(
-    item: ViewingItem,
-    modifier: Modifier,
-    contentScale: ContentScale,
-    shape: Shape? = null
-) {
-    val artworkModifier = if (shape != null) modifier.clip(shape) else modifier
-    ArtworkImage(
-        data = ViewingArtworkUtils.resolveBackdrop(item) ?: ViewingArtworkUtils.resolvePoster(item),
-        description = "Poster for ${item.title}",
-        modifier = artworkModifier,
-        contentScale = contentScale
-    )
+private fun PosterBackdrop(item: ViewingItem, modifier: Modifier, contentScale: ContentScale, shape: RoundedCornerShape? = null) {
+    val m = if (shape != null) modifier.clip(shape) else modifier
+    ArtworkImage(ViewingArtworkUtils.resolveBackdrop(item) ?: ViewingArtworkUtils.resolvePoster(item), "Poster for ${item.title}", m, contentScale)
 }
 
 @Composable
 private fun ArtworkImage(data: String?, description: String, modifier: Modifier, contentScale: ContentScale) {
     if (data.isNullOrBlank()) {
-        Box(
-            modifier = modifier
-                .background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.tertiaryContainer)))
-                .semantics { contentDescription = description },
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Marvel", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
+        Box(modifier.background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.tertiaryContainer))).semantics { contentDescription = description }, contentAlignment = Alignment.Center) {
+            Image(painterResource(R.drawable.ic_cinemaverse), contentDescription = null, modifier = Modifier.size(52.dp))
         }
     } else {
         val context = LocalContext.current
-        val request = remember(data) {
-            ImageRequest.Builder(context)
-                .data(data)
-                .crossfade(false)
-                .memoryCacheKey(data)
-                .diskCacheKey(data)
-                .build()
-        }
-
+        val request = remember(data) { ImageRequest.Builder(context).data(data).crossfade(true).memoryCacheKey(data).diskCacheKey(data).build() }
         AsyncImage(model = request, contentDescription = description, contentScale = contentScale, modifier = modifier)
     }
 }
 
-private fun openUrl(context: android.content.Context, url: String?) {
-    if (url.isNullOrBlank()) return
-    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+@Composable
+private fun SettingsIconAction(onClick: () -> Unit) {
+    IconButton(onClick = onClick) { Icon(RhythmIcons.Settings, contentDescription = "Settings") }
 }
+
+private fun List<ViewingItem>.sortedFor(mode: ViewingSortMode): List<ViewingItem> = when (mode) {
+    ViewingSortMode.CHRONOLOGICAL -> sortedWith(compareBy<ViewingItem> { it.chronologicalOrder ?: Int.MAX_VALUE }.thenBy { it.releaseDate ?: "9999" })
+    ViewingSortMode.PHASE -> sortedWith(compareBy<ViewingItem> { it.phase ?: "" }.thenBy { it.phaseOrder ?: it.releaseOrder ?: Int.MAX_VALUE })
+    ViewingSortMode.TITLE -> sortedBy { it.title }
+    ViewingSortMode.RATING -> sortedByDescending { it.imdbRating?.toDoubleOrNull() ?: it.tmdbRating ?: 0.0 }
+    ViewingSortMode.RUNTIME -> sortedByDescending { it.runtime?.filter(Char::isDigit)?.toIntOrNull() ?: 0 }
+    else -> sortedWith(compareBy<ViewingItem> { it.releaseDate ?: "9999-99-99" }.thenBy { it.releaseOrder ?: Int.MAX_VALUE })
+}
+
+private fun ViewingSortMode.orderFor(item: ViewingItem): Int = when (this) {
+    ViewingSortMode.CHRONOLOGICAL -> item.chronologicalOrder
+    ViewingSortMode.PHASE -> item.phaseOrder
+    else -> item.releaseOrder
+} ?: 0
