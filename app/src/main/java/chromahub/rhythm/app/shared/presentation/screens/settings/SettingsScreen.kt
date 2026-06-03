@@ -186,6 +186,7 @@ fun SettingsScreen(
     val showAlphabetBar by appSettings.showAlphabetBar.collectAsState()
     val showScrollToTop by appSettings.showScrollToTop.collectAsState()
     val appMode by appSettings.appMode.collectAsState()
+    val localExperienceMode by appSettings.localExperienceMode.collectAsState()
     val rhythmGuardMode by appSettings.rhythmGuardMode.collectAsState()
     val showSettingsSuggestions by appSettings.showSettingsSuggestions.collectAsState()
     val showKeyboardOnSearchOpen by appSettings.showKeyboardOnSearchOpen.collectAsState()
@@ -283,6 +284,23 @@ fun SettingsScreen(
                         toggleState = showKeyboardOnSearchOpen,
                         onToggleChange = { appSettings.setShowKeyboardOnSearchOpen(it) }
                     ))
+                    if (appMode == "LOCAL") {
+                        add(SettingItem(
+                            MaterialSymbolIcon("movie_filter"),
+                            "Viewing UI",
+                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                                "Viewing UI is active. Turn off to switch back to Rhythm music UI."
+                            } else {
+                                "Keep the Rhythm music UI active or switch to viewing lists."
+                            },
+                            toggleState = localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING,
+                            onToggleChange = { enabled ->
+                                appSettings.setLocalExperienceMode(
+                                    if (enabled) AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING else AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM
+                                )
+                            }
+                        ))
+                    }
                     add(SettingItem(
                         MaterialSymbolIcon("lightbulb"),
                         "Settings Suggestions",

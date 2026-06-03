@@ -1379,7 +1379,8 @@ private fun LocalNavigationContent(
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
                         ViewingSearchScreen(
                             onBack = { navigateBackOrToLanding() },
-                            onOpenDetail = { navController.navigate(Screen.Player.route) }
+                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
                         )
                     } else {
                         val streamingViewModel: chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
@@ -1819,7 +1820,10 @@ private fun LocalNavigationContent(
                     }
 
                     if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingLibraryScreen(onOpenDetail = { navController.navigate(Screen.Player.route) })
+                        ViewingLibraryScreen(
+                            onOpenDetail = { navController.navigate(Screen.Player.route) },
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
+                        )
                     } else {
                         LibraryScreen(
                             songs = songs,

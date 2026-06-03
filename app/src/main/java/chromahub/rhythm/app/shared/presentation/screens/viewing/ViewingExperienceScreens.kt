@@ -75,6 +75,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
 import chromahub.rhythm.app.shared.data.service.MovieMetadataService
 import chromahub.rhythm.app.shared.data.viewing.MetadataResult
 import chromahub.rhythm.app.shared.data.viewing.ViewingItem
@@ -109,7 +111,8 @@ fun ViewingHomeScreen(
                 list = featuredList,
                 subtitle = "Featured viewing order • ${featuredList.items.size} titles",
                 onOpenDetail = onOpenDetail,
-                onOpenLibrary = onOpenLibrary
+                onOpenLibrary = onOpenLibrary,
+                onOpenSettings = onOpenSettings
             )
         }
         item {
@@ -151,6 +154,7 @@ fun ViewingHomeScreen(
 @Composable
 fun ViewingLibraryScreen(
     onOpenDetail: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
@@ -169,8 +173,12 @@ fun ViewingLibraryScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         item {
-            Text("Library", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-            Text("Viewing lists, collections, phases, and watch orders", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            SectionHeader(
+                title = "Library",
+                subtitle = "Viewing lists, collections, phases, and watch orders",
+                action = "Settings",
+                onAction = onOpenSettings
+            )
         }
         item {
             SectionHeader("Lists / Collections", "All bundled viewing lists remain editable in the local data file")
@@ -203,6 +211,7 @@ fun ViewingLibraryScreen(
 fun ViewingSearchScreen(
     onBack: () -> Unit,
     onOpenDetail: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var query by rememberSaveable { mutableStateOf("") }
@@ -212,6 +221,9 @@ fun ViewingSearchScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Search Rhythm") },
+                actions = {
+                    SettingsIconAction(onOpenSettings)
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f))
             )
         },
@@ -311,7 +323,14 @@ fun ViewingDetailScreen(
 }
 
 @Composable
-private fun HeroViewingCard(item: ViewingItem, list: ViewingList, subtitle: String, onOpenDetail: () -> Unit, onOpenLibrary: () -> Unit) {
+private fun HeroViewingCard(
+    item: ViewingItem,
+    list: ViewingList,
+    subtitle: String,
+    onOpenDetail: () -> Unit,
+    onOpenLibrary: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
     ElevatedCard(
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -320,6 +339,24 @@ private fun HeroViewingCard(item: ViewingItem, list: ViewingList, subtitle: Stri
         Box(Modifier.fillMaxWidth().height(300.dp)) {
             PosterBackdrop(item = item, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surfaceContainerHigh))))
+            FilledTonalButton(
+                onClick = onOpenSettings,
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .semantics { contentDescription = "Open viewing settings" }
+            ) {
+                Icon(
+                    icon = MaterialSymbolIcon("settings", filled = true),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    size = 18.dp
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Settings")
+            }
             Column(
                 Modifier.align(Alignment.BottomStart).padding(22.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -333,6 +370,25 @@ private fun HeroViewingCard(item: ViewingItem, list: ViewingList, subtitle: Stri
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SettingsIconAction(onOpenSettings: () -> Unit) {
+    TextButton(
+        onClick = onOpenSettings,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        modifier = Modifier.semantics { contentDescription = "Open viewing settings" }
+    ) {
+        Icon(
+            icon = MaterialSymbolIcon("settings", filled = true),
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = MaterialTheme.colorScheme.primary,
+            size = 18.dp
+        )
+        Spacer(Modifier.width(6.dp))
+        Text("Settings")
     }
 }
 
