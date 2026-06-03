@@ -194,6 +194,7 @@ fun SettingsScreen(
     
     var showDefaultScreenDialog by remember { mutableStateOf(false) }
     var showLanguageSwitcher by remember { mutableStateOf(false) }
+    var showLocalExperienceModeDialog by remember { mutableStateOf(false) }
     
     // Search state
     var searchQuery by remember { mutableStateOf("") }
@@ -287,18 +288,13 @@ fun SettingsScreen(
                     if (appMode == "LOCAL") {
                         add(SettingItem(
                             MaterialSymbolIcon("movie_filter"),
-                            "Viewing UI",
+                            context.getString(R.string.settings_local_experience),
                             if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                                "Viewing UI is active. Turn off to switch back to Rhythm music UI."
+                                context.getString(R.string.settings_local_experience_viewing)
                             } else {
-                                "Keep the Rhythm music UI active or switch to viewing lists."
+                                context.getString(R.string.settings_local_experience_rhythm)
                             },
-                            toggleState = localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING,
-                            onToggleChange = { enabled ->
-                                appSettings.setLocalExperienceMode(
-                                    if (enabled) AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING else AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM
-                                )
-                            }
+                            onClick = { showLocalExperienceModeDialog = true }
                         ))
                     }
                     add(SettingItem(
@@ -770,6 +766,200 @@ fun SettingsScreen(
             LanguageSwitcherDialog(
                 onDismiss = { showLanguageSwitcher = false }
             )
+        }
+        
+        // Local Experience Mode selection dialog
+        if (showLocalExperienceModeDialog) {
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            
+            ModalBottomSheet(
+                onDismissRequest = { showLocalExperienceModeDialog = false },
+                sheetState = sheetState,
+                dragHandle = { 
+                    BottomSheetDefaults.DragHandle(
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(bottom = 24.dp)
+                ) {
+                    // Header
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 0.dp, vertical = 16.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = context.getString(R.string.settings_local_experience),
+                                style = MaterialTheme.typography.displayMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = 6.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        shape = CircleShape
+                                    )
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    text = context.getString(R.string.settings_local_experience_desc),
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                    
+                    // Rhythm music UI option
+                    Card(
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
+                            appSettings.setLocalExperienceMode(AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM)
+                            showLocalExperienceModeDialog = false
+                        },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
+                                MaterialTheme.colorScheme.primaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.surfaceContainerHigh
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = RhythmIcons.MusicNote,
+                                contentDescription = null,
+                                tint = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                else
+                                    MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            
+                            Spacer(modifier = Modifier.width(16.dp))
+                            
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = context.getString(R.string.settings_local_experience_rhythm),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
+                                        MaterialTheme.colorScheme.onPrimaryContainer 
+                                    else 
+                                        MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = context.getString(R.string.settings_local_experience_rhythm_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
+                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                    else 
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            
+                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) {
+                                Icon(
+                                    imageVector = RhythmIcons.CheckCircle,
+                                    contentDescription = stringResource(R.string.streaming_selected),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
+                    
+                    // MARVEL Spectrum option
+                    Card(
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
+                            appSettings.setLocalExperienceMode(AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING)
+                            showLocalExperienceModeDialog = false
+                        },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
+                                MaterialTheme.colorScheme.primaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.surfaceContainerHigh
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = MaterialSymbolIcon("movie_filter"),
+                                contentDescription = null,
+                                tint = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                else
+                                    MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            
+                            Spacer(modifier = Modifier.width(16.dp))
+                            
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = context.getString(R.string.settings_local_experience_viewing),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
+                                        MaterialTheme.colorScheme.onPrimaryContainer 
+                                    else 
+                                        MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = context.getString(R.string.settings_local_experience_viewing_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
+                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                    else 
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            
+                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                                Icon(
+                                    imageVector = RhythmIcons.CheckCircle,
+                                    contentDescription = stringResource(R.string.streaming_selected),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
         
         // App Mode selection dialog

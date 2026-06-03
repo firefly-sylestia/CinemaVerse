@@ -1791,6 +1791,12 @@
     <string name="settings_album_bottom_sheet_gradient_blur_desc">Control gradient and blur behind album sheets</string>
     <string name="settings_gestures">Gestures</string>
     <string name="settings_gestures_desc">Swipe to skip</string>
+    <string name="settings_local_experience">Local experience</string>
+    <string name="settings_local_experience_desc">Choose how you browse your music collection</string>
+    <string name="settings_local_experience_rhythm">Rhythm music UI</string>
+    <string name="settings_local_experience_rhythm_desc">Default music-first Home, Discovery, Library, Explorer, and Player</string>
+    <string name="settings_local_experience_viewing">MARVEL Spectrum</string>
+    <string name="settings_local_experience_viewing_desc">Viewing-focused Marvel details, posters, orders, and metadata</string>
     <string name="settings_ignore_mediastore_covers">Show Song Art Instead of Album Art</string>
     <string name="settings_ignore_mediastore_covers_desc">Prefer embedded artwork from each audio file (formerly Ignore MediaStore Covers)</string>
     <string name="settings_lossless_artwork">Lossless Artwork</string>
