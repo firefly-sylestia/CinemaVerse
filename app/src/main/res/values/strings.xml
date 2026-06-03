@@ -349,25 +349,25 @@
     
     <!-- Settings - About -->
     <string name="settings_about">About</string>
-    <string name="settings_about_music_player">Music Player</string>
+    <string name="settings_about_music_player">MCU Viewing App</string>
     <string name="settings_about_version">v%1$s</string>
-    <string name="settings_about_description">A modern, feature-rich music player for Android</string>
+    <string name="settings_about_description">Browse and watch MCU movies and shows in canonical viewing order</string>
     <string name="settings_about_project_details">Project Details</string>
     <string name="settings_about_version_label">Version</string>
     <string name="settings_about_build">Build</string>
     <string name="settings_about_target_sdk">Target SDK</string>
     <string name="settings_about_architecture">Architecture</string>
     <string name="settings_about_architecture_value">ARM64 &amp; ARM32</string>
-    <string name="settings_about_built_with">Built with modern Android technologies and Material Design 3</string>
-    <string name="settings_about_credits">Developer</string>
-    <string name="settings_about_developer_name">Anjishnu Nandi</string>
-    <string name="settings_about_developer_role">Lead Developer &amp; Project Architect</string>
+    <string name="settings_about_built_with">Built with modern Android technologies, Material Design 3, and adapted from the award-winning Rhythm Music Player</string>
+    <string name="settings_about_credits">Credits</string>
+    <string name="settings_about_developer_name">Anjishnu Nandi (Rhythm), Khan Quadir (CinemaVerse MCU)</string>
+    <string name="settings_about_developer_role">Lead Developers &amp; Project Architects</string>
     <string name="settings_about_team">Team ChromaHub</string>
-    <string name="settings_about_team_desc">Passionate developers creating innovative experiences</string>
-    <string name="settings_about_team_chromahub">Team ChromaHub</string>
+    <string name="settings_about_team_desc">Passionate developers creating innovative experiences with music and cinema</string>
+    <string name="settings_about_team_chromahub">Team ChromaHub &amp; Contributors</string>
     <string name="settings_about_special_thanks">Special Thanks</string>
     <string name="settings_about_community">Community</string>
-    <string name="settings_about_community_desc">Special thanks to our amazing community members who have contributed to making Rhythm better through testing, feedback, suggestions, and collaboration.</string>
+    <string name="settings_about_community_desc">Special thanks to the Rhythm Music Player community and MCU fans who have contributed to making CinemaVerse better through testing, feedback, suggestions, and collaboration. Built on the foundation of Rhythm&apos;s powerful player infrastructure.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">Manages updates on IzzyOnDroid</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
