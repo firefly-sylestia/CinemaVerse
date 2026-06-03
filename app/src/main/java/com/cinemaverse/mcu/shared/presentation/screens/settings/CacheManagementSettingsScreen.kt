@@ -260,8 +260,8 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                 kotlinx.coroutines.Dispatchers.IO
             ) {
                 Pair(
-                    chromahub.rhythm.app.util.CacheManager.getCacheSize(context),
-                    chromahub.rhythm.app.util.CacheManager.getDetailedCacheSize(context)
+                    com.cinemaverse.mcu.util.CacheManager.getCacheSize(context),
+                    com.cinemaverse.mcu.util.CacheManager.getDetailedCacheSize(context)
                 )
             }
             currentCacheSize = totalCacheSize
@@ -307,7 +307,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
             onDismiss = { showRestartDialog = false },
             onRestart = {
                 showRestartDialog = false
-                chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+                com.cinemaverse.mcu.util.AppRestarter.restartApp(context)
             },
             onContinue = {
                 showRestartDialog = false
@@ -384,7 +384,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = chromahub.rhythm.app.util.CacheManager.formatBytes(currentCacheSize),
+                                    text = com.cinemaverse.mcu.util.CacheManager.formatBytes(currentCacheSize),
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary
@@ -405,7 +405,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Text(
-                                        text = chromahub.rhythm.app.util.CacheManager.formatBytes(size),
+                                        text = com.cinemaverse.mcu.util.CacheManager.formatBytes(size),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -535,7 +535,7 @@ fun CacheManagementSettingsScreen(onBackClick: () -> Unit) {
                                         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                                             trimArtworkCacheNow(context.cacheDir)
                                         }
-                                        chromahub.rhythm.app.util.CacheManager.clearAllCache(context, null)
+                                        com.cinemaverse.mcu.util.CacheManager.clearAllCache(context, null)
                                         musicViewModel.getMusicRepository().clearInMemoryCaches()
                                         musicViewModel.getMusicRepository().clearSongCacheData()
                                         refreshCacheStats()

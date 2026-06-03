@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.shared.presentation.components.bottomsheets
+package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -23,12 +23,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.util.AutoEQManager
-import chromahub.rhythm.app.shared.data.model.AutoEQProfile
-import chromahub.rhythm.app.shared.presentation.screens.settings.SettingsSearchBar
+import com.cinemaverse.mcu.util.AutoEQManager
+import com.cinemaverse.mcu.shared.data.model.AutoEQProfile
+import com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsSearchBar
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)

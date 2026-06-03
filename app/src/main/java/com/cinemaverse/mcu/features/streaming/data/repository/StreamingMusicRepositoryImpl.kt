@@ -1147,7 +1147,7 @@ class StreamingMusicRepositoryImpl(
             sourceType = serviceToSourceType(serviceId),
             externalId = providerPlaylist.providerId,
             owner = if (providerPlaylist.owner != null) {
-                chromahub.rhythm.app.features.streaming.domain.model.PlaylistOwner(
+                com.cinemaverse.mcu.features.streaming.domain.model.PlaylistOwner(
                     id = normalizeKey(providerPlaylist.owner),
                     displayName = providerPlaylist.owner,
                     imageUrl = null,
@@ -1192,7 +1192,7 @@ class StreamingMusicRepositoryImpl(
             sourceType = serviceToSourceType(serviceId),
             externalId = providerAlbum.providerId,
             releaseDate = null,
-            albumType = chromahub.rhythm.app.features.streaming.domain.model.AlbumType.ALBUM,
+            albumType = com.cinemaverse.mcu.features.streaming.domain.model.AlbumType.ALBUM,
             genres = emptyList(),
             label = null,
             copyright = null,

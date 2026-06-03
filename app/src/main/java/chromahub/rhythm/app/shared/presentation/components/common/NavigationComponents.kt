@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.common
+package com.cinemaverse.mcu.shared.presentation.components.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.res.stringResource
 
 /**

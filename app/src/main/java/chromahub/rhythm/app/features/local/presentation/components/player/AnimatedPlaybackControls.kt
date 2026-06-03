@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.player
+package com.cinemaverse.mcu.shared.presentation.components.player
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.AnimationSpec
@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,7 +39,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.R
 import kotlinx.coroutines.delay
 import androidx.compose.ui.res.stringResource
 

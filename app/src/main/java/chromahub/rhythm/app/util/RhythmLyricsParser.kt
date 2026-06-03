@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import android.util.Log
-import chromahub.rhythm.app.network.RhythmLyricsLine
-import chromahub.rhythm.app.network.RhythmLyricsWord
+import com.cinemaverse.mcu.network.RhythmLyricsLine
+import com.cinemaverse.mcu.network.RhythmLyricsWord
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlin.math.abs

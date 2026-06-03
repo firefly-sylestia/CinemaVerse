@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.ui.theme.festive
+package com.cinemaverse.mcu.ui.theme.festive
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.res.stringResource
 
 /**

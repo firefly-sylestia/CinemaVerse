@@ -1,10 +1,10 @@
 @file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 
-package chromahub.rhythm.app.features.streaming.presentation.screens
+package com.cinemaverse.mcu.features.streaming.presentation.screens
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.net.Uri
 import androidx.annotation.StringRes
@@ -74,37 +74,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.features.local.presentation.screens.SingleCardAlbumsContent
-import chromahub.rhythm.app.features.local.presentation.screens.SingleCardArtistsContent
-import chromahub.rhythm.app.features.local.presentation.screens.PlaylistFabMenu
-import chromahub.rhythm.app.features.local.presentation.screens.SingleCardPlaylistsContent
-import chromahub.rhythm.app.features.local.presentation.screens.SingleCardSongsContent
-import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import chromahub.rhythm.app.shared.presentation.components.bottomsheets.SongInfoBottomSheet
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
-import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
-import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import chromahub.rhythm.app.shared.data.model.Album
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.shared.data.model.Artist
-import chromahub.rhythm.app.shared.data.model.Playlist
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
-import chromahub.rhythm.app.shared.presentation.components.common.TabAnimation
-import chromahub.rhythm.app.util.ArtistSeparator
-import chromahub.rhythm.app.util.HapticUtils
-import chromahub.rhythm.app.util.M3ImageUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.features.local.presentation.screens.SingleCardAlbumsContent
+import com.cinemaverse.mcu.features.local.presentation.screens.SingleCardArtistsContent
+import com.cinemaverse.mcu.features.local.presentation.screens.PlaylistFabMenu
+import com.cinemaverse.mcu.features.local.presentation.screens.SingleCardPlaylistsContent
+import com.cinemaverse.mcu.features.local.presentation.screens.SingleCardSongsContent
+import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.SongInfoBottomSheet
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingArtist
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingSong
+import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
+import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import com.cinemaverse.mcu.shared.data.model.Album
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.Artist
+import com.cinemaverse.mcu.shared.data.model.Playlist
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
+import com.cinemaverse.mcu.shared.presentation.components.common.TabAnimation
+import com.cinemaverse.mcu.util.ArtistSeparator
+import com.cinemaverse.mcu.util.HapticUtils
+import com.cinemaverse.mcu.util.M3ImageUtils
 import kotlinx.coroutines.launch
-import chromahub.rhythm.app.ui.LocalMiniPlayerPadding
+import com.cinemaverse.mcu.ui.LocalMiniPlayerPadding
 import androidx.compose.ui.platform.LocalConfiguration
-import chromahub.rhythm.app.ui.theme.MusicDimensions
+import com.cinemaverse.mcu.ui.theme.MusicDimensions
 import kotlin.random.Random
 
-private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon) {
+private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon) {
     SONGS(R.string.library_tab_songs, MaterialSymbolIcon("history", filled = true)),
     ALBUMS(R.string.library_tab_albums, RhythmIcons.AlbumFilled),
     ARTISTS(R.string.library_tab_artists, RhythmIcons.ArtistFilled),
@@ -114,7 +114,7 @@ private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val i
 private enum class StreamingSongSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
     TITLE_ASC(R.string.sort_title, true, RhythmIcons.Sort),
     TITLE_DESC(R.string.sort_title, false, RhythmIcons.Sort),
@@ -129,7 +129,7 @@ private enum class StreamingSongSortOrder(
 private enum class StreamingAlbumSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
     TITLE_ASC(R.string.sort_title, true, RhythmIcons.Sort),
     TITLE_DESC(R.string.sort_title, false, RhythmIcons.Sort),
@@ -143,7 +143,7 @@ private enum class StreamingAlbumSortOrder(
 
 private enum class StreamingArtistSortOrder(
     @param:StringRes val labelRes: Int,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     val ascending: Boolean
 ) {
     NAME_ASC(R.string.sort_name, RhythmIcons.ArtistFilled, true),
@@ -159,7 +159,7 @@ private enum class StreamingArtistSortOrder(
 private enum class StreamingPlaylistSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
     NAME_ASC(R.string.sort_name, true, RhythmIcons.Queue),
     NAME_DESC(R.string.sort_name, false, RhythmIcons.Queue),
@@ -1062,7 +1062,7 @@ fun StreamingLibraryScreen(
                                                         modifier = Modifier.size(32.dp)
                                                     ) {
                                                         Icon(
-                                                            imageVector = chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.AddToPlaylist,
+                                                            imageVector = com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons.AddToPlaylist,
                                                             contentDescription = null,
                                                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                                             modifier = Modifier.fillMaxSize().padding(6.dp)
@@ -1367,7 +1367,7 @@ fun StreamingLibraryScreen(
 
     // Create Playlist Dialog for streaming
     if (showCreatePlaylistDialog) {
-        chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog(
+        com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog(
             onDismiss = { showCreatePlaylistDialog = false },
             onConfirm = { name ->
                 viewModel.createPlaylist(name)
@@ -2179,7 +2179,7 @@ fun StreamingPlaylist.toLibraryPlaylist(): Playlist {
     )
 }
 
-fun StreamingAlbum.toLibraryAlbum(librarySongs: List<chromahub.rhythm.app.shared.data.model.Song>): Album {
+fun StreamingAlbum.toLibraryAlbum(librarySongs: List<com.cinemaverse.mcu.shared.data.model.Song>): Album {
     val streamingTracks = tracks
     val matchingSongs = if (streamingTracks.isNotEmpty()) {
         streamingTracks.map { it.toLibrarySong() }

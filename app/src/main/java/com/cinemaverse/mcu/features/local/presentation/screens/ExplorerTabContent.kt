@@ -1058,7 +1058,7 @@ fun SingleCardExplorerContent(
                                         onCreatePlaylist(playlistName)
                                         
                                         var attempts = 0
-                                        var newPlaylist: chromahub.rhythm.app.shared.data.model.Playlist? = null
+                                        var newPlaylist: com.cinemaverse.mcu.shared.data.model.Playlist? = null
                                         while (attempts < 20 && newPlaylist == null) {
                                             kotlinx.coroutines.delay(100)
                                             newPlaylist = playlists.firstOrNull { it.name == playlistName }

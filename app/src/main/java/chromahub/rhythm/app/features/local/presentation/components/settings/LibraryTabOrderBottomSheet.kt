@@ -1,9 +1,9 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-package chromahub.rhythm.app.features.local.presentation.components.settings
+package com.cinemaverse.mcu.features.local.presentation.components.settings
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -50,12 +50,12 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.util.HapticUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
+import com.cinemaverse.mcu.util.HapticUtils
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 

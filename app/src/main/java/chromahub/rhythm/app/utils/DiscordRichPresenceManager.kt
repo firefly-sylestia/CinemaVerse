@@ -1,9 +1,9 @@
-package chromahub.rhythm.app.utils
+package com.cinemaverse.mcu.utils
 
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import chromahub.rhythm.app.shared.data.model.Song
+import com.cinemaverse.mcu.shared.data.model.Song
 
 /**
  * DiscordRichPresenceManager handles broadcasting Rich Presence updates to Discord

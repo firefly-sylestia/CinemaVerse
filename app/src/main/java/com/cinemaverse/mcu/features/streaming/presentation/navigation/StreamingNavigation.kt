@@ -810,11 +810,11 @@ fun StreamingNavigation(
                 }
             ) {
                 var showAlbumBottomSheet by remember { mutableStateOf(false) }
-                var selectedAlbumForSheet by remember { mutableStateOf<chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum?>(null) }
+                var selectedAlbumForSheet by remember { mutableStateOf<com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum?>(null) }
                 val albumSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
                 val scope = rememberCoroutineScope()
 
-                chromahub.rhythm.app.shared.presentation.screens.UniversalSearchScreen(
+                com.cinemaverse.mcu.shared.presentation.screens.UniversalSearchScreen(
                     localViewModel = localMusicViewModel,
                     streamingViewModel = streamingMusicViewModel,
                     onLocalSongClick = { song ->
@@ -1818,7 +1818,7 @@ fun StreamingNavigation(
                 )
                 
                 if (showCreatePlaylistDialog) {
-                    chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog(
+                    com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog(
                         onDismiss = { showCreatePlaylistDialog = false },
                         onConfirm = { name ->
                             streamingMusicViewModel.createPlaylist(name)

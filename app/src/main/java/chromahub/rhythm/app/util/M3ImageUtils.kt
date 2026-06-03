@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -19,13 +19,13 @@ import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import chromahub.rhythm.app.shared.presentation.components.common.AlbumPlaceholder
-import chromahub.rhythm.app.shared.presentation.components.common.ArtistPlaceholder
-import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
-import chromahub.rhythm.app.shared.presentation.components.common.PlaylistPlaceholder
-import chromahub.rhythm.app.shared.presentation.components.common.TrackPlaceholder
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.shared.presentation.components.common.AlbumPlaceholder
+import com.cinemaverse.mcu.shared.presentation.components.common.ArtistPlaceholder
+import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
+import com.cinemaverse.mcu.shared.presentation.components.common.PlaylistPlaceholder
+import com.cinemaverse.mcu.shared.presentation.components.common.TrackPlaceholder
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
+import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
 
 /**
  * Modern Material 3 style utilities for image handling using Compose and Coil

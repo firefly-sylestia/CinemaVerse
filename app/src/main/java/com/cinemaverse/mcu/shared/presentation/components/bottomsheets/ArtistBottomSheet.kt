@@ -102,7 +102,7 @@ fun ArtistBottomSheet(
 
     val splitArtistNames: (String) -> List<String> = remember {
         { artistName ->
-            chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+            com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
                 artistName = artistName,
                 delimiters = appSettings.artistSeparatorDelimiters.value,
                 enabled = appSettings.artistSeparatorEnabled.value

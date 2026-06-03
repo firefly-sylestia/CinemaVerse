@@ -340,7 +340,7 @@ fun TunerAnimatedSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
+    com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier

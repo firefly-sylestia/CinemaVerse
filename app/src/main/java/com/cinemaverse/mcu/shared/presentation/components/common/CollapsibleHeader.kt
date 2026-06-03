@@ -83,7 +83,7 @@ fun CollapsibleHeaderScreen(
     content: @Composable (Modifier) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     val globalCollapseBehavior by appSettings.headerCollapseBehavior.collectAsState()
     
     val topAppBarState = rememberTopAppBarState()
@@ -197,7 +197,7 @@ fun CollapsibleHeaderScreen(
                             
                             if (shouldShowIcon) {
                                 androidx.compose.foundation.Image(
-                                    painter = androidx.compose.ui.res.painterResource(id = chromahub.rhythm.app.R.drawable.rhythm_splash_logo),
+                                    painter = androidx.compose.ui.res.painterResource(id = com.cinemaverse.mcu.R.drawable.rhythm_splash_logo),
                                     contentDescription = stringResource(R.string.collapsibleheader_app_icon),
                                     modifier = Modifier.size((48 + (36 - 28) * (1 - collapsedFraction)).dp)
                                 )
@@ -311,7 +311,7 @@ fun ArtistCollapsibleHeaderScreen(
     content: @Composable (Modifier) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     val globalCollapseBehavior by appSettings.headerCollapseBehavior.collectAsState()
 
     val topAppBarState = rememberTopAppBarState()
@@ -364,11 +364,11 @@ fun ArtistCollapsibleHeaderScreen(
                 SubcomposeAsyncImage(
                     model = ImageRequest.Builder(context)
                         .apply(
-                            chromahub.rhythm.app.util.ImageUtils.buildImageRequest(
+                            com.cinemaverse.mcu.util.ImageUtils.buildImageRequest(
                                 artworkUri,
                                 artistName,
                                 context.cacheDir,
-                                chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType.ARTIST
+                                com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType.ARTIST
                             )
                         )
                         .build(),
@@ -437,7 +437,7 @@ fun ArtistCollapsibleHeaderScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Album,
+                                    imageVector = com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons.Album,
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -461,7 +461,7 @@ fun ArtistCollapsibleHeaderScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.Music.Song,
+                                    imageVector = com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons.Music.Song,
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer

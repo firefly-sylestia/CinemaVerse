@@ -38,9 +38,9 @@ object NetworkClient {
     private val connectionPool = ConnectionPool(5, 30, TimeUnit.SECONDS)
     
     // Store reference to AppSettings for dynamic API key
-    private var appSettings: chromahub.rhythm.app.shared.data.model.AppSettings? = null
+    private var appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings? = null
     
-    fun initialize(appSettings: chromahub.rhythm.app.shared.data.model.AppSettings) {
+    fun initialize(appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings) {
         this.appSettings = appSettings
     }
     

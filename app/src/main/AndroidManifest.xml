@@ -36,7 +36,7 @@
     </queries>
 
     <application
-        android:name=".RhythmApplication"
+        android:name=".CinemaVerseApplication"
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

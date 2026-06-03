@@ -208,7 +208,7 @@ object ExpressiveShapeProvider {
      * Get a Compose Shape from a shape ID
      */
     fun getShapeById(shapeId: String, fallback: Shape = CircleShape): Shape {
-        val roundedPolygon = chromahub.rhythm.app.shared.presentation.components.common.getShapeById(shapeId)
+        val roundedPolygon = com.cinemaverse.mcu.shared.presentation.components.common.getShapeById(shapeId)
         return roundedPolygon?.toComposeShape() ?: fallback
     }
     
@@ -216,7 +216,7 @@ object ExpressiveShapeProvider {
      * Check if a given shape ID is valid
      */
     fun isValidShapeId(shapeId: String): Boolean {
-        return chromahub.rhythm.app.shared.presentation.components.common.getShapeById(shapeId) != null
+        return com.cinemaverse.mcu.shared.presentation.components.common.getShapeById(shapeId) != null
     }
     
     /**

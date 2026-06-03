@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.presentation.components.dialogs
+package com.cinemaverse.mcu.shared.presentation.components.dialogs
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.util.PlaylistImportExportUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.util.PlaylistImportExportUtils
 import androidx.compose.animation.core.*
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.background
@@ -32,7 +32,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.shared.presentation.components.common.FileOperationLoader
+import com.cinemaverse.mcu.shared.presentation.components.common.FileOperationLoader
 import androidx.compose.ui.res.stringResource
 
 /**

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import android.app.PendingIntent
 import android.app.RemoteAction
@@ -19,8 +19,8 @@ import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.Tag
 import org.jaudiotagger.tag.images.ArtworkFactory
 import androidx.core.net.toUri
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.bottomsheets.ExtendedSongInfo
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.ExtendedSongInfo
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest

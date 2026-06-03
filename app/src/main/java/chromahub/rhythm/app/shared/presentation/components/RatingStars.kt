@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.shared.presentation.components
+package com.cinemaverse.mcu.shared.presentation.components
 
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring

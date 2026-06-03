@@ -873,7 +873,7 @@ fun ThemeCustomizationSettingsScreen(onBackClick: () -> Unit) {
             onDismiss = { showRestartDialog = false },
             onRestart = {
                 showRestartDialog = false
-                chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+                com.cinemaverse.mcu.util.AppRestarter.restartApp(context)
             },
             onContinue = {
                 showRestartDialog = false

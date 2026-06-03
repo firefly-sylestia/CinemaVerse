@@ -1,9 +1,9 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package chromahub.rhythm.app.shared.presentation.components.common
+package com.cinemaverse.mcu.shared.presentation.components.common
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState

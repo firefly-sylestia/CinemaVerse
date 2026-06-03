@@ -65,8 +65,8 @@ import java.util.concurrent.TimeUnit
  * - Authenticated: 5000 requests/hour
  * - This worker typically uses <10 requests/day with smart polling
  * 
- * @see chromahub.rhythm.app.shared.data.model.AppSettings.updateNotificationsEnabled
- * @see chromahub.rhythm.app.shared.data.model.AppSettings.useSmartUpdatePolling
+ * @see com.cinemaverse.mcu.shared.data.model.AppSettings.updateNotificationsEnabled
+ * @see com.cinemaverse.mcu.shared.data.model.AppSettings.useSmartUpdatePolling
  */
 class UpdateNotificationWorker(
     context: Context,
@@ -236,9 +236,9 @@ class UpdateNotificationWorker(
                         val latestRelease = if (channel == "beta") {
                             // For beta channel, get all releases and find first non-draft
                             @Suppress("UNCHECKED_CAST")
-                            (response.body() as? List<chromahub.rhythm.app.network.GitHubRelease>)?.firstOrNull { !it.draft }
+                            (response.body() as? List<com.cinemaverse.mcu.network.GitHubRelease>)?.firstOrNull { !it.draft }
                         } else {
-                            response.body() as? chromahub.rhythm.app.network.GitHubRelease
+                            response.body() as? com.cinemaverse.mcu.network.GitHubRelease
                         }
                         
                         if (latestRelease != null) {

@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.presentation.screens
+package com.cinemaverse.mcu.shared.presentation.screens
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
@@ -46,20 +46,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
-import chromahub.rhythm.app.shared.data.model.Artist
-import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
-import chromahub.rhythm.app.shared.data.repository.StatsTimeRange
-import chromahub.rhythm.app.shared.presentation.components.Material3SettingsGroup
-import chromahub.rhythm.app.shared.presentation.components.Material3SettingsItem
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
-import chromahub.rhythm.app.shared.presentation.components.common.TabAnimation
-import chromahub.rhythm.app.shared.presentation.components.common.SmallTabAnimation
-import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
-import chromahub.rhythm.app.util.M3ImageUtils
-import chromahub.rhythm.app.util.HapticUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
+import com.cinemaverse.mcu.shared.data.model.Artist
+import com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository
+import com.cinemaverse.mcu.shared.data.repository.StatsTimeRange
+import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsGroup
+import com.cinemaverse.mcu.shared.presentation.components.Material3SettingsItem
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
+import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
+import com.cinemaverse.mcu.shared.presentation.components.common.TabAnimation
+import com.cinemaverse.mcu.shared.presentation.components.common.SmallTabAnimation
+import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.util.M3ImageUtils
+import com.cinemaverse.mcu.util.HapticUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
@@ -83,7 +83,7 @@ fun RhythmStatsScreen(
     val tabRowState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     val useHoursFormat by appSettings.useHoursInTimeFormat.collectAsState()
 
     LaunchedEffect(pagerState.currentPage) {
@@ -141,7 +141,7 @@ fun RhythmStatsScreen(
 @Composable
 private fun StatsPageContent(
     range: StatsTimeRange,
-    songs: List<chromahub.rhythm.app.shared.data.model.Song>,
+    songs: List<com.cinemaverse.mcu.shared.data.model.Song>,
     artists: List<Artist>,
     viewModel: MusicViewModel,
     useHoursFormat: Boolean
@@ -924,7 +924,7 @@ private fun BeatTimelineCard(timeline: List<PlaybackStatsRepository.TimelineEntr
 @Composable
 private fun RatingStatsCard(viewModel: MusicViewModel) {
     val context = LocalContext.current
-    val appSettings = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
+    val appSettings = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context)
     val ratingDistribution = appSettings.getRatingDistribution()
     val totalRated = ratingDistribution.values.sum()
 

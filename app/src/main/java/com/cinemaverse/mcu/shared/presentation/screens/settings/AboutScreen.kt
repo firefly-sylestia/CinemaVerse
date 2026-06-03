@@ -272,7 +272,7 @@ fun AboutScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Image(
-                                painter = painterResource(id = chromahub.rhythm.app.R.drawable.rhythm_splash_logo),
+                                painter = painterResource(id = com.cinemaverse.mcu.R.drawable.rhythm_splash_logo),
                                 contentDescription = context.getString(R.string.updates_rhythm_logo_cd),
                                 modifier = Modifier.size(82.dp)
                             )
@@ -664,7 +664,7 @@ fun CommunityMember(
             .padding(10.dp)
     ) {
         // Avatar with fallback
-        val fallbackPainter = painterResource(id = chromahub.rhythm.app.R.drawable.ic_music_note)
+        val fallbackPainter = painterResource(id = com.cinemaverse.mcu.R.drawable.ic_music_note)
 
         AsyncImage(
             model = ImageRequest.Builder(context)

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.lyrics
+package com.cinemaverse.mcu.shared.presentation.components.lyrics
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -20,9 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.util.LyricLine
-import chromahub.rhythm.app.util.LyricsParser
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.util.LyricLine
+import com.cinemaverse.mcu.util.LyricsParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
@@ -314,11 +314,11 @@ private fun SyncedVocalGapItem(
  */
 @Composable
 private fun SyncedLyricItem(
-    line: chromahub.rhythm.app.util.LyricLine,
+    line: com.cinemaverse.mcu.util.LyricLine,
     index: Int,
     currentLineIndex: Int,
     currentPlaybackTime: Long,
-    parsedLyrics: List<chromahub.rhythm.app.util.LyricLine>,
+    parsedLyrics: List<com.cinemaverse.mcu.util.LyricLine>,
     onSeek: ((Long) -> Unit)?,
     showTranslation: Boolean,
     showRomanization: Boolean,

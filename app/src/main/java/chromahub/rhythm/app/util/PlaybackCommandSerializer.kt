@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

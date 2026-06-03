@@ -1,11 +1,11 @@
-package chromahub.rhythm.app.features.local.data.database.dao
+package com.cinemaverse.mcu.features.local.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Insert
 import androidx.room.Update
 import androidx.room.Delete
-import chromahub.rhythm.app.features.local.data.database.entity.MCUSeriesEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.MCUSeriesEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

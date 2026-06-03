@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.activities
+package com.cinemaverse.mcu.activities
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -24,14 +24,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import chromahub.rhythm.app.ui.theme.RhythmTheme
+import com.cinemaverse.mcu.ui.theme.RhythmTheme
 import kotlin.system.exitProcess
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.animation.AnimatedVisibility

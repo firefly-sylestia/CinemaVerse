@@ -98,8 +98,8 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     private var equalizer: android.media.audiofx.Equalizer? = null
     
     // Rhythm audio processors (replaced Android BassBoost and Spatializer for better quality)
-    private var rhythmBassBoostProcessor: chromahub.rhythm.app.infrastructure.audio.RhythmBassBoostProcessor? = null
-    private var rhythmSpatializationProcessor: chromahub.rhythm.app.infrastructure.audio.RhythmSpatializationProcessor? = null
+    private var rhythmBassBoostProcessor: com.cinemaverse.mcu.infrastructure.audio.RhythmBassBoostProcessor? = null
+    private var rhythmSpatializationProcessor: com.cinemaverse.mcu.infrastructure.audio.RhythmSpatializationProcessor? = null
     
     private var virtualizerStrength: Short = 0 // Store strength for virtualizer
     private var isInitializingAudioEffects: Boolean = false // Prevent concurrent initialization
@@ -119,7 +119,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     private val favoriteChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                "chromahub.rhythm.app.action.FAVORITE_CHANGED" -> {
+                "com.cinemaverse.mcu.action.FAVORITE_CHANGED" -> {
                     Log.d(TAG, "Received favorite change notification from ViewModel")
                     // Update notification custom layout
                     scheduleCustomLayoutUpdate(250) // Longer delay for external changes
@@ -160,13 +160,13 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
     private lateinit var appSettings: AppSettings
     
     // Scrobbler manager for Last.fm / Pano Scrobbler integration
-    private lateinit var scrobblerManager: chromahub.rhythm.app.utils.ScrobblerManager
+    private lateinit var scrobblerManager: com.cinemaverse.mcu.utils.ScrobblerManager
     
     // Discord Rich Presence manager
-    private lateinit var discordRichPresenceManager: chromahub.rhythm.app.utils.DiscordRichPresenceManager
+    private lateinit var discordRichPresenceManager: com.cinemaverse.mcu.utils.DiscordRichPresenceManager
     
     // Status broadcaster for Tasker, KWGT, and other automation apps
-    private lateinit var statusBroadcaster: chromahub.rhythm.app.utils.StatusBroadcaster
+    private lateinit var statusBroadcaster: com.cinemaverse.mcu.utils.StatusBroadcaster
     
     // SharedPreferences keys
     companion object {
@@ -188,50 +188,50 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         private const val PREF_REPLAY_GAIN = "replay_gain"
         
         // Intent action for updating settings
-        const val ACTION_UPDATE_SETTINGS = "chromahub.rhythm.app.action.UPDATE_SETTINGS"
+        const val ACTION_UPDATE_SETTINGS = "com.cinemaverse.mcu.action.UPDATE_SETTINGS"
         
         // Intent action for playing external files
-        const val ACTION_PLAY_EXTERNAL_FILE = "chromahub.rhythm.app.action.PLAY_EXTERNAL_FILE"
+        const val ACTION_PLAY_EXTERNAL_FILE = "com.cinemaverse.mcu.action.PLAY_EXTERNAL_FILE"
         
         // Intent action for initializing the service
-        const val ACTION_INIT_SERVICE = "chromahub.rhythm.app.action.INIT_SERVICE"
+        const val ACTION_INIT_SERVICE = "com.cinemaverse.mcu.action.INIT_SERVICE"
         
         // Intent actions for sleep timer
-        const val ACTION_START_SLEEP_TIMER = "chromahub.rhythm.app.action.START_SLEEP_TIMER"
-        const val ACTION_STOP_SLEEP_TIMER = "chromahub.rhythm.app.action.STOP_SLEEP_TIMER"
+        const val ACTION_START_SLEEP_TIMER = "com.cinemaverse.mcu.action.START_SLEEP_TIMER"
+        const val ACTION_STOP_SLEEP_TIMER = "com.cinemaverse.mcu.action.STOP_SLEEP_TIMER"
         
         // Intent actions for equalizer
-        const val ACTION_SET_EQUALIZER_ENABLED = "chromahub.rhythm.app.action.SET_EQUALIZER_ENABLED"
-        const val ACTION_SET_EQUALIZER_BAND = "chromahub.rhythm.app.action.SET_EQUALIZER_BAND"
-        const val ACTION_SET_BASS_BOOST = "chromahub.rhythm.app.action.SET_BASS_BOOST"
-        const val ACTION_SET_VIRTUALIZER = "chromahub.rhythm.app.action.SET_VIRTUALIZER"
-        const val ACTION_APPLY_EQUALIZER_PRESET = "chromahub.rhythm.app.action.APPLY_EQUALIZER_PRESET"
-        const val ACTION_GET_EQUALIZER_DIAGNOSTICS = "chromahub.rhythm.app.action.GET_EQUALIZER_DIAGNOSTICS"
+        const val ACTION_SET_EQUALIZER_ENABLED = "com.cinemaverse.mcu.action.SET_EQUALIZER_ENABLED"
+        const val ACTION_SET_EQUALIZER_BAND = "com.cinemaverse.mcu.action.SET_EQUALIZER_BAND"
+        const val ACTION_SET_BASS_BOOST = "com.cinemaverse.mcu.action.SET_BASS_BOOST"
+        const val ACTION_SET_VIRTUALIZER = "com.cinemaverse.mcu.action.SET_VIRTUALIZER"
+        const val ACTION_APPLY_EQUALIZER_PRESET = "com.cinemaverse.mcu.action.APPLY_EQUALIZER_PRESET"
+        const val ACTION_GET_EQUALIZER_DIAGNOSTICS = "com.cinemaverse.mcu.action.GET_EQUALIZER_DIAGNOSTICS"
         
         // Widget control actions
-        const val ACTION_PLAY_PAUSE = "chromahub.rhythm.app.action.PLAY_PAUSE"
-        const val ACTION_SKIP_NEXT = "chromahub.rhythm.app.action.SKIP_NEXT"
-        const val ACTION_SKIP_PREVIOUS = "chromahub.rhythm.app.action.SKIP_PREVIOUS"
-        const val ACTION_TOGGLE_FAVORITE = "chromahub.rhythm.app.action.TOGGLE_FAVORITE"
+        const val ACTION_PLAY_PAUSE = "com.cinemaverse.mcu.action.PLAY_PAUSE"
+        const val ACTION_SKIP_NEXT = "com.cinemaverse.mcu.action.SKIP_NEXT"
+        const val ACTION_SKIP_PREVIOUS = "com.cinemaverse.mcu.action.SKIP_PREVIOUS"
+        const val ACTION_TOGGLE_FAVORITE = "com.cinemaverse.mcu.action.TOGGLE_FAVORITE"
         
         // Broadcast actions for status updates
-        const val BROADCAST_SLEEP_TIMER_STATUS = "chromahub.rhythm.app.broadcast.SLEEP_TIMER_STATUS"
+        const val BROADCAST_SLEEP_TIMER_STATUS = "com.cinemaverse.mcu.broadcast.SLEEP_TIMER_STATUS"
         const val EXTRA_TIMER_ACTIVE = "timer_active"
         const val EXTRA_REMAINING_TIME = "remaining_time"
 
         // Broadcast actions for shuffle updates
-        const val ACTION_SHUFFLE_STATE_CHANGED = "chromahub.rhythm.app.action.SHUFFLE_STATE_CHANGED"
+        const val ACTION_SHUFFLE_STATE_CHANGED = "com.cinemaverse.mcu.action.SHUFFLE_STATE_CHANGED"
         const val EXTRA_SHUFFLE_ENABLED = "shuffle_enabled"
         
         // Audio session ID
-        const val ACTION_GET_AUDIO_SESSION_ID = "chromahub.rhythm.app.action.GET_AUDIO_SESSION_ID"
-        const val BROADCAST_AUDIO_SESSION_ID = "chromahub.rhythm.app.broadcast.AUDIO_SESSION_ID"
+        const val ACTION_GET_AUDIO_SESSION_ID = "com.cinemaverse.mcu.action.GET_AUDIO_SESSION_ID"
+        const val BROADCAST_AUDIO_SESSION_ID = "com.cinemaverse.mcu.broadcast.AUDIO_SESSION_ID"
         const val EXTRA_AUDIO_SESSION_ID = "audio_session_id"
         
         // Mute/Unmute actions (Media3 1.9.0 feature)
-        const val ACTION_MUTE = "chromahub.rhythm.app.action.MUTE"
-        const val ACTION_UNMUTE = "chromahub.rhythm.app.action.UNMUTE"
-        const val ACTION_TOGGLE_MUTE = "chromahub.rhythm.app.action.TOGGLE_MUTE"
+        const val ACTION_MUTE = "com.cinemaverse.mcu.action.MUTE"
+        const val ACTION_UNMUTE = "com.cinemaverse.mcu.action.UNMUTE"
+        const val ACTION_TOGGLE_MUTE = "com.cinemaverse.mcu.action.TOGGLE_MUTE"
 
         // Playback custom commands
         const val REPEAT_MODE_ALL = "repeat_all"
@@ -242,9 +242,9 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         const val FAVORITE_ON = "favorite_on"
         const val FAVORITE_OFF = "favorite_off"
 
-        private const val METADATA_EXTRA_ORIGINAL_TITLE = "chromahub.rhythm.app.extra.original_title"
-        private const val METADATA_EXTRA_ORIGINAL_ARTIST = "chromahub.rhythm.app.extra.original_artist"
-        private const val METADATA_EXTRA_ORIGINAL_ALBUM = "chromahub.rhythm.app.extra.original_album"
+        private const val METADATA_EXTRA_ORIGINAL_TITLE = "com.cinemaverse.mcu.extra.original_title"
+        private const val METADATA_EXTRA_ORIGINAL_ARTIST = "com.cinemaverse.mcu.extra.original_artist"
+        private const val METADATA_EXTRA_ORIGINAL_ALBUM = "com.cinemaverse.mcu.extra.original_album"
     }
 
     override fun onCreate() {
@@ -257,14 +257,14 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         // Try foreground promotion early; on newer Android versions this can be blocked
         // when the service is started from background contexts.
         startForegroundWithNotification(
-            getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-            getString(chromahub.rhythm.app.R.string.service_starting)
+            getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+            getString(com.cinemaverse.mcu.R.string.service_starting)
         )
 
         // Initialize settings manager (fast operation)
         updateForegroundNotification(
-            getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-            getString(chromahub.rhythm.app.R.string.service_loading_settings)
+            getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+            getString(com.cinemaverse.mcu.R.string.service_loading_settings)
         )
         appSettings = AppSettings.getInstance(applicationContext)
         
@@ -273,8 +273,8 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         
         // Initialize Rhythm audio processors early (before player creation)
         try {
-            rhythmBassBoostProcessor = chromahub.rhythm.app.infrastructure.audio.RhythmBassBoostProcessor()
-            rhythmSpatializationProcessor = chromahub.rhythm.app.infrastructure.audio.RhythmSpatializationProcessor()
+            rhythmBassBoostProcessor = com.cinemaverse.mcu.infrastructure.audio.RhythmBassBoostProcessor()
+            rhythmSpatializationProcessor = com.cinemaverse.mcu.infrastructure.audio.RhythmSpatializationProcessor()
             isBassBoostAvailable = true
             appSettings.setBassBoostAvailable(true)
             Log.d(TAG, "Rhythm audio processors initialized early")
@@ -287,20 +287,20 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         }
         
         // Initialize scrobbler manager
-        scrobblerManager = chromahub.rhythm.app.utils.ScrobblerManager(applicationContext)
+        scrobblerManager = com.cinemaverse.mcu.utils.ScrobblerManager(applicationContext)
         
         // Initialize Discord Rich Presence manager
-        discordRichPresenceManager = chromahub.rhythm.app.utils.DiscordRichPresenceManager(applicationContext)
+        discordRichPresenceManager = com.cinemaverse.mcu.utils.DiscordRichPresenceManager(applicationContext)
         
         // Initialize status broadcaster for Tasker/KWGT
-        statusBroadcaster = chromahub.rhythm.app.utils.StatusBroadcaster(applicationContext)
+        statusBroadcaster = com.cinemaverse.mcu.utils.StatusBroadcaster(applicationContext)
 
         // Register BroadcastReceiver for favorite changes
         updateForegroundNotification(
-            getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-            getString(chromahub.rhythm.app.R.string.service_setup_components)
+            getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+            getString(com.cinemaverse.mcu.R.string.service_setup_components)
         )
-        val filter = IntentFilter("chromahub.rhythm.app.action.FAVORITE_CHANGED")
+        val filter = IntentFilter("com.cinemaverse.mcu.action.FAVORITE_CHANGED")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(favoriteChangeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
@@ -310,28 +310,28 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         try {
             // Initialize core components on main thread (required for media service)
             updateForegroundNotification(
-                getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-                getString(chromahub.rhythm.app.R.string.service_initializing_player)
+                getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+                getString(com.cinemaverse.mcu.R.string.service_initializing_player)
             )
             initializePlayer()
 
             updateForegroundNotification(
-                getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-                getString(chromahub.rhythm.app.R.string.service_creating_controls)
+                getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+                getString(com.cinemaverse.mcu.R.string.service_creating_controls)
             )
             createCustomCommands()
 
             // Create the media session (required synchronously)
             updateForegroundNotification(
-                getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-                getString(chromahub.rhythm.app.R.string.service_setup_media_session)
+                getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+                getString(com.cinemaverse.mcu.R.string.service_setup_media_session)
             )
             mediaSession = createMediaSession()
 
             // Initialize controller asynchronously to avoid blocking
             updateForegroundNotification(
-                getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-                getString(chromahub.rhythm.app.R.string.service_initializing_controller)
+                getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+                getString(com.cinemaverse.mcu.R.string.service_initializing_controller)
             )
             createController()
 
@@ -407,7 +407,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
                                     val formattedToday = rhythmGuardFormatDurationFromMinutes(currentMinutes)
                                     val formattedLimit = rhythmGuardFormatDurationFromMinutes(effectiveLimitMinutes)
                                     val timeoutReason = getString(
-                                        chromahub.rhythm.app.R.string.settings_rhythm_guard_timeout_reason_auto,
+                                        com.cinemaverse.mcu.R.string.settings_rhythm_guard_timeout_reason_auto,
                                         formattedToday,
                                         formattedLimit
                                     )
@@ -440,16 +440,16 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             }
 
             updateForegroundNotification(
-                getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-                getString(chromahub.rhythm.app.R.string.service_ready)
+                getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+                getString(com.cinemaverse.mcu.R.string.service_ready)
             )
 
             Log.d(TAG, "Service initialized successfully")
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing service", e)
             updateForegroundNotification(
-                getString(chromahub.rhythm.app.R.string.service_rhythm_music),
-                getString(chromahub.rhythm.app.R.string.service_init_failed)
+                getString(com.cinemaverse.mcu.R.string.service_rhythm_music),
+                getString(com.cinemaverse.mcu.R.string.service_init_failed)
             )
         }
     }
@@ -458,19 +458,19 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                getString(chromahub.rhythm.app.R.string.media3_notification_channel_name),
+                getString(com.cinemaverse.mcu.R.string.media3_notification_channel_name),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = getString(chromahub.rhythm.app.R.string.media3_notification_channel_description)
+                description = getString(com.cinemaverse.mcu.R.string.media3_notification_channel_description)
                 setShowBadge(false)
             }
 
             val sleepTimerChannel = NotificationChannel(
                 SLEEP_TIMER_CHANNEL_ID,
-                getString(chromahub.rhythm.app.R.string.notification_sleep_timer_channel_name),
+                getString(com.cinemaverse.mcu.R.string.notification_sleep_timer_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = getString(chromahub.rhythm.app.R.string.notification_sleep_timer_channel_desc)
+                description = getString(com.cinemaverse.mcu.R.string.notification_sleep_timer_channel_desc)
                 setShowBadge(false)
                 enableVibration(false)
             }
@@ -485,7 +485,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(content)
-            .setSmallIcon(chromahub.rhythm.app.R.drawable.ic_notification)
+            .setSmallIcon(com.cinemaverse.mcu.R.drawable.ic_notification)
             .setOngoing(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
@@ -536,7 +536,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(content)
-            .setSmallIcon(chromahub.rhythm.app.R.drawable.ic_notification)
+            .setSmallIcon(com.cinemaverse.mcu.R.drawable.ic_notification)
             .setOngoing(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
@@ -966,12 +966,12 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             createCustomIconButton(
                 "Add to favorites",
                 FAVORITE_ON,
-                chromahub.rhythm.app.R.drawable.ic_favorite_border
+                com.cinemaverse.mcu.R.drawable.ic_favorite_border
             ),
             createCustomIconButton(
                 "Remove from favorites",
                 FAVORITE_OFF,
-                chromahub.rhythm.app.R.drawable.ic_favorite_filled
+                com.cinemaverse.mcu.R.drawable.ic_favorite_filled
             )
         )
     }
@@ -1088,7 +1088,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
                 }
                 updateFavoritesPlaylist(songId = songId, song = song, isAdding = isAdding)
 
-                val notifyIntent = Intent("chromahub.rhythm.app.action.FAVORITE_CHANGED")
+                val notifyIntent = Intent("com.cinemaverse.mcu.action.FAVORITE_CHANGED")
                 sendBroadcast(notifyIntent)
                 Log.d(TAG, "Sent FAVORITE_CHANGED broadcast to notify ViewModel")
 
@@ -1685,7 +1685,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
                 // Extract metadata from the audio file in a background thread
                 val mediaItem = withContext(Dispatchers.IO) {
                     try {
-                        val song = chromahub.rhythm.app.util.MediaUtils.extractMetadataFromUri(this@MediaPlaybackService, uri)
+                        val song = com.cinemaverse.mcu.util.MediaUtils.extractMetadataFromUri(this@MediaPlaybackService, uri)
                         Log.d(TAG, "Extracted metadata for external file: ${song.title} by ${song.artist}")
                         
                         // Create a media item with the extracted metadata
@@ -2311,16 +2311,16 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val title = getString(chromahub.rhythm.app.R.string.notification_sleep_timer_title)
+        val title = getString(com.cinemaverse.mcu.R.string.notification_sleep_timer_title)
         val timeText = formatSleepTimerDuration(remainingMs)
         val content = if (pauseOnly) {
-            getString(chromahub.rhythm.app.R.string.notification_sleep_timer_pause_in, timeText)
+            getString(com.cinemaverse.mcu.R.string.notification_sleep_timer_pause_in, timeText)
         } else {
-            getString(chromahub.rhythm.app.R.string.notification_sleep_timer_stop_in, timeText)
+            getString(com.cinemaverse.mcu.R.string.notification_sleep_timer_stop_in, timeText)
         }
 
         val notification = NotificationCompat.Builder(this, SLEEP_TIMER_CHANNEL_ID)
-            .setSmallIcon(chromahub.rhythm.app.R.drawable.ic_notification)
+            .setSmallIcon(com.cinemaverse.mcu.R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(content)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content))
@@ -2374,7 +2374,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         if (rhythmBassBoostProcessor == null) {
             Log.w(TAG, "Rhythm bass boost processor is null, creating new instance")
             try {
-                rhythmBassBoostProcessor = chromahub.rhythm.app.infrastructure.audio.RhythmBassBoostProcessor()
+                rhythmBassBoostProcessor = com.cinemaverse.mcu.infrastructure.audio.RhythmBassBoostProcessor()
                 isBassBoostAvailable = true
                 appSettings.setBassBoostAvailable(true)
             } catch (e: Exception) {
@@ -2387,7 +2387,7 @@ class MediaPlaybackService : MediaLibraryService(), Player.Listener {
         if (rhythmSpatializationProcessor == null) {
             Log.w(TAG, "Rhythm spatialization processor is null, creating new instance")
             try {
-                rhythmSpatializationProcessor = chromahub.rhythm.app.infrastructure.audio.RhythmSpatializationProcessor()
+                rhythmSpatializationProcessor = com.cinemaverse.mcu.infrastructure.audio.RhythmSpatializationProcessor()
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to create spatialization processor", e)
             }

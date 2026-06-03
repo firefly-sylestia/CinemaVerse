@@ -3652,9 +3652,9 @@ fun EnhancedAudioPlaybackContent(
                             description = context.getString(R.string.onboarding_lyrics_source_desc),
                             selectedOption = lyricsSourcePreference.displayName,
                             icon = MaterialSymbolIcon("cloud", filled = true),
-                            options = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
+                            options = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
                             onOptionSelected = { displayName ->
-                                val preference = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values()
+                                val preference = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values()
                                     .find { it.displayName == displayName }
                                 if (preference != null) {
                                     appSettings.setLyricsSourcePreference(preference)
@@ -3761,9 +3761,9 @@ fun EnhancedAudioPlaybackContent(
                             description = context.getString(R.string.onboarding_lyrics_source_desc),
                             selectedOption = lyricsSourcePreference.displayName,
                             icon = MaterialSymbolIcon("cloud", filled = true),
-                            options = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
+                            options = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values().map { it.displayName },
                             onOptionSelected = { displayName ->
-                                val preference = chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.values()
+                                val preference = com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.values()
                                     .find { it.displayName == displayName }
                                 if (preference != null) {
                                     appSettings.setLyricsSourcePreference(preference)
@@ -9967,7 +9967,7 @@ private fun IntegrationsSettingsCards(
         }
 
     val apiItems = buildList {
-        if (chromahub.rhythm.app.BuildConfig.ENABLE_DEEZER) {
+        if (com.cinemaverse.mcu.BuildConfig.ENABLE_DEEZER) {
             add(
                 onboardingToggleItem(
                     RhythmIcons.Public,
@@ -9978,7 +9978,7 @@ private fun IntegrationsSettingsCards(
                 )
             )
         }
-        if (chromahub.rhythm.app.BuildConfig.ENABLE_APPLE_MUSIC) {
+        if (com.cinemaverse.mcu.BuildConfig.ENABLE_APPLE_MUSIC) {
             add(
                 onboardingToggleItem(
                     MaterialSymbolIcon("music_note"),
@@ -9989,7 +9989,7 @@ private fun IntegrationsSettingsCards(
                 )
             )
         }
-        if (chromahub.rhythm.app.BuildConfig.ENABLE_LRCLIB) {
+        if (com.cinemaverse.mcu.BuildConfig.ENABLE_LRCLIB) {
             add(
                 onboardingToggleItem(
                     MaterialSymbolIcon("lyrics"),
@@ -10000,7 +10000,7 @@ private fun IntegrationsSettingsCards(
                 )
             )
         }
-        if (chromahub.rhythm.app.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
+        if (com.cinemaverse.mcu.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
             add(
                 onboardingToggleItem(
                     MaterialSymbolIcon("music_video"),
@@ -10383,7 +10383,7 @@ fun OnboardingAnimatedSwitch(
     enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
+    com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         enabled = enabled,

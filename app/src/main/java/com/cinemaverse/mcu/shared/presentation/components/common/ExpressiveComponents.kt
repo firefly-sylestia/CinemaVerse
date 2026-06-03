@@ -996,7 +996,7 @@ fun ExpressiveClickableSurface(
 fun ExpressiveButtonWithIcon(
     onClick: () -> Unit,
     text: String,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     iconOnStart: Boolean = true
@@ -1033,7 +1033,7 @@ fun ExpressiveButtonWithIcon(
 fun ExpressiveTonalButtonWithIcon(
     onClick: () -> Unit,
     text: String,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     iconOnStart: Boolean = true
@@ -1827,7 +1827,7 @@ fun ExpressiveToggleButtonGroup(
 private fun ExpressiveMorphingToggleButton(
     isActive: Boolean,
     onClick: () -> Unit,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     label: String,
     isDarkTheme: Boolean,
     isCompactHeight: Boolean = false,
@@ -2643,7 +2643,7 @@ fun ExpressiveGradientText(
 @Composable
 fun ExpressiveEmptyStateCard(
     modifier: Modifier = Modifier,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     title: String,
     description: String? = null,
     actionLabel: String? = null,

@@ -1,10 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package chromahub.rhythm.app.shared.presentation.components.bottomsheets
+package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -24,7 +24,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import chromahub.rhythm.app.shared.presentation.components.common.rhythmMarquee
+import com.cinemaverse.mcu.shared.presentation.components.common.rhythmMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,14 +87,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.shared.data.model.AutoEQProfile
-import chromahub.rhythm.app.shared.data.model.UserAudioDevice
-import chromahub.rhythm.app.util.AutoEQImportExport
-import chromahub.rhythm.app.util.HapticUtils
-import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
+import com.cinemaverse.mcu.shared.data.model.AutoEQProfile
+import com.cinemaverse.mcu.shared.data.model.UserAudioDevice
+import com.cinemaverse.mcu.util.AutoEQImportExport
+import com.cinemaverse.mcu.util.HapticUtils
+import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.res.stringResource
 
 @Composable

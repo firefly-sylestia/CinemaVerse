@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.features.streaming.presentation.screens
+package com.cinemaverse.mcu.features.streaming.presentation.screens
 
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,13 +41,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceRules
-import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
-import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch
-import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceRules
+import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
+import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch
+import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
 
 @Composable
 fun StreamingServiceSetupScreen(

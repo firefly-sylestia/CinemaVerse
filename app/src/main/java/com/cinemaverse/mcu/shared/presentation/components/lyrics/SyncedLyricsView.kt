@@ -314,11 +314,11 @@ private fun SyncedVocalGapItem(
  */
 @Composable
 private fun SyncedLyricItem(
-    line: chromahub.rhythm.app.util.LyricLine,
+    line: com.cinemaverse.mcu.util.LyricLine,
     index: Int,
     currentLineIndex: Int,
     currentPlaybackTime: Long,
-    parsedLyrics: List<chromahub.rhythm.app.util.LyricLine>,
+    parsedLyrics: List<com.cinemaverse.mcu.util.LyricLine>,
     onSeek: ((Long) -> Unit)?,
     showTranslation: Boolean,
     showRomanization: Boolean,

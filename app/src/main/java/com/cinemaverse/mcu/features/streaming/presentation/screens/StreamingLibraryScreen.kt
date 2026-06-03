@@ -104,7 +104,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import com.cinemaverse.mcu.ui.theme.MusicDimensions
 import kotlin.random.Random
 
-private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon) {
+private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon) {
     SONGS(R.string.library_tab_songs, MaterialSymbolIcon("history", filled = true)),
     ALBUMS(R.string.library_tab_albums, RhythmIcons.AlbumFilled),
     ARTISTS(R.string.library_tab_artists, RhythmIcons.ArtistFilled),
@@ -114,7 +114,7 @@ private enum class StreamingLibraryTab(@param:StringRes val titleRes: Int, val i
 private enum class StreamingSongSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
     TITLE_ASC(R.string.sort_title, true, RhythmIcons.Sort),
     TITLE_DESC(R.string.sort_title, false, RhythmIcons.Sort),
@@ -129,7 +129,7 @@ private enum class StreamingSongSortOrder(
 private enum class StreamingAlbumSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
     TITLE_ASC(R.string.sort_title, true, RhythmIcons.Sort),
     TITLE_DESC(R.string.sort_title, false, RhythmIcons.Sort),
@@ -143,7 +143,7 @@ private enum class StreamingAlbumSortOrder(
 
 private enum class StreamingArtistSortOrder(
     @param:StringRes val labelRes: Int,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     val ascending: Boolean
 ) {
     NAME_ASC(R.string.sort_name, RhythmIcons.ArtistFilled, true),
@@ -159,7 +159,7 @@ private enum class StreamingArtistSortOrder(
 private enum class StreamingPlaylistSortOrder(
     @param:StringRes val labelRes: Int,
     val ascending: Boolean,
-    val icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+    val icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 ) {
     NAME_ASC(R.string.sort_name, true, RhythmIcons.Queue),
     NAME_DESC(R.string.sort_name, false, RhythmIcons.Queue),
@@ -1062,7 +1062,7 @@ fun StreamingLibraryScreen(
                                                         modifier = Modifier.size(32.dp)
                                                     ) {
                                                         Icon(
-                                                            imageVector = chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons.AddToPlaylist,
+                                                            imageVector = com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons.AddToPlaylist,
                                                             contentDescription = null,
                                                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                                             modifier = Modifier.fillMaxSize().padding(6.dp)
@@ -1367,7 +1367,7 @@ fun StreamingLibraryScreen(
 
     // Create Playlist Dialog for streaming
     if (showCreatePlaylistDialog) {
-        chromahub.rhythm.app.shared.presentation.components.dialogs.CreatePlaylistDialog(
+        com.cinemaverse.mcu.shared.presentation.components.dialogs.CreatePlaylistDialog(
             onDismiss = { showCreatePlaylistDialog = false },
             onConfirm = { name ->
                 viewModel.createPlaylist(name)
@@ -2179,7 +2179,7 @@ fun StreamingPlaylist.toLibraryPlaylist(): Playlist {
     )
 }
 
-fun StreamingAlbum.toLibraryAlbum(librarySongs: List<chromahub.rhythm.app.shared.data.model.Song>): Album {
+fun StreamingAlbum.toLibraryAlbum(librarySongs: List<com.cinemaverse.mcu.shared.data.model.Song>): Album {
     val streamingTracks = tracks
     val matchingSongs = if (streamingTracks.isNotEmpty()) {
         streamingTracks.map { it.toLibrarySong() }

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.features.local.presentation.viewmodel
+package com.cinemaverse.mcu.features.local.presentation.viewmodel
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -9,9 +9,9 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.activities.MainActivity
-import chromahub.rhythm.app.features.local.data.repository.MusicRepository
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.activities.MainActivity
+import com.cinemaverse.mcu.features.local.data.repository.MusicRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

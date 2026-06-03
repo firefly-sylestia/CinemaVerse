@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.features.streaming.data.repository
+package com.cinemaverse.mcu.features.streaming.data.repository
 
 import android.content.Context
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceId
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

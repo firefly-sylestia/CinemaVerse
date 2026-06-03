@@ -1,9 +1,9 @@
-package chromahub.rhythm.app.utils
+package com.cinemaverse.mcu.utils
 
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import chromahub.rhythm.app.shared.data.model.Song
+import com.cinemaverse.mcu.shared.data.model.Song
 
 /**
  * StatusBroadcaster handles broadcasting playback status to third-party apps
@@ -48,7 +48,7 @@ class StatusBroadcaster(private val context: Context) {
 
         private const val DEFAULT_BLUETOOTH_LYRIC_LINE = "No lyrics"
         
-        private const val PACKAGE_NAME = "chromahub.rhythm.app"
+        private const val PACKAGE_NAME = "com.cinemaverse.mcu"
     }
     
     /**

@@ -195,7 +195,7 @@ fun PlayerScreen(
 
         val splitArtistNames: (String) -> List<String> = remember {
             { artistName ->
-                chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+                com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
                     artistName = artistName,
                     delimiters = artistSeparatorDelimiters,
                     enabled = artistSeparatorEnabled
@@ -704,7 +704,7 @@ fun PlayerScreen(
                                         color = MaterialTheme.colorScheme.secondaryContainer,
                                         modifier = Modifier.size(56.dp)
                                     ) {
-                                        chromahub.rhythm.app.util.M3ImageUtils.ArtistImage(
+                                        com.cinemaverse.mcu.util.M3ImageUtils.ArtistImage(
                                             imageUrl = artist.artworkUri,
                                             artistName = artist.name,
                                             modifier = Modifier.fillMaxSize(),

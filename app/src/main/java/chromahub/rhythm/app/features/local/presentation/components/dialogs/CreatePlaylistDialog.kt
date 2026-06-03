@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.shared.presentation.components.dialogs
+package com.cinemaverse.mcu.shared.presentation.components.dialogs
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,9 +39,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.util.HapticUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.util.HapticUtils
 import androidx.compose.ui.res.stringResource
 
 @Composable

@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.network
+package com.cinemaverse.mcu.network
 
 import android.content.Context
-import chromahub.rhythm.app.BuildConfig
+import com.cinemaverse.mcu.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.Request

@@ -1,11 +1,11 @@
-package chromahub.rhythm.app.features.local.data.database.dao
+package com.cinemaverse.mcu.features.local.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import chromahub.rhythm.app.features.local.data.database.entity.SongArtistEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.SongArtistEntity
 
 @Dao
 interface SongArtistDao {

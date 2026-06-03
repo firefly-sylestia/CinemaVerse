@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.data.repository
+package com.cinemaverse.mcu.shared.data.repository
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

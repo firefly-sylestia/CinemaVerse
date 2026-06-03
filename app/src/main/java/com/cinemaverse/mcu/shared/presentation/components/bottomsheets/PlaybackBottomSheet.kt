@@ -1140,7 +1140,7 @@ private fun PlaybackSpeedCard(
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
+                com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
                     checked = syncEnabled,
                     onCheckedChange = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
@@ -1288,7 +1288,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
+                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onStopPlaybackOnZeroVolumeChange(!stopPlaybackOnZeroVolume)
@@ -1309,7 +1309,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
+                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onResumeOnDeviceReconnectChange(!resumeOnDeviceReconnect)
@@ -1330,7 +1330,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
+                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onGaplessPlaybackChange(!gaplessPlayback)
@@ -1351,7 +1351,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
+                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onShowPlayedQueueSongsChange(!showPlayedQueueSongs)
@@ -1372,7 +1372,7 @@ private fun PlaybackQuickSettingsCard(
                         }
                     )
                 },
-                scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH,
+                scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH,
                 onClick = {
                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
                     onCrossfadeEnabledChange(!crossfadeEnabled)
@@ -1453,7 +1453,7 @@ private fun PlaybackQuickSettingsCard(
                             navigateToSettings.invoke()
                         }
                     }
-                    ,scope = chromahub.rhythm.app.shared.presentation.components.SettingScope.BOTH
+                    ,scope = com.cinemaverse.mcu.shared.presentation.components.SettingScope.BOTH
                 )
             )
         }
@@ -1610,7 +1610,7 @@ private fun PlaybackPitchCard(
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
+                com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
                     checked = syncEnabled,
                     onCheckedChange = {
                         HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
@@ -1706,7 +1706,7 @@ private fun AnimatedAudioSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    chromahub.rhythm.app.shared.presentation.screens.settings.TunerAnimatedSwitch(
+    com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier
@@ -1954,8 +1954,8 @@ private fun QualitySelectionBottomSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         StandardBottomSheetHeader(
-            title = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality),
-            subtitle = stringResource(id = chromahub.rhythm.app.R.string.streaming_settings_quality_sheet_desc),
+            title = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_quality),
+            subtitle = stringResource(id = com.cinemaverse.mcu.R.string.streaming_settings_quality_sheet_desc),
             visible = true
         )
         Column(
@@ -1968,10 +1968,10 @@ private fun QualitySelectionBottomSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             val streamingQualityOptions = listOf(
-                Pair("LOW", chromahub.rhythm.app.R.string.streaming_quality_low),
-                Pair("NORMAL", chromahub.rhythm.app.R.string.streaming_quality_normal),
-                Pair("HIGH", chromahub.rhythm.app.R.string.streaming_quality_high),
-                Pair("LOSSLESS", chromahub.rhythm.app.R.string.streaming_quality_lossless)
+                Pair("LOW", com.cinemaverse.mcu.R.string.streaming_quality_low),
+                Pair("NORMAL", com.cinemaverse.mcu.R.string.streaming_quality_normal),
+                Pair("HIGH", com.cinemaverse.mcu.R.string.streaming_quality_high),
+                Pair("LOSSLESS", com.cinemaverse.mcu.R.string.streaming_quality_lossless)
             )
 
             streamingQualityOptions.forEach { option ->

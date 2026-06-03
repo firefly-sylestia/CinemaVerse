@@ -1,27 +1,27 @@
-package chromahub.rhythm.app.features.streaming.presentation.viewmodel
+package com.cinemaverse.mcu.features.streaming.presentation.viewmodel
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import chromahub.rhythm.app.core.domain.model.SourceType
-import chromahub.rhythm.app.core.domain.model.StreamingConfig
-import chromahub.rhythm.app.core.domain.model.StreamingQuality
-import chromahub.rhythm.app.core.utils.NetworkUtils
-import chromahub.rhythm.app.features.streaming.data.repository.StreamingMusicRepositoryImpl
-import chromahub.rhythm.app.features.streaming.data.repository.StreamingServiceSession
-import chromahub.rhythm.app.features.streaming.data.repository.StreamingServiceSessionRepository
-import chromahub.rhythm.app.features.streaming.di.StreamingMusicModule
-import chromahub.rhythm.app.features.streaming.domain.model.BrowseCategory
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceId
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceRules
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
-import chromahub.rhythm.app.features.streaming.infrastructure.notification.StreamingNotificationManager
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.util.ArtistSeparator
+import com.cinemaverse.mcu.core.domain.model.SourceType
+import com.cinemaverse.mcu.core.domain.model.StreamingConfig
+import com.cinemaverse.mcu.core.domain.model.StreamingQuality
+import com.cinemaverse.mcu.core.utils.NetworkUtils
+import com.cinemaverse.mcu.features.streaming.data.repository.StreamingMusicRepositoryImpl
+import com.cinemaverse.mcu.features.streaming.data.repository.StreamingServiceSession
+import com.cinemaverse.mcu.features.streaming.data.repository.StreamingServiceSessionRepository
+import com.cinemaverse.mcu.features.streaming.di.StreamingMusicModule
+import com.cinemaverse.mcu.features.streaming.domain.model.BrowseCategory
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingArtist
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceId
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceRules
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingSong
+import com.cinemaverse.mcu.features.streaming.infrastructure.notification.StreamingNotificationManager
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.util.ArtistSeparator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,9 +29,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import android.net.Uri
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
+import com.cinemaverse.mcu.R
 
 /**
  * ViewModel for managing streaming music playback and library.

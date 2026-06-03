@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.core.domain.model
+package com.cinemaverse.mcu.core.domain.model
 
 /**
  * Base interface for album representations.

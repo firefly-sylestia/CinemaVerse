@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.features.local.data.repository
+package com.cinemaverse.mcu.features.local.data.repository
 
 import android.content.ContentUris
 import android.content.Context
@@ -10,26 +10,26 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.util.LruCache
-import chromahub.rhythm.app.network.NetworkClient
-import chromahub.rhythm.app.network.ITunesSearchApiService
-import chromahub.rhythm.app.network.RhythmLyricsApiService
-import chromahub.rhythm.app.network.RhythmLyricsResponse
-import chromahub.rhythm.app.network.RhythmLyricsLine
-import chromahub.rhythm.app.network.RhythmLyricsWord
-import chromahub.rhythm.app.network.DeezerApiService
-import chromahub.rhythm.app.network.DeezerArtist
-import chromahub.rhythm.app.network.DeezerAlbum
-import chromahub.rhythm.app.network.YTMusicApiService
-import chromahub.rhythm.app.network.YTMusicSearchRequest
-import chromahub.rhythm.app.network.YTMusicContext
-import chromahub.rhythm.app.network.YTMusicClient
-import chromahub.rhythm.app.network.YTMusicBrowseRequest
-import chromahub.rhythm.app.network.extractArtistImageUrl
-import chromahub.rhythm.app.network.extractAlbumImageUrl
-import chromahub.rhythm.app.network.extractArtistBrowseId
-import chromahub.rhythm.app.network.extractAlbumBrowseId
-import chromahub.rhythm.app.network.extractArtistThumbnail
-import chromahub.rhythm.app.network.extractAlbumCover
+import com.cinemaverse.mcu.network.NetworkClient
+import com.cinemaverse.mcu.network.ITunesSearchApiService
+import com.cinemaverse.mcu.network.RhythmLyricsApiService
+import com.cinemaverse.mcu.network.RhythmLyricsResponse
+import com.cinemaverse.mcu.network.RhythmLyricsLine
+import com.cinemaverse.mcu.network.RhythmLyricsWord
+import com.cinemaverse.mcu.network.DeezerApiService
+import com.cinemaverse.mcu.network.DeezerArtist
+import com.cinemaverse.mcu.network.DeezerAlbum
+import com.cinemaverse.mcu.network.YTMusicApiService
+import com.cinemaverse.mcu.network.YTMusicSearchRequest
+import com.cinemaverse.mcu.network.YTMusicContext
+import com.cinemaverse.mcu.network.YTMusicClient
+import com.cinemaverse.mcu.network.YTMusicBrowseRequest
+import com.cinemaverse.mcu.network.extractArtistImageUrl
+import com.cinemaverse.mcu.network.extractAlbumImageUrl
+import com.cinemaverse.mcu.network.extractArtistBrowseId
+import com.cinemaverse.mcu.network.extractAlbumBrowseId
+import com.cinemaverse.mcu.network.extractArtistThumbnail
+import com.cinemaverse.mcu.network.extractAlbumCover
 import okhttp3.Request
 import com.google.gson.JsonParser
 import com.google.gson.Gson
@@ -50,30 +50,30 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
 import java.io.ByteArrayOutputStream
 import java.net.URL
-import chromahub.rhythm.app.shared.data.model.LyricsData
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.data.model.Album
-import chromahub.rhythm.app.shared.data.model.Artist
-import chromahub.rhythm.app.shared.data.model.Playlist
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.shared.data.model.LyricsSourcePreference
-import chromahub.rhythm.app.shared.data.model.UserAudioDevice
-import chromahub.rhythm.app.shared.data.model.PlaybackLocation
-import chromahub.rhythm.app.shared.data.model.LyricsApiPriority
-import chromahub.rhythm.app.core.domain.model.PlayableItem
-import chromahub.rhythm.app.core.domain.model.SourceType
+import com.cinemaverse.mcu.shared.data.model.LyricsData
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.shared.data.model.Album
+import com.cinemaverse.mcu.shared.data.model.Artist
+import com.cinemaverse.mcu.shared.data.model.Playlist
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference
+import com.cinemaverse.mcu.shared.data.model.UserAudioDevice
+import com.cinemaverse.mcu.shared.data.model.PlaybackLocation
+import com.cinemaverse.mcu.shared.data.model.LyricsApiPriority
+import com.cinemaverse.mcu.core.domain.model.PlayableItem
+import com.cinemaverse.mcu.core.domain.model.SourceType
 import java.lang.ref.WeakReference
-import chromahub.rhythm.app.util.AudioFormatDetector
-import chromahub.rhythm.app.util.LyricsParser
-import chromahub.rhythm.app.util.EnhancedLyricLine
-import chromahub.rhythm.app.util.EnhancedWord
-import chromahub.rhythm.app.util.RhythmLyricsParser
+import com.cinemaverse.mcu.util.AudioFormatDetector
+import com.cinemaverse.mcu.util.LyricsParser
+import com.cinemaverse.mcu.util.EnhancedLyricLine
+import com.cinemaverse.mcu.util.EnhancedWord
+import com.cinemaverse.mcu.util.RhythmLyricsParser
 import android.content.SharedPreferences
 import androidx.room.withTransaction
-import chromahub.rhythm.app.features.local.data.database.RhythmDatabase
-import chromahub.rhythm.app.features.local.data.database.entity.ArtistEntity
-import chromahub.rhythm.app.features.local.data.database.entity.SongEntity
-import chromahub.rhythm.app.features.local.data.database.entity.SongArtistEntity
+import com.cinemaverse.mcu.features.local.data.database.RhythmDatabase
+import com.cinemaverse.mcu.features.local.data.database.entity.ArtistEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.SongEntity
+import com.cinemaverse.mcu.features.local.data.database.entity.SongArtistEntity
 
 /**
  * Scan progress data class for real-time updates
@@ -395,7 +395,7 @@ class MusicRepository(context: Context) {
                         if (savedArtworkIsEmbeddedCache && savedArtworkUsable) {
                             savedArtworkUri
                         } else {
-                            chromahub.rhythm.app.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
+                            com.cinemaverse.mcu.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
                                 cacheDir = context.cacheDir,
                                 songUri = songUri,
                                 lossless = losslessArtwork
@@ -1573,7 +1573,7 @@ class MusicRepository(context: Context) {
             val useEmbeddedArt = appSettings.preferSongArtwork.value
             val effectiveArtUri = if (useEmbeddedArt) {
                 val lossless = appSettings.isLosslessArtworkActive.value
-                chromahub.rhythm.app.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
+                com.cinemaverse.mcu.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
                     cacheDir = context.cacheDir,
                     songUri = contentUri,
                     lossless = lossless
@@ -2263,7 +2263,7 @@ class MusicRepository(context: Context) {
         val appSettings = AppSettings.getInstance(context)
         val artistSeparatorEnabled = appSettings.artistSeparatorEnabled.value
         val delimiters = if (artistSeparatorEnabled) appSettings.artistSeparatorDelimiters.value else ""
-        return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(artistName, delimiters, artistSeparatorEnabled)
+        return com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(artistName, delimiters, artistSeparatorEnabled)
     }
 
     /**
@@ -2272,7 +2272,7 @@ class MusicRepository(context: Context) {
      */
     fun splitArtistNames(artistName: String, preloadedCharDelimiters: List<String>): List<String> {
         val delimiters = preloadedCharDelimiters.joinToString("")
-        return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(artistName, delimiters, preloadedCharDelimiters.isNotEmpty())
+        return com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(artistName, delimiters, preloadedCharDelimiters.isNotEmpty())
     }
     
     /**
@@ -2545,7 +2545,7 @@ class MusicRepository(context: Context) {
                     ) {
                         Log.d(TAG, "Skipping unknown/blank artist name")
                         val placeholderUri =
-                            chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                            com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                                 name = "Unknown Artist",
                                 size = 500,
                                 cacheDir = context.cacheDir
@@ -2686,7 +2686,7 @@ class MusicRepository(context: Context) {
                     // If we get here, generate a placeholder image
                     Log.d(TAG, "Generating placeholder for artist: ${artist.name}")
                     val placeholderUri =
-                        chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                        com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                             name = artist.name,
                             size = 500,
                             cacheDir = context.cacheDir
@@ -2698,7 +2698,7 @@ class MusicRepository(context: Context) {
                     Log.e(TAG, "Error fetching artist image for ${artist.name}", e)
                     try {
                         val placeholderUri =
-                            chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                            com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                                 name = artist.name,
                                 size = 500,
                                 cacheDir = context.cacheDir
@@ -4709,7 +4709,7 @@ class MusicRepository(context: Context) {
                 }
 
                 // Generate a custom placeholder image based on album name
-                val placeholderUri = chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                val placeholderUri = com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                     name = album.title,
                     size = 500,
                     cacheDir = context.cacheDir
@@ -4836,7 +4836,7 @@ class MusicRepository(context: Context) {
                 // Try to use a generated placeholder
                 try {
                     val placeholderUri =
-                        chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                        com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                             name = album.title,
                             size = 500,
                             cacheDir = context.cacheDir
@@ -4880,7 +4880,7 @@ class MusicRepository(context: Context) {
             }
 
             try {
-                val embeddedUri = chromahub.rhythm.app.util.MediaUtils.extractEmbeddedAlbumArt(
+                val embeddedUri = com.cinemaverse.mcu.util.MediaUtils.extractEmbeddedAlbumArt(
                     context, song.uri, context.cacheDir, lossless
                 )
                 if (embeddedUri != null && embeddedUri != song.artworkUri) {
@@ -5348,7 +5348,7 @@ class MusicRepository(context: Context) {
             
             // Check if cache cleanup is needed based on app settings
             val maxCacheSize = try {
-                val settings = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
+                val settings = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context)
                 settings.maxCacheSize.value
             } catch (e: Exception) {
                 Log.w(TAG, "Error getting cache size setting, using default", e)
@@ -5356,7 +5356,7 @@ class MusicRepository(context: Context) {
             }
             
             // Clean up file system cache if needed
-            val cacheManager = chromahub.rhythm.app.util.CacheManager
+            val cacheManager = com.cinemaverse.mcu.util.CacheManager
             val cacheCleanedUp = cacheManager.cleanCacheIfNeeded(context, maxCacheSize)
             
             if (cacheCleanedUp) {

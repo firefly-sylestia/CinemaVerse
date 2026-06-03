@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.features.streaming.presentation.model
+package com.cinemaverse.mcu.features.streaming.presentation.model
 
 import androidx.annotation.StringRes
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceId
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceId
 
 data class StreamingServiceOption(
     val id: String,

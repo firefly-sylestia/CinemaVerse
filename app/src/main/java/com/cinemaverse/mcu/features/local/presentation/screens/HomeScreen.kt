@@ -215,7 +215,7 @@ import androidx.compose.ui.res.stringResource
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
+    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
     songs: List<Song>,
     albums: List<Album>,
     artists: List<Artist>,
@@ -594,7 +594,7 @@ private fun ModernScrollableContent(
     onNavigateToLibrary: () -> Unit = {},
     onNavigateToPlaylist: (String) -> Unit = {},
     onNavigateToStats: () -> Unit = {},
-    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
+    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
     coroutineScope: CoroutineScope
 ) {
     val context = LocalContext.current
@@ -1118,7 +1118,7 @@ private fun ModernWelcomeSection(
     onSearchClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
     val recentlyPlayed by viewModel.recentlyPlayed.collectAsState()
     val haptic = LocalHapticFeedback.current
 
@@ -1281,7 +1281,7 @@ private fun ModernWelcomeSection(
 private fun ModernRecentlyPlayedSection(
     recentlyPlayed: List<Song>,
     onSongClick: (Song) -> Unit,
-    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
+    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
     coroutineScope: CoroutineScope,
     widthSizeClass: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
@@ -1764,7 +1764,7 @@ private fun ModernFeaturedSection(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -2014,7 +2014,7 @@ private fun ModernArtistCard(
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
     val haptic = LocalHapticFeedback.current
 
     val cardSize = when (widthSizeClass) {
@@ -2108,7 +2108,7 @@ private fun ModernAlbumCard(
     heightSizeClass: WindowHeightSizeClass = WindowHeightSizeClass.Medium
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
     val haptic = LocalHapticFeedback.current
 
     val (cardWidth, cardHeight) = when (widthSizeClass) {
@@ -2337,13 +2337,13 @@ private fun ModernListeningStatsSection(
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
     val songs by viewModel.songs.collectAsState()
 
-    var statsSummary by remember { mutableStateOf<chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.PlaybackStatsSummary?>(null) }
+    var statsSummary by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.PlaybackStatsSummary?>(null) }
 
     LaunchedEffect(songs) {
-        statsSummary = viewModel.loadPlaybackStats(chromahub.rhythm.app.shared.data.repository.StatsTimeRange.ALL_TIME)
+        statsSummary = viewModel.loadPlaybackStats(com.cinemaverse.mcu.shared.data.repository.StatsTimeRange.ALL_TIME)
     }
 
     val listeningTimeHours = remember(statsSummary) {

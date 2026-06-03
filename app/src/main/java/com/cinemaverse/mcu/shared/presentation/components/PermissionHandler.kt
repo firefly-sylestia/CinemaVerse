@@ -197,8 +197,8 @@ fun PermissionHandler(
                 currentOnboardingStep = OnboardingStep.COMPLETE
                 onSetIsInitializingApp(true) // Start app initialization
                 try {
-                    val intent = Intent(context, chromahub.rhythm.app.infrastructure.service.MediaPlaybackService::class.java)
-                    intent.action = chromahub.rhythm.app.infrastructure.service.MediaPlaybackService.ACTION_INIT_SERVICE
+                    val intent = Intent(context, com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService::class.java)
+                    intent.action = com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService.ACTION_INIT_SERVICE
                     // Must use startForegroundService to avoid BackgroundServiceStartNotAllowedException on Android 12+
                     ContextCompat.startForegroundService(context, intent)
                     delay(1000) // Give service time to initialize

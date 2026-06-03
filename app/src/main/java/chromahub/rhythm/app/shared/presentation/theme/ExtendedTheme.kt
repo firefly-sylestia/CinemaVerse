@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.ui.theme
+package com.cinemaverse.mcu.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

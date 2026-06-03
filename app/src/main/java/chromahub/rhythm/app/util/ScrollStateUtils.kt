@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.ui.utils
+package com.cinemaverse.mcu.ui.utils
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.saveable.Saver

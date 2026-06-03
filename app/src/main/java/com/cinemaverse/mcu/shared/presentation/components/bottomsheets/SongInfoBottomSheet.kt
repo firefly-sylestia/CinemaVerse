@@ -233,7 +233,7 @@ fun SongInfoBottomSheet(
     var isLoadingWhitelist by remember { mutableStateOf(false) }
     
     // Rhythm stats and rating states
-    var songPlaybackStats by remember { mutableStateOf<chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?>(null) }
+    var songPlaybackStats by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?>(null) }
     var songRating by remember(song?.id) { mutableStateOf(0) }
     
     // Expressive shape for artwork
@@ -308,9 +308,9 @@ fun SongInfoBottomSheet(
         song.let { currentSong ->
             // Load playback stats
             songPlaybackStats = withContext(Dispatchers.IO) {
-                chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.getInstance(context).getSongPlaybackStats(
+                com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.getInstance(context).getSongPlaybackStats(
                     currentSong.id,
-                    chromahub.rhythm.app.shared.data.repository.StatsTimeRange.ALL_TIME
+                    com.cinemaverse.mcu.shared.data.repository.StatsTimeRange.ALL_TIME
                 )
             }
             
@@ -1307,7 +1307,7 @@ private fun SongInfoCard(
 
 @Composable
 private fun RhythmStatsCard(
-    songPlaybackStats: chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?,
+    songPlaybackStats: com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?,
     songRating: Int,
     useHoursFormat: Boolean = false
 ) {

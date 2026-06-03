@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.common
+package com.cinemaverse.mcu.shared.presentation.components.common
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.lerp
 import kotlinx.coroutines.isActive
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import chromahub.rhythm.app.ui.theme.PlayerProgressColor
+import com.cinemaverse.mcu.ui.theme.PlayerProgressColor
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable

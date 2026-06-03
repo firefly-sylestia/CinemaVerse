@@ -394,7 +394,7 @@ fun PlayerCustomizationSettingsScreen(onBackClick: () -> Unit) {
                                 item = SettingItem(
                                     icon = MaterialSymbolIcon("lyrics"),
                                     title = stringResource(R.string.lyricssourcesettingsscreen_lyrics_api_priority),
-                                    description = if (apiPriority == chromahub.rhythm.app.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) "Apple Music First" else "LRCLib First",
+                                    description = if (apiPriority == com.cinemaverse.mcu.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) "Apple Music First" else "LRCLib First",
                                     onClick = { showLyricsApiPriorityBottomSheet = true }
                                 )
                             )

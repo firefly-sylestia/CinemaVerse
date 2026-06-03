@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import android.content.Context
-import chromahub.rhythm.app.shared.data.model.AutoEQDatabase
-import chromahub.rhythm.app.shared.data.model.AutoEQProfile
+import com.cinemaverse.mcu.shared.data.model.AutoEQDatabase
+import com.cinemaverse.mcu.shared.data.model.AutoEQProfile
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

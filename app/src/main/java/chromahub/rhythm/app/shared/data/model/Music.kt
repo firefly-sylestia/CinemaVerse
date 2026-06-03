@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.data.model
+package com.cinemaverse.mcu.shared.data.model
 
 import android.net.Uri
 import android.os.Parcelable

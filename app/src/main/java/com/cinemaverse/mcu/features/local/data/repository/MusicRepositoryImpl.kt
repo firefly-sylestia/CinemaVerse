@@ -395,7 +395,7 @@ class MusicRepository(context: Context) {
                         if (savedArtworkIsEmbeddedCache && savedArtworkUsable) {
                             savedArtworkUri
                         } else {
-                            chromahub.rhythm.app.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
+                            com.cinemaverse.mcu.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
                                 cacheDir = context.cacheDir,
                                 songUri = songUri,
                                 lossless = losslessArtwork
@@ -1573,7 +1573,7 @@ class MusicRepository(context: Context) {
             val useEmbeddedArt = appSettings.preferSongArtwork.value
             val effectiveArtUri = if (useEmbeddedArt) {
                 val lossless = appSettings.isLosslessArtworkActive.value
-                chromahub.rhythm.app.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
+                com.cinemaverse.mcu.util.MediaUtils.getCachedEmbeddedAlbumArtUri(
                     cacheDir = context.cacheDir,
                     songUri = contentUri,
                     lossless = lossless
@@ -2263,7 +2263,7 @@ class MusicRepository(context: Context) {
         val appSettings = AppSettings.getInstance(context)
         val artistSeparatorEnabled = appSettings.artistSeparatorEnabled.value
         val delimiters = if (artistSeparatorEnabled) appSettings.artistSeparatorDelimiters.value else ""
-        return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(artistName, delimiters, artistSeparatorEnabled)
+        return com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(artistName, delimiters, artistSeparatorEnabled)
     }
 
     /**
@@ -2272,7 +2272,7 @@ class MusicRepository(context: Context) {
      */
     fun splitArtistNames(artistName: String, preloadedCharDelimiters: List<String>): List<String> {
         val delimiters = preloadedCharDelimiters.joinToString("")
-        return chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(artistName, delimiters, preloadedCharDelimiters.isNotEmpty())
+        return com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(artistName, delimiters, preloadedCharDelimiters.isNotEmpty())
     }
     
     /**
@@ -2545,7 +2545,7 @@ class MusicRepository(context: Context) {
                     ) {
                         Log.d(TAG, "Skipping unknown/blank artist name")
                         val placeholderUri =
-                            chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                            com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                                 name = "Unknown Artist",
                                 size = 500,
                                 cacheDir = context.cacheDir
@@ -2686,7 +2686,7 @@ class MusicRepository(context: Context) {
                     // If we get here, generate a placeholder image
                     Log.d(TAG, "Generating placeholder for artist: ${artist.name}")
                     val placeholderUri =
-                        chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                        com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                             name = artist.name,
                             size = 500,
                             cacheDir = context.cacheDir
@@ -2698,7 +2698,7 @@ class MusicRepository(context: Context) {
                     Log.e(TAG, "Error fetching artist image for ${artist.name}", e)
                     try {
                         val placeholderUri =
-                            chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                            com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                                 name = artist.name,
                                 size = 500,
                                 cacheDir = context.cacheDir
@@ -4709,7 +4709,7 @@ class MusicRepository(context: Context) {
                 }
 
                 // Generate a custom placeholder image based on album name
-                val placeholderUri = chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                val placeholderUri = com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                     name = album.title,
                     size = 500,
                     cacheDir = context.cacheDir
@@ -4836,7 +4836,7 @@ class MusicRepository(context: Context) {
                 // Try to use a generated placeholder
                 try {
                     val placeholderUri =
-                        chromahub.rhythm.app.util.ImageUtils.generatePlaceholderImage(
+                        com.cinemaverse.mcu.util.ImageUtils.generatePlaceholderImage(
                             name = album.title,
                             size = 500,
                             cacheDir = context.cacheDir
@@ -4880,7 +4880,7 @@ class MusicRepository(context: Context) {
             }
 
             try {
-                val embeddedUri = chromahub.rhythm.app.util.MediaUtils.extractEmbeddedAlbumArt(
+                val embeddedUri = com.cinemaverse.mcu.util.MediaUtils.extractEmbeddedAlbumArt(
                     context, song.uri, context.cacheDir, lossless
                 )
                 if (embeddedUri != null && embeddedUri != song.artworkUri) {
@@ -5348,7 +5348,7 @@ class MusicRepository(context: Context) {
             
             // Check if cache cleanup is needed based on app settings
             val maxCacheSize = try {
-                val settings = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
+                val settings = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context)
                 settings.maxCacheSize.value
             } catch (e: Exception) {
                 Log.w(TAG, "Error getting cache size setting, using default", e)
@@ -5356,7 +5356,7 @@ class MusicRepository(context: Context) {
             }
             
             // Clean up file system cache if needed
-            val cacheManager = chromahub.rhythm.app.util.CacheManager
+            val cacheManager = com.cinemaverse.mcu.util.CacheManager
             val cacheCleanedUp = cacheManager.cleanCacheIfNeeded(context, maxCacheSize)
             
             if (cacheCleanedUp) {

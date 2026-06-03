@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import android.app.Activity
 import android.app.Application
@@ -16,8 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import chromahub.rhythm.app.shared.data.model.AppSettings // Import AppSettings
-import chromahub.rhythm.app.activities.CrashActivity // Import CrashActivity
+import com.cinemaverse.mcu.shared.data.model.AppSettings // Import AppSettings
+import com.cinemaverse.mcu.activities.CrashActivity // Import CrashActivity
 import kotlin.system.exitProcess
 
 object CrashReporter {

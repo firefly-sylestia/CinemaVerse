@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.viewmodel
+package com.cinemaverse.mcu.shared.presentation.viewmodel
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -10,11 +10,11 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.core.app.NotificationCompat
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.activities.MainActivity
-import chromahub.rhythm.app.network.GitHubRelease
-import chromahub.rhythm.app.network.GitHubAsset
-import chromahub.rhythm.app.network.NetworkManager
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.activities.MainActivity
+import com.cinemaverse.mcu.network.GitHubRelease
+import com.cinemaverse.mcu.network.GitHubAsset
+import com.cinemaverse.mcu.network.NetworkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,14 +41,14 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
-import chromahub.rhythm.app.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.AppSettings
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import chromahub.rhythm.app.BuildConfig
+import com.cinemaverse.mcu.BuildConfig
 import java.security.MessageDigest
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

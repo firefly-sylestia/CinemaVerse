@@ -3738,13 +3738,13 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
             // Get the check interval from settings (default 6 hours)
             val intervalHours = _updateCheckIntervalHours.value.toLong()
             
-            val workRequest = PeriodicWorkRequestBuilder<chromahub.rhythm.app.worker.UpdateNotificationWorker>(
+            val workRequest = PeriodicWorkRequestBuilder<com.cinemaverse.mcu.worker.UpdateNotificationWorker>(
                 intervalHours, TimeUnit.HOURS,
                 30, TimeUnit.MINUTES // Flex interval
             ).build()
             
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                chromahub.rhythm.app.worker.UpdateNotificationWorker.WORK_NAME,
+                com.cinemaverse.mcu.worker.UpdateNotificationWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.UPDATE, // Update if interval changes
                 workRequest
             )
@@ -3791,7 +3791,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     private fun cancelUpdateNotificationWorker() {
         try {
             WorkManager.getInstance(context).cancelUniqueWork(
-                chromahub.rhythm.app.worker.UpdateNotificationWorker.WORK_NAME
+                com.cinemaverse.mcu.worker.UpdateNotificationWorker.WORK_NAME
             )
             Log.d("AppSettings", "Update notification worker cancelled")
         } catch (e: Exception) {
@@ -3804,7 +3804,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
      */
     fun triggerImmediateUpdateCheck() {
         try {
-            val workRequest = OneTimeWorkRequestBuilder<chromahub.rhythm.app.worker.UpdateNotificationWorker>()
+            val workRequest = OneTimeWorkRequestBuilder<com.cinemaverse.mcu.worker.UpdateNotificationWorker>()
                 .build()
             
             WorkManager.getInstance(context).enqueue(workRequest)
@@ -4333,7 +4333,7 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
                 Log.d("AppSettings", "Performing cache cleanup on app exit...")
                 
                 // Clear file system caches
-                chromahub.rhythm.app.util.CacheManager.clearAllCache(context)
+                com.cinemaverse.mcu.util.CacheManager.clearAllCache(context)
                 
                 // Clear in-memory caches from MusicRepository
                 if (musicRepository != null && musicRepository::class.simpleName == "MusicRepository") {

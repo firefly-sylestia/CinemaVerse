@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.infrastructure.widget.glance
+package com.cinemaverse.mcu.infrastructure.widget.glance
 
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver

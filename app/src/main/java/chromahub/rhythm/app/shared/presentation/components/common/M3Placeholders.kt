@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.presentation.components.common
+package com.cinemaverse.mcu.shared.presentation.components.common
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.AppSettings
 import kotlin.random.Random
 
 /**

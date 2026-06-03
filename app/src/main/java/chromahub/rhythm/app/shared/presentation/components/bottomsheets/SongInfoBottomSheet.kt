@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.presentation.components.bottomsheets
+package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.Manifest
 import android.content.Intent
@@ -57,35 +57,35 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.shared.presentation.components.common.M3PlaceholderType
-import chromahub.rhythm.app.shared.presentation.components.common.ActionProgressLoader
-import chromahub.rhythm.app.shared.presentation.components.common.ContentLoadingIndicator
-import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
-import chromahub.rhythm.app.shared.presentation.components.common.MarqueeText
-import chromahub.rhythm.app.shared.presentation.components.common.rhythmMarquee
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledTonalButton
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
-import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
-import chromahub.rhythm.app.shared.presentation.components.RatingStarsDisplay
-import chromahub.rhythm.app.util.ImageUtils
-import chromahub.rhythm.app.util.MediaUtils
-import chromahub.rhythm.app.util.HapticUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.presentation.components.common.M3PlaceholderType
+import com.cinemaverse.mcu.shared.presentation.components.common.ActionProgressLoader
+import com.cinemaverse.mcu.shared.presentation.components.common.ContentLoadingIndicator
+import com.cinemaverse.mcu.shared.presentation.components.player.formatDuration
+import com.cinemaverse.mcu.shared.presentation.components.common.MarqueeText
+import com.cinemaverse.mcu.shared.presentation.components.common.rhythmMarquee
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledTonalButton
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
+import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
+import com.cinemaverse.mcu.shared.presentation.components.RatingStarsDisplay
+import com.cinemaverse.mcu.util.ImageUtils
+import com.cinemaverse.mcu.util.MediaUtils
+import com.cinemaverse.mcu.util.HapticUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import java.io.File
-import chromahub.rhythm.app.network.NetworkClient
-import chromahub.rhythm.app.network.YTMusicSearchRequest
-import chromahub.rhythm.app.network.YTMusicContext
-import chromahub.rhythm.app.network.YTMusicClient
-import chromahub.rhythm.app.network.extractAlbumImageUrl
+import com.cinemaverse.mcu.network.NetworkClient
+import com.cinemaverse.mcu.network.YTMusicSearchRequest
+import com.cinemaverse.mcu.network.YTMusicContext
+import com.cinemaverse.mcu.network.YTMusicClient
+import com.cinemaverse.mcu.network.extractAlbumImageUrl
 import androidx.compose.ui.res.stringResource
 
 // Data class to hold additional song metadata
@@ -233,7 +233,7 @@ fun SongInfoBottomSheet(
     var isLoadingWhitelist by remember { mutableStateOf(false) }
     
     // Rhythm stats and rating states
-    var songPlaybackStats by remember { mutableStateOf<chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?>(null) }
+    var songPlaybackStats by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?>(null) }
     var songRating by remember(song?.id) { mutableStateOf(0) }
     
     // Expressive shape for artwork
@@ -308,9 +308,9 @@ fun SongInfoBottomSheet(
         song.let { currentSong ->
             // Load playback stats
             songPlaybackStats = withContext(Dispatchers.IO) {
-                chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.getInstance(context).getSongPlaybackStats(
+                com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.getInstance(context).getSongPlaybackStats(
                     currentSong.id,
-                    chromahub.rhythm.app.shared.data.repository.StatsTimeRange.ALL_TIME
+                    com.cinemaverse.mcu.shared.data.repository.StatsTimeRange.ALL_TIME
                 )
             }
             
@@ -1307,7 +1307,7 @@ private fun SongInfoCard(
 
 @Composable
 private fun RhythmStatsCard(
-    songPlaybackStats: chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?,
+    songPlaybackStats: com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.SongPlaybackSummary?,
     songRating: Int,
     useHoursFormat: Boolean = false
 ) {

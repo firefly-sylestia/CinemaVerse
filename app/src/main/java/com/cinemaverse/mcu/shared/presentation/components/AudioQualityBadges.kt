@@ -236,7 +236,7 @@ fun AudioQualityBadges(
 @Composable
 private fun QualityBadge(
     text: String,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {
@@ -302,7 +302,7 @@ private fun QualityBadge(
 @Composable
 private fun LegacyQualityBadge(
     text: String,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     qualityLevel: QualityLevel,
     modifier: Modifier = Modifier
 ) {

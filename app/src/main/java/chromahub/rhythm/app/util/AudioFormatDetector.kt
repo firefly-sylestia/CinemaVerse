@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import android.content.Context
 import android.media.MediaExtractor
@@ -6,7 +6,7 @@ import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
-import chromahub.rhythm.app.shared.data.model.Song
+import com.cinemaverse.mcu.shared.data.model.Song
 
 /**
  * Utility class for detecting advanced audio formats and codecs

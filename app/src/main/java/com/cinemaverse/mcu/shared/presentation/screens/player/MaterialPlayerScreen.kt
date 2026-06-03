@@ -247,7 +247,7 @@ fun MaterialPlayerScreen(
     isFavorite: Boolean = false,
     showLyrics: Boolean = true,
     onlineOnlyLyrics: Boolean = false,
-    lyrics: chromahub.rhythm.app.shared.data.model.LyricsData? = null,
+    lyrics: com.cinemaverse.mcu.shared.data.model.LyricsData? = null,
     isLoadingLyrics: Boolean = false,
     onRetryLyrics: () -> Unit = {},
     onEditLyrics: (String) -> Unit = {},
@@ -280,8 +280,8 @@ fun MaterialPlayerScreen(
     onShuffleAlbumSongs: (List<Song>) -> Unit = {},
     onPlayArtistSongs: (List<Song>) -> Unit = {},
     onShuffleArtistSongs: (List<Song>) -> Unit = {},
-    appSettings: chromahub.rhythm.app.shared.data.model.AppSettings,
-    musicViewModel: chromahub.rhythm.app.viewmodel.MusicViewModel,
+    appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings,
+    musicViewModel: com.cinemaverse.mcu.viewmodel.MusicViewModel,
     navController: NavController,
     isStreamingMode: Boolean = false,
     onOpenFullScreenLyrics: () -> Unit = {},
@@ -352,7 +352,7 @@ fun MaterialPlayerScreen(
     // Helper function to split artist names
     val splitArtistNames: (String) -> List<String> = remember {
         { artistName ->
-            chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+            com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
                 artistName = artistName,
                 delimiters = artistSeparatorDelimiters,
                 enabled = artistSeparatorEnabled
@@ -685,7 +685,7 @@ fun MaterialPlayerScreen(
 
     // AutoEQ Suggestion Dialog state
     var showAutoEQSuggestion by remember { mutableStateOf(false) }
-    var detectedDevice by remember { mutableStateOf<chromahub.rhythm.app.shared.data.model.UserAudioDevice?>(null) }
+    var detectedDevice by remember { mutableStateOf<com.cinemaverse.mcu.shared.data.model.UserAudioDevice?>(null) }
     var showDeviceConfig by remember { mutableStateOf(false) }
 
     // State for showing loader in play/pause button
@@ -1638,8 +1638,8 @@ fun MaterialPlayerScreen(
                                             AsyncImage(
                                                 model = ImageRequest.Builder(context)
                                                     .data(song.artworkUri)
-                                                    .placeholder(chromahub.rhythm.app.R.drawable.rhythm_logo)
-                                                    .error(chromahub.rhythm.app.R.drawable.rhythm_logo)
+                                                    .placeholder(com.cinemaverse.mcu.R.drawable.rhythm_logo)
+                                                    .error(com.cinemaverse.mcu.R.drawable.rhythm_logo)
                                                     .build(),
                                                 contentDescription = "Album artwork for ${song.title}",
                                                 contentScale = ContentScale.Crop,
@@ -1689,7 +1689,7 @@ fun MaterialPlayerScreen(
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
-                                                painter = painterResource(id = chromahub.rhythm.app.R.drawable.rhythm_logo),
+                                                painter = painterResource(id = com.cinemaverse.mcu.R.drawable.rhythm_logo),
                                                 contentDescription = "Album artwork for ${song.title}",
                                                 tint = MaterialTheme.colorScheme.primary.copy(
                                                     alpha = 0.7f
@@ -1732,7 +1732,7 @@ fun MaterialPlayerScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        painter = painterResource(id = chromahub.rhythm.app.R.drawable.rhythm_logo),
+                                        painter = painterResource(id = com.cinemaverse.mcu.R.drawable.rhythm_logo),
                                         contentDescription = stringResource(R.string.cd_no_song_playing),
                                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                                         modifier = Modifier.size(120.dp)
@@ -1855,7 +1855,7 @@ fun MaterialPlayerScreen(
                                             
                                             // Rating stars display
                                             // Rating stars display - only show if rating system is enabled
-                                            val currentRating = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongRating(song.id)
+                                            val currentRating = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongRating(song.id)
                                             if (enableRatingSystem && currentRating > 0) {
                                                 Spacer(modifier = Modifier.height(if (isExtraSmallWidth) 2.dp else if (isCompactHeight) 4.dp else 6.dp))
                                                 Box(
@@ -1866,7 +1866,7 @@ fun MaterialPlayerScreen(
                                                         else -> Alignment.Center
                                                     }
                                                 ) {
-                                                    chromahub.rhythm.app.shared.presentation.components.RatingStarsDisplay(
+                                                    com.cinemaverse.mcu.shared.presentation.components.RatingStarsDisplay(
                                                         rating = currentRating,
                                                         size = if (isExtraSmallWidth) 10.dp else if (isCompactHeight) 14.dp else 16.dp
                                                     )
@@ -2154,7 +2154,7 @@ fun MaterialPlayerScreen(
                                                                 .containsMatchIn(lyricsText)
                                                         }
 
-                                                        val parsedLyrics by produceState<List<chromahub.rhythm.app.util.LyricLine>?>(
+                                                        val parsedLyrics by produceState<List<com.cinemaverse.mcu.util.LyricLine>?>(
                                                             initialValue = if (likelySyncedLyrics) null else emptyList(),
                                                             key1 = lyricsText,
                                                             key2 = likelySyncedLyrics
@@ -2163,7 +2163,7 @@ fun MaterialPlayerScreen(
                                                                 emptyList()
                                                             } else {
                                                                 withContext(Dispatchers.Default) {
-                                                                    chromahub.rhythm.app.util.LyricsParser.parseLyrics(
+                                                                    com.cinemaverse.mcu.util.LyricsParser.parseLyrics(
                                                                         lyricsText
                                                                     )
                                                                 }
@@ -2295,7 +2295,7 @@ fun MaterialPlayerScreen(
                             
                             // Rating stars display
                             // Rating stars display - only show if rating system is enabled
-                            val currentRating = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongRating(song.id)
+                            val currentRating = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongRating(song.id)
                             if (enableRatingSystem && currentRating > 0) {
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Box(
@@ -2306,7 +2306,7 @@ fun MaterialPlayerScreen(
                                         else -> Alignment.Center
                                     }
                                 ) {
-                                    chromahub.rhythm.app.shared.presentation.components.RatingStarsDisplay(
+                                    com.cinemaverse.mcu.shared.presentation.components.RatingStarsDisplay(
                                         rating = currentRating,
                                         size = 14.dp
                                     )
@@ -2549,7 +2549,7 @@ fun MaterialPlayerScreen(
 
                         // Main player controls with Expressive Material 3 button group
                         // Full width container with same padding as toggle buttons
-                        chromahub.rhythm.app.shared.presentation.components.common.ExpressivePlayerControlGroup(
+                        com.cinemaverse.mcu.shared.presentation.components.common.ExpressivePlayerControlGroup(
                             isPlaying = isPlaying && !showLoaderInPlayPauseButton,
                             showSeekButtons = playerShowSeekButtons && canSeek,
                             onPrevious = {
@@ -2619,7 +2619,7 @@ fun MaterialPlayerScreen(
                         Spacer(modifier = Modifier.height(if (isTablet) 28.dp else if (isCompactHeight) 12.dp else if (isExtraSmallWidth) 20.dp else 28.dp))
 
                         // Secondary action buttons with Expressive Toggle Button Group
-                        chromahub.rhythm.app.shared.presentation.components.common.ExpressiveToggleButtonGroup(
+                        com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveToggleButtonGroup(
                             shuffleEnabled = isShuffleEnabled,
                             lyricsVisible = showLyricsView,
                             repeatMode = repeatMode,
@@ -3956,7 +3956,7 @@ fun MaterialPlayerScreen(
         val equalizerEnabled by appSettings.equalizerEnabled.collectAsState()
         val autoEQProfiles by musicViewModel.autoEQProfiles.collectAsState()
         
-        chromahub.rhythm.app.shared.presentation.components.dialogs.AutoEQSuggestionDialog(
+        com.cinemaverse.mcu.shared.presentation.components.dialogs.AutoEQSuggestionDialog(
             deviceName = location?.name ?: detectedDevice!!.name,
             savedDevice = detectedDevice!!,
             equalizerEnabled = equalizerEnabled,
@@ -3992,7 +3992,7 @@ fun MaterialPlayerScreen(
     
     // Device Configuration Dialog
     if (showDeviceConfig) {
-        chromahub.rhythm.app.shared.presentation.components.bottomsheets.DeviceConfigurationBottomSheet(
+        com.cinemaverse.mcu.shared.presentation.components.bottomsheets.DeviceConfigurationBottomSheet(
             musicViewModel = musicViewModel,
             onDismiss = { showDeviceConfig = false }
         )

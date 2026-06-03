@@ -267,7 +267,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
                             RhythmIcons.BugReport,
                             context.getString(R.string.exp_test_crash),
                             context.getString(R.string.exp_test_crash_desc),
-                            onClick = { chromahub.rhythm.app.util.CrashReporter.testCrash() }
+                            onClick = { com.cinemaverse.mcu.util.CrashReporter.testCrash() }
                         ),
                         SettingItem(
                             MaterialSymbolIcon("smartphone"),
@@ -494,7 +494,7 @@ fun ExperimentalFeaturesScreen(onBackClick: () -> Unit, onNavigateToGoSettings: 
             onDismiss = { showRestartDialog = false },
             onRestart = {
                 showRestartDialog = false
-                chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+                com.cinemaverse.mcu.util.AppRestarter.restartApp(context)
             },
             onContinue = {
                 showRestartDialog = false

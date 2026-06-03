@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components
+package com.cinemaverse.mcu.shared.presentation.components
 
 /**
  * Enum representing the media scanning mode for filtering music library

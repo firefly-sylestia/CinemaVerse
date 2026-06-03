@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.core.domain.usecase
+package com.cinemaverse.mcu.core.domain.usecase
 
-import chromahub.rhythm.app.core.domain.model.PlayableItem
-import chromahub.rhythm.app.core.domain.repository.MusicRepository
+import com.cinemaverse.mcu.core.domain.model.PlayableItem
+import com.cinemaverse.mcu.core.domain.repository.MusicRepository
 import kotlinx.coroutines.flow.Flow
 
 /**

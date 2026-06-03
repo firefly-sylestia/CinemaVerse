@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.ui.theme.festive
+package com.cinemaverse.mcu.ui.theme.festive
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color

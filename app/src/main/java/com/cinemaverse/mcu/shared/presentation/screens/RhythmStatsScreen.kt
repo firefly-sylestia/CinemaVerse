@@ -83,7 +83,7 @@ fun RhythmStatsScreen(
     val tabRowState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     val useHoursFormat by appSettings.useHoursInTimeFormat.collectAsState()
 
     LaunchedEffect(pagerState.currentPage) {
@@ -141,7 +141,7 @@ fun RhythmStatsScreen(
 @Composable
 private fun StatsPageContent(
     range: StatsTimeRange,
-    songs: List<chromahub.rhythm.app.shared.data.model.Song>,
+    songs: List<com.cinemaverse.mcu.shared.data.model.Song>,
     artists: List<Artist>,
     viewModel: MusicViewModel,
     useHoursFormat: Boolean
@@ -924,7 +924,7 @@ private fun BeatTimelineCard(timeline: List<PlaybackStatsRepository.TimelineEntr
 @Composable
 private fun RatingStatsCard(viewModel: MusicViewModel) {
     val context = LocalContext.current
-    val appSettings = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
+    val appSettings = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context)
     val ratingDistribution = appSettings.getRatingDistribution()
     val totalRated = ratingDistribution.values.sum()
 

@@ -1,10 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 
-package chromahub.rhythm.app.shared.presentation.components.player
+package com.cinemaverse.mcu.shared.presentation.components.player
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -36,11 +36,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
-import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel.SleepAction
-import chromahub.rhythm.app.shared.presentation.components.common.RhythmWavyProgressLoader
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
+import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel.SleepAction
+import com.cinemaverse.mcu.shared.presentation.components.common.RhythmWavyProgressLoader
 import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin

@@ -1136,7 +1136,7 @@ fun SettingsScreenPreview() {
 @Composable
 fun SettingsScreenWrapper(
     onBack: () -> Unit,
-    appSettings: chromahub.rhythm.app.shared.data.model.AppSettings,
+    appSettings: com.cinemaverse.mcu.shared.data.model.AppSettings,
     navController: androidx.navigation.NavController,
     musicViewModel: MusicViewModel
 ) {
@@ -1293,7 +1293,7 @@ fun SettingsScreenWrapper(
                         SettingsRoutes.PLAYLISTS -> PlaylistsSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.MEDIA_SCAN -> MediaScanSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.ARTIST_SEPARATORS -> ArtistSeparatorsSettingsScreen(onBackClick = { currentRoute = null })
-                        SettingsRoutes.ABOUT -> chromahub.rhythm.app.shared.presentation.screens.settings.AboutScreen(
+                        SettingsRoutes.ABOUT -> com.cinemaverse.mcu.shared.presentation.screens.settings.AboutScreen(
                             onBackClick = { currentRoute = null },
                             onNavigateToUpdates = { currentRoute = SettingsRoutes.UPDATES }
                         )
@@ -1407,13 +1407,13 @@ fun SettingsScreenWrapper(
                 SettingsRoutes.PLAYLISTS -> PlaylistsSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.MEDIA_SCAN -> MediaScanSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.ARTIST_SEPARATORS -> ArtistSeparatorsSettingsScreen(onBackClick = { currentRoute = null })
-                SettingsRoutes.ABOUT -> chromahub.rhythm.app.shared.presentation.screens.settings.AboutScreen(
+                SettingsRoutes.ABOUT -> com.cinemaverse.mcu.shared.presentation.screens.settings.AboutScreen(
                     onBackClick = { currentRoute = null },
                     onNavigateToUpdates = { currentRoute = SettingsRoutes.UPDATES }
                 )
                 SettingsRoutes.UPDATES -> UpdatesSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null }, onNavigateToGoSettings = { currentRoute = SettingsRoutes.GO_SETTINGS })
-                SettingsRoutes.GO_SETTINGS -> chromahub.rhythm.app.features.streaming.presentation.screens.GoSettingsScreen(
+                SettingsRoutes.GO_SETTINGS -> com.cinemaverse.mcu.features.streaming.presentation.screens.GoSettingsScreen(
                     onBackClick = { currentRoute = null },
                     onConfigureCurrentProvider = { serviceId ->
                         appSettings.setInitialStreamingRoute("streaming_service_setup/$serviceId")
@@ -1498,7 +1498,7 @@ fun SettingsTipsRow(
     var todayExposureMinutes by remember { mutableStateOf(0) }
     var currentRiskLevel by remember { mutableStateOf(RhythmGuardRiskLevel.LOW) }
     
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     val limitMinutes by appSettings.rhythmGuardAlertThresholdMinutes.collectAsState()
     val manualVolumeFloat by appSettings.rhythmGuardManualVolumeThreshold.collectAsState()
     val autoBackupEnabled by appSettings.autoBackupEnabled.collectAsState()
@@ -1509,11 +1509,11 @@ fun SettingsTipsRow(
     val enableRatingSystem by appSettings.enableRatingSystem.collectAsState()
 
     LaunchedEffect(limitMinutes, manualVolumeFloat) {
-        val statsRepo = chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository.getInstance(context)
+        val statsRepo = com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository.getInstance(context)
         val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
         
         while (true) {
-            val stats = statsRepo.loadSummary(chromahub.rhythm.app.shared.data.repository.StatsTimeRange.TODAY)
+            val stats = statsRepo.loadSummary(com.cinemaverse.mcu.shared.data.repository.StatsTimeRange.TODAY)
             todayExposureMinutes = (stats.totalDurationMs / 60000).toInt()
             
             val maxVol = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
@@ -1523,7 +1523,7 @@ fun SettingsTipsRow(
             val safeLimit = if (limitMinutes > 0) limitMinutes else 90
             val safeThreshold = (manualVolumeFloat * 100).toInt().coerceAtLeast(1)
             
-            currentRiskLevel = chromahub.rhythm.app.shared.presentation.navigation.rhythmGuardResolveRiskLevel(
+            currentRiskLevel = com.cinemaverse.mcu.shared.presentation.navigation.rhythmGuardResolveRiskLevel(
                 currentVolumePercent = currentVolumePercent, 
                 safeThresholdPercent = safeThreshold,
                 exposureMinutes = todayExposureMinutes,

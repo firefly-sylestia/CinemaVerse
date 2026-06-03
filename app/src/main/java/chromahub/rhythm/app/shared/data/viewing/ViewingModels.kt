@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.data.viewing
+package com.cinemaverse.mcu.shared.data.viewing
 
 data class ViewingRating(
     val source: String,

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.player
+package com.cinemaverse.mcu.shared.presentation.components.player
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -36,8 +36,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -69,15 +69,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.shared.presentation.components.player.formatDuration
-import chromahub.rhythm.app.ui.theme.PlayerButtonColor
-import chromahub.rhythm.app.ui.theme.PlayerProgressColor
-import chromahub.rhythm.app.util.ImageUtils
-import chromahub.rhythm.app.util.M3ImageUtils
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.shared.presentation.components.player.formatDuration
+import com.cinemaverse.mcu.ui.theme.PlayerButtonColor
+import com.cinemaverse.mcu.ui.theme.PlayerProgressColor
+import com.cinemaverse.mcu.util.ImageUtils
+import com.cinemaverse.mcu.util.M3ImageUtils
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
+import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import java.util.concurrent.TimeUnit
@@ -93,29 +93,29 @@ import androidx.compose.ui.unit.IntOffset
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
-import chromahub.rhythm.app.shared.presentation.components.common.M3LinearLoader
-import chromahub.rhythm.app.shared.presentation.components.common.M3CircularLoader
-import chromahub.rhythm.app.shared.presentation.components.player.PlayingEqIcon
-import chromahub.rhythm.app.shared.presentation.components.common.AutoScrollingTextOnDemand
+import com.cinemaverse.mcu.shared.presentation.components.common.M3LinearLoader
+import com.cinemaverse.mcu.shared.presentation.components.common.M3CircularLoader
+import com.cinemaverse.mcu.shared.presentation.components.player.PlayingEqIcon
+import com.cinemaverse.mcu.shared.presentation.components.common.AutoScrollingTextOnDemand
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.windowInsetsPadding
-import chromahub.rhythm.app.util.HapticUtils
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.common.ShimmerBox
-import chromahub.rhythm.app.shared.presentation.components.common.StyledProgressBar
-import chromahub.rhythm.app.shared.presentation.components.common.ProgressStyle
+import com.cinemaverse.mcu.util.HapticUtils
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.common.ShimmerBox
+import com.cinemaverse.mcu.shared.presentation.components.common.StyledProgressBar
+import com.cinemaverse.mcu.shared.presentation.components.common.ProgressStyle
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import chromahub.rhythm.app.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.AppSettings
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalConfiguration
 
 
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
 import androidx.compose.ui.res.stringResource
 
 

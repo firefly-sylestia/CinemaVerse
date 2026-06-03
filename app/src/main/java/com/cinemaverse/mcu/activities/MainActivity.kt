@@ -510,8 +510,8 @@ class MainActivity : FragmentActivity() {
     
     private suspend fun startMediaServiceAndWait(): Boolean {
         return try {
-            val serviceIntent = Intent(this, chromahub.rhythm.app.infrastructure.service.MediaPlaybackService::class.java)
-            serviceIntent.action = chromahub.rhythm.app.infrastructure.service.MediaPlaybackService.ACTION_INIT_SERVICE
+            val serviceIntent = Intent(this, com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService::class.java)
+            serviceIntent.action = com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService.ACTION_INIT_SERVICE
 
             val started = ServiceStartUtils.startServiceSafely(
                 context = this,
@@ -569,8 +569,8 @@ class MainActivity : FragmentActivity() {
     private suspend fun fallbackPlayExternalFile(uri: Uri) {
         try {
             Log.d(TAG, "Using direct service intent as fallback")
-            val playIntent = Intent(applicationContext, chromahub.rhythm.app.infrastructure.service.MediaPlaybackService::class.java)
-            playIntent.action = chromahub.rhythm.app.infrastructure.service.MediaPlaybackService.ACTION_PLAY_EXTERNAL_FILE
+            val playIntent = Intent(applicationContext, com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService::class.java)
+            playIntent.action = com.cinemaverse.mcu.infrastructure.service.MediaPlaybackService.ACTION_PLAY_EXTERNAL_FILE
             playIntent.data = uri
 
             val started = ServiceStartUtils.startServiceSafely(

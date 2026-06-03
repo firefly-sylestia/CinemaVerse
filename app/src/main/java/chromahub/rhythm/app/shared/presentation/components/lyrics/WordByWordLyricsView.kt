@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.lyrics
+package com.cinemaverse.mcu.shared.presentation.components.lyrics
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -24,9 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.util.RhythmLyricsParser
-import chromahub.rhythm.app.util.WordByWordLyricLine
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.util.RhythmLyricsParser
+import com.cinemaverse.mcu.util.WordByWordLyricLine
 import kotlin.math.abs
 
 /**

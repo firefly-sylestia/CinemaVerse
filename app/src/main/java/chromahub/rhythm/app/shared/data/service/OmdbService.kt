@@ -1,9 +1,9 @@
-package chromahub.rhythm.app.shared.data.service
+package com.cinemaverse.mcu.shared.data.service
 
-import chromahub.rhythm.app.BuildConfig
-import chromahub.rhythm.app.shared.data.viewing.ViewingItem
-import chromahub.rhythm.app.shared.data.viewing.ViewingRating
-import chromahub.rhythm.app.shared.data.viewing.ViewingType
+import com.cinemaverse.mcu.BuildConfig
+import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
+import com.cinemaverse.mcu.shared.data.viewing.ViewingRating
+import com.cinemaverse.mcu.shared.data.viewing.ViewingType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject

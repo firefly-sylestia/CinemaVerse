@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.shared.util
+package com.cinemaverse.mcu.shared.util
 
-import chromahub.rhythm.app.shared.data.viewing.ViewingItem
-import chromahub.rhythm.app.shared.data.viewing.ViewingList
+import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
+import com.cinemaverse.mcu.shared.data.viewing.ViewingList
 
 object ViewingArtworkUtils {
     const val TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p"

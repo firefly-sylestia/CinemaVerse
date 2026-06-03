@@ -1150,7 +1150,7 @@ fun parseCustomColorScheme(schemeName: String, darkTheme: Boolean): androidx.com
  * Create a color scheme from extracted album art colors
  */
 fun getAlbumArtColorScheme(colorsJson: String, darkTheme: Boolean): androidx.compose.material3.ColorScheme {
-    val extractedColors = chromahub.rhythm.app.util.ColorExtractor.jsonToColors(colorsJson)
+    val extractedColors = com.cinemaverse.mcu.util.ColorExtractor.jsonToColors(colorsJson)
     
     // Fallback to default if parsing fails
     if (extractedColors == null) {

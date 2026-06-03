@@ -225,7 +225,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                     modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
                 )
                 val apiServiceItems = buildList {
-                    if (chromahub.rhythm.app.BuildConfig.ENABLE_DEEZER) {
+                    if (com.cinemaverse.mcu.BuildConfig.ENABLE_DEEZER) {
                         add(
                             toMaterial3SettingsItem(
                                 context = context,
@@ -241,7 +241,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                         )
                     }
 
-                    if (chromahub.rhythm.app.BuildConfig.ENABLE_LRCLIB) {
+                    if (com.cinemaverse.mcu.BuildConfig.ENABLE_LRCLIB) {
                         add(
                             toMaterial3SettingsItem(
                                 context = context,
@@ -257,7 +257,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                         )
                     }
 
-                    if (chromahub.rhythm.app.BuildConfig.ENABLE_APPLE_MUSIC) {
+                    if (com.cinemaverse.mcu.BuildConfig.ENABLE_APPLE_MUSIC) {
                         add(
                             toMaterial3SettingsItem(
                                 context = context,
@@ -273,7 +273,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                         )
                     }
 
-                    if (chromahub.rhythm.app.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
+                    if (com.cinemaverse.mcu.BuildConfig.ENABLE_YOUTUBE_MUSIC) {
                         add(
                             toMaterial3SettingsItem(
                                 context = context,

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.presentation.components.common
+package com.cinemaverse.mcu.shared.presentation.components.common
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
-import chromahub.rhythm.app.util.HapticUtils
+import com.cinemaverse.mcu.util.HapticUtils
 import kotlinx.coroutines.launch
 
 @Composable

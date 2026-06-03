@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.data.model
+package com.cinemaverse.mcu.shared.data.model
 
 /**
  * Preference for lyrics source priority order

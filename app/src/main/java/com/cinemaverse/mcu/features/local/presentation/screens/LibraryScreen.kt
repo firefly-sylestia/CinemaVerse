@@ -392,7 +392,7 @@ fun LibraryScreen(
     val addToPlaylistSheetState = rememberModalBottomSheetState()
     val albumBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     
-    val multiSelectionState = remember { chromahub.rhythm.app.features.local.presentation.viewmodel.MultiSelectionStateHolder() }
+    val multiSelectionState = remember { com.cinemaverse.mcu.features.local.presentation.viewmodel.MultiSelectionStateHolder() }
     val selectedSongs by multiSelectionState.selectedSongs.collectAsState()
     val isSelectionMode by multiSelectionState.isSelectionMode.collectAsState()
     val selectedSongIds by multiSelectionState.selectedSongIds.collectAsState()
@@ -1737,7 +1737,7 @@ fun SingleCardSongsContent(
     enableRatingSystem: Boolean = true,
     isSelectionMode: Boolean = false,
     selectedSongIds: Set<String> = emptySet(),
-    multiSelectionState: chromahub.rhythm.app.features.local.presentation.viewmodel.MultiSelectionStateHolder? = null,
+    multiSelectionState: com.cinemaverse.mcu.features.local.presentation.viewmodel.MultiSelectionStateHolder? = null,
     onSongLongPress: (Song) -> Unit = {},
     onSongSelectionToggle: (Song) -> Unit = {},
     onShowMultiSelectionSheet: () -> Unit = {},
@@ -1758,7 +1758,7 @@ fun SingleCardSongsContent(
     val splitArtistNames: (String) -> List<String> = remember {
         { artistName ->
             val libAppSettings = AppSettings.getInstance(context)
-            chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+            com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
                 artistName = artistName,
                 delimiters = libAppSettings.artistSeparatorDelimiters.value,
                 enabled = libAppSettings.artistSeparatorEnabled.value
@@ -1964,7 +1964,7 @@ fun SingleCardSongsContent(
             }
 
             if (enableRatingSystem) {
-                val appSettings = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context)
+                val appSettings = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context)
                 val ratingDistribution = appSettings.getRatingDistribution()
                 
                 if ((ratingDistribution[5] ?: 0) > 0) {
@@ -2021,23 +2021,23 @@ fun SingleCardSongsContent(
                 "❤️ Favorites" -> preparedSongs.filter { it.id in favoriteSongs }
                 
                 "⭐⭐⭐⭐⭐ Absolute Favorites" -> {
-                    val ratedSongIds = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongsByRating(5)
+                    val ratedSongIds = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongsByRating(5)
                     preparedSongs.filter { it.id in ratedSongIds }
                 }
                 "⭐⭐⭐⭐ Loved" -> {
-                    val ratedSongIds = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongsByRating(4)
+                    val ratedSongIds = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongsByRating(4)
                     preparedSongs.filter { it.id in ratedSongIds }
                 }
                 "⭐⭐⭐ Great" -> {
-                    val ratedSongIds = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongsByRating(3)
+                    val ratedSongIds = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongsByRating(3)
                     preparedSongs.filter { it.id in ratedSongIds }
                 }
                 "⭐⭐ Good" -> {
-                    val ratedSongIds = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongsByRating(2)
+                    val ratedSongIds = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongsByRating(2)
                     preparedSongs.filter { it.id in ratedSongIds }
                 }
                 "⭐ Liked" -> {
-                    val ratedSongIds = chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context).getSongsByRating(1)
+                    val ratedSongIds = com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context).getSongsByRating(1)
                     preparedSongs.filter { it.id in ratedSongIds }
                 }
                 
@@ -3041,7 +3041,7 @@ fun LibrarySongItem(
 ) {
     val context = LocalContext.current
     var showDropdown by remember { mutableStateOf(false) }
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     var currentRating by remember(song.id) { mutableStateOf(appSettings.getSongRating(song.id)) }
     val isCurrentSong = currentSong?.id == song.id
 
@@ -3417,7 +3417,7 @@ fun LibrarySongItem(
                                 }
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            chromahub.rhythm.app.shared.presentation.components.RatingStars(
+                            com.cinemaverse.mcu.shared.presentation.components.RatingStars(
                                 rating = currentRating,
                                 onRatingChanged = { newRating ->
                                     HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
@@ -4626,7 +4626,7 @@ fun SingleCardArtistsContent(
     onRefreshClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
-    val viewModel = viewModel<chromahub.rhythm.app.viewmodel.MusicViewModel>()
+    val viewModel = viewModel<com.cinemaverse.mcu.viewmodel.MusicViewModel>()
     val appSettings = remember { AppSettings.getInstance(context) }
     
     val artistViewType by appSettings.artistViewType.collectAsState()
@@ -5594,9 +5594,9 @@ fun BottomFloatingButtonGroup(
 fun ExpressiveSectionHeader(
     title: String,
     countText: String,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     modifier: Modifier = Modifier,
-    countIcon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon? = null,
+    countIcon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon? = null,
     horizontalPadding: androidx.compose.ui.unit.Dp = 12.dp,
     actionContent: @Composable RowScope.() -> Unit = {}
 ) {

@@ -1,7 +1,7 @@
-package chromahub.rhythm.app.features.streaming.domain.model
+package com.cinemaverse.mcu.features.streaming.domain.model
 
-import chromahub.rhythm.app.core.domain.model.PlayableItem
-import chromahub.rhythm.app.core.domain.model.SourceType
+import com.cinemaverse.mcu.core.domain.model.PlayableItem
+import com.cinemaverse.mcu.core.domain.model.SourceType
 
 /**
  * Represents a song from a streaming service.

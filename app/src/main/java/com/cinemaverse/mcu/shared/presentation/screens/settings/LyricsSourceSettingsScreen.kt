@@ -199,18 +199,18 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
                 )
             }
 
-            val sourceOptions = listOf<Pair<chromahub.rhythm.app.shared.data.model.LyricsSourcePreference, Triple<String, String, MaterialSymbolIcon>>>(
-                chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.EMBEDDED_FIRST to Triple(
+            val sourceOptions = listOf<Pair<com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference, Triple<String, String, MaterialSymbolIcon>>>(
+                com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.EMBEDDED_FIRST to Triple(
                     "Embedded First",
                     "Prefer lyrics embedded in audio files, fallback to online APIs",
                     RhythmIcons.MusicNote
                 ),
-                chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.API_FIRST to Triple(
+                com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.API_FIRST to Triple(
                     "Online First",
                     "Prefer online APIs (Rhythm word-by-word, LRCLib), fallback to embedded",
                     MaterialSymbolIcon("cloud_queue")
                 ),
-                chromahub.rhythm.app.shared.data.model.LyricsSourcePreference.LOCAL_FIRST to Triple(
+                com.cinemaverse.mcu.shared.data.model.LyricsSourcePreference.LOCAL_FIRST to Triple(
                     "Local First",
                     "Prefer local .lrc files, then embedded lyrics, then online APIs",
                     RhythmIcons.Storage
@@ -331,7 +331,7 @@ fun LyricsSourceSettingsScreen(onBackClick: () -> Unit) {
                             title = { Text(stringResource(R.string.lyricssourcesettingsscreen_lyrics_api_priority)) },
                             description = {
                                 Text(
-                                    text = if (apiPriority == chromahub.rhythm.app.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) "Apple Music First" else "LRCLib First",
+                                    text = if (apiPriority == com.cinemaverse.mcu.shared.data.model.LyricsApiPriority.APPLE_MUSIC_FIRST) "Apple Music First" else "LRCLib First",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

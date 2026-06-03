@@ -301,13 +301,13 @@ fun LibrarySettingsScreen(onBackClick: () -> Unit) {
                 scope.launch {
                     if (shouldRefreshLibrary) {
                         try {
-                            chromahub.rhythm.app.util.CacheManager.clearAllCache(context, null)
+                            com.cinemaverse.mcu.util.CacheManager.clearAllCache(context, null)
                             appSettings.requestFullMediaRescanOnNextLaunch(reason = "library_artwork_settings_restart")
                         } catch (e: Exception) {
                             Log.e("CacheManagement", "Error clearing cache before artwork settings restart", e)
                         }
                     }
-                    chromahub.rhythm.app.util.AppRestarter.restartApp(context)
+                    com.cinemaverse.mcu.util.AppRestarter.restartApp(context)
                 }
             },
             onContinue = {

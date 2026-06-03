@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.presentation.screens.settings
+package com.cinemaverse.mcu.shared.presentation.screens.settings
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,10 +18,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.ui.theme.festive.FestiveThemeType
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.ui.theme.festive.FestiveThemeType
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.res.stringResource
 
 @Composable

@@ -1,9 +1,9 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-package chromahub.rhythm.app.features.local.presentation.screens
+package com.cinemaverse.mcu.features.local.presentation.screens
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.Manifest
 import android.app.Activity
@@ -43,15 +43,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.features.local.presentation.viewmodel.MusicViewModel
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.presentation.components.common.ContentLoadingIndicator
-import chromahub.rhythm.app.shared.presentation.components.common.DataProcessingLoader
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
-import chromahub.rhythm.app.util.HapticUtils
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.features.local.presentation.viewmodel.MusicViewModel
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.shared.presentation.components.common.ContentLoadingIndicator
+import com.cinemaverse.mcu.shared.presentation.components.common.DataProcessingLoader
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
+import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.util.HapticUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -1058,7 +1058,7 @@ fun SingleCardExplorerContent(
                                         onCreatePlaylist(playlistName)
                                         
                                         var attempts = 0
-                                        var newPlaylist: chromahub.rhythm.app.shared.data.model.Playlist? = null
+                                        var newPlaylist: com.cinemaverse.mcu.shared.data.model.Playlist? = null
                                         while (attempts < 20 && newPlaylist == null) {
                                             kotlinx.coroutines.delay(100)
                                             newPlaylist = playlists.firstOrNull { it.name == playlistName }

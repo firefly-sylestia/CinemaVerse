@@ -1140,7 +1140,7 @@ private fun RhythmPlayerLyricsPanel(
                             .containsMatchIn(lyricsText)
                     }
 
-                    val parsedLyrics by produceState<List<chromahub.rhythm.app.util.LyricLine>?>(
+                    val parsedLyrics by produceState<List<com.cinemaverse.mcu.util.LyricLine>?>(
                         initialValue = if (likelySyncedLyrics) null else emptyList(),
                         key1 = lyricsText,
                         key2 = likelySyncedLyrics
@@ -1149,7 +1149,7 @@ private fun RhythmPlayerLyricsPanel(
                             emptyList()
                         } else {
                             withContext(kotlinx.coroutines.Dispatchers.Default) {
-                                chromahub.rhythm.app.util.LyricsParser.parseLyrics(
+                                com.cinemaverse.mcu.util.LyricsParser.parseLyrics(
                                     lyricsText
                                 )
                             }

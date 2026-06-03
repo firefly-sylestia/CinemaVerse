@@ -1,9 +1,9 @@
-package chromahub.rhythm.app.infrastructure.widget
+package com.cinemaverse.mcu.infrastructure.widget
 
 import android.content.Context
 import android.net.Uri
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.infrastructure.widget.glance.GlanceWidgetUpdater
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.infrastructure.widget.glance.GlanceWidgetUpdater
 
 object WidgetUpdater {
     

@@ -211,7 +211,7 @@ fun RhythmNavigation(
                         )
                 }
             ) {
-                chromahub.rhythm.app.shared.presentation.screens.settings.SettingsScreenWrapper(
+                com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsScreenWrapper(
                     onBack = {
                         val popped = rootNavController.popBackStack()
                         if (!popped) {
@@ -1624,7 +1624,7 @@ fun ModeSelectorScreen(
 private fun ModeCard(
     title: String,
     description: String,
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier

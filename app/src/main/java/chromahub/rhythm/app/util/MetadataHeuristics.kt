@@ -1,9 +1,9 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import chromahub.rhythm.app.shared.data.model.LyricsData
+import com.cinemaverse.mcu.shared.data.model.LyricsData
 import java.io.File
 import java.io.ByteArrayOutputStream
 import java.io.RandomAccessFile

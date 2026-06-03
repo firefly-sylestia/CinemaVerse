@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.worker
+package com.cinemaverse.mcu.worker
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,9 +10,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.activities.MainActivity
-import chromahub.rhythm.app.shared.data.model.AppSettings
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.activities.MainActivity
+import com.cinemaverse.mcu.shared.data.model.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar

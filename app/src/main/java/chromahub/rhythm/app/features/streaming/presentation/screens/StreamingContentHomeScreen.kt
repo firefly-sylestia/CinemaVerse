@@ -1,13 +1,13 @@
-package chromahub.rhythm.app.features.streaming.presentation.screens
+package com.cinemaverse.mcu.features.streaming.presentation.screens
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
-import chromahub.rhythm.app.shared.presentation.components.common.rhythmMarquee
+import com.cinemaverse.mcu.shared.presentation.components.common.rhythmMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,11 +79,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveCard
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapes
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveCard
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapes
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import chromahub.rhythm.app.shared.presentation.components.common.RhythmGuardCard
+import com.cinemaverse.mcu.shared.presentation.components.common.RhythmGuardCard
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
@@ -96,32 +96,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import chromahub.rhythm.app.R
-import chromahub.rhythm.app.core.domain.model.SourceType
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingArtist
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingServiceId
-import chromahub.rhythm.app.features.streaming.domain.model.StreamingSong
-import chromahub.rhythm.app.features.streaming.presentation.model.StreamingServiceOptions
-import chromahub.rhythm.app.features.streaming.presentation.viewmodel.StreamingMusicViewModel
-import chromahub.rhythm.app.features.streaming.presentation.components.settings.StreamingHomeSectionOrderBottomSheet
-import chromahub.rhythm.app.shared.presentation.components.bottomsheets.AlbumBottomSheet
-import chromahub.rhythm.app.shared.data.model.Album
-import chromahub.rhythm.app.shared.data.model.AppSettings
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.shared.data.repository.PlaybackStatsRepository
+import com.cinemaverse.mcu.R
+import com.cinemaverse.mcu.core.domain.model.SourceType
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingArtist
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceId
+import com.cinemaverse.mcu.features.streaming.domain.model.StreamingSong
+import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
+import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
+import com.cinemaverse.mcu.features.streaming.presentation.components.settings.StreamingHomeSectionOrderBottomSheet
+import com.cinemaverse.mcu.shared.presentation.components.bottomsheets.AlbumBottomSheet
+import com.cinemaverse.mcu.shared.data.model.Album
+import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.shared.data.repository.PlaybackStatsRepository
 import android.net.Uri
-import chromahub.rhythm.app.shared.presentation.components.common.ButtonGroupStyle
-import chromahub.rhythm.app.shared.presentation.components.common.CollapsibleHeaderScreen
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveElevatedCard
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveButtonGroup
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveFilledIconButton
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveGroupButton
-import chromahub.rhythm.app.shared.presentation.components.common.ExpressiveShapeTarget
-import chromahub.rhythm.app.shared.presentation.components.common.rememberExpressiveShapeFor
-import chromahub.rhythm.app.util.HapticUtils
-import chromahub.rhythm.app.util.M3ImageUtils
+import com.cinemaverse.mcu.shared.presentation.components.common.ButtonGroupStyle
+import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveElevatedCard
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveButtonGroup
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveFilledIconButton
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveGroupButton
+import com.cinemaverse.mcu.shared.presentation.components.common.ExpressiveShapeTarget
+import com.cinemaverse.mcu.shared.presentation.components.common.rememberExpressiveShapeFor
+import com.cinemaverse.mcu.util.HapticUtils
+import com.cinemaverse.mcu.util.M3ImageUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -154,7 +154,7 @@ fun StreamingContentHomeScreen(
     onNavigateToRhythmGuard: () -> Unit,
     onNavigateToRhythmStats: () -> Unit,
     onNavigateToArtist: (StreamingArtist) -> Unit,
-    onNavigateToPlaylist: (chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist) -> Unit,
+    onNavigateToPlaylist: (com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist) -> Unit,
     onConfigureService: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -584,7 +584,7 @@ fun StreamingContentHomeScreen(
                                             onOpenAlbum = { song ->
                                                 song.albumId?.let { albumId ->
                                                     handleAlbumClick(
-                                                        chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum(
+                                                        com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum(
                                                             id = albumId,
                                                             title = song.album,
                                                             artist = song.albumArtist ?: song.artist,
@@ -1954,7 +1954,7 @@ private fun String.toSourceType(): SourceType {
 
 @Composable
 private fun StreamingPlaylistWidgetCard(
-    playlist: chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist,
+    playlist: com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current

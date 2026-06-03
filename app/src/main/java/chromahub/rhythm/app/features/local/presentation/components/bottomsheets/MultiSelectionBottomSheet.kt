@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.presentation.components.bottomsheets
+package com.cinemaverse.mcu.shared.presentation.components.bottomsheets
 
-import chromahub.rhythm.app.shared.presentation.components.icons.RhythmIcons
-import chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon
-import chromahub.rhythm.app.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
+import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
@@ -59,10 +59,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import chromahub.rhythm.app.shared.data.model.Song
-import chromahub.rhythm.app.util.HapticUtils
-import chromahub.rhythm.app.util.M3ImageUtils
-import chromahub.rhythm.app.R
+import com.cinemaverse.mcu.shared.data.model.Song
+import com.cinemaverse.mcu.util.HapticUtils
+import com.cinemaverse.mcu.util.M3ImageUtils
+import com.cinemaverse.mcu.R
 import androidx.compose.ui.res.stringResource
 
 /**

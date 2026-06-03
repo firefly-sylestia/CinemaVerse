@@ -28,9 +28,9 @@ class MusicWidgetProvider : AppWidgetProvider() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     companion object {
-        const val ACTION_PLAY_PAUSE = "chromahub.rhythm.app.infrastructure.widget.PLAY_PAUSE"
-        const val ACTION_SKIP_NEXT = "chromahub.rhythm.app.infrastructure.widget.SKIP_NEXT"
-        const val ACTION_SKIP_PREVIOUS = "chromahub.rhythm.app.infrastructure.widget.SKIP_PREVIOUS"
+        const val ACTION_PLAY_PAUSE = "com.cinemaverse.mcu.infrastructure.widget.PLAY_PAUSE"
+        const val ACTION_SKIP_NEXT = "com.cinemaverse.mcu.infrastructure.widget.SKIP_NEXT"
+        const val ACTION_SKIP_PREVIOUS = "com.cinemaverse.mcu.infrastructure.widget.SKIP_PREVIOUS"
         
         fun updateWidgets(context: Context) {
             val intent = Intent(context, MusicWidgetProvider::class.java).apply {

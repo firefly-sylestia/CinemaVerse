@@ -1042,7 +1042,7 @@ fun UniversalSearchScreen(
                     if (isLocal) {
                         val separatorEnabled = appSettings.artistSeparatorEnabled.value
                         val delimiters = appSettings.artistSeparatorDelimiters.value.ifBlank { "/;,+&" }
-                        val songArtistNames = chromahub.rhythm.app.util.ArtistSeparator.splitArtistNames(
+                        val songArtistNames = com.cinemaverse.mcu.util.ArtistSeparator.splitArtistNames(
                             artistName = (songObj as Song).artist,
                             delimiters = delimiters,
                             enabled = separatorEnabled
@@ -1869,7 +1869,7 @@ private fun UniversalSongOptionsHeader(
 
 @Composable
 private fun UniversalSongOptionGridItem(
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     text: String,
     containerColor: Color,
     iconColor: Color,
@@ -2203,7 +2203,7 @@ private fun UniversalGenreBrowseItemCard(
     }
 }
 
-private fun universalGenreIconFor(genre: String): chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon {
+private fun universalGenreIconFor(genre: String): com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon {
     val normalized = genre.lowercase()
     return when {
         normalized.contains("hip hop") || normalized.contains("hip-hop") || normalized.contains("rap") || normalized.contains("trap") -> MaterialSymbolIcon("mic")

@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.shared.data.model
+package com.cinemaverse.mcu.shared.data.model
 
 import androidx.compose.runtime.Immutable
 import com.google.gson.Gson

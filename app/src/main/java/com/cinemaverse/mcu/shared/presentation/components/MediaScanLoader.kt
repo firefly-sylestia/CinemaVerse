@@ -399,7 +399,7 @@ private fun MediaScanStats(
 
 @Composable
 private fun StatItem(
-    icon: chromahub.rhythm.app.shared.presentation.components.icons.MaterialSymbolIcon,
+    icon: com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon,
     count: Int,
     label: String,
     color: Color

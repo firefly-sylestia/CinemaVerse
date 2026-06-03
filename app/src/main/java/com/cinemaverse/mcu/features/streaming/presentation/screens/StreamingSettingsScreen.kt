@@ -204,7 +204,7 @@ fun StreamingSettingsScreen(
                             description = { Text(text = stringResource(id = R.string.exp_go_mode_desc)) },
                             onClick = {
                                 // Set settings host to open the Go Settings pane, then open settings
-                                appSettings.setInitialSettingsSubroute(chromahub.rhythm.app.shared.presentation.screens.settings.SettingsRoutes.GO_SETTINGS)
+                                appSettings.setInitialSettingsSubroute(com.cinemaverse.mcu.shared.presentation.screens.settings.SettingsRoutes.GO_SETTINGS)
                                 onOpenGlobalSettings()
                             }
                         )
@@ -419,7 +419,7 @@ private fun StreamingStatusCard(
 @Composable
 private fun ServiceSelectionBottomSheet(
     selectedService: String,
-    sessions: Map<String, chromahub.rhythm.app.features.streaming.data.repository.StreamingServiceSession>,
+    sessions: Map<String, com.cinemaverse.mcu.features.streaming.data.repository.StreamingServiceSession>,
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit
 ) {

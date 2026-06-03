@@ -1,8 +1,8 @@
-package chromahub.rhythm.app.shared.data.service
+package com.cinemaverse.mcu.shared.data.service
 
-import chromahub.rhythm.app.shared.data.viewing.MetadataResult
-import chromahub.rhythm.app.shared.data.viewing.MetadataSource
-import chromahub.rhythm.app.shared.data.viewing.ViewingItem
+import com.cinemaverse.mcu.shared.data.viewing.MetadataResult
+import com.cinemaverse.mcu.shared.data.viewing.MetadataSource
+import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

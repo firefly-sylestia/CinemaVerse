@@ -154,7 +154,7 @@ fun StreamingContentHomeScreen(
     onNavigateToRhythmGuard: () -> Unit,
     onNavigateToRhythmStats: () -> Unit,
     onNavigateToArtist: (StreamingArtist) -> Unit,
-    onNavigateToPlaylist: (chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist) -> Unit,
+    onNavigateToPlaylist: (com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist) -> Unit,
     onConfigureService: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -584,7 +584,7 @@ fun StreamingContentHomeScreen(
                                             onOpenAlbum = { song ->
                                                 song.albumId?.let { albumId ->
                                                     handleAlbumClick(
-                                                        chromahub.rhythm.app.features.streaming.domain.model.StreamingAlbum(
+                                                        com.cinemaverse.mcu.features.streaming.domain.model.StreamingAlbum(
                                                             id = albumId,
                                                             title = song.album,
                                                             artist = song.albumArtist ?: song.artist,
@@ -1954,7 +1954,7 @@ private fun String.toSourceType(): SourceType {
 
 @Composable
 private fun StreamingPlaylistWidgetCard(
-    playlist: chromahub.rhythm.app.features.streaming.domain.model.StreamingPlaylist,
+    playlist: com.cinemaverse.mcu.features.streaming.domain.model.StreamingPlaylist,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current

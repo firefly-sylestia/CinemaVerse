@@ -241,7 +241,7 @@ fun PlaylistDetailScreen(
 
     val haptics = LocalHapticFeedback.current
     val context = LocalContext.current
-    val appSettings = remember { chromahub.rhythm.app.shared.data.model.AppSettings.getInstance(context) }
+    val appSettings = remember { com.cinemaverse.mcu.shared.data.model.AppSettings.getInstance(context) }
     val writePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->

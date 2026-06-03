@@ -1,4 +1,4 @@
-package chromahub.rhythm.app.network
+package com.cinemaverse.mcu.network
 
 import com.google.gson.annotations.SerializedName
 

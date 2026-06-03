@@ -1,6 +1,6 @@
-package chromahub.rhythm.app.util
+package com.cinemaverse.mcu.util
 
-import chromahub.rhythm.app.shared.data.model.Curve
+import com.cinemaverse.mcu.shared.data.model.Curve
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sqrt
