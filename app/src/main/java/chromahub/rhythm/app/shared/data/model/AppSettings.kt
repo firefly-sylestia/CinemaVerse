@@ -390,6 +390,9 @@ class AppSettings private constructor(context: Context) {
         
         // App Mode Settings (Local vs Streaming)
         private const val KEY_APP_MODE = "app_mode" // "LOCAL" or "STREAMING"
+        private const val KEY_LOCAL_EXPERIENCE_MODE = "local_experience_mode" // "RHYTHM" or "VIEWING"
+        const val LOCAL_EXPERIENCE_MODE_RHYTHM = "RHYTHM"
+        const val LOCAL_EXPERIENCE_MODE_VIEWING = "VIEWING"
         private const val KEY_STREAMING_SERVICE = "streaming_service" // "SPOTIFY", "APPLE_MUSIC", etc.
         private const val KEY_STREAMING_QUALITY = "streaming_quality" // "LOW", "MEDIUM", "HIGH", "LOSSLESS"
         private const val KEY_ALLOW_CELLULAR_STREAMING = "allow_cellular_streaming"
@@ -841,6 +844,11 @@ class AppSettings private constructor(context: Context) {
     // App Mode Settings (Local vs Streaming)
     private val _appMode = MutableStateFlow(prefs.getString(KEY_APP_MODE, "LOCAL") ?: "LOCAL")
     val appMode: StateFlow<String> = _appMode.asStateFlow()
+
+    private val _localExperienceMode = MutableStateFlow(
+        prefs.getString(KEY_LOCAL_EXPERIENCE_MODE, LOCAL_EXPERIENCE_MODE_RHYTHM) ?: LOCAL_EXPERIENCE_MODE_RHYTHM
+    )
+    val localExperienceMode: StateFlow<String> = _localExperienceMode.asStateFlow()
     
     private val _streamingService = MutableStateFlow(prefs.getString(KEY_STREAMING_SERVICE, "SUBSONIC") ?: "SUBSONIC")
     val streamingService: StateFlow<String> = _streamingService.asStateFlow()
@@ -2232,6 +2240,16 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     fun setAppMode(mode: String) {
         prefs.edit().putString(KEY_APP_MODE, mode).apply()
         _appMode.value = mode
+    }
+
+    fun setLocalExperienceMode(mode: String) {
+        val sanitizedMode = if (mode == LOCAL_EXPERIENCE_MODE_VIEWING) {
+            LOCAL_EXPERIENCE_MODE_VIEWING
+        } else {
+            LOCAL_EXPERIENCE_MODE_RHYTHM
+        }
+        prefs.edit().putString(KEY_LOCAL_EXPERIENCE_MODE, sanitizedMode).apply()
+        _localExperienceMode.value = sanitizedMode
     }
     
     fun setStreamingService(service: String) {
