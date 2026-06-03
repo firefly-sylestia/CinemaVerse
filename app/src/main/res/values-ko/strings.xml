@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">Rhythm</string>
+    <string name="app_name">Marvel Spectrum</string>
 
     <string name="home">홈</string>
     <string name="library">라이브러리</string>
     <string name="search">검색</string>
     <string name="settings">설정</string>
 
-    <string name="media3_notification_channel_name">Rhythm 뮤직</string>
+    <string name="media3_notification_channel_name">Marvel Spectrum 뮤직</string>
     <string name="media3_notification_channel_description">미디어 재생 제어</string>
 
-    <string name="widget_description">Rhythm 뮤직 위젯 - 2x1에서 5x5 그리드 크기를 지원하는 반응형 레이아웃으로 재생을 제어하세요.</string>
-    <string name="widget_description_glance">Rhythm 뮤직 - 9가지 반응형 레이아웃, Material 3 디자인 및 실시간 상태 업데이트로 재생을 제어하세요.</string>
-    <string name="widget_name_glance">Rhythm 뮤직</string>
+    <string name="widget_description">Marvel Spectrum 뮤직 위젯 - 2x1에서 5x5 그리드 크기를 지원하는 반응형 레이아웃으로 재생을 제어하세요.</string>
+    <string name="widget_description_glance">Marvel Spectrum 뮤직 - 9가지 반응형 레이아웃, Material 3 디자인 및 실시간 상태 업데이트로 재생을 제어하세요.</string>
+    <string name="widget_name_glance">Marvel Spectrum 뮤직</string>
     <string name="no_song_playing">재생 중인 곡 없음</string>
     <string name="unknown_artist">알 수 없는 아티스트</string>
     <string name="unknown_album">알 수 없는 앨범</string>
@@ -43,7 +43,7 @@
     <string name="widget_auto_update">자동 업데이트</string>
     <string name="widget_auto_update_desc">곡 변경 시 위젯 자동 업데이트</string>
     <string name="widget_tips_title">위젯 팁</string>
-    <string name="widget_tip_sizes">Rhythm은 2x1에서 5x5까지 다양한 위젯 크기를 지원합니다.</string>
+    <string name="widget_tip_sizes">Marvel Spectrum은 2x1에서 5x5까지 다양한 위젯 크기를 지원합니다.</string>
     <string name="widget_tip_types">레거시 및 최신 Glance 위젯을 모두 사용할 수 있습니다.</string>
     <string name="widget_tip_controls">위젯을 탭하여 앱을 열고, 버튼으로 재생을 제어하세요.</string>
     <string name="widget_tip_resize">길게 누른 후 크기를 조절하여 다양한 레이아웃을 확인하세요.</string>
@@ -221,7 +221,7 @@
     <string name="settings_about_team_chromahub">Team ChromaHub</string>
     <string name="settings_about_special_thanks">특별히 감사한 분들</string>
     <string name="settings_about_community">커뮤니티</string>
-    <string name="settings_about_community_desc">테스트, 피드백, 제안 및 협업을 통해 Rhythm을 더 좋게 만드는 데 기여해주신 훌륭한 커뮤니티 멤버들에게 특별한 감사를 전합니다.</string>
+    <string name="settings_about_community_desc">테스트, 피드백, 제안 및 협업을 통해 Marvel Spectrum을 더 좋게 만드는 데 기여해주신 훌륭한 커뮤니티 멤버들에게 특별한 감사를 전합니다.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">IzzyOnDroid 업데이트 관리</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
@@ -229,7 +229,7 @@
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Spotify Canvas API 통합</string>
     <string name="settings_about_want_featured">여기에 소개되고 싶으신가요?</string>
-    <string name="settings_about_contribute">테스트, 피드백 또는 코드 기여를 통해 Rhythm에 참여하고 멋진 커뮤니티와 함께하세요!</string>
+    <string name="settings_about_contribute">테스트, 피드백 또는 코드 기여를 통해 Marvel Spectrum에 참여하고 멋진 커뮤니티와 함께하세요!</string>
     <string name="settings_about_open_source_libraries">오픈 소스 라이브러리</string>
     <string name="settings_about_open_source_libs">오픈 소스 라이브러리</string>
     <string name="settings_about_view_dependencies">종속성 보기</string>
@@ -251,7 +251,7 @@
 
     <string name="status_disabled">비활성화됨</string>
 
-    <string name="home_title">Rhythm</string>
+    <string name="home_title">Marvel Spectrum</string>
     <string name="home_settings_cd">설정</string>
     <string name="home_discover_albums">앨범 발견</string>
     <string name="home_explore_music">놀라운 음악 탐색하기</string>
@@ -304,7 +304,7 @@
     <string name="home_no_recommendations">추천 없음</string>
     <string name="home_no_recommendations_desc">개인화된 추천을 받으려면 음악을 감상하세요</string>
 
-    <string name="home_listening_stats">나의 Rhythm 통계</string>
+    <string name="home_listening_stats">나의 Marvel Spectrum 통계</string>
     <string name="home_listening_stats_subtitle">이번 주 음악 여정</string>
     <string name="home_stat_listening_time">청취 시간</string>
     <string name="home_stat_songs_played">재생한 곡</string>
@@ -379,7 +379,7 @@
     <string name="sort_descending">내림차순</string>
 
     <string name="storage_permission_required">저장소 권한 필요</string>
-    <string name="storage_permission_desc">음악 파일을 탐색하고 기기 저장소를 확인하려면 Rhythm이 파일 및 미디어에 접근할 수 있는 권한이 필요합니다.</string>
+    <string name="storage_permission_desc">음악 파일을 탐색하고 기기 저장소를 확인하려면 Marvel Spectrum이 파일 및 미디어에 접근할 수 있는 권한이 필요합니다.</string>
     <string name="storage_permission_audio_only">이 권한은 오디오 파일 및 음악이 포함된 폴더에만 접근을 허용합니다.</string>
 
     <string name="player_now_playing">지금 재생 중</string>
@@ -429,7 +429,7 @@
     <string name="ui_install_update">업데이트 설치</string>
     <string name="ui_cancel_download">다운로드 취소</string>
 
-    <string name="common_rhythm">Rhythm</string>
+    <string name="common_rhythm">Marvel Spectrum</string>
     <string name="common_songs">곡</string>
     <string name="common_home">홈</string>
     <string name="common_library">라이브러리</string>
@@ -472,7 +472,7 @@
     <string name="updates_smart_polling_desc">GitHub API 호출을 최소화하면서 효율적인 HTTP 확인을 사용하여 업데이트를 감지합니다. 새 버전이 출시되면 즉시 알림을 받게 됩니다.</string>
     <string name="updates_channel_desc">팔로우할 업데이트 채널을 선택하세요:</string>
 
-    <string name="onboarding_welcome_title">Rhythm</string>
+    <string name="onboarding_welcome_title">Marvel Spectrum</string>
     <string name="onboarding_welcome_subtitle">당신의 올인원 오프라인 뮤직 플레이어</string>
     <string name="onboarding_welcome_desc">강력한 기능과 완벽한 프라이버시로 청취 경험의 모든 부분을 개인화하세요. 광고 없이 오프라인에서 모든 권한을 가지고 음악을 재생하세요.</string>
     <string name="onboarding_get_started">시작하기</string>
@@ -507,8 +507,8 @@
     <string name="onboarding_library_2">라이브러리 화면에서 직접 플레이리스트 생성 및 관리</string>
     <string name="onboarding_library_3">설정 > 테마 사용자 지정에서 고급 표시 및 정렬 옵션 사용 가능</string>
     <string name="onboarding_library_4">기본 플레이리스트(최근 추가됨, 가장 많이 재생됨)는 설정 > 플레이리스트에서 토글 가능</string>
-    <string name="onboarding_theme_title">나만의 Rhythm 만들기</string>
-    <string name="onboarding_theme_desc">스타일에 맞게 Rhythm의 외관을 개인화하세요. 시스템 테마, 글꼴 또는 Material You 동적 색상(Android 12+)을 선택하세요.</string>
+    <string name="onboarding_theme_title">나만의 Marvel Spectrum 만들기</string>
+    <string name="onboarding_theme_desc">스타일에 맞게 Marvel Spectrum의 외관을 개인화하세요. 시스템 테마, 글꼴 또는 Material You 동적 색상(Android 12+)을 선택하세요.</string>
     <string name="onboarding_live_preview">라이브 미리보기</string>
     <string name="onboarding_primary">기본</string>
     <string name="onboarding_container">컨테이너</string>
@@ -535,7 +535,7 @@
     <string name="onboarding_storage_desc">설정 > 캐시 관리에서 캐시 크기 및 저장소 관리</string>
 
     <string name="onboarding_complete_title">준비 완료!</string>
-    <string name="onboarding_complete_desc">Rhythm을 즐길 준비가 되었습니다! 배경에서 음악 라이브러리를 스캔하고 있습니다. 구성된 내용은 다음과 같습니다:</string>
+    <string name="onboarding_complete_desc">Marvel Spectrum을 즐길 준비가 되었습니다! 배경에서 음악 라이브러리를 스캔하고 있습니다. 구성된 내용은 다음과 같습니다:</string>
     <string name="onboarding_whats_next">다음 단계는?</string>
     <string name="onboarding_next_browse">곡, 앨범 및 아티스트 찾아보기</string>
     <string name="onboarding_next_create">첫 번째 플레이리스트 만들기</string>
@@ -559,8 +559,8 @@
     <string name="onboarding_grant_permissions">권한 허용</string>
     <string name="onboarding_permissions_granted_desc">필요한 모든 권한이 허용되었습니다. 진행할 준비가 되었습니다!</string>
     <string name="onboarding_redirect_settings_desc">필요한 권한을 허용하려면 기기의 앱 설정으로 이동하세요.</string>
-    <string name="onboarding_rationale_desc">Rhythm이 올바르게 작동하려면 특정 권한이 필요합니다. 계속하려면 권한을 허용해 주세요.</string>
-    <string name="onboarding_permissions_required_desc">Rhythm의 기능을 완전히 활용하려면 특정 기기 기능에 대한 접근 권한이 필요합니다.</string>
+    <string name="onboarding_rationale_desc">Marvel Spectrum이 올바르게 작동하려면 특정 권한이 필요합니다. 계속하려면 권한을 허용해 주세요.</string>
+    <string name="onboarding_permissions_required_desc">Marvel Spectrum의 기능을 완전히 활용하려면 특정 기기 기능에 대한 접근 권한이 필요합니다.</string>
     <string name="onboarding_permission_music_title">음악 라이브러리 접근</string>
     <string name="onboarding_permission_music_desc">로컬 음악 파일을 읽고 앱에 표시</string>
     <string name="onboarding_permission_bluetooth_title">블루투스 연결</string>
@@ -571,9 +571,9 @@
     <string name="onboarding_haptic_title">햅틱 피드백</string>
     <string name="onboarding_haptic_desc">상호작용 시 미세한 진동을 활성화하여 더 나은 터치 경험을 제공합니다.</string>
     <string name="onboarding_default_screen_title">기본 시작 화면</string>
-    <string name="onboarding_default_screen_desc">Rhythm을 실행할 때 열리는 화면을 선택하세요.</string>
+    <string name="onboarding_default_screen_desc">Marvel Spectrum을 실행할 때 열리는 화면을 선택하세요.</string>
     <string name="onboarding_system_volume_title">시스템 볼륨 제어</string>
-    <string name="onboarding_system_volume_desc">기기의 물리적 볼륨 버튼으로 Rhythm의 재생 볼륨을 제어하도록 허용합니다.</string>
+    <string name="onboarding_system_volume_desc">기기의 물리적 볼륨 버튼으로 Marvel Spectrum의 재생 볼륨을 제어하도록 허용합니다.</string>
     <string name="onboarding_auto_queue_title">대기열 자동 추가</string>
     <string name="onboarding_auto_queue_desc">곡 재생 시 앨범/아티스트의 곡으로 대기열을 자동으로 생성합니다.</string>
     <string name="onboarding_clear_queue_title">새 곡 재생 시 대기열 지우기</string>
@@ -609,7 +609,7 @@
     <string name="onboarding_enable_updates_title">업데이트 활성화</string>
     <string name="onboarding_enable_updates_desc">앱이 업데이트를 확인하고 다운로드하도록 허용</string>
     <string name="onboarding_periodic_check_title">주기적 확인</string>
-    <string name="onboarding_periodic_check_desc">Rhythm의 GitHub 저장소에서 업데이트를 자동으로 확인</string>
+    <string name="onboarding_periodic_check_desc">Marvel Spectrum의 GitHub 저장소에서 업데이트를 자동으로 확인</string>
     <string name="onboarding_update_notifications_title">업데이트 알림</string>
     <string name="onboarding_update_notifications_desc">새 버전을 사용할 수 있을 때 알림 받기</string>
     <string name="onboarding_smart_polling_title">스마트 폴링</string>
@@ -758,7 +758,7 @@
 
     <string name="song_info_title">곡 정보</string>
     <string name="song_info_no_metadata">메타데이터 없음</string>
-    <string name="song_info_permission">이 오디오 파일의 메타데이터를 수정하려면 Rhythm에 권한이 필요합니다. 접근을 요청하는 시스템 대화상자가 나타날 수 있습니다 - 변경 사항을 저장하려면 허용해 주세요.</string>
+    <string name="song_info_permission">이 오디오 파일의 메타데이터를 수정하려면 Marvel Spectrum에 권한이 필요합니다. 접근을 요청하는 시스템 대화상자가 나타날 수 있습니다 - 변경 사항을 저장하려면 허용해 주세요.</string>
 
     <string name="add_to_playlists">플레이리스트에 추가</string>
     <string name="add_to_playlist_action">플레이리스트에 추가</string>
@@ -769,7 +769,7 @@
     <string name="cache_manage_desc">이미지, 임시 파일 및 기타 앱 데이터를 포함한 캐시된 데이터를 관리합니다.</string>
 
     <string name="beta_welcome">베타 프로그램에 오신 것을 환영합니다!</string>
-    <string name="beta_desc">현재 Rhythm의 베타 버전을 사용하고 있습니다. 이 버전은 아직 개발 중이며 버그, 미완성 기능 또는 예상치 못한 동작이 포함될 수 있습니다.</string>
+    <string name="beta_desc">현재 Marvel Spectrum의 베타 버전을 사용하고 있습니다. 이 버전은 아직 개발 중이며 버그, 미완성 기능 또는 예상치 못한 동작이 포함될 수 있습니다.</string>
 
     <string name="equalizer_disabled">이퀄라이저 비활성화됨</string>
     <string name="equalizer_enable_desc">오디오 경험을 사용자 지정하려면 이퀄라이저를 활성화하세요.</string>
@@ -789,7 +789,7 @@
     <string name="library_reorder_tabs">탭 순서를 변경하여 라이브러리 경험을 사용자 지정하세요</string>
     <string name="external_services_desc">음악 경험을 향상시키기 위해 활성 외부 API 서비스를 제어하세요. 데이터 사용량 및 기능을 관리하기 위해 서비스를 켜거나 끕니다.</string>
     <string name="lyrics_source_priority_title">가사 소스 우선순위</string>
-    <string name="lyrics_source_priority_desc_placeholder">Rhythm이 가사를 먼저 찾을 위치 선택</string>
+    <string name="lyrics_source_priority_desc_placeholder">Marvel Spectrum이 가사를 먼저 찾을 위치 선택</string>
     <string name="playlist_action_title">플레이리스트 동작</string>
     <string name="playlist_action_desc">플레이리스트에서 곡을 탭할 때의 동작 선택</string>
     <string name="playlist_action_choose">플레이리스트에서 곡을 탭할 때의 기본 동작 선택</string>
@@ -831,7 +831,7 @@
     <string name="updates_disabled_message">설정에서 앱 업데이트가 비활성화되었습니다</string>
     <string name="updates_auto_disabled">자동 업데이트 확인이 비활성화되었습니다. 수동으로 확인할 수 있습니다.</string>
     <string name="updates_up_to_date_message">최신 상태입니다!</string>
-    <string name="updates_check_frequency">Rhythm이 얼마나 자주 업데이트를 확인해야 할까요?</string>
+    <string name="updates_check_frequency">Marvel Spectrum이 얼마나 자주 업데이트를 확인해야 할까요?</string>
     <string name="updates_experimental_coming">향후 업데이트에 더 많은 실험적 기능이 추가될 예정입니다</string>
 
     <string name="cache_total_size_label">총 캐시 크기:</string>
@@ -1091,7 +1091,7 @@
     <string name="cd_albums">앨범</string>
     <string name="cd_artists">아티스트</string>
     <string name="cd_songs">곡</string>
-    <string name="cd_rhythm_splash">Rhythm</string>
+    <string name="cd_rhythm_splash">Marvel Spectrum</string>
     <string name="cd_search_in_playlist">플레이리스트 내 곡 검색</string>
     <string name="cd_shuffle_play_action">셔플 재생</string>
     <string name="cd_add_songs_to_playlist">플레이리스트에 곡 추가</string>
@@ -1207,9 +1207,9 @@
     <string name="device_type_cast_device">Cast 장치</string>
 
     <string name="bottomsheet_backup_success_title">백업 생성 성공</string>
-    <string name="bottomsheet_backup_success_msg">다음 항목을 포함한 전체 Rhythm 백업이 생성되었습니다:\n\n• 모든 플레이리스트 및 곡\n• 즐겨찾기 및 재생 기록\n• 앱 설정 및 환경설정\n• 이퀄라이저 구성\n• 테마 사용자 지정</string>
+    <string name="bottomsheet_backup_success_msg">다음 항목을 포함한 전체 Marvel Spectrum 백업이 생성되었습니다:\n\n• 모든 플레이리스트 및 곡\n• 즐겨찾기 및 재생 기록\n• 앱 설정 및 환경설정\n• 이퀄라이저 구성\n• 테마 사용자 지정</string>
     <string name="bottomsheet_restore_success_title">복원 완료 성공</string>
-    <string name="bottomsheet_restore_success_msg">다음 항목을 포함한 Rhythm 데이터가 성공적으로 복원되었습니다:\n\n• 모든 플레이리스트 및 곡\n• 즐겨찾기 및 재생 기록\n• 앱 설정 및 환경설정\n• 이퀄라이저 구성\n• 테마 사용자 지정</string>
+    <string name="bottomsheet_restore_success_msg">다음 항목을 포함한 Marvel Spectrum 데이터가 성공적으로 복원되었습니다:\n\n• 모든 플레이리스트 및 곡\n• 즐겨찾기 및 재생 기록\n• 앱 설정 및 환경설정\n• 이퀄라이저 구성\n• 테마 사용자 지정</string>
     <string name="bottomsheet_restart_now">지금 재시작</string>
     <string name="bottomsheet_ok">확인</string>
     <string name="bottomsheet_error">오류</string>
@@ -1277,7 +1277,7 @@
     <string name="fallback_unknown_file">알 수 없는 파일</string>
 
     <string name="service_app_updates">앱 업데이트</string>
-    <string name="service_rhythm_music">Rhythm 뮤직</string>
+    <string name="service_rhythm_music">Marvel Spectrum 뮤직</string>
     <string name="service_starting">서비스 시작 중…</string>
     <string name="service_loading_settings">설정 로드 중…</string>
     <string name="service_setup_components">구성 요소 설정 중…</string>
@@ -1313,10 +1313,10 @@
     <string name="settings_gestures_desc">스와이프 및 터치 제스처 구성</string>
     <string name="settings_artist_parsing">아티스트</string>
     <string name="settings_artist_parsing_desc">다중 아티스트 감지 및 표시 구성</string>
-    <string name="settings_rhythm_stats">Rhythm 통계</string>
+    <string name="settings_rhythm_stats">Marvel Spectrum 통계</string>
     <string name="settings_rhythm_stats_desc">청취 기록 및 인사이트 보기</string>
 
-    <string name="stats_title">Rhythm 통계</string>
+    <string name="stats_title">Marvel Spectrum 통계</string>
     <string name="stats_today">오늘</string>
     <string name="stats_this_week">이번 주</string>
     <string name="stats_this_month">이번 달</string>
@@ -1412,7 +1412,7 @@
     <string name="cd_selected">선택됨</string>
     <string name="cd_remove">제거</string>
     <string name="cd_delete_playlist">플레이리스트 삭제</string>
-    <string name="cd_rhythm_logo">Rhythm 로고</string>
+    <string name="cd_rhythm_logo">Marvel Spectrum 로고</string>
     <string name="cd_report_bug">버그 신고</string>
     <string name="cd_telegram_support">텔레그램 지원</string>
     <string name="cd_view_github_profile">GitHub 프로필 보기</string>
@@ -1438,7 +1438,7 @@
     <string name="artist_group_by_album_artist">앨범 아티스트로 그룹화</string>
     <string name="artist_group_by_album_artist_desc">메인 아티스트 아래에 협업 앨범 표시</string>
     <string name="artist_about_multi_parsing">다중 아티스트 파싱 정보</string>
-    <string name="artist_parsing_description">활성화하면 Rhythm이 여러 아티스트가 포함된 아티스트 태그를 자동으로 분리합니다. 이는 yt-dlp와 같은 도구로 다운로드하여 \'/\'와 같은 구분자로 아티스트를 분리한 곡에 유용합니다.\n\n백슬래시(\\\\)를 사용하여 구분자를 이스케이프 처리할 수 있습니다.</string>
+    <string name="artist_parsing_description">활성화하면 Marvel Spectrum이 여러 아티스트가 포함된 아티스트 태그를 자동으로 분리합니다. 이는 yt-dlp와 같은 도구로 다운로드하여 \'/\'와 같은 구분자로 아티스트를 분리한 곡에 유용합니다.\n\n백슬래시(\\\\)를 사용하여 구분자를 이스케이프 처리할 수 있습니다.</string>
     <string name="artist_examples">예시</string>
     <string name="artist_select_separators">아티스트 구분자 선택</string>
     <string name="artist_delimiter_slash">슬래시 (/)</string>
@@ -1545,7 +1545,7 @@
 
     <string name="multi_artist_parsing_title">다중 아티스트 파싱</string>
     <string name="multi_artist_parsing_about">다중 아티스트 파싱 정보</string>
-    <string name="multi_artist_parsing_desc">활성화하면 Rhythm이 여러 아티스트가 포함된 아티스트 태그를 자동으로 분리합니다. 이는 yt-dlp와 같은 도구로 다운로드하여 \'/\'와 같은 구분자로 아티스트를 분리한 곡에 유용합니다.\\n\\n백슬래시(\\\\)를 사용하여 구분자를 이스케이프 처리할 수 있습니다.</string>
+    <string name="multi_artist_parsing_desc">활성화하면 Marvel Spectrum이 여러 아티스트가 포함된 아티스트 태그를 자동으로 분리합니다. 이는 yt-dlp와 같은 도구로 다운로드하여 \'/\'와 같은 구분자로 아티스트를 분리한 곡에 유용합니다.\\n\\n백슬래시(\\\\)를 사용하여 구분자를 이스케이프 처리할 수 있습니다.</string>
     <string name="multi_artist_parsing_examples">예시</string>
     <string name="multi_artist_parsing_configure">구분자 구성</string>
     <string name="multi_artist_parsing_select_separators">아티스트 구분자 선택</string>
@@ -1622,7 +1622,7 @@
     <string name="backup_unable_to_read">백업 파일을 읽을 수 없음</string>
     <string name="backup_restore_failed">파일에서 복원 실패: %1$s</string>
     <string name="backup_create_failed">백업 생성 실패: %1$s</string>
-    <string name="backup_clipboard_label">Rhythm 백업</string>
+    <string name="backup_clipboard_label">Marvel Spectrum 백업</string>
     <string name="backup_status_never">없음</string>
     <string name="backup_status_enabled">활성화됨</string>
     <string name="backup_status_manual">수동</string>
@@ -1676,7 +1676,7 @@
     <string name="button_export">내보내기</string>
     <string name="text_file">파일</string>
     <string name="text_paste">붙여넣기</string>
-    <string name="logo_content_desc">Rhythm 로고</string>
+    <string name="logo_content_desc">Marvel Spectrum 로고</string>
 
     <string name="settings_about_lyrics">가사 소스 정보</string>
     <string name="settings_adjust_decorations">표시되는 축제 장식의 양 조절</string>
@@ -1807,7 +1807,7 @@
     <string name="settings_snowflake_display_area">눈송이 표시 영역</string>
     <string name="settings_snowflake_size">눈송이 크기</string>
     <string name="settings_toggle_decoration_elements">위치별 개별 장식 요소 토글</string>
-    <string name="settings_multi_artist_parsing_info">활성화하면 Rhythm이 여러 아티스트가 포함된 아티스트 태그를 자동으로 분리합니다. 이는 yt-dlp와 같은 도구로 다운로드하여 \'/\'와 같은 구분자로 아티스트를 분리한 곡에 유용합니다.\n\n백슬래시(\\)를 사용하여 구분자를 이스케이프 처리할 수 있습니다.</string>
+    <string name="settings_multi_artist_parsing_info">활성화하면 Marvel Spectrum이 여러 아티스트가 포함된 아티스트 태그를 자동으로 분리합니다. 이는 yt-dlp와 같은 도구로 다운로드하여 \'/\'와 같은 구분자로 아티스트를 분리한 곡에 유용합니다.\n\n백슬래시(\\)를 사용하여 구분자를 이스케이프 처리할 수 있습니다.</string>
     <string name="settings_embedded_lyrics_info">• 임베디드 가사는 오디오 파일에 저장됩니다\n</string>
     <string name="settings_material_design_credit">• 디자인 원칙을 제공한 Google Material Design 팀\n</string>
     <string name="settings_bullet_point">•</string>

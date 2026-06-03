@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">Rhythm</string>
+    <string name="app_name">Marvel Spectrum</string>
     
     <string name="home">Home</string>
     <string name="library">Bibliotheek</string>
     <string name="search">Zoeken</string>
     <string name="settings">Instellingen</string>
     
-    <string name="media3_notification_channel_name">Rhythm Muziek</string>
+    <string name="media3_notification_channel_name">Marvel Spectrum Muziek</string>
     <string name="media3_notification_channel_description">Mediabediening</string>
     
-    <string name="widget_description">Rhythm Muziek Widget - Bedien het afspelen met responsieve lay-outs die ondersteuning bieden voor rasterformaten van 2x1 tot 5x5</string>
-    <string name="widget_description_glance">Rhythm Muziek - Bedien het afspelen met 9 responsieve lay-outs, Material 3-design en realtime statusupdates</string>
-    <string name="widget_name_glance">Rhythm Muziek</string>
+    <string name="widget_description">Marvel Spectrum Muziek Widget - Bedien het afspelen met responsieve lay-outs die ondersteuning bieden voor rasterformaten van 2x1 tot 5x5</string>
+    <string name="widget_description_glance">Marvel Spectrum Muziek - Bedien het afspelen met 9 responsieve lay-outs, Material 3-design en realtime statusupdates</string>
+    <string name="widget_name_glance">Marvel Spectrum Muziek</string>
     <string name="no_song_playing">Geen nummer aan het afspelen</string>
     <string name="unknown_artist">Onbekende artiest</string>
     <string name="unknown_album">Onbekend album</string>
@@ -43,7 +43,7 @@
     <string name="widget_auto_update">Automatisch updaten</string>
     <string name="widget_auto_update_desc">Widget automatisch updaten wanneer nummer verandert</string>
     <string name="widget_tips_title">Widgettips</string>
-    <string name="widget_tip_sizes">Rhythm ondersteunt meerdere widgetformaten van 2x1 tot 5x5</string>
+    <string name="widget_tip_sizes">Marvel Spectrum ondersteunt meerdere widgetformaten van 2x1 tot 5x5</string>
     <string name="widget_tip_types">Zowel legacy als moderne Glance-widgets zijn beschikbaar</string>
     <string name="widget_tip_controls">Tik op de widget om de app te openen, knoppen bedienen het afspelen</string>
     <string name="widget_tip_resize">Houd ingedrukt en wijzig formaat voor verschillende lay-outs</string>
@@ -221,7 +221,7 @@
     <string name="settings_about_team_chromahub">Team ChromaHub</string>
     <string name="settings_about_special_thanks">Speciale dank</string>
     <string name="settings_about_community">Community</string>
-    <string name="settings_about_community_desc">Speciale dank aan onze geweldige communityleden die hebben bijgedragen aan het verbeteren van Rhythm door middel van testen, feedback, suggesties en samenwerking.</string>
+    <string name="settings_about_community_desc">Speciale dank aan onze geweldige communityleden die hebben bijgedragen aan het verbeteren van Marvel Spectrum door middel van testen, feedback, suggesties en samenwerking.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">Beheert updates op IzzyOnDroid</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
@@ -229,7 +229,7 @@
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Spotify Canvas API-integratie</string>
     <string name="settings_about_want_featured">Wil je hier vermeld worden?</string>
-    <string name="settings_about_contribute">Draag bij aan Rhythm door te testen, feedback te geven of code bij te dragen en sluit je aan bij onze geweldige community!</string>
+    <string name="settings_about_contribute">Draag bij aan Marvel Spectrum door te testen, feedback te geven of code bij te dragen en sluit je aan bij onze geweldige community!</string>
     <string name="settings_about_open_source_libraries">Open source-bibliotheken</string>
     <string name="settings_about_open_source_libs">Open source-bibliotheken</string>
     <string name="settings_about_view_dependencies">Afhankelijkheden bekijken</string>
@@ -251,7 +251,7 @@
 
     <string name="status_disabled">Uitgeschakeld</string>
     
-    <string name="home_title">Rhythm</string>
+    <string name="home_title">Marvel Spectrum</string>
     <string name="home_settings_cd">Instellingen</string>
     <string name="home_discover_albums">Albums ontdekken</string>
     <string name="home_explore_music">Verken geweldige muziek</string>
@@ -304,7 +304,7 @@
     <string name="home_no_recommendations">Geen aanbevelingen</string>
     <string name="home_no_recommendations_desc">Luister naar wat muziek om gepersonaliseerde aanbevelingen te krijgen</string>
     
-    <string name="home_listening_stats">Jouw Rhythm Statistieken</string>
+    <string name="home_listening_stats">Jouw Marvel Spectrum Statistieken</string>
     <string name="home_listening_stats_subtitle">De muzikale reis van deze week</string>
     <string name="home_stat_listening_time">Luistertijd</string>
     <string name="home_stat_songs_played">Nummers gespeeld</string>
@@ -379,7 +379,7 @@
     <string name="sort_descending">Aflopend</string>
     
     <string name="storage_permission_required">Opslagtoestemming vereist</string>
-    <string name="storage_permission_desc">Om door je muziekbestanden te bladeren en de opslag van je apparaat te verkennen, heeft Rhythm toestemming nodig voor toegang tot je bestanden en media.</string>
+    <string name="storage_permission_desc">Om door je muziekbestanden te bladeren en de opslag van je apparaat te verkennen, heeft Marvel Spectrum toestemming nodig voor toegang tot je bestanden en media.</string>
     <string name="storage_permission_audio_only">Dit geeft alleen toegang tot audiobestanden en mappen met muziek.</string>
     
     <string name="player_now_playing">NU AFSPELEN</string>
@@ -429,7 +429,7 @@
     <string name="ui_install_update">Update installeren</string>
     <string name="ui_cancel_download">Download annuleren</string>
     
-    <string name="common_rhythm">Rhythm</string>
+    <string name="common_rhythm">Marvel Spectrum</string>
     <string name="common_songs">Nummers</string>
     <string name="common_home">Home</string>
     <string name="common_library">Bibliotheek</string>
@@ -472,7 +472,7 @@
     <string name="updates_smart_polling_desc">Gebruikt efficiënte HTTP-checks om updates te detecteren en GitHub API-aanroepen te minimaliseren. Je krijgt direct een melding wanneer nieuwe versies worden uitgebracht.</string>
     <string name="updates_channel_desc">Kies welk updatekanaal je wilt volgen:</string>
     
-    <string name="onboarding_welcome_title">Rhythm</string>
+    <string name="onboarding_welcome_title">Marvel Spectrum</string>
     <string name="onboarding_welcome_subtitle">Jouw alles-in-één offline muziekspeler</string>
     <string name="onboarding_welcome_desc">Personaliseer elk aspect van je luisterervaring met krachtige functies en volledige privacy. Speel je muziek offline, reclamevrij en met volledige controle.</string>
     <string name="onboarding_get_started">Aan de slag</string>
@@ -498,7 +498,7 @@
     <string name="onboarding_audio_desc">Pas je audio-ervaring aan met haptische feedback, standaardscherm, volumeregelaars, wachtrijgedrag, shuffle-instellingen, tekstweergave en equalizer-instellingen.</string>
     <string name="onboarding_lyrics_sources">API: Online tekst • Embedded: Metadata tekst • Lokaal: .lrc bestanden</string>
     <string name="onboarding_additional_features">Extra audiofuncties</string>
-    <string name="onboarding_equalizer_desc">Equalizer: Verfijn audiofrequenties in Instellingen > Equalizer</string>
+    <string name="onboarding_equalizer_desc">Trailer Controls: Verfijn audiofrequenties in Instellingen > Trailer Controls</string>
     <string name="onboarding_sleep_timer_desc">Slaaptimer: Stop afspelen automatisch na ingestelde tijd (toegankelijk via Nu afspelen-scherm)</string>
     <string name="onboarding_library_title">Organiseer je muziekbibliotheek</string>
     <string name="onboarding_library_desc">Pas aan hoe je albums, artiesten en nummers worden weergegeven. Kies je favoriete lay-out, sorteervolgorde en tabbladindeling.</string>
@@ -507,8 +507,8 @@
     <string name="onboarding_library_2">Maak en beheer afspeellijsten direct vanuit het Bibliotheekscherm</string>
     <string name="onboarding_library_3">Geavanceerde weergave- en sorteeropties beschikbaar in Instellingen > Thema-aanpassing</string>
     <string name="onboarding_library_4">Standaard afspeellijsten (Recent toegevoegd, Meest afgespeeld) kunnen worden gewisseld in Instellingen > Afspeellijsten</string>
-    <string name="onboarding_theme_title">Maak Rhythm van jou</string>
-    <string name="onboarding_theme_desc">Personaliseer het uiterlijk van Rhythm om bij je stijl te passen. Kies je systeemthema, lettertype of Material You dynamische kleuren (Android 12+).</string>
+    <string name="onboarding_theme_title">Maak Marvel Spectrum van jou</string>
+    <string name="onboarding_theme_desc">Personaliseer het uiterlijk van Marvel Spectrum om bij je stijl te passen. Kies je systeemthema, lettertype of Material You dynamische kleuren (Android 12+).</string>
     <string name="onboarding_live_preview">Live voorbeeld</string>
     <string name="onboarding_primary">Primair</string>
     <string name="onboarding_container">Container</string>
@@ -535,11 +535,11 @@
     <string name="onboarding_storage_desc">Beheer cachegrootte en opslag in Instellingen > Cachebeheer</string>
     
     <string name="onboarding_complete_title">Je bent helemaal klaar!</string>
-    <string name="onboarding_complete_desc">Rhythm is klaar om te spelen! Je muziekbibliotheek wordt op de achtergrond gescand. Dit is wat er is geconfigureerd:</string>
+    <string name="onboarding_complete_desc">Marvel Spectrum is klaar om te spelen! Je muziekbibliotheek wordt op de achtergrond gescand. Dit is wat er is geconfigureerd:</string>
     <string name="onboarding_whats_next">Wat is het volgende?</string>
     <string name="onboarding_next_browse">Blader door je nummers, albums en artiesten</string>
     <string name="onboarding_next_create">Maak je eerste afspeellijst</string>
-    <string name="onboarding_next_finetune">Verfijn audio met de Equalizer</string>
+    <string name="onboarding_next_finetune">Verfijn audio met de Trailer Controls</string>
     <string name="onboarding_next_explore">Verken meer instellingen op elk moment</string>
     <string name="onboarding_settings_change">Alle instellingen kunnen op elk moment worden gewijzigd in Instellingen</string>
     
@@ -559,8 +559,8 @@
     <string name="onboarding_grant_permissions">Toestemmingen verlenen</string>
     <string name="onboarding_permissions_granted_desc">Alle noodzakelijke toestemmingen zijn verleend. Je bent klaar om door te gaan!</string>
     <string name="onboarding_redirect_settings_desc">Om de vereiste toestemmingen te verlenen, ga naar de app-instellingen op je apparaat.</string>
-    <string name="onboarding_rationale_desc">Rhythm heeft bepaalde toestemmingen nodig om correct te functioneren. Verleen deze alsjeblieft om door te gaan.</string>
-    <string name="onboarding_permissions_required_desc">Om de functies van Rhythm volledig te benutten, hebben we je toestemming nodig voor toegang tot bepaalde apparaatfuncties.</string>
+    <string name="onboarding_rationale_desc">Marvel Spectrum heeft bepaalde toestemmingen nodig om correct te functioneren. Verleen deze alsjeblieft om door te gaan.</string>
+    <string name="onboarding_permissions_required_desc">Om de functies van Marvel Spectrum volledig te benutten, hebben we je toestemming nodig voor toegang tot bepaalde apparaatfuncties.</string>
     <string name="onboarding_permission_music_title">Toegang tot muziekbibliotheek</string>
     <string name="onboarding_permission_music_desc">Lees je lokale muziekbestanden en geef ze weer in de app</string>
     <string name="onboarding_permission_bluetooth_title">Bluetooth-connectiviteit</string>
@@ -571,9 +571,9 @@
     <string name="onboarding_haptic_title">Haptische feedback</string>
     <string name="onboarding_haptic_desc">Schakel subtiele trillingen in bij interacties voor een meer tastbare ervaring.</string>
     <string name="onboarding_default_screen_title">Standaard landingsscherm</string>
-    <string name="onboarding_default_screen_desc">Kies welk scherm opent wanneer je Rhythm start</string>
+    <string name="onboarding_default_screen_desc">Kies welk scherm opent wanneer je Marvel Spectrum start</string>
     <string name="onboarding_system_volume_title">Systeemvolumeregeling</string>
-    <string name="onboarding_system_volume_desc">Sta toe dat de fysieke volumeknoppen van je apparaat het afspeelvolume van Rhythm regelen.</string>
+    <string name="onboarding_system_volume_desc">Sta toe dat de fysieke volumeknoppen van je apparaat het afspeelvolume van Marvel Spectrum regelen.</string>
     <string name="onboarding_auto_queue_title">Automatisch toevoegen aan wachtrij</string>
     <string name="onboarding_auto_queue_desc">Maak automatisch een contextuele wachtrij van het album/artiest bij het afspelen van een nummer.</string>
     <string name="onboarding_clear_queue_title">Wachtrij wissen bij nieuw nummer</string>
@@ -609,7 +609,7 @@
     <string name="onboarding_enable_updates_title">Updates inschakelen</string>
     <string name="onboarding_enable_updates_desc">Sta de app toe om updates te controleren en te downloaden</string>
     <string name="onboarding_periodic_check_title">Periodieke controle</string>
-    <string name="onboarding_periodic_check_desc">Controleer automatisch op updates van Rhythm\'s GitHub-repo</string>
+    <string name="onboarding_periodic_check_desc">Controleer automatisch op updates van Marvel Spectrum\'s GitHub-repo</string>
     <string name="onboarding_update_notifications_title">Updatemeldingen</string>
     <string name="onboarding_update_notifications_desc">Ontvang een melding wanneer nieuwe versies beschikbaar zijn</string>
     <string name="onboarding_smart_polling_title">Slimme polling</string>
@@ -758,7 +758,7 @@
     
     <string name="song_info_title">Nummerinformatie</string>
     <string name="song_info_no_metadata">Geen metadata beschikbaar</string>
-    <string name="song_info_permission">Rhythm heeft toestemming nodig om de metadata van dit audiobestand te wijzigen. Je ziet mogelijk een systeemdialoog die om toegang vraagt - sta dit toe om je wijzigingen op te slaan.</string>
+    <string name="song_info_permission">Marvel Spectrum heeft toestemming nodig om de metadata van dit audiobestand te wijzigen. Je ziet mogelijk een systeemdialoog die om toegang vraagt - sta dit toe om je wijzigingen op te slaan.</string>
     
     <string name="add_to_playlists">Toevoegen aan afspeellijsten</string>
     <string name="add_to_playlist_action">Toevoegen aan afspeellijst</string>
@@ -769,9 +769,9 @@
     <string name="cache_manage_desc">Beheer gecachte gegevens inclusief afbeeldingen, tijdelijke bestanden en andere app-gegevens.</string>
     
     <string name="beta_welcome">Welkom bij het Bètaprogramma!</string>
-    <string name="beta_desc">Je gebruikt momenteel de bètaversie van Rhythm. Deze versie is nog in ontwikkeling en kan fouten, onvolledige functies of onverwacht gedrag bevatten.</string>
+    <string name="beta_desc">Je gebruikt momenteel de bètaversie van Marvel Spectrum. Deze versie is nog in ontwikkeling en kan fouten, onvolledige functies of onverwacht gedrag bevatten.</string>
     
-    <string name="equalizer_disabled">Equalizer is uitgeschakeld</string>
+    <string name="equalizer_disabled">Trailer Controls is uitgeschakeld</string>
     <string name="equalizer_enable_desc">Schakel de equalizer in om je audio-ervaring aan te passen.</string>
     <string name="equalizer_open_system">Systeemequalizer openen</string>
     
@@ -789,7 +789,7 @@
     <string name="library_reorder_tabs">Herschik tabbladen om je bibliotheekervaring aan te passen</string>
     <string name="external_services_desc">Beheer welke externe API-services actief zijn om je muziekervaring te verbeteren. Schakel services in/uit om dataverbruik en functionaliteit te beheren.</string>
     <string name="lyrics_source_priority_title">Prioriteit tekstbron</string>
-    <string name="lyrics_source_priority_desc_placeholder">Kies waar Rhythm als eerste naar teksten moet zoeken</string>
+    <string name="lyrics_source_priority_desc_placeholder">Kies waar Marvel Spectrum als eerste naar teksten moet zoeken</string>
     <string name="playlist_action_title">Afspeellijstactie</string>
     <string name="playlist_action_desc">Kies wat er gebeurt wanneer je op een nummer in een afspeellijst tikt</string>
     <string name="playlist_action_choose">Kies standaardgedrag bij tikken op nummers in afspeellijsten</string>
@@ -831,7 +831,7 @@
     <string name="updates_disabled_message">App-updates zijn uitgeschakeld in instellingen</string>
     <string name="updates_auto_disabled">Automatisch controleren op updates is uitgeschakeld. Je kunt nog steeds handmatig controleren.</string>
     <string name="updates_up_to_date_message">Je bent helemaal bij!</string>
-    <string name="updates_check_frequency">Hoe vaak moet Rhythm controleren op updates?</string>
+    <string name="updates_check_frequency">Hoe vaak moet Marvel Spectrum controleren op updates?</string>
     <string name="updates_experimental_coming">Meer experimentele functies komen binnenkort in toekomstige updates</string>
     
     <string name="cache_total_size_label">Totale cachegrootte:</string>
@@ -846,7 +846,7 @@
     <string name="external_services">Externe diensten</string>
     <string name="api_services">API-diensten</string>
     
-    <string name="equalizer">Equalizer</string>
+    <string name="equalizer">Trailer Controls</string>
     <string name="frequency_bands">Frequentiebanden</string>
     <string name="frequency_response">Frequentierespons</string>
     <string name="audio_effects">Audio-effecten</string>
@@ -943,7 +943,7 @@
     <string name="settings_show_lyrics_desc">Tekst weergeven indien beschikbaar</string>
     <string name="settings_queue_playback_title">Wachtrij &amp; Afspelen</string>
     <string name="settings_queue_playback_desc">Wachtrij- en afspeelgedrag configureren</string>
-    <string name="settings_equalizer_title">Equalizer</string>
+    <string name="settings_equalizer_title">Trailer Controls</string>
     <string name="settings_equalizer_desc">Audiofrequenties en effecten aanpassen</string>
     <string name="settings_sleep_timer_title">Slaaptimer</string>
     <string name="settings_sleep_timer_desc">Afspelen automatisch stoppen na ingestelde tijd</string>
@@ -1091,7 +1091,7 @@
     <string name="cd_albums">Albums</string>
     <string name="cd_artists">Artiesten</string>
     <string name="cd_songs">Nummers</string>
-    <string name="cd_rhythm_splash">Rhythm</string>
+    <string name="cd_rhythm_splash">Marvel Spectrum</string>
     <string name="cd_search_in_playlist">Nummers zoeken in afspeellijst</string>
     <string name="cd_shuffle_play_action">Shuffle afspelen</string>
     <string name="cd_add_songs_to_playlist">Nummers toevoegen aan afspeellijst</string>
@@ -1207,9 +1207,9 @@
     <string name="device_type_cast_device">Cast-apparaat</string>
     
     <string name="bottomsheet_backup_success_title">Back-up succesvol aangemaakt</string>
-    <string name="bottomsheet_backup_success_msg">Je volledige Rhythm-back-up is aangemaakt inclusief:\n\n• Alle afspeellijsten en hun nummers\n• Favorieten en afspeelgeschiedenis\n• App-instellingen en voorkeuren\n• Equalizer-configuraties\n• Thema-aanpassingen</string>
+    <string name="bottomsheet_backup_success_msg">Je volledige Marvel Spectrum-back-up is aangemaakt inclusief:\n\n• Alle afspeellijsten en hun nummers\n• Favorieten en afspeelgeschiedenis\n• App-instellingen en voorkeuren\n• Trailer Controls-configuraties\n• Thema-aanpassingen</string>
     <string name="bottomsheet_restore_success_title">Herstel succesvol voltooid</string>
-    <string name="bottomsheet_restore_success_msg">Je Rhythm-gegevens zijn succesvol hersteld inclusief:\n\n• Alle afspeellijsten en hun nummers\n• Favorieten en afspeelgeschiedenis\n• App-instellingen en voorkeuren\n• Equalizer-configuraties\n• Thema-aanpassingen</string>
+    <string name="bottomsheet_restore_success_msg">Je Marvel Spectrum-gegevens zijn succesvol hersteld inclusief:\n\n• Alle afspeellijsten en hun nummers\n• Favorieten en afspeelgeschiedenis\n• App-instellingen en voorkeuren\n• Trailer Controls-configuraties\n• Thema-aanpassingen</string>
     <string name="bottomsheet_restart_now">Nu herstarten</string>
     <string name="bottomsheet_ok">OK</string>
     <string name="bottomsheet_error">Fout</string>
@@ -1277,7 +1277,7 @@
     <string name="fallback_unknown_file">Onbekend bestand</string>
     
     <string name="service_app_updates">App-updates</string>
-    <string name="service_rhythm_music">Rhythm Muziek</string>
+    <string name="service_rhythm_music">Marvel Spectrum Muziek</string>
     <string name="service_starting">Service starten…</string>
     <string name="service_loading_settings">Instellingen laden…</string>
     <string name="service_setup_components">Componenten instellen…</string>
@@ -1313,10 +1313,10 @@
     <string name="settings_gestures_desc">Veeg- en aanraakgebaren configureren</string>
     <string name="settings_artist_parsing">Artiesten</string>
     <string name="settings_artist_parsing_desc">Multi-artiest detectie en weergave configureren</string>
-    <string name="settings_rhythm_stats">Rhythm Statistieken</string>
+    <string name="settings_rhythm_stats">Marvel Spectrum Statistieken</string>
     <string name="settings_rhythm_stats_desc">Bekijk je luistergeschiedenis en inzichten</string>
     
-    <string name="stats_title">Rhythm Statistieken</string>
+    <string name="stats_title">Marvel Spectrum Statistieken</string>
     <string name="stats_today">Vandaag</string>
     <string name="stats_this_week">Deze week</string>
     <string name="stats_this_month">Deze maand</string>
@@ -1412,7 +1412,7 @@
     <string name="cd_selected">Geselecteerd</string>
     <string name="cd_remove">Verwijderen</string>
     <string name="cd_delete_playlist">Afspeellijst verwijderen</string>
-    <string name="cd_rhythm_logo">Rhythm Logo</string>
+    <string name="cd_rhythm_logo">Marvel Spectrum Logo</string>
     <string name="cd_report_bug">Fout melden</string>
     <string name="cd_telegram_support">Telegram Support</string>
     <string name="cd_view_github_profile">GitHub-profiel bekijken</string>
@@ -1438,7 +1438,7 @@
     <string name="artist_group_by_album_artist">Groeperen op albumartiest</string>
     <string name="artist_group_by_album_artist_desc">Toon samenwerkingsalbums onder hoofdartiest</string>
     <string name="artist_about_multi_parsing">Over Multi-artiest parsing</string>
-    <string name="artist_parsing_description">Indien ingeschakeld, zal Rhythm automatisch artiestentags met meerdere artiesten splitsen. Dit is handig voor nummers gedownload met yt-dlp of andere tools die scheidingstekens zoals \'/\' gebruiken om artiesten te scheiden.\n\nBackslash (\\\\) kan worden gebruikt om scheidingstekens te escapen.</string>
+    <string name="artist_parsing_description">Indien ingeschakeld, zal Marvel Spectrum automatisch artiestentags met meerdere artiesten splitsen. Dit is handig voor nummers gedownload met yt-dlp of andere tools die scheidingstekens zoals \'/\' gebruiken om artiesten te scheiden.\n\nBackslash (\\\\) kan worden gebruikt om scheidingstekens te escapen.</string>
     <string name="artist_examples">Voorbeelden</string>
     <string name="artist_select_separators">Selecteer artiest-scheidingstekens</string>
     <string name="artist_delimiter_slash">Slash</string>
@@ -1459,7 +1459,7 @@
     <string name="about_collab_lead">Collab &amp; Hoofdontwikkelaar van Project Booming</string>
     <string name="about_canvas_api">Spotify Canvas API-integratie</string>
     
-    <string name="equalizer_title">Equalizer</string>
+    <string name="equalizer_title">Trailer Controls</string>
     <string name="equalizer_my_devices">Mijn apparaten</string>
     
     <string name="action_save_changes">Wijzigingen opslaan</string>
@@ -1545,7 +1545,7 @@
     
     <string name="multi_artist_parsing_title">Multi-artiest parsing</string>
     <string name="multi_artist_parsing_about">Over Multi-artiest parsing</string>
-    <string name="multi_artist_parsing_desc">Indien ingeschakeld, zal Rhythm automatisch artiestentags met meerdere artiesten splitsen. Dit is handig voor nummers gedownload met yt-dlp of andere tools die scheidingstekens zoals \'/\' gebruiken om artiesten te scheiden.\\n\\nBackslash (\\\\) kan worden gebruikt om scheidingstekens te escapen.</string>
+    <string name="multi_artist_parsing_desc">Indien ingeschakeld, zal Marvel Spectrum automatisch artiestentags met meerdere artiesten splitsen. Dit is handig voor nummers gedownload met yt-dlp of andere tools die scheidingstekens zoals \'/\' gebruiken om artiesten te scheiden.\\n\\nBackslash (\\\\) kan worden gebruikt om scheidingstekens te escapen.</string>
     <string name="multi_artist_parsing_examples">Voorbeelden</string>
     <string name="multi_artist_parsing_configure">Scheidingstekens configureren</string>
     <string name="multi_artist_parsing_select_separators">Selecteer artiest-scheidingstekens</string>
@@ -1589,7 +1589,7 @@
     
     <string name="player_chip_favorite">Favoriet</string>
     <string name="player_chip_speed">Afspeelsnelheid</string>
-    <string name="player_chip_equalizer">Equalizer</string>
+    <string name="player_chip_equalizer">Trailer Controls</string>
     <string name="player_chip_sleep_timer">Slaaptimer</string>
     <string name="player_chip_lyrics">Tekst</string>
     <string name="player_chip_album">Album</string>
@@ -1622,7 +1622,7 @@
     <string name="backup_unable_to_read">Kan het back-upbestand niet lezen</string>
     <string name="backup_restore_failed">Herstellen vanuit bestand mislukt: %1$s</string>
     <string name="backup_create_failed">Back-up maken mislukt: %1$s</string>
-    <string name="backup_clipboard_label">Rhythm Back-up</string>
+    <string name="backup_clipboard_label">Marvel Spectrum Back-up</string>
     <string name="backup_status_never">Nooit</string>
     <string name="backup_status_enabled">Ingeschakeld</string>
     <string name="backup_status_manual">Handmatig</string>
@@ -1676,7 +1676,7 @@
     <string name="button_export">Exporteren</string>
     <string name="text_file">Bestand</string>
     <string name="text_paste">Plakken</string>
-    <string name="logo_content_desc">Rhythm Logo</string>
+    <string name="logo_content_desc">Marvel Spectrum Logo</string>
     
     <string name="settings_about_lyrics">Over tekstbronnen</string>
     <string name="settings_adjust_decorations">Pas de hoeveelheid feestelijke versieringen aan</string>
@@ -1807,7 +1807,7 @@
     <string name="settings_snowflake_display_area">Sneeuwvlokweergavegebied</string>
     <string name="settings_snowflake_size">Sneeuwvlokgrootte</string>
     <string name="settings_toggle_decoration_elements">Schakel individuele versieringselementen per positie</string>
-    <string name="settings_multi_artist_parsing_info">Indien ingeschakeld, zal Rhythm automatisch artiestentags met meerdere artiesten splitsen. Dit is handig voor nummers gedownload met yt-dlp of andere tools die scheidingstekens zoals \'/\' gebruiken om artiesten te scheiden.\n\nBackslash (\\) kan worden gebruikt om scheidingstekens te escapen.</string>
+    <string name="settings_multi_artist_parsing_info">Indien ingeschakeld, zal Marvel Spectrum automatisch artiestentags met meerdere artiesten splitsen. Dit is handig voor nummers gedownload met yt-dlp of andere tools die scheidingstekens zoals \'/\' gebruiken om artiesten te scheiden.\n\nBackslash (\\) kan worden gebruikt om scheidingstekens te escapen.</string>
     <string name="settings_embedded_lyrics_info">• Embedded teksten zijn opgeslagen in je audiobestanden\n</string>
     <string name="settings_material_design_credit">• Google Material Design Team voor ontwerpprincipes\n</string>
     <string name="settings_bullet_point">•</string>
