@@ -15,7 +15,9 @@ object ViewingArtworkUtils {
         ?.let { if (it.startsWith("http")) it else "$TMDB_IMAGE_BASE_URL/$size$it" }
 
     fun resolvePoster(item: ViewingItem): String? = firstUsable(
+        item.localPoster?.takeIf { isLocalAssetArtwork(it) },
         item.localPoster,
+        item.localBackdrop?.takeIf { isLocalAssetArtwork(it) },
         item.tmdbPoster,
         item.poster,
         item.omdbPoster
@@ -31,6 +33,8 @@ object ViewingArtworkUtils {
     )
 
     fun resolveBackdrop(item: ViewingItem): String? = firstUsable(
+        item.localBackdrop?.takeIf { isLocalAssetArtwork(it) },
+        item.localPoster?.takeIf { isLocalAssetArtwork(it) },
         item.localBackdrop,
         item.tmdbBackdrop,
         item.backdrop
@@ -44,7 +48,11 @@ object ViewingArtworkUtils {
         list.items.firstOrNull()?.backdrop
     )
 
-    private fun firstUsable(vararg values: String?): String? = values.firstOrNull { value ->
-        !value.isNullOrBlank() && !value.contains("[I WILL PROVIDE POSTER FOLDER PATH LATER]") && value != "N/A"
-    }
+    fun isLocalAssetArtwork(value: String): Boolean = value.startsWith("file:///android_asset/mcu_posters/")
+
+    fun isUsableArtwork(value: String?): Boolean = !value.isNullOrBlank() &&
+        !value.contains("[I WILL PROVIDE POSTER FOLDER PATH LATER]") &&
+        value != "N/A"
+
+    private fun firstUsable(vararg values: String?): String? = values.firstOrNull(::isUsableArtwork)
 }

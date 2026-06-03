@@ -438,16 +438,21 @@ fun LocalNavigation(
 
     // Provide dynamic mini-player padding with comprehensive navigation handling
     val showMiniPlayer =
-        currentSong != null &&
+        localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING &&
+            currentSong != null &&
             !isMiniPlayerDismissed &&
             currentRoute != Screen.Player.route &&
             currentRoute != Screen.Search.route
-    val showNavBar = remember(currentRoute) {
-        currentRoute == Screen.Home.route ||
-            isLibraryRoute ||
-            currentRoute == Screen.Search.route ||
-            currentRoute == Screen.Settings.route ||
-            currentRoute == Screen.RhythmStats.route
+    val showNavBar = remember(currentRoute, localExperienceMode) {
+        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+            currentRoute == Screen.Home.route || isLibraryRoute || currentRoute == Screen.Search.route || currentRoute == Screen.Settings.route
+        } else {
+            currentRoute == Screen.Home.route ||
+                isLibraryRoute ||
+                currentRoute == Screen.Search.route ||
+                currentRoute == Screen.Settings.route ||
+                currentRoute == Screen.RhythmStats.route
+        }
     }
     val showBottomNav = remember(currentRoute) {
         currentRoute == Screen.Home.route || isLibraryRoute
@@ -519,7 +524,8 @@ fun LocalNavigation(
                         navController = navController,
                         firstVisibleLibraryTab = firstVisibleLibraryTab,
                         context = context,
-                        haptic = haptic
+                        haptic = haptic,
+                        localExperienceMode = localExperienceMode
                     )
                 }
                 
@@ -2813,7 +2819,8 @@ private fun LocalNavigationRail(
     navController: NavHostController,
     firstVisibleLibraryTab: LibraryTab,
     context: android.content.Context,
-    haptic: androidx.compose.ui.hapticfeedback.HapticFeedback
+    haptic: androidx.compose.ui.hapticfeedback.HapticFeedback,
+    localExperienceMode: String
 ) {
     val navigateToTopLevel: (String) -> Unit = { route ->
         navController.navigate(route) {
@@ -2850,7 +2857,7 @@ private fun LocalNavigationRail(
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)
             ) {
             val libraryRoute = Screen.Library.createRoute(firstVisibleLibraryTab)
-            val items = listOf(
+            val items = listOfNotNull(
                 LocalNavRailItem(
                     route = Screen.Home.route,
                     title = stringResource(R.string.settings_home_screen),
@@ -2869,7 +2876,7 @@ private fun LocalNavigationRail(
                         navigateToTopLevel(libraryRoute)
                     }
                 ),
-                LocalNavRailItem(
+                if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) null else LocalNavRailItem(
                     route = Screen.RhythmStats.route,
                     title = stringResource(R.string.localnavigation_stats),
                     selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
