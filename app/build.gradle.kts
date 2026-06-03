@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.cinemaverse.mcu"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 503941039
         versionName = "5.0.394.1039 Beta"
 
@@ -71,9 +71,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // GitHub release artifacts are intentionally unsigned so users and downstream
-            // distributors can apply their own signing keys after downloading the APK.
-            signingConfig = null
+            // Sign release APKs with the default debug key so CI/release artifacts are
+            // directly installable. Unsigned APKs fail package installation with
+            // "Failed to collect certificates" because Android requires every APK
+            // to carry a signing certificate.
+            signingConfig = signingConfigs.getByName("debug")
 //            ndk {
 //                debugSymbolLevel = "SYMBOL_TABLE"
 //            }

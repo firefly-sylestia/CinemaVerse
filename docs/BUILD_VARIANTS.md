@@ -9,7 +9,7 @@ Rhythm uses Android build variants (product flavors) to create different builds 
 ```bash
 # Build commands
 ./gradlew assembleGithubDebug        # Universal debug APK for GitHub artifacts
-./gradlew assembleGithubRelease      # Universal unsigned release APK for GitHub artifacts
+./gradlew assembleGithubRelease      # Universal signed release APK for GitHub artifacts
 
 # List all build variants
 ./gradlew tasks --all | grep assemble
@@ -61,7 +61,7 @@ ENABLE_SPOTIFY_SEARCH = true
 
 **Default Settings:** APIs and auto-updates enabled by default (opt-out available)
 
-**Use Case:** Users who download directly from GitHub releases get the full-featured experience. Release APKs are intentionally unsigned; debug APKs use the default debug signing config.
+**Use Case:** Users who download directly from GitHub releases get the full-featured experience. Release APKs are signed with the default debug signing config so GitHub/CI APK artifacts can be installed directly.
 
 ---
 

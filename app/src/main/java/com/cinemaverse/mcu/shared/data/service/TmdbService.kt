@@ -15,7 +15,7 @@ import java.net.URL
 
 class TmdbService(
     private val apiKey: String = BuildConfig.TMDB_API_KEY,
-    private val readAccessToken: String = BuildConfig.TMDB_READ_ACCESS_TOKEN
+    private val readAccessToken: String = BuildConfig.TMDB_READ_ACCESS_TOKEN.ifBlank { DEFAULT_READ_ACCESS_TOKEN }
 ) {
     val hasCredentials: Boolean get() = apiKey.isNotBlank() || readAccessToken.isNotBlank()
 
@@ -29,9 +29,35 @@ class TmdbService(
         }
     }
 
-    suspend fun getTmdbMovieDetails(movieId: Int): Result<ViewingItem> = withContext(Dispatchers.IO) {
+    suspend fun getTmdbMovieDetails(movieId: Int): Result<ViewingItem> = getTmdbDetails(movieId, false)
+
+    suspend fun getTmdbViewingDetails(item: ViewingItem): Result<ViewingItem> = withContext(Dispatchers.IO) {
         if (!hasCredentials) return@withContext Result.failure(IllegalStateException("TMDB API key/token is missing; using local viewing-list data."))
-        runCatching { normalizeTmdbMovie(request("/movie/$movieId", "append_to_response=credits,videos,recommendations,images,external_ids")) }
+        val isTv = item.type == com.cinemaverse.mcu.shared.data.viewing.ViewingType.SERIES || item.type == com.cinemaverse.mcu.shared.data.viewing.ViewingType.EPISODE
+        runCatching {
+            item.tmdbId?.let { id ->
+                return@runCatching normalizeTmdbMovie(
+                    request("/${if (isTv) "tv" else "movie"}/$id", "append_to_response=credits,videos,recommendations,images,external_ids"),
+                    mediaType = if (isTv) "tv" else "movie"
+                )
+            }
+            val params = StringBuilder("query=${item.title.urlEncode()}&include_adult=false&page=1")
+            item.year?.let { params.append("&year=${it.urlEncode()}") }
+            val results = request("/search/multi", params.toString()).optJSONArray("results")
+            val best = (0 until (results?.length() ?: 0))
+                .mapNotNull { results?.optJSONObject(it) }
+                .firstOrNull { candidate ->
+                    candidate.optString("poster_path").takeUsable() != null && candidate.optString("media_type") in setOf("movie", "tv")
+                } ?: throw IllegalStateException("No TMDB poster match for ${item.title}")
+            val mediaType = if (best.optString("media_type") == "tv") "tv" else "movie"
+            val id = best.optInt("id")
+            normalizeTmdbMovie(request("/$mediaType/$id", "append_to_response=credits,videos,recommendations,images,external_ids"), mediaType)
+        }
+    }
+
+    private suspend fun getTmdbDetails(movieId: Int, isTv: Boolean): Result<ViewingItem> = withContext(Dispatchers.IO) {
+        if (!hasCredentials) return@withContext Result.failure(IllegalStateException("TMDB API key/token is missing; using local viewing-list data."))
+        runCatching { normalizeTmdbMovie(request("/${if (isTv) "tv" else "movie"}/$movieId", "append_to_response=credits,videos,recommendations,images,external_ids"), if (isTv) "tv" else "movie") }
     }
 
     suspend fun getTmdbMovieVideos(movieId: Int): Result<List<String>> = withContext(Dispatchers.IO) {
@@ -63,7 +89,7 @@ class TmdbService(
         runCatching { request("/collection/$collectionId") }
     }
 
-    fun normalizeTmdbMovie(json: JSONObject): ViewingItem {
+    fun normalizeTmdbMovie(json: JSONObject, mediaType: String = json.optString("media_type", "movie")): ViewingItem {
         val genres = json.optJSONArray("genres")?.let { array ->
             (0 until array.length()).mapNotNull { array.optJSONObject(it)?.optString("name")?.takeUsable() }
         } ?: emptyList()
@@ -73,13 +99,14 @@ class TmdbService(
         val releaseDate = json.optString("release_date").takeUsable()
         return ViewingItem(
             id = json.optInt("id").takeIf { it > 0 }?.toString() ?: json.optString("title").slug(),
-            title = json.optString("title", json.optString("name")),
-            originalTitle = json.optString("original_title").takeUsable(),
-            year = releaseDate?.take(4),
-            releaseDate = releaseDate,
+            title = json.optString("title").takeUsable() ?: json.optString("name"),
+            originalTitle = (json.optString("original_title").takeUsable() ?: json.optString("original_name").takeUsable()),
+            type = if (mediaType == "tv") com.cinemaverse.mcu.shared.data.viewing.ViewingType.SERIES else com.cinemaverse.mcu.shared.data.viewing.ViewingType.MOVIE,
+            year = (releaseDate ?: json.optString("first_air_date").takeUsable())?.take(4),
+            releaseDate = releaseDate ?: json.optString("first_air_date").takeUsable(),
             imdbId = imdbId,
             tmdbId = json.optInt("id").takeIf { it > 0 },
-            runtime = json.optInt("runtime").takeIf { it > 0 }?.let { "$it min" },
+            runtime = (json.optInt("runtime").takeIf { it > 0 } ?: json.optJSONArray("episode_run_time")?.optInt(0)?.takeIf { it > 0 })?.let { "$it min" },
             genres = genres,
             plot = json.optString("overview").takeUsable(),
             overview = json.optString("overview").takeUsable(),
@@ -94,7 +121,8 @@ class TmdbService(
             director = credits.second.firstOrNull { it.job == "Director" }?.name,
             writer = credits.second.filter { it.job?.contains("Writer", true) == true || it.job?.contains("Screenplay", true) == true }.joinToString { it.name }.takeUsable(),
             actors = credits.first.take(8).map { it.name },
-            tmdbRating = json.optDouble("vote_average").takeIf { it > 0.0 }
+            tmdbRating = json.optDouble("vote_average").takeIf { it > 0.0 },
+            metadataSource = com.cinemaverse.mcu.shared.data.viewing.MetadataSource.TMDB
         )
     }
 
@@ -140,6 +168,8 @@ class TmdbService(
         return connection.inputStream.bufferedReader().use { JSONObject(it.readText()) }
     }
 }
+
+private const val DEFAULT_READ_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NWVkYTQ4Y2Y1ODAzZjIyMzA0ZmQyMWY0ZjA2YTM1ZSIsIm5iZiI6MTc3ODY4NTg2My42ODcsInN1YiI6IjZhMDQ5N2E3N2IyZDk3NzQ2MDM3N2E1OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.XTD8e-B7awrTVIJd5WtD3vZ5FnWjE8sWkSjgYIeauAA"
 
 private fun String.urlEncode(): String = URLEncoder.encode(this, "UTF-8")
 private fun String.takeUsable(): String? = takeIf { it.isNotBlank() && it != "N/A" && it != "null" }
