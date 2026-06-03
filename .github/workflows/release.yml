@@ -26,7 +26,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+        run: sdkmanager "platforms;android-37" "build-tools;37.0.0"
 
       - name: Create private.properties for build
         env:
@@ -42,7 +42,7 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build universal GitHub debug and unsigned release APKs
+      - name: Build universal GitHub debug and signed release APKs
         run: ./gradlew assembleGithubDebug assembleGithubRelease --stacktrace
 
       - name: Verify GitHub APK artifacts
@@ -57,17 +57,13 @@ jobs:
             exit 1
           fi
           if [ "${#release_apks[@]}" -ne 1 ]; then
-            echo "Expected exactly 1 universal unsigned release APK, found ${#release_apks[@]}" >&2
+            echo "Expected exactly 1 universal signed release APK, found ${#release_apks[@]}" >&2
             exit 1
           fi
           build_tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
           "$build_tools/apksigner" verify --verbose "${debug_apks[0]}"
-          if "$build_tools/apksigner" verify --verbose "${release_apks[0]}"; then
-            echo "Release APK was signed, but this workflow must publish an unsigned release APK" >&2
-            exit 1
-          else
-            echo "Release APK is unsigned as expected."
-          fi
+          "$build_tools/apksigner" verify --verbose "${release_apks[0]}"
+          echo "Release APK is signed and installable."
 
       - name: Generate checksums
         run: |
