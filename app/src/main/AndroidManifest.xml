@@ -36,7 +36,7 @@
     </queries>
 
     <application
-        android:name=".RhythmApplication"
+        android:name=".McuApplication"
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -80,19 +80,19 @@
         <receiver
             android:name=".infrastructure.widget.MusicWidgetProvider"
             android:exported="true"
-            android:label="Rhythm Music (Legacy)">
+            android:label="Marvel Spectrum Widget (Legacy)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="chromahub.rhythm.app.infrastructure.widget.PLAY_PAUSE" />
-                <action android:name="chromahub.rhythm.app.infrastructure.widget.SKIP_NEXT" />
-                <action android:name="chromahub.rhythm.app.infrastructure.widget.SKIP_PREVIOUS" />
+                <action android:name="com.cinemaverse.mcu.infrastructure.widget.PLAY_PAUSE" />
+                <action android:name="com.cinemaverse.mcu.infrastructure.widget.SKIP_NEXT" />
+                <action android:name="com.cinemaverse.mcu.infrastructure.widget.SKIP_PREVIOUS" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
         
-        <!-- Rhythm Music Widget (Modern Glance with Material 3) -->
+        <!-- Marvel Spectrum Widget (Modern Glance with Material 3) -->
         <receiver
             android:name=".infrastructure.widget.glance.RhythmWidgetReceiver"
             android:exported="true"
@@ -156,7 +156,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.APP_MUSIC" />
             </intent-filter>
             
             <!-- Handle playlists -->

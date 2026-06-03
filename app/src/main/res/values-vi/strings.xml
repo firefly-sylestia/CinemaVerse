@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">Rhythm</string>
+    <string name="app_name">Marvel Spectrum</string>
 
     <string name="home">Trang chủ</string>
     <string name="library">Thư viện</string>
     <string name="search">Tìm kiếm</string>
     <string name="settings">Cài đặt</string>
 
-    <string name="media3_notification_channel_name">Rhythm Music</string>
+    <string name="media3_notification_channel_name">Marvel Spectrum</string>
     <string name="media3_notification_channel_description">Điều khiển phát nhạc</string>
 
-    <string name="widget_description">Rhythm Music Widget - Điều khiển phát nhạc với bố cục phản hồi hỗ trợ kích thước lưới từ 2x1 đến 5x5</string>
-    <string name="widget_description_glance">Rhythm Music - Điều khiển phát nhạc với 9 bố cục phản hồi, thiết kế Material 3 và cập nhật trạng thái thời gian thực</string>
-    <string name="widget_name_glance">Rhythm Music</string>
+    <string name="widget_description">Marvel Spectrum Widget - Điều khiển phát nhạc với bố cục phản hồi hỗ trợ kích thước lưới từ 2x1 đến 5x5</string>
+    <string name="widget_description_glance">Marvel Spectrum - Điều khiển phát nhạc với 9 bố cục phản hồi, thiết kế Material 3 và cập nhật trạng thái thời gian thực</string>
+    <string name="widget_name_glance">Marvel Spectrum</string>
     <string name="no_song_playing">Không có bài hát nào đang phát</string>
     <string name="unknown_artist">Nghệ sĩ không xác định</string>
     <string name="unknown_album">Album không xác định</string>
@@ -43,7 +43,7 @@
     <string name="widget_auto_update">Tự động cập nhật</string>
     <string name="widget_auto_update_desc">Tự động cập nhật tiện ích khi thay đổi bài hát</string>
     <string name="widget_tips_title">Mẹo sử dụng tiện ích</string>
-    <string name="widget_tip_sizes">Rhythm hỗ trợ nhiều kích thước tiện ích từ 2x1 đến 5x5</string>
+    <string name="widget_tip_sizes">Marvel Spectrum hỗ trợ nhiều kích thước tiện ích từ 2x1 đến 5x5</string>
     <string name="widget_tip_types">Cả tiện ích cũ và Glance hiện đại đều có sẵn</string>
     <string name="widget_tip_controls">Chạm vào tiện ích để mở ứng dụng, các nút dùng để điều khiển phát nhạc</string>
     <string name="widget_tip_resize">Nhấn giữ và thay đổi kích thước để xem các bố cục khác nhau</string>
@@ -221,7 +221,7 @@
     <string name="settings_about_team_chromahub">Team ChromaHub</string>
     <string name="settings_about_special_thanks">Lời cảm ơn đặc biệt</string>
     <string name="settings_about_community">Cộng đồng</string>
-    <string name="settings_about_community_desc">Đặc biệt cảm ơn các thành viên cộng đồng tuyệt vời của chúng tôi đã đóng góp để làm cho Rhythm tốt hơn thông qua thử nghiệm, phản hồi, đề xuất và hợp tác.</string>
+    <string name="settings_about_community_desc">Đặc biệt cảm ơn các thành viên cộng đồng tuyệt vời của chúng tôi đã đóng góp để làm cho Marvel Spectrum tốt hơn thông qua thử nghiệm, phản hồi, đề xuất và hợp tác.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">Quản lý cập nhật trên IzzyOnDroid</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
@@ -229,7 +229,7 @@
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Tích hợp API Spotify Canvas</string>
     <string name="settings_about_want_featured">Bạn muốn được xuất hiện ở đây?</string>
-    <string name="settings_about_contribute">Đóng góp cho Rhythm thông qua thử nghiệm, phản hồi hoặc đóng góp mã nguồn và tham gia cộng đồng tuyệt vời của chúng tôi!</string>
+    <string name="settings_about_contribute">Đóng góp cho Marvel Spectrum thông qua thử nghiệm, phản hồi hoặc đóng góp mã nguồn và tham gia cộng đồng tuyệt vời của chúng tôi!</string>
     <string name="settings_about_open_source_libraries">Thư viện mã nguồn mở</string>
     <string name="settings_about_open_source_libs">Thư viện mã nguồn mở</string>
     <string name="settings_about_view_dependencies">Xem các thành phần phụ thuộc</string>
@@ -251,7 +251,7 @@
 
     <string name="status_disabled">Đã tắt</string>
 
-    <string name="home_title">Rhythm</string>
+    <string name="home_title">Marvel Spectrum</string>
     <string name="home_settings_cd">Cài đặt</string>
     <string name="home_discover_albums">Khám phá Album</string>
     <string name="home_explore_music">Khám phá âm nhạc tuyệt vời</string>
@@ -304,7 +304,7 @@
     <string name="home_no_recommendations">Không có đề xuất</string>
     <string name="home_no_recommendations_desc">Hãy nghe nhạc để nhận các đề xuất được cá nhân hóa</string>
 
-    <string name="home_listening_stats">Thống kê Rhythm của bạn</string>
+    <string name="home_listening_stats">Thống kê Marvel Spectrum của bạn</string>
     <string name="home_listening_stats_subtitle">Hành trình âm nhạc tuần này</string>
     <string name="home_stat_listening_time">Thời gian nghe</string>
     <string name="home_stat_songs_played">Bài hát đã phát</string>
@@ -379,7 +379,7 @@
     <string name="sort_descending">Giảm dần</string>
 
     <string name="storage_permission_required">Yêu cầu quyền truy cập bộ nhớ</string>
-    <string name="storage_permission_desc">Để duyệt các tệp nhạc và khám phá bộ nhớ thiết bị của bạn, Rhythm cần quyền truy cập vào các tệp và phương tiện của bạn.</string>
+    <string name="storage_permission_desc">Để duyệt các tệp nhạc và khám phá bộ nhớ thiết bị của bạn, Marvel Spectrum cần quyền truy cập vào các tệp và phương tiện của bạn.</string>
     <string name="storage_permission_audio_only">Điều này chỉ cho phép truy cập vào các tệp âm thanh và thư mục chứa nhạc.</string>
 
     <string name="player_now_playing">ĐANG PHÁT</string>
@@ -429,7 +429,7 @@
     <string name="ui_install_update">Cài đặt bản cập nhật</string>
     <string name="ui_cancel_download">Hủy tải xuống</string>
 
-    <string name="common_rhythm">Rhythm</string>
+    <string name="common_rhythm">Marvel Spectrum</string>
     <string name="common_songs">Bài hát</string>
     <string name="common_home">Trang chủ</string>
     <string name="common_library">Thư viện</string>
@@ -472,7 +472,7 @@
     <string name="updates_smart_polling_desc">Sử dụng kiểm tra HTTP hiệu quả để phát hiện cập nhật trong khi giảm thiểu các cuộc gọi GitHub API. Bạn sẽ nhận được thông báo ngay lập tức khi có phiên bản mới.</string>
     <string name="updates_channel_desc">Chọn kênh cập nhật để theo dõi:</string>
 
-    <string name="onboarding_welcome_title">Rhythm</string>
+    <string name="onboarding_welcome_title">Marvel Spectrum</string>
     <string name="onboarding_welcome_subtitle">Trình phát nhạc ngoại tuyến tất cả trong một của bạn</string>
     <string name="onboarding_welcome_desc">Cá nhân hóa mọi khía cạnh trải nghiệm nghe của bạn với các tính năng mạnh mẽ và quyền riêng tư hoàn toàn. Phát nhạc ngoại tuyến, không quảng cáo, với quyền kiểm soát đầy đủ.</string>
     <string name="onboarding_get_started">Bắt đầu</string>
@@ -498,7 +498,7 @@
     <string name="onboarding_audio_desc">Tùy chỉnh trải nghiệm âm thanh của bạn với phản hồi xúc giác, màn hình mặc định, điều khiển âm lượng, hành vi hàng đợi, cài đặt trộn bài, hiển thị lời bài hát và cài đặt bộ cân bằng (equalizer).</string>
     <string name="onboarding_lyrics_sources">API: Trực tuyến • Nhúng: Metadata • Cục bộ: Tệp .lrc</string>
     <string name="onboarding_additional_features">Tính năng âm thanh bổ sung</string>
-    <string name="onboarding_equalizer_desc">Equalizer: Tinh chỉnh tần số âm thanh trong Cài đặt > Equalizer</string>
+    <string name="onboarding_equalizer_desc">Trailer Controls: Tinh chỉnh tần số âm thanh trong Cài đặt > Trailer Controls</string>
     <string name="onboarding_sleep_timer_desc">Hẹn giờ ngủ: Tự động dừng phát sau thời gian cài đặt (truy cập từ màn hình Đang phát)</string>
     <string name="onboarding_library_title">Sắp xếp thư viện nhạc của bạn</string>
     <string name="onboarding_library_desc">Tùy chỉnh cách hiển thị album, nghệ sĩ và bài hát của bạn. Chọn bố cục, thứ tự sắp xếp và sắp xếp tab ưa thích của bạn.</string>
@@ -507,8 +507,8 @@
     <string name="onboarding_library_2">Tạo và quản lý danh sách phát trực tiếp từ màn hình Thư viện</string>
     <string name="onboarding_library_3">Các tùy chọn hiển thị và sắp xếp nâng cao có sẵn trong Cài đặt > Tùy chỉnh chủ đề</string>
     <string name="onboarding_library_4">Danh sách phát mặc định (Mới thêm gần đây, Được chơi nhiều nhất) có thể được bật tắt trong Cài đặt > Danh sách phát</string>
-    <string name="onboarding_theme_title">Biến Rhythm thành của riêng bạn</string>
-    <string name="onboarding_theme_desc">Cá nhân hóa giao diện của Rhythm để phù hợp với phong cách của bạn. Chọn chủ đề hệ thống, phông chữ hoặc màu động Material You (Android 12+).</string>
+    <string name="onboarding_theme_title">Biến Marvel Spectrum thành của riêng bạn</string>
+    <string name="onboarding_theme_desc">Cá nhân hóa giao diện của Marvel Spectrum để phù hợp với phong cách của bạn. Chọn chủ đề hệ thống, phông chữ hoặc màu động Material You (Android 12+).</string>
     <string name="onboarding_live_preview">Xem trước trực tiếp</string>
     <string name="onboarding_primary">Chính</string>
     <string name="onboarding_container">Vùng chứa (Container)</string>
@@ -535,11 +535,11 @@
     <string name="onboarding_storage_desc">Quản lý kích thước bộ nhớ đệm và lưu trữ trong Cài đặt > Quản lý bộ nhớ đệm</string>
 
     <string name="onboarding_complete_title">Bạn đã sẵn sàng!</string>
-    <string name="onboarding_complete_desc">Rhythm đã sẵn sàng để phát nhạc! Thư viện nhạc của bạn đang được quét trong nền. Dưới đây là những gì đã được cấu hình:</string>
+    <string name="onboarding_complete_desc">Marvel Spectrum đã sẵn sàng để phát nhạc! Thư viện nhạc của bạn đang được quét trong nền. Dưới đây là những gì đã được cấu hình:</string>
     <string name="onboarding_whats_next">Làm gì tiếp theo?</string>
     <string name="onboarding_next_browse">Duyệt bài hát, album và nghệ sĩ của bạn</string>
     <string name="onboarding_next_create">Tạo danh sách phát đầu tiên của bạn</string>
-    <string name="onboarding_next_finetune">Tinh chỉnh âm thanh với Equalizer</string>
+    <string name="onboarding_next_finetune">Tinh chỉnh âm thanh với Trailer Controls</string>
     <string name="onboarding_next_explore">Khám phá thêm cài đặt bất cứ lúc nào</string>
     <string name="onboarding_settings_change">Tất cả cài đặt có thể thay đổi bất cứ lúc nào trong Cài đặt</string>
 
@@ -559,8 +559,8 @@
     <string name="onboarding_grant_permissions">Cấp quyền</string>
     <string name="onboarding_permissions_granted_desc">Tất cả các quyền cần thiết đã được cấp. Bạn đã sẵn sàng để tiếp tục!</string>
     <string name="onboarding_redirect_settings_desc">Để cấp các quyền cần thiết, vui lòng điều hướng đến cài đặt ứng dụng trên thiết bị của bạn.</string>
-    <string name="onboarding_rationale_desc">Rhythm yêu cầu một số quyền nhất định để hoạt động chính xác. Vui lòng cấp quyền để tiếp tục.</string>
-    <string name="onboarding_permissions_required_desc">Để sử dụng đầy đủ các tính năng của Rhythm, chúng tôi cần bạn cho phép truy cập một số khả năng của thiết bị.</string>
+    <string name="onboarding_rationale_desc">Marvel Spectrum yêu cầu một số quyền nhất định để hoạt động chính xác. Vui lòng cấp quyền để tiếp tục.</string>
+    <string name="onboarding_permissions_required_desc">Để sử dụng đầy đủ các tính năng của Marvel Spectrum, chúng tôi cần bạn cho phép truy cập một số khả năng của thiết bị.</string>
     <string name="onboarding_permission_music_title">Truy cập thư viện nhạc</string>
     <string name="onboarding_permission_music_desc">Đọc các tệp nhạc cục bộ và hiển thị chúng trong ứng dụng</string>
     <string name="onboarding_permission_bluetooth_title">Kết nối Bluetooth</string>
@@ -571,9 +571,9 @@
     <string name="onboarding_haptic_title">Phản hồi xúc giác</string>
     <string name="onboarding_haptic_desc">Bật rung nhẹ khi tương tác để có trải nghiệm xúc giác tốt hơn.</string>
     <string name="onboarding_default_screen_title">Màn hình khởi động mặc định</string>
-    <string name="onboarding_default_screen_desc">Chọn màn hình mở ra khi bạn khởi chạy Rhythm</string>
+    <string name="onboarding_default_screen_desc">Chọn màn hình mở ra khi bạn khởi chạy Marvel Spectrum</string>
     <string name="onboarding_system_volume_title">Điều khiển âm lượng hệ thống</string>
-    <string name="onboarding_system_volume_desc">Cho phép các nút âm lượng vật lý của thiết bị điều khiển âm lượng phát nhạc của Rhythm.</string>
+    <string name="onboarding_system_volume_desc">Cho phép các nút âm lượng vật lý của thiết bị điều khiển âm lượng phát nhạc của Marvel Spectrum.</string>
     <string name="onboarding_auto_queue_title">Tự động thêm vào hàng đợi</string>
     <string name="onboarding_auto_queue_desc">Tự động tạo hàng đợi theo ngữ cảnh từ album/nghệ sĩ khi phát một bài hát.</string>
     <string name="onboarding_clear_queue_title">Xóa hàng đợi khi phát bài mới</string>
@@ -609,7 +609,7 @@
     <string name="onboarding_enable_updates_title">Bật cập nhật</string>
     <string name="onboarding_enable_updates_desc">Cho phép ứng dụng kiểm tra và tải xuống các bản cập nhật</string>
     <string name="onboarding_periodic_check_title">Kiểm tra định kỳ</string>
-    <string name="onboarding_periodic_check_desc">Tự động kiểm tra cập nhật từ GitHub repo của Rhythm</string>
+    <string name="onboarding_periodic_check_desc">Tự động kiểm tra cập nhật từ GitHub repo của Marvel Spectrum</string>
     <string name="onboarding_update_notifications_title">Thông báo cập nhật</string>
     <string name="onboarding_update_notifications_desc">Nhận thông báo khi có phiên bản mới</string>
     <string name="onboarding_smart_polling_title">Smart Polling</string>
@@ -759,7 +759,7 @@
 
     <string name="song_info_title">Thông tin bài hát</string>
     <string name="song_info_no_metadata">Không có metadata</string>
-    <string name="song_info_permission">Rhythm cần quyền để sửa đổi metadata của tệp âm thanh này. Bạn có thể thấy hộp thoại hệ thống yêu cầu quyền truy cập - vui lòng cho phép để lưu các thay đổi của bạn.</string>
+    <string name="song_info_permission">Marvel Spectrum cần quyền để sửa đổi metadata của tệp âm thanh này. Bạn có thể thấy hộp thoại hệ thống yêu cầu quyền truy cập - vui lòng cho phép để lưu các thay đổi của bạn.</string>
 
     <string name="add_to_playlists">Thêm vào danh sách phát</string>
     <string name="add_to_playlist_action">Thêm vào danh sách phát</string>
@@ -770,11 +770,11 @@
     <string name="cache_manage_desc">Quản lý dữ liệu được lưu trong bộ nhớ đệm bao gồm hình ảnh, tệp tạm thời và dữ liệu ứng dụng khác.</string>
 
     <string name="beta_welcome">Chào mừng đến với Chương trình Beta!</string>
-    <string name="beta_desc">Bạn hiện đang sử dụng phiên bản beta của Rhythm. Phiên bản này vẫn đang được phát triển và có thể chứa lỗi, tính năng chưa hoàn thiện hoặc hành vi không mong muốn.</string>
+    <string name="beta_desc">Bạn hiện đang sử dụng phiên bản beta của Marvel Spectrum. Phiên bản này vẫn đang được phát triển và có thể chứa lỗi, tính năng chưa hoàn thiện hoặc hành vi không mong muốn.</string>
 
-    <string name="equalizer_disabled">Equalizer đã tắt</string>
+    <string name="equalizer_disabled">Trailer Controls đã tắt</string>
     <string name="equalizer_enable_desc">Bật equalizer để tùy chỉnh trải nghiệm âm thanh của bạn.</string>
-    <string name="equalizer_open_system">Mở Equalizer hệ thống</string>
+    <string name="equalizer_open_system">Mở Trailer Controls hệ thống</string>
 
     <string name="theme_color_schemes_unavailable">Các phối màu chỉ khả dụng khi sử dụng nguồn màu Tùy chỉnh.</string>
     <string name="theme_color_schemes_switch">Chuyển sang Tùy chỉnh trong cài đặt Nguồn màu để truy cập các phối màu được xác định trước.</string>
@@ -790,7 +790,7 @@
     <string name="library_reorder_tabs">Sắp xếp lại các tab để tùy chỉnh trải nghiệm thư viện của bạn</string>
     <string name="external_services_desc">Kiểm soát các dịch vụ API bên ngoài nào đang hoạt động để nâng cao trải nghiệm âm nhạc của bạn. Bật/tắt các dịch vụ để quản lý việc sử dụng dữ liệu và chức năng.</string>
     <string name="lyrics_source_priority_title">Ưu tiên nguồn lời bài hát</string>
-    <string name="lyrics_source_priority_desc_placeholder">Chọn nơi Rhythm nên tìm lời bài hát trước</string>
+    <string name="lyrics_source_priority_desc_placeholder">Chọn nơi Marvel Spectrum nên tìm lời bài hát trước</string>
     <string name="playlist_action_title">Hành động danh sách phát</string>
     <string name="playlist_action_desc">Chọn điều gì sẽ xảy ra khi bạn chạm vào một bài hát trong danh sách phát</string>
     <string name="playlist_action_choose">Chọn hành vi mặc định khi chạm vào bài hát trong danh sách phát</string>
@@ -832,7 +832,7 @@
     <string name="updates_disabled_message">Cập nhật ứng dụng đã bị tắt trong cài đặt</string>
     <string name="updates_auto_disabled">Tự động kiểm tra cập nhật đã bị tắt. Bạn vẫn có thể kiểm tra thủ công.</string>
     <string name="updates_up_to_date_message">Bạn đã cập nhật!</string>
-    <string name="updates_check_frequency">Rhythm nên kiểm tra cập nhật bao lâu một lần?</string>
+    <string name="updates_check_frequency">Marvel Spectrum nên kiểm tra cập nhật bao lâu một lần?</string>
     <string name="updates_experimental_coming">Nhiều tính năng thử nghiệm sẽ sớm ra mắt trong các bản cập nhật tương lai</string>
 
     <string name="cache_total_size_label">Tổng kích thước bộ nhớ đệm:</string>
@@ -847,12 +847,12 @@
     <string name="external_services">Dịch vụ bên ngoài</string>
     <string name="api_services">Dịch vụ API</string>
 
-    <string name="equalizer">Equalizer</string>
+    <string name="equalizer">Trailer Controls</string>
     <string name="frequency_bands">Dải tần số</string>
     <string name="frequency_response">Đáp ứng tần số</string>
     <string name="audio_effects">Hiệu ứng âm thanh</string>
     <string name="virtualizer">Virtualizer</string>
-    <string name="system_equalizer">Equalizer hệ thống</string>
+    <string name="system_equalizer">Trailer Controls hệ thống</string>
     <string name="system_equalizer_desc">Truy cập equalizer tích hợp của thiết bị</string>
     <string name="no_equalizer">Không tìm thấy equalizer hệ thống</string>
     <string name="no_audio_ID">Không có ID phiên âm thanh</string>
@@ -946,7 +946,7 @@
     <string name="settings_show_lyrics_desc">Hiển thị lời bài hát khi có sẵn</string>
     <string name="settings_queue_playback_title">Hàng đợi &amp; Phát lại</string>
     <string name="settings_queue_playback_desc">Cấu hình hành vi hàng đợi và phát lại</string>
-    <string name="settings_equalizer_title">Equalizer</string>
+    <string name="settings_equalizer_title">Trailer Controls</string>
     <string name="settings_equalizer_desc">Điều chỉnh tần số âm thanh và hiệu ứng</string>
     <string name="settings_sleep_timer_title">Hẹn giờ ngủ</string>
     <string name="settings_sleep_timer_desc">Tự động dừng phát sau thời gian cài đặt</string>
@@ -1094,7 +1094,7 @@
     <string name="cd_albums">Album</string>
     <string name="cd_artists">Nghệ sĩ</string>
     <string name="cd_songs">Bài hát</string>
-    <string name="cd_rhythm_splash">Rhythm</string>
+    <string name="cd_rhythm_splash">Marvel Spectrum</string>
     <string name="cd_search_in_playlist">Tìm kiếm bài hát trong danh sách phát</string>
     <string name="cd_shuffle_play_action">Phát ngẫu nhiên</string>
     <string name="cd_add_songs_to_playlist">Thêm bài hát vào danh sách phát</string>
@@ -1210,9 +1210,9 @@
     <string name="device_type_cast_device">Thiết bị Cast</string>
 
     <string name="bottomsheet_backup_success_title">Tạo bản sao lưu thành công</string>
-    <string name="bottomsheet_backup_success_msg">Bản sao lưu Rhythm hoàn chỉnh của bạn đã được tạo bao gồm:\n\n• Tất cả danh sách phát và bài hát của chúng\n• Mục yêu thích và lịch sử phát\n• Cài đặt và tùy chọn ứng dụng\n• Cấu hình Equalizer\n• Tùy chỉnh chủ đề</string>
+    <string name="bottomsheet_backup_success_msg">Bản sao lưu Marvel Spectrum hoàn chỉnh của bạn đã được tạo bao gồm:\n\n• Tất cả danh sách phát và bài hát của chúng\n• Mục yêu thích và lịch sử phát\n• Cài đặt và tùy chọn ứng dụng\n• Cấu hình Trailer Controls\n• Tùy chỉnh chủ đề</string>
     <string name="bottomsheet_restore_success_title">Khôi phục hoàn tất thành công</string>
-    <string name="bottomsheet_restore_success_msg">Dữ liệu Rhythm của bạn đã được khôi phục thành công bao gồm:\n\n• Tất cả danh sách phát và bài hát của chúng\n• Mục yêu thích và lịch sử phát\n• Cài đặt và tùy chọn ứng dụng\n• Cấu hình Equalizer\n• Tùy chỉnh chủ đề</string>
+    <string name="bottomsheet_restore_success_msg">Dữ liệu Marvel Spectrum của bạn đã được khôi phục thành công bao gồm:\n\n• Tất cả danh sách phát và bài hát của chúng\n• Mục yêu thích và lịch sử phát\n• Cài đặt và tùy chọn ứng dụng\n• Cấu hình Trailer Controls\n• Tùy chỉnh chủ đề</string>
     <string name="bottomsheet_restart_now">Khởi động lại ngay</string>
     <string name="bottomsheet_ok">OK</string>
     <string name="bottomsheet_error">Lỗi</string>
@@ -1280,7 +1280,7 @@
     <string name="fallback_unknown_file">Tệp không xác định</string>
 
     <string name="service_app_updates">Cập nhật ứng dụng</string>
-    <string name="service_rhythm_music">Rhythm Music</string>
+    <string name="service_rhythm_music">Marvel Spectrum</string>
     <string name="service_starting">Đang khởi động dịch vụ…</string>
     <string name="service_loading_settings">Đang tải cài đặt…</string>
     <string name="service_setup_components">Đang thiết lập các thành phần…</string>
@@ -1316,10 +1316,10 @@
     <string name="settings_gestures_desc">Cấu hình cử chỉ vuốt và chạm</string>
     <string name="settings_artist_parsing">Nghệ sĩ</string>
     <string name="settings_artist_parsing_desc">Cấu hình phát hiện và hiển thị đa nghệ sĩ</string>
-    <string name="settings_rhythm_stats">Thống kê Rhythm</string>
+    <string name="settings_rhythm_stats">Thống kê Marvel Spectrum</string>
     <string name="settings_rhythm_stats_desc">Xem lịch sử nghe và thông tin chi tiết của bạn</string>
 
-    <string name="stats_title">Thống kê Rhythm</string>
+    <string name="stats_title">Thống kê Marvel Spectrum</string>
     <string name="stats_today">Hôm nay</string>
     <string name="stats_this_week">Tuần này</string>
     <string name="stats_this_month">Tháng này</string>
@@ -1415,7 +1415,7 @@
     <string name="cd_selected">Đã chọn</string>
     <string name="cd_remove">Gỡ bỏ</string>
     <string name="cd_delete_playlist">Xóa danh sách phát</string>
-    <string name="cd_rhythm_logo">Rhythm Logo</string>
+    <string name="cd_rhythm_logo">Marvel Spectrum Logo</string>
     <string name="cd_report_bug">Báo lỗi</string>
     <string name="cd_telegram_support">Hỗ trợ Telegram</string>
     <string name="cd_view_github_profile">Xem hồ sơ GitHub</string>
@@ -1441,7 +1441,7 @@
     <string name="artist_group_by_album_artist">Nhóm theo Nghệ sĩ Album</string>
     <string name="artist_group_by_album_artist_desc">Hiển thị các album hợp tác dưới tên nghệ sĩ chính</string>
     <string name="artist_about_multi_parsing">Về phân tích đa nghệ sĩ</string>
-    <string name="artist_parsing_description">Khi được bật, Rhythm sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\n\nDấu gạch chéo ngược (\\\\) có thể được sử dụng để thoát dấu phân cách.</string>
+    <string name="artist_parsing_description">Khi được bật, Marvel Spectrum sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\n\nDấu gạch chéo ngược (\\\\) có thể được sử dụng để thoát dấu phân cách.</string>
     <string name="artist_examples">Ví dụ</string>
     <string name="artist_select_separators">Chọn dấu phân cách nghệ sĩ</string>
     <string name="artist_delimiter_slash">Gạch chéo</string>
@@ -1462,7 +1462,7 @@
     <string name="about_collab_lead">Hợp tác &amp; Nhà phát triển chính của Project Booming</string>
     <string name="about_canvas_api">Tích hợp API Spotify Canvas</string>
 
-    <string name="equalizer_title">Equalizer</string>
+    <string name="equalizer_title">Trailer Controls</string>
     <string name="equalizer_my_devices">Thiết bị của tôi</string>
 
     <string name="action_save_changes">Lưu thay đổi</string>
@@ -1548,7 +1548,7 @@
 
     <string name="multi_artist_parsing_title">Phân tích đa nghệ sĩ</string>
     <string name="multi_artist_parsing_about">Về phân tích đa nghệ sĩ</string>
-    <string name="multi_artist_parsing_desc">Khi được bật, Rhythm sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\\n\\nDấu gạch chéo ngược (\\\\) có thể được sử dụng để thoát dấu phân cách.</string>
+    <string name="multi_artist_parsing_desc">Khi được bật, Marvel Spectrum sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\\n\\nDấu gạch chéo ngược (\\\\) có thể được sử dụng để thoát dấu phân cách.</string>
     <string name="multi_artist_parsing_examples">Ví dụ</string>
     <string name="multi_artist_parsing_configure">Cấu hình dấu phân cách</string>
     <string name="multi_artist_parsing_select_separators">Chọn dấu phân cách nghệ sĩ</string>
@@ -1592,7 +1592,7 @@
 
     <string name="player_chip_favorite">Yêu thích</string>
     <string name="player_chip_speed">Tốc độ phát</string>
-    <string name="player_chip_equalizer">Equalizer</string>
+    <string name="player_chip_equalizer">Trailer Controls</string>
     <string name="player_chip_sleep_timer">Hẹn giờ ngủ</string>
     <string name="player_chip_lyrics">Lời bài hát</string>
     <string name="player_chip_album">Album</string>
@@ -1625,7 +1625,7 @@
     <string name="backup_unable_to_read">Không thể đọc tệp sao lưu</string>
     <string name="backup_restore_failed">Không thể khôi phục từ tệp: %1$s</string>
     <string name="backup_create_failed">Không thể tạo sao lưu: %1$s</string>
-    <string name="backup_clipboard_label">Sao lưu Rhythm</string>
+    <string name="backup_clipboard_label">Sao lưu Marvel Spectrum</string>
     <string name="backup_status_never">Chưa bao giờ</string>
     <string name="backup_status_enabled">Đã bật</string>
     <string name="backup_status_manual">Thủ công</string>
@@ -1680,7 +1680,7 @@
     <string name="button_export">Xuất</string>
     <string name="text_file">Tệp</string>
     <string name="text_paste">Dán</string>
-    <string name="logo_content_desc">Rhythm Logo</string>
+    <string name="logo_content_desc">Marvel Spectrum Logo</string>
 
     <string name="settings_about_lyrics">Về nguồn lời bài hát</string>
     <string name="settings_adjust_decorations">Điều chỉnh lượng trang trí lễ hội hiển thị</string>
@@ -1811,7 +1811,7 @@
     <string name="settings_snowflake_display_area">Vùng hiển thị bông tuyết</string>
     <string name="settings_snowflake_size">Kích thước bông tuyết</string>
     <string name="settings_toggle_decoration_elements">Bật/tắt các yếu tố trang trí riêng lẻ theo vị trí</string>
-    <string name="settings_multi_artist_parsing_info">Khi được bật, Rhythm sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\n\nDấu gạch chéo ngược (\\) có thể được sử dụng để thoát dấu phân cách.</string>
+    <string name="settings_multi_artist_parsing_info">Khi được bật, Marvel Spectrum sẽ tự động tách các thẻ nghệ sĩ chứa nhiều nghệ sĩ. Điều này hữu ích cho các bài hát được tải xuống bằng yt-dlp hoặc các công cụ khác sử dụng dấu phân cách như \'/\' để phân tách nghệ sĩ.\n\nDấu gạch chéo ngược (\\) có thể được sử dụng để thoát dấu phân cách.</string>
     <string name="settings_embedded_lyrics_info">• Lời bài hát nhúng được lưu trữ trong các tệp âm thanh của bạn\n</string>
     <string name="settings_material_design_credit">• Nhóm thiết kế Google Material cho các nguyên tắc thiết kế\n</string>
     <string name="settings_bullet_point">•</string>

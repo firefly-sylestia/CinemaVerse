@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">Rhythm</string>
+    <string name="app_name">Marvel Spectrum</string>
     
     <string name="home">Início</string>
     <string name="library">Biblioteca</string>
     <string name="search">Buscar</string>
     <string name="settings">Configurações</string>
     
-    <string name="media3_notification_channel_name">Rhythm Music</string>
+    <string name="media3_notification_channel_name">Marvel Spectrum</string>
     <string name="media3_notification_channel_description">Controles de reprodução de mídia</string>
     
-    <string name="widget_description">Rhythm Music Widget - Controle a reprodução com layouts responsivos suportando tamanhos de grade de 2x1 a 5x5</string>
-    <string name="widget_description_glance">Rhythm Music - Controle a reprodução com 9 layouts responsivos, design Material 3 e atualizações de estado em tempo real</string>
-    <string name="widget_name_glance">Rhythm Music</string>
+    <string name="widget_description">Marvel Spectrum Widget - Controle a reprodução com layouts responsivos suportando tamanhos de grade de 2x1 a 5x5</string>
+    <string name="widget_description_glance">Marvel Spectrum - Controle a reprodução com 9 layouts responsivos, design Material 3 e atualizações de estado em tempo real</string>
+    <string name="widget_name_glance">Marvel Spectrum</string>
     <string name="no_song_playing">Nenhuma música tocando</string>
     <string name="unknown_artist">Artista desconhecido</string>
     <string name="unknown_album">Álbum desconhecido</string>
@@ -43,7 +43,7 @@
     <string name="widget_auto_update">Atualização Automática</string>
     <string name="widget_auto_update_desc">Atualizar widget automaticamente quando a música mudar</string>
     <string name="widget_tips_title">Dicas de Widget</string>
-    <string name="widget_tip_sizes">O Rhythm suporta vários tamanhos de widget, de 2x1 a 5x5</string>
+    <string name="widget_tip_sizes">O Marvel Spectrum suporta vários tamanhos de widget, de 2x1 a 5x5</string>
     <string name="widget_tip_types">Tanto widgets legados quanto os modernos Glance estão disponíveis</string>
     <string name="widget_tip_controls">Toque no widget para abrir o app, botões controlam a reprodução</string>
     <string name="widget_tip_resize">Pressione e segure para redimensionar e ver layouts diferentes</string>
@@ -221,7 +221,7 @@
     <string name="settings_about_team_chromahub">Equipe ChromaHub</string>
     <string name="settings_about_special_thanks">Agradecimentos Especiais</string>
     <string name="settings_about_community">Comunidade</string>
-    <string name="settings_about_community_desc">Agradecimentos especiais aos nossos incríveis membros da comunidade que contribuíram para tornar o Rhythm melhor através de testes, feedback, sugestões e colaboração.</string>
+    <string name="settings_about_community_desc">Agradecimentos especiais aos nossos incríveis membros da comunidade que contribuíram para tornar o Marvel Spectrum melhor através de testes, feedback, sugestões e colaboração.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">Gerencia atualizações no IzzyOnDroid</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
@@ -229,7 +229,7 @@
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Integração da API Spotify Canvas</string>
     <string name="settings_about_want_featured">Quer aparecer aqui?</string>
-    <string name="settings_about_contribute">Contribua com o Rhythm através de testes, feedback ou código e junte-se à nossa incrível comunidade!</string>
+    <string name="settings_about_contribute">Contribua com o Marvel Spectrum através de testes, feedback ou código e junte-se à nossa incrível comunidade!</string>
     <string name="settings_about_open_source_libraries">Bibliotecas de Código Aberto</string>
     <string name="settings_about_open_source_libs">Bibliotecas de Código Aberto</string>
     <string name="settings_about_view_dependencies">Ver Dependências</string>
@@ -251,7 +251,7 @@
     
     <string name="status_disabled">Desativado</string>
     
-    <string name="home_title">Rhythm</string>
+    <string name="home_title">Marvel Spectrum</string>
     <string name="home_settings_cd">Configurações</string>
     <string name="home_discover_albums">Descobrir Álbuns</string>
     <string name="home_explore_music">Explore músicas incríveis</string>
@@ -304,7 +304,7 @@
     <string name="home_no_recommendations">Sem Recomendações</string>
     <string name="home_no_recommendations_desc">Ouça algumas músicas para obter recomendações personalizadas</string>
     
-    <string name="home_listening_stats">Estatísticas do Rhythm</string>
+    <string name="home_listening_stats">Estatísticas do Marvel Spectrum</string>
     <string name="home_listening_stats_subtitle">A jornada musical desta semana</string>
     <string name="home_stat_listening_time">Tempo Ouvindo</string>
     <string name="home_stat_songs_played">Músicas Tocadas</string>
@@ -379,7 +379,7 @@
     <string name="sort_descending">Decrescente</string>
     
     <string name="storage_permission_required">Permissão de Armazenamento Necessária</string>
-    <string name="storage_permission_desc">Para navegar nos seus arquivos de música e explorar o armazenamento do dispositivo, o Rhythm precisa de permissão para acessar seus arquivos e mídia.</string>
+    <string name="storage_permission_desc">Para navegar nos seus arquivos de música e explorar o armazenamento do dispositivo, o Marvel Spectrum precisa de permissão para acessar seus arquivos e mídia.</string>
     <string name="storage_permission_audio_only">Isso permite acesso apenas a arquivos de áudio e pastas contendo música.</string>
     
     <string name="player_now_playing">TOCANDO AGORA</string>
@@ -429,7 +429,7 @@
     <string name="ui_install_update">Instalar Atualização</string>
     <string name="ui_cancel_download">Cancelar Download</string>
     
-    <string name="common_rhythm">Rhythm</string>
+    <string name="common_rhythm">Marvel Spectrum</string>
     <string name="common_songs">Músicas</string>
     <string name="common_home">Início</string>
     <string name="common_library">Biblioteca</string>
@@ -472,7 +472,7 @@
     <string name="updates_smart_polling_desc">Usando verificações HTTP eficientes para detectar atualizações enquanto minimiza chamadas à API do GitHub. Você receberá notificações instantâneas quando novas versões forem lançadas.</string>
     <string name="updates_channel_desc">Escolha qual canal de atualização seguir:</string>
     
-    <string name="onboarding_welcome_title">Rhythm</string>
+    <string name="onboarding_welcome_title">Marvel Spectrum</string>
     <string name="onboarding_welcome_subtitle">Seu reprodutor de música offline tudo-em-um</string>
     <string name="onboarding_welcome_desc">Personalize cada aspecto da sua experiência auditiva com recursos poderosos e privacidade total. Toque sua música offline, sem anúncios, com controle total.</string>
     <string name="onboarding_get_started">Começar</string>
@@ -507,8 +507,8 @@
     <string name="onboarding_library_2">Crie e gerencie playlists diretamente da tela da Biblioteca</string>
     <string name="onboarding_library_3">Opções avançadas de exibição e classificação disponíveis em Configurações > Personalização de Tema</string>
     <string name="onboarding_library_4">Playlists padrão (Adicionadas Recentemente, Mais Tocadas) podem ser alternadas em Configurações > Playlists</string>
-    <string name="onboarding_theme_title">Faça o Rhythm Seu</string>
-    <string name="onboarding_theme_desc">Personalize a aparência do Rhythm para combinar com seu estilo. Escolha o tema do sistema, fonte ou cores dinâmicas Material You (Android 12+).</string>
+    <string name="onboarding_theme_title">Faça o Marvel Spectrum Seu</string>
+    <string name="onboarding_theme_desc">Personalize a aparência do Marvel Spectrum para combinar com seu estilo. Escolha o tema do sistema, fonte ou cores dinâmicas Material You (Android 12+).</string>
     <string name="onboarding_live_preview">Pré-visualização ao Vivo</string>
     <string name="onboarding_primary">Primária</string>
     <string name="onboarding_container">Contêiner</string>
@@ -535,7 +535,7 @@
     <string name="onboarding_storage_desc">Gerencie tamanho do cache e armazenamento em Configurações > Gerenciamento de Cache</string>
     
     <string name="onboarding_complete_title">Tudo Pronto!</string>
-    <string name="onboarding_complete_desc">O Rhythm está pronto para tocar! Sua biblioteca de música está sendo varrida em segundo plano. Aqui está o que foi configurado:</string>
+    <string name="onboarding_complete_desc">O Marvel Spectrum está pronto para tocar! Sua biblioteca de música está sendo varrida em segundo plano. Aqui está o que foi configurado:</string>
     <string name="onboarding_whats_next">O Que Vem a Seguir?</string>
     <string name="onboarding_next_browse">Navegue pelas suas músicas, álbuns e artistas</string>
     <string name="onboarding_next_create">Crie sua primeira playlist</string>
@@ -559,8 +559,8 @@
     <string name="onboarding_grant_permissions">Conceder Permissões</string>
     <string name="onboarding_permissions_granted_desc">Todas as permissões necessárias foram concedidas. Você está pronto para prosseguir!</string>
     <string name="onboarding_redirect_settings_desc">Para conceder as permissões necessárias, por favor navegue até as configurações do aplicativo no seu dispositivo.</string>
-    <string name="onboarding_rationale_desc">O Rhythm requer certas permissões para funcionar corretamente. Por favor, conceda-as para continuar.</string>
-    <string name="onboarding_permissions_required_desc">Para utilizar totalmente os recursos do Rhythm, precisamos da sua permissão para acessar certas capacidades do dispositivo.</string>
+    <string name="onboarding_rationale_desc">O Marvel Spectrum requer certas permissões para funcionar corretamente. Por favor, conceda-as para continuar.</string>
+    <string name="onboarding_permissions_required_desc">Para utilizar totalmente os recursos do Marvel Spectrum, precisamos da sua permissão para acessar certas capacidades do dispositivo.</string>
     <string name="onboarding_permission_music_title">Acesso à Biblioteca de Música</string>
     <string name="onboarding_permission_music_desc">Ler seus arquivos locais de música e exibi-los no aplicativo</string>
     <string name="onboarding_permission_bluetooth_title">Conectividade Bluetooth</string>
@@ -571,9 +571,9 @@
     <string name="onboarding_haptic_title">Feedback Tátil</string>
     <string name="onboarding_haptic_desc">Habilitar vibrações sutis nas interações para uma experiência mais tátil.</string>
     <string name="onboarding_default_screen_title">Tela Inicial Padrão</string>
-    <string name="onboarding_default_screen_desc">Escolha qual tela abre quando você inicia o Rhythm</string>
+    <string name="onboarding_default_screen_desc">Escolha qual tela abre quando você inicia o Marvel Spectrum</string>
     <string name="onboarding_system_volume_title">Controle de Volume do Sistema</string>
-    <string name="onboarding_system_volume_desc">Permitir que os botões físicos de volume do seu dispositivo controlem o volume de reprodução do Rhythm.</string>
+    <string name="onboarding_system_volume_desc">Permitir que os botões físicos de volume do seu dispositivo controlem o volume de reprodução do Marvel Spectrum.</string>
     <string name="onboarding_auto_queue_title">Adicionar Automaticamente à Fila</string>
     <string name="onboarding_auto_queue_desc">Criar automaticamente uma fila contextual do álbum/artista ao tocar uma música.</string>
     <string name="onboarding_clear_queue_title">Limpar Fila em Nova Música</string>
@@ -609,7 +609,7 @@
     <string name="onboarding_enable_updates_title">Habilitar Atualizações</string>
     <string name="onboarding_enable_updates_desc">Permitir que o app verifique e baixe atualizações</string>
     <string name="onboarding_periodic_check_title">Verificação Periódica</string>
-    <string name="onboarding_periodic_check_desc">Verificar atualizações do repositório GitHub do Rhythm automaticamente</string>
+    <string name="onboarding_periodic_check_desc">Verificar atualizações do repositório GitHub do Marvel Spectrum automaticamente</string>
     <string name="onboarding_update_notifications_title">Notificações de Atualização</string>
     <string name="onboarding_update_notifications_desc">Seja notificado quando novas versões estiverem disponíveis</string>
     <string name="onboarding_smart_polling_title">Sondagem Inteligente</string>
@@ -758,7 +758,7 @@
     
     <string name="song_info_title">Informação da Música</string>
     <string name="song_info_no_metadata">Sem metadados disponíveis</string>
-    <string name="song_info_permission">O Rhythm precisa de permissão para modificar os metadados deste arquivo de áudio. Você pode ver um diálogo do sistema pedindo acesso - por favor, permita para salvar suas alterações.</string>
+    <string name="song_info_permission">O Marvel Spectrum precisa de permissão para modificar os metadados deste arquivo de áudio. Você pode ver um diálogo do sistema pedindo acesso - por favor, permita para salvar suas alterações.</string>
     
     <string name="add_to_playlists">Adicionar às Playlists</string>
     <string name="add_to_playlist_action">Adicionar à playlist</string>
@@ -769,7 +769,7 @@
     <string name="cache_manage_desc">Gerencie dados em cache incluindo imagens, arquivos temporários e outros dados do app.</string>
     
     <string name="beta_welcome">Bem-vindo ao Programa Beta!</string>
-    <string name="beta_desc">Você está usando atualmente a versão beta do Rhythm. Esta versão ainda está em desenvolvimento e pode conter bugs, recursos incompletos ou comportamento inesperado.</string>
+    <string name="beta_desc">Você está usando atualmente a versão beta do Marvel Spectrum. Esta versão ainda está em desenvolvimento e pode conter bugs, recursos incompletos ou comportamento inesperado.</string>
     
     <string name="equalizer_disabled">O Equalizador está desativado</string>
     <string name="equalizer_enable_desc">Habilite o equalizador para personalizar sua experiência de áudio.</string>
@@ -789,7 +789,7 @@
     <string name="library_reorder_tabs">Reordene as abas para personalizar sua experiência na biblioteca</string>
     <string name="external_services_desc">Controle quais serviços de API externos estão ativos para melhorar sua experiência musical. Alterne serviços para gerenciar uso de dados e funcionalidade.</string>
     <string name="lyrics_source_priority_title">Prioridade da Fonte de Letras</string>
-    <string name="lyrics_source_priority_desc_placeholder">Escolha onde o Rhythm deve buscar letras primeiro</string>
+    <string name="lyrics_source_priority_desc_placeholder">Escolha onde o Marvel Spectrum deve buscar letras primeiro</string>
     <string name="playlist_action_title">Ação da Playlist</string>
     <string name="playlist_action_desc">Escolha o que acontece quando você toca em uma música em uma playlist</string>
     <string name="playlist_action_choose">Escolha o comportamento padrão ao tocar em músicas nas playlists</string>
@@ -831,7 +831,7 @@
     <string name="updates_disabled_message">Atualizações do app foram desativadas nas configurações</string>
     <string name="updates_auto_disabled">A verificação automática está desativada. Você ainda pode verificar manualmente.</string>
     <string name="updates_up_to_date_message">Você está atualizado!</string>
-    <string name="updates_check_frequency">Com que frequência o Rhythm deve verificar atualizações?</string>
+    <string name="updates_check_frequency">Com que frequência o Marvel Spectrum deve verificar atualizações?</string>
     <string name="updates_experimental_coming">Mais recursos experimentais virão em breve em atualizações futuras</string>
     
     <string name="cache_total_size_label">Tamanho Total do Cache:</string>
@@ -1091,7 +1091,7 @@
     <string name="cd_albums">Álbuns</string>
     <string name="cd_artists">Artistas</string>
     <string name="cd_songs">Músicas</string>
-    <string name="cd_rhythm_splash">Rhythm</string>
+    <string name="cd_rhythm_splash">Marvel Spectrum</string>
     <string name="cd_search_in_playlist">Buscar músicas na playlist</string>
     <string name="cd_shuffle_play_action">Reprodução aleatória</string>
     <string name="cd_add_songs_to_playlist">Adicionar músicas à playlist</string>
@@ -1207,9 +1207,9 @@
     <string name="device_type_cast_device">Dispositivo de Transmissão</string>
     
     <string name="bottomsheet_backup_success_title">Backup Criado com Sucesso</string>
-    <string name="bottomsheet_backup_success_msg">Seu backup completo do Rhythm foi criado, incluindo:\n\n• Todas as playlists e suas músicas\n• Favoritos e histórico de reprodução\n• Configurações e preferências do app\n• Configurações do equalizador\n• Personalizações de tema</string>
+    <string name="bottomsheet_backup_success_msg">Seu backup completo do Marvel Spectrum foi criado, incluindo:\n\n• Todas as playlists e suas músicas\n• Favoritos e histórico de reprodução\n• Configurações e preferências do app\n• Configurações do equalizador\n• Personalizações de tema</string>
     <string name="bottomsheet_restore_success_title">Restauração Concluída com Sucesso</string>
-    <string name="bottomsheet_restore_success_msg">Seus dados do Rhythm foram restaurados com sucesso, incluindo:\n\n• Todas as playlists e suas músicas\n• Favoritos e histórico de reprodução\n• Configurações e preferências do app\n• Configurações do equalizador\n• Personalizações de tema</string>
+    <string name="bottomsheet_restore_success_msg">Seus dados do Marvel Spectrum foram restaurados com sucesso, incluindo:\n\n• Todas as playlists e suas músicas\n• Favoritos e histórico de reprodução\n• Configurações e preferências do app\n• Configurações do equalizador\n• Personalizações de tema</string>
     <string name="bottomsheet_restart_now">Reiniciar Agora</string>
     <string name="bottomsheet_ok">OK</string>
     <string name="bottomsheet_error">Erro</string>
@@ -1277,7 +1277,7 @@
     <string name="fallback_unknown_file">Arquivo Desconhecido</string>
     
     <string name="service_app_updates">Atualizações do App</string>
-    <string name="service_rhythm_music">Rhythm Music</string>
+    <string name="service_rhythm_music">Marvel Spectrum</string>
     <string name="service_starting">Iniciando serviço…</string>
     <string name="service_loading_settings">Carregando configurações…</string>
     <string name="service_setup_components">Configurando componentes…</string>
@@ -1313,10 +1313,10 @@
     <string name="settings_gestures_desc">Configurar gestos de deslizar e toque</string>
     <string name="settings_artist_parsing">Artistas</string>
     <string name="settings_artist_parsing_desc">Configurar detecção e exibição de multi-artistas</string>
-    <string name="settings_rhythm_stats">Estatísticas do Rhythm</string>
+    <string name="settings_rhythm_stats">Estatísticas do Marvel Spectrum</string>
     <string name="settings_rhythm_stats_desc">Ver seu histórico de audição e insights</string>
     
-    <string name="stats_title">Estatísticas do Rhythm</string>
+    <string name="stats_title">Estatísticas do Marvel Spectrum</string>
     <string name="stats_today">Hoje</string>
     <string name="stats_this_week">Esta Semana</string>
     <string name="stats_this_month">Este Mês</string>
@@ -1412,7 +1412,7 @@
     <string name="cd_selected">Selecionado</string>
     <string name="cd_remove">Remover</string>
     <string name="cd_delete_playlist">Excluir playlist</string>
-    <string name="cd_rhythm_logo">Logo do Rhythm</string>
+    <string name="cd_rhythm_logo">Logo do Marvel Spectrum</string>
     <string name="cd_report_bug">Reportar Bug</string>
     <string name="cd_telegram_support">Suporte Telegram</string>
     <string name="cd_view_github_profile">Ver Perfil GitHub</string>
@@ -1438,7 +1438,7 @@
     <string name="artist_group_by_album_artist">Agrupar por Artista do Álbum</string>
     <string name="artist_group_by_album_artist_desc">Mostrar álbuns de colaboração sob o artista principal</string>
     <string name="artist_about_multi_parsing">Sobre Análise de Multi-Artistas</string>
-    <string name="artist_parsing_description">Quando habilitado, o Rhythm dividirá automaticamente tags de artista contendo múltiplos artistas. Isso é útil para músicas baixadas com yt-dlp ou outras ferramentas que usam delimitadores como \'/\' para separar artistas.\n\nBarra invertida (\\\\) pode ser usada para escapar delimitadores.</string>
+    <string name="artist_parsing_description">Quando habilitado, o Marvel Spectrum dividirá automaticamente tags de artista contendo múltiplos artistas. Isso é útil para músicas baixadas com yt-dlp ou outras ferramentas que usam delimitadores como \'/\' para separar artistas.\n\nBarra invertida (\\\\) pode ser usada para escapar delimitadores.</string>
     <string name="artist_examples">Exemplos</string>
     <string name="artist_select_separators">Selecione separadores de artista</string>
     <string name="artist_delimiter_slash">Barra</string>
@@ -1545,7 +1545,7 @@
     
     <string name="multi_artist_parsing_title">Análise de Multi-Artistas</string>
     <string name="multi_artist_parsing_about">Sobre Análise de Multi-Artistas</string>
-    <string name="multi_artist_parsing_desc">Quando habilitado, o Rhythm dividirá automaticamente tags de artista contendo múltiplos artistas. Isso é útil para músicas baixadas com yt-dlp ou outras ferramentas que usam delimitadores como \'/\' para separar artistas.\\n\\nBarra invertida (\\\\) pode ser usada para escapar delimitadores.</string>
+    <string name="multi_artist_parsing_desc">Quando habilitado, o Marvel Spectrum dividirá automaticamente tags de artista contendo múltiplos artistas. Isso é útil para músicas baixadas com yt-dlp ou outras ferramentas que usam delimitadores como \'/\' para separar artistas.\\n\\nBarra invertida (\\\\) pode ser usada para escapar delimitadores.</string>
     <string name="multi_artist_parsing_examples">Exemplos</string>
     <string name="multi_artist_parsing_configure">Configurar Delimitadores</string>
     <string name="multi_artist_parsing_select_separators">Selecione separadores de artista</string>
@@ -1622,7 +1622,7 @@
     <string name="backup_unable_to_read">Não foi possível ler o arquivo de backup</string>
     <string name="backup_restore_failed">Falha ao restaurar do arquivo: %1$s</string>
     <string name="backup_create_failed">Falha ao criar backup: %1$s</string>
-    <string name="backup_clipboard_label">Backup do Rhythm</string>
+    <string name="backup_clipboard_label">Backup do Marvel Spectrum</string>
     <string name="backup_status_never">Nunca</string>
     <string name="backup_status_enabled">Habilitado</string>
     <string name="backup_status_manual">Manual</string>
@@ -1676,7 +1676,7 @@
     <string name="button_export">Exportar</string>
     <string name="text_file">Arquivo</string>
     <string name="text_paste">Colar</string>
-    <string name="logo_content_desc">Logo do Rhythm</string>
+    <string name="logo_content_desc">Logo do Marvel Spectrum</string>
     
     <string name="settings_about_lyrics">Sobre Fontes de Letras</string>
     <string name="settings_adjust_decorations">Ajuste a quantidade de decorações festivas mostradas</string>
@@ -1807,7 +1807,7 @@
     <string name="settings_snowflake_display_area">Área de Exibição de Flocos de Neve</string>
     <string name="settings_snowflake_size">Tamanho do Floco de Neve</string>
     <string name="settings_toggle_decoration_elements">Alternar elementos de decoração individuais por posição</string>
-    <string name="settings_multi_artist_parsing_info">Quando habilitado, o Rhythm dividirá automaticamente tags de artista contendo múltiplos artistas. Isso é útil para músicas baixadas com yt-dlp ou outras ferramentas que usam delimitadores como \'/\' para separar artistas.\n\nBarra invertida (\\) pode ser usada para escapar delimitadores.</string>
+    <string name="settings_multi_artist_parsing_info">Quando habilitado, o Marvel Spectrum dividirá automaticamente tags de artista contendo múltiplos artistas. Isso é útil para músicas baixadas com yt-dlp ou outras ferramentas que usam delimitadores como \'/\' para separar artistas.\n\nBarra invertida (\\) pode ser usada para escapar delimitadores.</string>
     <string name="settings_embedded_lyrics_info">• Letras incorporadas são armazenadas nos seus arquivos de áudio\n</string>
     <string name="settings_material_design_credit">• Time Google Material Design pelos princípios de design\n</string>
     <string name="settings_bullet_point">•</string>

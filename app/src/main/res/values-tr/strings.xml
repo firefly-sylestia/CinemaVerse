@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">Rhythm</string>
+    <string name="app_name">Marvel Spectrum</string>
     
     <string name="home">Ana Sayfa</string>
     <string name="library">Kitaplık</string>
     <string name="search">Ara</string>
     <string name="settings">Ayarlar</string>
     
-    <string name="media3_notification_channel_name">Rhythm Müzik</string>
+    <string name="media3_notification_channel_name">Marvel Spectrum Müzik</string>
     <string name="media3_notification_channel_description">Medya oynatma kontrolleri</string>
     
-    <string name="widget_description">Rhythm Müzik Widget\'ı - 2x1\'den 5x5\'e kadar ızgara boyutlarını destekleyen duyarlı düzenlerle Çalmayı Kontrol Edin</string>
-    <string name="widget_description_glance">Rhythm Müzik - 9 duyarlı düzen, Material 3 tasarımı ve gerçek zamanlı durum güncellemeleriyle Çalmayı Kontrol Edin</string>
-    <string name="widget_name_glance">Rhythm Müzik</string>
+    <string name="widget_description">Marvel Spectrum Müzik Widget\'ı - 2x1\'den 5x5\'e kadar ızgara boyutlarını destekleyen duyarlı düzenlerle Çalmayı Kontrol Edin</string>
+    <string name="widget_description_glance">Marvel Spectrum Müzik - 9 duyarlı düzen, Material 3 tasarımı ve gerçek zamanlı durum güncellemeleriyle Çalmayı Kontrol Edin</string>
+    <string name="widget_name_glance">Marvel Spectrum Müzik</string>
     <string name="no_song_playing">Şarkı çalmıyor</string>
     <string name="unknown_artist">Bilinmeyen sanatçı</string>
     <string name="unknown_album">Bilinmeyen albüm</string>
@@ -43,7 +43,7 @@
     <string name="widget_auto_update">Otomatik Güncelleme</string>
     <string name="widget_auto_update_desc">Şarkı değiştiğinde widget\'ı otomatik olarak güncelle</string>
     <string name="widget_tips_title">Widget İpuçları</string>
-    <string name="widget_tip_sizes">Rhythm, 2x1\'den 5x5\'e kadar birden çok widget boyutunu destekler</string>
+    <string name="widget_tip_sizes">Marvel Spectrum, 2x1\'den 5x5\'e kadar birden çok widget boyutunu destekler</string>
     <string name="widget_tip_types">Hem eski hem de modern Glance widget\'ları mevcuttur</string>
     <string name="widget_tip_controls">Uygulamayı açmak için widget\'a dokunun, düğmeler çalmayı kontrol eder</string>
     <string name="widget_tip_resize">Farklı düzenler için uzun basın ve yeniden boyutlandırın</string>
@@ -221,7 +221,7 @@
     <string name="settings_about_team_chromahub">ChromaHub Ekibi</string>
     <string name="settings_about_special_thanks">Özel Teşekkürler</string>
     <string name="settings_about_community">Topluluk</string>
-    <string name="settings_about_community_desc">Test, geri bildirim, öneri ve işbirliği yoluyla Rhythm\'i daha iyi hale getirmeye katkıda bulunan harika topluluk üyelerimize özel teşekkürler.</string>
+    <string name="settings_about_community_desc">Test, geri bildirim, öneri ve işbirliği yoluyla Marvel Spectrum\'i daha iyi hale getirmeye katkıda bulunan harika topluluk üyelerimize özel teşekkürler.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">IzzyOnDroid üzerindeki güncellemeleri yönetiyor</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
@@ -229,7 +229,7 @@
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Spotify Canvas API Entegrasyonu</string>
     <string name="settings_about_want_featured">Burada yer almak ister misiniz?</string>
-    <string name="settings_about_contribute">Test, geri bildirim veya kod katkılarıyla Rhythm\'e katkıda bulunun ve harika topluluğumuza katılın!</string>
+    <string name="settings_about_contribute">Test, geri bildirim veya kod katkılarıyla Marvel Spectrum\'e katkıda bulunun ve harika topluluğumuza katılın!</string>
     <string name="settings_about_open_source_libraries">Açık Kaynak Kütüphaneler</string>
     <string name="settings_about_open_source_libs">Açık Kaynak Kütüphaneler</string>
     <string name="settings_about_view_dependencies">Bağımlılıkları Görüntüle</string>
@@ -251,7 +251,7 @@
     
     <string name="status_disabled">Devre Dışı</string>
     
-    <string name="home_title">Rhythm</string>
+    <string name="home_title">Marvel Spectrum</string>
     <string name="home_settings_cd">Ayarlar</string>
     <string name="home_discover_albums">Albümleri Keşfet</string>
     <string name="home_explore_music">Harika müzikleri keşfet</string>
@@ -304,7 +304,7 @@
     <string name="home_no_recommendations">Öneri Yok</string>
     <string name="home_no_recommendations_desc">Kişiselleştirilmiş öneriler almak için biraz müzik dinleyin</string>
     
-    <string name="home_listening_stats">Rhythm İstatistikleriniz</string>
+    <string name="home_listening_stats">Marvel Spectrum İstatistikleriniz</string>
     <string name="home_listening_stats_subtitle">Bu haftanın müzikal yolculuğu</string>
     <string name="home_stat_listening_time">Dinleme Süresi</string>
     <string name="home_stat_songs_played">Çalınan Şarkılar</string>
@@ -379,7 +379,7 @@
     <string name="sort_descending">Azalan</string>
     
     <string name="storage_permission_required">Depolama İzni Gerekli</string>
-    <string name="storage_permission_desc">Müzik dosyalarınıza göz atmak ve cihazınızın depolama alanını keşfetmek için Rhythm\'in dosyalarınıza ve medyanıza erişim iznine ihtiyacı vardır.</string>
+    <string name="storage_permission_desc">Müzik dosyalarınıza göz atmak ve cihazınızın depolama alanını keşfetmek için Marvel Spectrum\'in dosyalarınıza ve medyanıza erişim iznine ihtiyacı vardır.</string>
     <string name="storage_permission_audio_only">Bu, yalnızca ses dosyalarına ve müzik içeren klasörlere erişim sağlar.</string>
     
     <string name="player_now_playing">ŞU AN ÇALINIYOR</string>
@@ -429,7 +429,7 @@
     <string name="ui_install_update">Güncellemeyi Yükle</string>
     <string name="ui_cancel_download">İndirmeyi İptal Et</string>
     
-    <string name="common_rhythm">Rhythm</string>
+    <string name="common_rhythm">Marvel Spectrum</string>
     <string name="common_songs">Şarkılar</string>
     <string name="common_home">Ana Sayfa</string>
     <string name="common_library">Kitaplık</string>
@@ -472,7 +472,7 @@
     <string name="updates_smart_polling_desc">GitHub API çağrılarını en aza indirirken güncellemeleri tespit etmek için verimli HTTP kontrolleri kullanılıyor. Yeni sürümler yayınlandığında anında bildirim alacaksınız.</string>
     <string name="updates_channel_desc">Takip edilecek güncelleme kanalını seçin:</string>
 
-    <string name="onboarding_welcome_title">Rhythm</string>
+    <string name="onboarding_welcome_title">Marvel Spectrum</string>
     <string name="onboarding_welcome_subtitle">Hepsi bir arada çevrimdışı müzik çalarınız</string>
     <string name="onboarding_welcome_desc">Dinleme deneyiminizin her yönünü güçlü özellikler ve tam gizlilikle kişiselleştirin. Müziğinizi çevrimdışı, reklamsız ve tam kontrolle çalın.</string>
     <string name="onboarding_get_started">Başlayın</string>
@@ -507,8 +507,8 @@
     <string name="onboarding_library_2">Doğrudan Kitaplık ekranından çalma listeleri oluşturun ve yönetin</string>
     <string name="onboarding_library_3">Gelişmiş görüntüleme ve sıralama seçenekleri Ayarlar > Tema Özelleştirme bölümünde mevcuttur</string>
     <string name="onboarding_library_4">Varsayılan çalma listeleri (Son Eklenenler, En Çok Çalınanlar) Ayarlar > Çalma Listeleri bölümünden değiştirilebilir</string>
-    <string name="onboarding_theme_title">Rhythm\'i Kendinize Göre Ayarlayın</string>
-    <string name="onboarding_theme_desc">Rhythm\'in görünümünü tarzınıza uyacak şekilde kişiselleştirin. Sistem temanızı, yazı tipinizi veya Material You dinamik renklerini (Android 12+) seçin.</string>
+    <string name="onboarding_theme_title">Marvel Spectrum\'i Kendinize Göre Ayarlayın</string>
+    <string name="onboarding_theme_desc">Marvel Spectrum\'in görünümünü tarzınıza uyacak şekilde kişiselleştirin. Sistem temanızı, yazı tipinizi veya Material You dinamik renklerini (Android 12+) seçin.</string>
     <string name="onboarding_live_preview">Canlı Önizleme</string>
     <string name="onboarding_primary">Birincil</string>
     <string name="onboarding_container">Konteyner</string>
@@ -535,7 +535,7 @@
     <string name="onboarding_storage_desc">Ayarlar > Önbellek Yönetimi bölümünde önbellek boyutunu ve depolamayı yönetin</string>
     
     <string name="onboarding_complete_title">Her Şey Hazır!</string>
-    <string name="onboarding_complete_desc">Rhythm çalmaya hazır! Müzik kitaplığınız arka planda taranıyor. İşte yapılandırılanlar:</string>
+    <string name="onboarding_complete_desc">Marvel Spectrum çalmaya hazır! Müzik kitaplığınız arka planda taranıyor. İşte yapılandırılanlar:</string>
     <string name="onboarding_whats_next">Sırada Ne Var?</string>
     <string name="onboarding_next_browse">Şarkılarına, albümlerine ve sanatçılarına göz at</string>
     <string name="onboarding_next_create">İlk çalma listeni oluştur</string>
@@ -559,8 +559,8 @@
     <string name="onboarding_grant_permissions">İzinleri Ver</string>
     <string name="onboarding_permissions_granted_desc">Gerekli tüm izinler verildi. Devam etmeye hazırsınız!</string>
     <string name="onboarding_redirect_settings_desc">Gerekli izinleri vermek için lütfen cihazınızdaki uygulama ayarlarına gidin.</string>
-    <string name="onboarding_rationale_desc">Rhythm\'in düzgün çalışması için belirli izinlere ihtiyacı vardır. Devam etmek için lütfen izin verin.</string>
-    <string name="onboarding_permissions_required_desc">Rhythm\'in özelliklerini tam olarak kullanmak için belirli cihaz özelliklerine erişim izninize ihtiyacımız var.</string>
+    <string name="onboarding_rationale_desc">Marvel Spectrum\'in düzgün çalışması için belirli izinlere ihtiyacı vardır. Devam etmek için lütfen izin verin.</string>
+    <string name="onboarding_permissions_required_desc">Marvel Spectrum\'in özelliklerini tam olarak kullanmak için belirli cihaz özelliklerine erişim izninize ihtiyacımız var.</string>
     <string name="onboarding_permission_music_title">Müzik Kitaplığı Erişimi</string>
     <string name="onboarding_permission_music_desc">Yerel müzik dosyalarınızı okuyun ve uygulamada görüntüleyin</string>
     <string name="onboarding_permission_bluetooth_title">Bluetooth Bağlantısı</string>
@@ -571,9 +571,9 @@
     <string name="onboarding_haptic_title">Dokunsal Geri Bildirim</string>
     <string name="onboarding_haptic_desc">Daha dokunsal bir deneyim için etkileşimlerde hafif titreşimleri etkinleştirin.</string>
     <string name="onboarding_default_screen_title">Varsayılan Açılış Ekranı</string>
-    <string name="onboarding_default_screen_desc">Rhythm\'i başlattığınızda hangi ekranın açılacağını seçin</string>
+    <string name="onboarding_default_screen_desc">Marvel Spectrum\'i başlattığınızda hangi ekranın açılacağını seçin</string>
     <string name="onboarding_system_volume_title">Sistem Ses Kontrolü</string>
-    <string name="onboarding_system_volume_desc">Cihazınızın fiziksel ses düğmelerinin Rhythm\'in çalma sesini kontrol etmesine izin verin.</string>
+    <string name="onboarding_system_volume_desc">Cihazınızın fiziksel ses düğmelerinin Marvel Spectrum\'in çalma sesini kontrol etmesine izin verin.</string>
     <string name="onboarding_auto_queue_title">Sıraya Otomatik Ekle</string>
     <string name="onboarding_auto_queue_desc">Bir şarkı çalarken albüm/sanatçıdan bağlamsal bir sıra oluşturun.</string>
     <string name="onboarding_clear_queue_title">Yeni Şarkıda Sırayı Temizle</string>
@@ -609,7 +609,7 @@
     <string name="onboarding_enable_updates_title">Güncellemeleri Etkinleştir</string>
     <string name="onboarding_enable_updates_desc">Uygulamanın güncellemeleri kontrol etmesine ve indirmesine izin verin</string>
     <string name="onboarding_periodic_check_title">Periyodik Kontrol</string>
-    <string name="onboarding_periodic_check_desc">Güncellemeleri Rhythm\'in GitHub deposundan otomatik olarak kontrol edin</string>
+    <string name="onboarding_periodic_check_desc">Güncellemeleri Marvel Spectrum\'in GitHub deposundan otomatik olarak kontrol edin</string>
     <string name="onboarding_update_notifications_title">Güncelleme Bildirimleri</string>
     <string name="onboarding_update_notifications_desc">Yeni sürümler mevcut olduğunda bildirim alın</string>
     <string name="onboarding_smart_polling_title">Akıllı Kontrol (Smart Polling)</string>
@@ -758,7 +758,7 @@
     
     <string name="song_info_title">Şarkı Bilgileri</string>
     <string name="song_info_no_metadata">Meta veri yok</string>
-    <string name="song_info_permission">Rhythm\'in bu ses dosyasının meta verilerini değiştirmek için izne ihtiyacı var. Erişim isteyen bir sistem iletişim kutusu görebilirsiniz - değişikliklerinizi kaydetmek için lütfen izin verin.</string>
+    <string name="song_info_permission">Marvel Spectrum\'in bu ses dosyasının meta verilerini değiştirmek için izne ihtiyacı var. Erişim isteyen bir sistem iletişim kutusu görebilirsiniz - değişikliklerinizi kaydetmek için lütfen izin verin.</string>
     
     <string name="add_to_playlists">Çalma Listelerine Ekle</string>
     <string name="add_to_playlist_action">Çalma listesine ekle</string>
@@ -769,7 +769,7 @@
     <string name="cache_manage_desc">Görüntüler, geçici dosyalar ve diğer uygulama verileri dahil olmak üzere önbelleğe alınan verileri yönetin.</string>
     
     <string name="beta_welcome">Beta Programına Hoş Geldiniz!</string>
-    <string name="beta_desc">Şu anda Rhythm\'in beta sürümünü kullanıyorsunuz. Bu sürüm hala geliştirme aşamasındadır ve hatalar, eksik özellikler veya beklenmedik davranışlar içerebilir.</string>
+    <string name="beta_desc">Şu anda Marvel Spectrum\'in beta sürümünü kullanıyorsunuz. Bu sürüm hala geliştirme aşamasındadır ve hatalar, eksik özellikler veya beklenmedik davranışlar içerebilir.</string>
     
     <string name="equalizer_disabled">Ekolayzır devre dışı</string>
     <string name="equalizer_enable_desc">Ses deneyiminizi özelleştirmek için ekolayzırı etkinleştirin.</string>
@@ -789,7 +789,7 @@
     <string name="library_reorder_tabs">Kitaplık deneyiminizi özelleştirmek için sekmeleri yeniden sıralayın</string>
     <string name="external_services_desc">Müzik deneyiminizi geliştirmek için hangi harici API hizmetlerinin aktif olduğunu kontrol edin. Veri kullanımını ve işlevselliği yönetmek için hizmetleri açıp kapatın.</string>
     <string name="lyrics_source_priority_title">Şarkı Sözü Kaynağı Önceliği</string>
-    <string name="lyrics_source_priority_desc_placeholder">Rhythm\'in sözler için önce nereye bakacağını seçin</string>
+    <string name="lyrics_source_priority_desc_placeholder">Marvel Spectrum\'in sözler için önce nereye bakacağını seçin</string>
     <string name="playlist_action_title">Çalma Listesi Eylemi</string>
     <string name="playlist_action_desc">Çalma listesindeki bir şarkıya dokunduğunuzda ne olacağını seçin</string>
     <string name="playlist_action_choose">Çalma listelerindeki şarkılara dokunulduğunda varsayılan davranışı seçin</string>
@@ -831,7 +831,7 @@
     <string name="updates_disabled_message">Uygulama güncellemeleri ayarlarda devre dışı bırakıldı</string>
     <string name="updates_auto_disabled">Otomatik güncelleme kontrolü devre dışı. Yine de manuel olarak kontrol edebilirsiniz.</string>
     <string name="updates_up_to_date_message">Güncelsiniz!</string>
-    <string name="updates_check_frequency">Rhythm güncellemeleri ne sıklıkla kontrol etmeli?</string>
+    <string name="updates_check_frequency">Marvel Spectrum güncellemeleri ne sıklıkla kontrol etmeli?</string>
     <string name="updates_experimental_coming">Gelecek güncellemelerde daha fazla deneysel özellik yakında</string>
     
     <string name="cache_total_size_label">Toplam Önbellek Boyutu:</string>
@@ -1091,7 +1091,7 @@
     <string name="cd_albums">Albümler</string>
     <string name="cd_artists">Sanatçılar</string>
     <string name="cd_songs">Şarkılar</string>
-    <string name="cd_rhythm_splash">Rhythm</string>
+    <string name="cd_rhythm_splash">Marvel Spectrum</string>
     <string name="cd_search_in_playlist">Çalma listesinde şarkı ara</string>
     <string name="cd_shuffle_play_action">Karışık çal</string>
     <string name="cd_add_songs_to_playlist">Çalma listesine şarkı ekle</string>
@@ -1207,9 +1207,9 @@
     <string name="device_type_cast_device">Yayın Cihazı</string>
     
     <string name="bottomsheet_backup_success_title">Yedek Başarıyla Oluşturuldu</string>
-    <string name="bottomsheet_backup_success_msg">Eksiksiz Rhythm yedeğiniz şunları içerecek şekilde oluşturuldu:\n\n• Tüm çalma listeleri ve şarkıları\n• Favoriler ve çalma geçmişi\n• Uygulama ayarları ve tercihleri\n• Ekolayzır yapılandırmaları\n• Tema özelleştirmeleri</string>
+    <string name="bottomsheet_backup_success_msg">Eksiksiz Marvel Spectrum yedeğiniz şunları içerecek şekilde oluşturuldu:\n\n• Tüm çalma listeleri ve şarkıları\n• Favoriler ve çalma geçmişi\n• Uygulama ayarları ve tercihleri\n• Ekolayzır yapılandırmaları\n• Tema özelleştirmeleri</string>
     <string name="bottomsheet_restore_success_title">Geri Yükleme Başarıyla Tamamlandı</string>
-    <string name="bottomsheet_restore_success_msg">Rhythm verileriniz şunları içerecek şekilde başarıyla geri yüklendi:\n\n• Tüm çalma listeleri ve şarkıları\n• Favoriler ve çalma geçmişi\n• Uygulama ayarları ve tercihleri\n• Ekolayzır yapılandırmaları\n• Tema özelleştirmeleri</string>
+    <string name="bottomsheet_restore_success_msg">Marvel Spectrum verileriniz şunları içerecek şekilde başarıyla geri yüklendi:\n\n• Tüm çalma listeleri ve şarkıları\n• Favoriler ve çalma geçmişi\n• Uygulama ayarları ve tercihleri\n• Ekolayzır yapılandırmaları\n• Tema özelleştirmeleri</string>
     <string name="bottomsheet_restart_now">Şimdi Yeniden Başlat</string>
     <string name="bottomsheet_ok">TAMAM</string>
     <string name="bottomsheet_error">Hata</string>
@@ -1277,7 +1277,7 @@
     <string name="fallback_unknown_file">Bilinmeyen Dosya</string>
     
     <string name="service_app_updates">Uygulama Güncellemeleri</string>
-    <string name="service_rhythm_music">Rhythm Müzik</string>
+    <string name="service_rhythm_music">Marvel Spectrum Müzik</string>
     <string name="service_starting">Hizmet başlatılıyor…</string>
     <string name="service_loading_settings">Ayarlar yükleniyor…</string>
     <string name="service_setup_components">Bileşenler ayarlanıyor…</string>
@@ -1313,10 +1313,10 @@
     <string name="settings_gestures_desc">Kaydırma ve dokunma hareketlerini yapılandır</string>
     <string name="settings_artist_parsing">Sanatçılar</string>
     <string name="settings_artist_parsing_desc">Çoklu sanatçı algılamayı ve görüntülemeyi yapılandır</string>
-    <string name="settings_rhythm_stats">Rhythm İstatistikleri</string>
+    <string name="settings_rhythm_stats">Marvel Spectrum İstatistikleri</string>
     <string name="settings_rhythm_stats_desc">Dinleme geçmişini ve analizleri görüntüle</string>
     
-    <string name="stats_title">Rhythm İstatistikleri</string>
+    <string name="stats_title">Marvel Spectrum İstatistikleri</string>
     <string name="stats_today">Bugün</string>
     <string name="stats_this_week">Bu Hafta</string>
     <string name="stats_this_month">Bu Ay</string>
@@ -1412,7 +1412,7 @@
     <string name="cd_selected">Seçili</string>
     <string name="cd_remove">Kaldır</string>
     <string name="cd_delete_playlist">Çalma listesini sil</string>
-    <string name="cd_rhythm_logo">Rhythm Logosu</string>
+    <string name="cd_rhythm_logo">Marvel Spectrum Logosu</string>
     <string name="cd_report_bug">Hata Bildir</string>
     <string name="cd_telegram_support">Telegram Desteği</string>
     <string name="cd_view_github_profile">GitHub Profilini Görüntüle</string>
@@ -1438,7 +1438,7 @@
     <string name="artist_group_by_album_artist">Albüm Sanatçısına Göre Grupla</string>
     <string name="artist_group_by_album_artist_desc">İşbirliği albümlerini ana sanatçı altında göster</string>
     <string name="artist_about_multi_parsing">Çoklu Sanatçı Ayrıştırma Hakkında</string>
-    <string name="artist_parsing_description">Etkinleştirildiğinde, Rhythm birden fazla sanatçı içeren sanatçı etiketlerini otomatik olarak böler. Bu, yt-dlp gibi araçlarla indirilen ve sanatçıları ayırmak için \'/\' gibi ayırıcılar kullanan şarkılar için kullanışlıdır.\n\nTers eğik çizgi (\\\\) ayırıcıları devre dışı bırakmak için (escape) kullanılabilir.</string>
+    <string name="artist_parsing_description">Etkinleştirildiğinde, Marvel Spectrum birden fazla sanatçı içeren sanatçı etiketlerini otomatik olarak böler. Bu, yt-dlp gibi araçlarla indirilen ve sanatçıları ayırmak için \'/\' gibi ayırıcılar kullanan şarkılar için kullanışlıdır.\n\nTers eğik çizgi (\\\\) ayırıcıları devre dışı bırakmak için (escape) kullanılabilir.</string>
     <string name="artist_examples">Örnekler</string>
     <string name="artist_select_separators">Sanatçı ayırıcılarını seç</string>
     <string name="artist_delimiter_slash">Eğik Çizgi (Slash)</string>
@@ -1545,7 +1545,7 @@
     
     <string name="multi_artist_parsing_title">Çoklu Sanatçı Ayrıştırma</string>
     <string name="multi_artist_parsing_about">Çoklu Sanatçı Ayrıştırma Hakkında</string>
-    <string name="multi_artist_parsing_desc">Etkinleştirildiğinde, Rhythm birden fazla sanatçı içeren sanatçı etiketlerini otomatik olarak böler. Bu, yt-dlp gibi araçlarla indirilen ve sanatçıları ayırmak için \'/\' gibi ayırıcılar kullanan şarkılar için kullanışlıdır.\\n\\nTers eğik çizgi (\\\\) ayırıcıları devre dışı bırakmak için (escape) kullanılabilir.</string>
+    <string name="multi_artist_parsing_desc">Etkinleştirildiğinde, Marvel Spectrum birden fazla sanatçı içeren sanatçı etiketlerini otomatik olarak böler. Bu, yt-dlp gibi araçlarla indirilen ve sanatçıları ayırmak için \'/\' gibi ayırıcılar kullanan şarkılar için kullanışlıdır.\\n\\nTers eğik çizgi (\\\\) ayırıcıları devre dışı bırakmak için (escape) kullanılabilir.</string>
     <string name="multi_artist_parsing_examples">Örnekler</string>
     <string name="multi_artist_parsing_configure">Ayırıcıları Yapılandır</string>
     <string name="multi_artist_parsing_select_separators">Sanatçı ayırıcılarını seç</string>
@@ -1622,7 +1622,7 @@
     <string name="backup_unable_to_read">Yedekleme dosyası okunamıyor</string>
     <string name="backup_restore_failed">Dosyadan geri yükleme başarısız oldu: %1$s</string>
     <string name="backup_create_failed">Yedekleme oluşturulamadı: %1$s</string>
-    <string name="backup_clipboard_label">Rhythm Yedeği</string>
+    <string name="backup_clipboard_label">Marvel Spectrum Yedeği</string>
     <string name="backup_status_never">Asla</string>
     <string name="backup_status_enabled">Etkin</string>
     <string name="backup_status_manual">Manuel</string>
@@ -1676,7 +1676,7 @@
     <string name="button_export">Dışa Aktar</string>
     <string name="text_file">Dosya</string>
     <string name="text_paste">Yapıştır</string>
-    <string name="logo_content_desc">Rhythm Logosu</string>
+    <string name="logo_content_desc">Marvel Spectrum Logosu</string>
     
     <string name="settings_about_lyrics">Şarkı Sözü Kaynakları Hakkında</string>
     <string name="settings_adjust_decorations">Görüntülenen şenlikli süslemelerin miktarını ayarlayın</string>
@@ -1807,7 +1807,7 @@
     <string name="settings_snowflake_display_area">Kar Tanesi Görüntüleme Alanı</string>
     <string name="settings_snowflake_size">Kar Tanesi Boyutu</string>
     <string name="settings_toggle_decoration_elements">Bireysel süsleme öğelerini konuma göre açıp kapatın</string>
-    <string name="settings_multi_artist_parsing_info">Etkinleştirildiğinde, Rhythm birden fazla sanatçı içeren sanatçı etiketlerini otomatik olarak böler. Bu, yt-dlp gibi araçlarla indirilen ve sanatçıları ayırmak için \'/\' gibi ayırıcılar kullanan şarkılar için kullanışlıdır.\n\nTers eğik çizgi (\\) ayırıcıları devre dışı bırakmak için (escape) kullanılabilir.</string>
+    <string name="settings_multi_artist_parsing_info">Etkinleştirildiğinde, Marvel Spectrum birden fazla sanatçı içeren sanatçı etiketlerini otomatik olarak böler. Bu, yt-dlp gibi araçlarla indirilen ve sanatçıları ayırmak için \'/\' gibi ayırıcılar kullanan şarkılar için kullanışlıdır.\n\nTers eğik çizgi (\\) ayırıcıları devre dışı bırakmak için (escape) kullanılabilir.</string>
     <string name="settings_embedded_lyrics_info">• Gömülü şarkı sözleri ses dosyalarınızda saklanır\n</string>
     <string name="settings_material_design_credit">• Tasarım ilkeleri için Google Material Design Ekibi\n</string>
     <string name="settings_bullet_point">•</string>

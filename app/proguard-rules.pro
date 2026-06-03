@@ -47,7 +47,7 @@
 -keep class com.google.gson.** { *; }
 -dontwarn com.google.gson.**
 # Keep data-model classes used by Gson reflection
--keep class chromahub.rhythm.app.** { *; }
+-keep class com.cinemaverse.mcu.** { *; }
 
 # ──────────────────────────────
 # Coil

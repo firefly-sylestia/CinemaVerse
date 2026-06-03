@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Rhythm</string>
+    <string name="app_name">Marvel Spectrum</string>
     
     <!-- Common Labels -->
     <string name="home">Home</string>
@@ -8,13 +8,13 @@
     <string name="settings">Settings</string>
     
     <!-- Media3 notification configuration -->
-    <string name="media3_notification_channel_name">Rhythm Music</string>
+    <string name="media3_notification_channel_name">Marvel Spectrum</string>
     <string name="media3_notification_channel_description">Media playback controls</string>
     
     <!-- Widget strings -->
-    <string name="widget_description">Rhythm Music Widget - Control Playback with responsive layouts supporting 2x1 to 5x5 grid sizes</string>
-    <string name="widget_description_glance">Rhythm Music - Control Playback with 9 responsive layouts, Material 3 design, and real-time state updates</string>
-    <string name="widget_name_glance">Rhythm Music</string>
+    <string name="widget_description">Marvel Spectrum Widget - Control Playback with responsive layouts supporting 2x1 to 5x5 grid sizes</string>
+    <string name="widget_description_glance">Marvel Spectrum - Control Playback with 9 responsive layouts, Material 3 design, and real-time state updates</string>
+    <string name="widget_name_glance">Marvel Spectrum</string>
     <string name="no_song_playing">No song playing</string>
     <string name="unknown_artist">Unknown artist</string>
     <string name="unknown_album">Unknown album</string>
@@ -47,7 +47,7 @@
     <string name="widget_auto_update">Auto Update</string>
     <string name="widget_auto_update_desc">Automatically update widget when song changes</string>
     <string name="widget_tips_title">Widget Tips</string>
-    <string name="widget_tip_sizes">Rhythm supports multiple widget sizes from 2x1 to 5x5</string>
+    <string name="widget_tip_sizes">Marvel Spectrum supports multiple widget sizes from 2x1 to 5x5</string>
     <string name="widget_tip_types">Both legacy and modern Glance widgets are available</string>
     <string name="widget_tip_controls">Tap the widget to open the app, buttons control playback</string>
     <string name="widget_tip_resize">Long-press and resize for different layouts</string>
@@ -62,19 +62,19 @@
     <string name="settings_custom_notifications">Custom Notifications</string>
     <string name="settings_custom_notifications_desc">Use app\'s custom notification style instead of system media notification</string>
     <string name="settings_notifications_updates_group">App Updates</string>
-    <string name="settings_notifications_rhythm_guard_group">Rhythm Guard</string>
-    <string name="settings_notifications_rhythm_pulse_group">Rhythm Tips</string>
+    <string name="settings_notifications_rhythm_guard_group">Spectrum Guard</string>
+    <string name="settings_notifications_rhythm_pulse_group">Spectrum Tips</string>
     <string name="settings_update_notifications_merged_desc">Get alerts for new versions and background update check results</string>
     <string name="settings_update_status_notifications">Update Status Notifications</string>
     <string name="settings_update_status_notifications_desc">Get background check results such as up-to-date and check errors</string>
     <string name="settings_rhythm_guard_alert_notifications">Safety Alert Notifications</string>
-    <string name="settings_rhythm_guard_alert_notifications_desc">Show a notification when Rhythm Guard detects risky volume or exposure</string>
+    <string name="settings_rhythm_guard_alert_notifications_desc">Show a notification when Spectrum Guard detects risky volume or exposure</string>
     <string name="settings_rhythm_guard_timer_notifications">Break Timer Notifications</string>
     <string name="settings_rhythm_guard_timer_notifications_desc">Show notifications for scheduled breaks and active timeout countdowns</string>
-    <string name="settings_rhythm_pulse_notifications">Rhythm Tips Notifications</string>
+    <string name="settings_rhythm_pulse_notifications">Spectrum Tips Notifications</string>
     <string name="settings_rhythm_pulse_notifications_desc">Receive friendly reminders and listening tips.</string>
     <string name="settings_rhythm_pulse_interval">Tips Interval</string>
-    <string name="settings_rhythm_pulse_interval_dialog_title">Rhythm Tips Interval</string>
+    <string name="settings_rhythm_pulse_interval_dialog_title">Spectrum Tips Interval</string>
     
     <!-- Settings - Queue & Playback -->
     <string name="settings_queue_playback">Queue and Playback</string>
@@ -158,9 +158,9 @@
     <string name="operation_exporting_playlists">Backing up your custom playlists…</string>
     <string name="operation_exporting_playlists_location">Backing up playlists to storage…</string>
     <string name="operation_importing_playlist">Importing playlist file…</string>
-    <string name="notification_operations_channel_name">Rhythm Library</string>
+    <string name="notification_operations_channel_name">Marvel Spectrum Library</string>
     <string name="notification_operations_channel_desc">Progress and results for library scans and playlist actions</string>
-    <string name="notification_media_scan_title">Rhythm Library Scan</string>
+    <string name="notification_media_scan_title">Marvel Spectrum Library Scan</string>
     <string name="notification_media_scan_stage_songs">Scanning device storage for audio tracks…</string>
     <string name="notification_media_scan_stage_saving">Optimizing and saving audio track database…</string>
     <string name="notification_media_scan_stage_finishing">Completing audio indexing…</string>
@@ -168,9 +168,9 @@
     <string name="notification_media_scan_complete_pending_setup">Audio scanning finished, initializing background tasks…</string>
     <string name="notification_media_scan_cancelled">Library scan was cancelled.</string>
     <string name="notification_media_scan_failed">Library scan failed. Check storage permissions and try again.</string>
-    <string name="notification_playlist_export_title">Rhythm Library Export</string>
-    <string name="notification_playlist_import_title">Rhythm Library Import</string>
-    <string name="notification_library_setup_title">Rhythm Library Setup</string>
+    <string name="notification_playlist_export_title">Marvel Spectrum Library Export</string>
+    <string name="notification_playlist_import_title">Marvel Spectrum Library Import</string>
+    <string name="notification_library_setup_title">Marvel Spectrum Library Setup</string>
     <string name="notification_library_setup_complete_summary">Library is optimized and ready: %1$d tracks, %2$d albums, %3$d artists</string>
     <string name="notification_playlist_not_found">Export aborted: target playlist was not found.</string>
     <string name="notification_no_playlists_to_export">Export aborted: no playlists found to backup.</string>
@@ -180,21 +180,21 @@
     <string name="notification_playlist_export_failed">Playlist export failed. Try again.</string>
     <string name="notification_playlist_import_complete">Successfully imported \"%1$s\" with %2$d songs.</string>
     <string name="notification_playlist_import_failed">Playlist import failed. Please verify the file format.</string>
-    <string name="notification_updater_channel_name">Rhythm Updater</string>
+    <string name="notification_updater_channel_name">Marvel Spectrum Updates</string>
     <string name="notification_updater_channel_desc">Download status for app updates</string>
-    <string name="notification_updater_title">Rhythm Updater</string>
+    <string name="notification_updater_title">Marvel Spectrum Updates</string>
     <string name="notification_updater_downloading">⬇ Downloading: %1$d%%</string>
     <string name="notification_updater_download_complete">✓ Ready to install. Tap to update.</string>
     <string name="notification_updater_available_title">Update Available!</string>
-    <string name="notification_updater_available_text">🆕 A new version of Rhythm is here.</string>
-    <string name="notification_sleep_timer_channel_name">Rhythm Sleep Timer</string>
+    <string name="notification_updater_available_text">🆕 A new version of Marvel Spectrum is here.</string>
+    <string name="notification_sleep_timer_channel_name">Marvel Spectrum Timer</string>
     <string name="notification_sleep_timer_channel_desc">Countdown and status for sleep timer actions</string>
-    <string name="notification_sleep_timer_title">Rhythm Sleep Timer</string>
+    <string name="notification_sleep_timer_title">Marvel Spectrum Timer</string>
     <string name="notification_sleep_timer_pause_in">⏸ Pausing in %1$s</string>
     <string name="notification_sleep_timer_stop_in">⏹ Stopping in %1$s</string>
     
     <!-- Streaming Notifications -->
-    <string name="notification_streaming_channel_name">Rhythm Go</string>
+    <string name="notification_streaming_channel_name">Marvel Spectrum Go</string>
     <string name="notification_streaming_channel_desc">Streaming service status and sync updates</string>
     
     <!-- Streaming Authentication -->
@@ -349,9 +349,9 @@
     
     <!-- Settings - About -->
     <string name="settings_about">About</string>
-    <string name="settings_about_music_player">Music Player</string>
+    <string name="settings_about_music_player">MCU Viewing App</string>
     <string name="settings_about_version">v%1$s</string>
-    <string name="settings_about_description">A modern, feature-rich music player for Android</string>
+    <string name="settings_about_description">Marvel Spectrum is an MCU viewing app adapted from the original Rhythm Android project.</string>
     <string name="settings_about_project_details">Project Details</string>
     <string name="settings_about_version_label">Version</string>
     <string name="settings_about_build">Build</string>
@@ -367,7 +367,7 @@
     <string name="settings_about_team_chromahub">Team ChromaHub</string>
     <string name="settings_about_special_thanks">Special Thanks</string>
     <string name="settings_about_community">Community</string>
-    <string name="settings_about_community_desc">Special thanks to our amazing community members who have contributed to making Rhythm better through testing, feedback, suggestions, and collaboration.</string>
+    <string name="settings_about_community_desc">Special thanks to our amazing community members who have contributed to making the original Rhythm project better through testing, feedback, suggestions, and collaboration.</string>
     <string name="settings_about_contributor_izzy_name">Izzy</string>
     <string name="settings_about_contributor_izzy_role">Manages updates on IzzyOnDroid</string>
     <string name="settings_about_contributor_christian_name">Christian</string>
@@ -375,7 +375,7 @@
     <string name="settings_about_contributor_alex_name">Alex</string>
     <string name="settings_about_contributor_alex_role">Spotify Canvas API Integration</string>
     <string name="settings_about_want_featured">Want to be featured here?</string>
-    <string name="settings_about_contribute">Contribute to Rhythm through testing, feedback, or code contributions and join our amazing community!</string>
+    <string name="settings_about_contribute">Contribute to the original Rhythm project through testing, feedback, or code contributions and join our amazing community!</string>
     <string name="settings_about_open_source_libraries">Open Source Libraries</string>
     <string name="settings_about_open_source_libs">Open Source Libraries</string>
     <string name="settings_about_view_dependencies">View Dependencies</string>
@@ -400,7 +400,7 @@
     <string name="status_disabled">Disabled</string>
     
     <!-- HomeScreen -->
-    <string name="home_title">Rhythm</string>
+    <string name="home_title">Marvel Spectrum</string>
     <string name="home_settings_cd">Settings</string>
     <string name="home_discover_albums">Discover Albums</string>
     <string name="home_explore_music">Explore amazing music</string>
@@ -410,9 +410,9 @@
     <string name="home_explore_musicians">Explore your favorite musicians</string>
     <string name="home_no_artists">No Artists Found</string>
     <string name="home_no_artists_desc">Add some music to your library to see your artists</string>
-    <string name="home_new_releases">New Releases</string>
+    <string name="home_new_releases">Upcoming Releases</string>
     <string name="home_fresh_music">Fresh music just for you</string>
-    <string name="home_no_new_releases">No New Releases</string>
+    <string name="home_no_new_releases">No Upcoming Releases</string>
     <string name="home_no_new_releases_desc">New albums will appear here as they\'re added to your library</string>
     <string name="home_recently_added">Recently Added</string>
     <string name="home_latest_additions">Your latest additions</string>
@@ -461,7 +461,7 @@
     <string name="home_no_recommendations_desc">Listen to some music to get personalized recommendations</string>
     
     <!-- Listening Stats -->
-    <string name="home_listening_stats">Your Rhythm Stats</string>
+    <string name="home_listening_stats">Your Viewing Stats</string>
     <string name="home_listening_stats_subtitle">This week\'s musical journey</string>
     <string name="home_stat_listening_time">Listening Time</string>
     <string name="home_stat_listening_time_short">Less than 1h</string>
@@ -478,8 +478,8 @@
     <string name="home_mood_focus">Focus</string>
     <string name="home_mood_focus_desc">Concentration mode</string>
     
-    <!-- Recently Played -->
-    <string name="home_recently_played">Recently Played</string>
+    <!-- Recently Watched -->
+    <string name="home_recently_played">Recently Watched</string>
     <string name="home_recently_played_subtitle">Continue your musical journey</string>
     <string name="home_no_recent_activity">No Recent Activity</string>
     <string name="home_no_recent_activity_desc">Start listening to see your recently played songs here</string>
@@ -552,7 +552,7 @@
     
     <!-- Storage Permission -->
     <string name="storage_permission_required">Storage Permission Required</string>
-    <string name="storage_permission_desc">To browse your music files and explore your device\'s storage, Rhythm needs permission to access your files and media.</string>
+    <string name="storage_permission_desc">To browse your music files and explore your device\'s storage, Marvel Spectrum needs permission to access your files and media.</string>
     <string name="storage_permission_audio_only">This allows access only to audio files and folders containing music.</string>
     
     <!-- PlayerScreen -->
@@ -584,8 +584,8 @@
     <string name="search_clear">Clear</string>
     <string name="search_no_recent_searches">No Recent Searches</string>
     <string name="search_no_recent_searches_desc">Your search history will appear here</string>
-    <string name="search_recently_played">Recently Played</string>
-    <string name="search_no_recently_played">No Recently Played</string>
+    <string name="search_recently_played">Recently Watched</string>
+    <string name="search_no_recently_played">No Recently Watched</string>
     <string name="search_no_recently_played_desc">Songs you play will appear here</string>
     <string name="search_recommended">Recommended For You</string>
     <string name="search_recommended_desc">Based on your listening history</string>
@@ -610,13 +610,13 @@
     <string name="ui_cancel_download">Cancel Download</string>
     
     <!-- Common Terms -->
-    <string name="common_rhythm">Rhythm</string>
+    <string name="common_rhythm">Marvel Spectrum</string>
     <string name="common_songs">Songs</string>
     <string name="common_home">Home</string>
     <string name="common_library">Library</string>
     
     <!-- Splash/Loading -->
-    <string name="splash_tagline">Your Music, Your Rhythm</string>
+    <string name="splash_tagline">MCU viewing order</string>
     <string name="splash_loading">Preparing your music library…</string>
     <string name="splash_loading_streaming">Preparing your streaming setup…</string>
     <string name="splash_ready">Ready to groove!</string>
@@ -660,8 +660,8 @@
     
     <!-- Onboarding -->
     <string name="onboarding_welcome_to">Welcome to</string>
-    <string name="onboarding_welcome_title">Rhythm</string>
-    <string name="onboarding_welcome_subtitle">Your Music, Your Rhythm</string>
+    <string name="onboarding_welcome_title">Marvel Spectrum</string>
+    <string name="onboarding_welcome_subtitle">MCU viewing order</string>
     <string name="onboarding_welcome_desc">Personalize every aspect of your listening experience with powerful features and complete privacy. Play your music offline, ad-free, with full control.</string>
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_offline">Offline</string>
@@ -686,8 +686,8 @@
     <string name="onboarding_audio_desc">Customize your audio experience with haptic feedback, default screen, volume controls, queue behavior, shuffle settings, lyrics display, and equalizer settings.</string>
     <string name="onboarding_lyrics_sources">API: Online lyrics • Embedded: Metadata lyrics • Local: .lrc files</string>
     <string name="onboarding_additional_features">Additional Audio Features</string>
-    <string name="onboarding_equalizer_desc">Equalizer: Fine-tune audio frequencies in Settings > Equalizer</string>
-    <string name="onboarding_sleep_timer_desc">Sleep Timer: Auto-stop playback after set time (access from Now Playing screen)</string>
+    <string name="onboarding_equalizer_desc">Trailer Controls: Fine-tune audio frequencies in Settings > Trailer Controls</string>
+    <string name="onboarding_sleep_timer_desc">Sleep Timer: Auto-stop playback after set time (access from Now Watching screen)</string>
     <string name="onboarding_library_title">Organize Your Music Library</string>
     <string name="onboarding_library_desc">Customize how your albums, artists, and songs are displayed. Choose your preferred layout, sorting order, and tab arrangement.</string>
     <string name="onboarding_library_album_grid">Album Grid View</string>
@@ -701,8 +701,8 @@
     <string name="onboarding_library_2">Create and manage playlists directly from the Library screen</string>
     <string name="onboarding_library_3">Advanced display and sorting options available in Settings > Library Settings</string>
     <string name="onboarding_library_4">Default playlists (Recently Added, Most Played) can be toggled in Settings > Playlists</string>
-    <string name="onboarding_theme_title">Make Rhythm Yours</string>
-    <string name="onboarding_theme_desc">Personalize Rhythm\'s appearance to match your style. Choose your system theme, font, or Material You dynamic colors (Android 12+).</string>
+    <string name="onboarding_theme_title">Make Marvel Spectrum Yours</string>
+    <string name="onboarding_theme_desc">Personalize Marvel Spectrum\'s appearance to match your style. Choose your system theme, font, or Material You dynamic colors (Android 12+).</string>
     <string name="onboarding_live_preview">Live Preview</string>
     <string name="onboarding_primary">Primary</string>
     <string name="onboarding_container">Container</string>
@@ -714,16 +714,16 @@
     <string name="onboarding_tuner_2">Font customization and typography settings</string>
     <string name="onboarding_tuner_3">Advanced theme options available in Settings > Theme Customization</string>
     <string name="onboarding_rhythm_guard_title">Protect Your Hearing</string>
-    <string name="onboarding_rhythm_guard_desc">Set up Rhythm Guard to keep your listening safer with age-aware defaults and manual protection controls.</string>
-    <string name="onboarding_rhythm_guard_mode_title">Rhythm Guard Mode</string>
-    <string name="onboarding_rhythm_guard_age_hint">Age profile helps Rhythm Guard recommend safer listening limits.</string>
+    <string name="onboarding_rhythm_guard_desc">Set up Spectrum Guard to keep your listening safer with age-aware defaults and manual protection controls.</string>
+    <string name="onboarding_rhythm_guard_mode_title">Spectrum Guard Mode</string>
+    <string name="onboarding_rhythm_guard_age_hint">Age profile helps Spectrum Guard recommend safer listening limits.</string>
     <string name="onboarding_rhythm_guard_tip_1">Auto mode applies safer defaults with minimal setup.</string>
     <string name="onboarding_rhythm_guard_tip_2">You can tune alerts and break reminders later in Settings.</string>
     <string name="onboarding_rhythm_guard_tip_3">Manual mode gives you full control over warnings and thresholds.</string>
     <string name="onboarding_full_tour_prompt_title">Continue Full Setup Tour?</string>
     <string name="onboarding_full_tour_prompt_desc">Core setup is done. Continue for advanced customization, or finish now and explore the rest later from Settings.</string>
     <string name="onboarding_full_tour_prompt_tip_1">Full tour includes playback, theme, gesture, and media scan options.</string>
-    <string name="onboarding_full_tour_prompt_tip_2">You can reopen Rhythm Tour anytime from Settings > Developer &amp; Debugging.</string>
+    <string name="onboarding_full_tour_prompt_tip_2">You can reopen Marvel Spectrum Tour anytime from Settings > Developer &amp; Debugging.</string>
     <string name="onboarding_full_tour_prompt_tip_3">Nothing here is permanent. All choices can be changed later.</string>
     <string name="onboarding_continue_full_tour">Continue Full Tour</string>
     <string name="onboarding_finish_now">Finish Setup Now</string>
@@ -743,11 +743,11 @@
     <string name="onboarding_storage_desc">Manage cache size and storage in Settings > Cache Management</string>
     
     <string name="onboarding_complete_title">You\'re All Set!</string>
-    <string name="onboarding_complete_desc">Rhythm is ready to play! Your music library is being scanned in the background. Here\'s what\'s configured:</string>
+    <string name="onboarding_complete_desc">Marvel Spectrum is ready to play! Your music library is being scanned in the background. Here\'s what\'s configured:</string>
     <string name="onboarding_whats_next">What\'s Next?</string>
     <string name="onboarding_next_browse">Browse your songs, albums, and artists</string>
     <string name="onboarding_next_create">Create your first playlist</string>
-    <string name="onboarding_next_finetune">Fine-tune audio with the Equalizer</string>
+    <string name="onboarding_next_finetune">Fine-tune audio with the Trailer Controls</string>
     <string name="onboarding_next_explore">Explore more settings anytime</string>
     <string name="onboarding_settings_change">All settings can be changed anytime in Settings</string>
     
@@ -769,8 +769,8 @@
     <string name="onboarding_grant_permissions">Grant Permissions</string>
     <string name="onboarding_permissions_granted_desc">All necessary permissions have been granted. You are ready to proceed!</string>
     <string name="onboarding_redirect_settings_desc">To grant the required permissions, please navigate to the app settings on your device.</string>
-    <string name="onboarding_rationale_desc">Rhythm requires certain permissions to function correctly. Please grant them to continue.</string>
-    <string name="onboarding_permissions_required_desc">To fully utilize Rhythm\'s features, we need your permission to access certain device capabilities.</string>
+    <string name="onboarding_rationale_desc">Marvel Spectrum requires certain permissions to function correctly. Please grant them to continue.</string>
+    <string name="onboarding_permissions_required_desc">To fully utilize Marvel Spectrum\'s features, we need your permission to access certain device capabilities.</string>
     <string name="onboarding_permission_music_title">Music Library Access</string>
     <string name="onboarding_permission_music_desc">Read your local music files and display them in the app</string>
     <string name="onboarding_permission_bluetooth_title">Bluetooth Connectivity</string>
@@ -782,15 +782,15 @@
     <string name="onboarding_permission_tips">Permission Tips</string>
     <string name="onboarding_permission_tip_1">Grant all permissions for the best experience</string>
     <string name="onboarding_permission_tip_2">You can change permissions later in Settings</string>
-    <string name="onboarding_permission_tip_3">Rhythm respects your privacy and data</string>
+    <string name="onboarding_permission_tip_3">Marvel Spectrum respects your privacy and data</string>
     
     <!-- Onboarding Audio &amp; Playback -->
     <string name="onboarding_haptic_title">Haptic Feedback</string>
     <string name="onboarding_haptic_desc">Enable subtle vibrations on interactions for a more tactile experience.</string>
     <string name="onboarding_default_screen_title">Default Landing Screen</string>
-    <string name="onboarding_default_screen_desc">Choose which screen opens when you launch Rhythm</string>
+    <string name="onboarding_default_screen_desc">Choose which screen opens when you launch Marvel Spectrum</string>
     <string name="onboarding_system_volume_title">System Volume Control</string>
-    <string name="onboarding_system_volume_desc">Allow your device\'s physical volume buttons to control Rhythm\'s playback volume.</string>
+    <string name="onboarding_system_volume_desc">Allow your device\'s physical volume buttons to control Marvel Spectrum\'s playback volume.</string>
     <string name="onboarding_auto_queue_title">Auto Add to Queue</string>
     <string name="onboarding_auto_queue_desc">Automatically create a contextual queue from the album/artist when playing a song.</string>
     <string name="onboarding_clear_queue_title">Clear Queue on New Song</string>
@@ -818,7 +818,7 @@
     <string name="onboarding_dynamic_colors_title">Dynamic Colors (Material You)</string>
     <string name="onboarding_dynamic_colors_desc">Apply colors extracted from your device\'s wallpaper for a cohesive look.</string>
     <string name="onboarding_player_theme_title">Playback &amp; Mini Player Themes</string>
-    <string name="onboarding_player_theme_desc">Personalize your playback interfaces. Toggle between the clean, modern Rhythm design or the vibrant, fluid Expressive design.</string>
+    <string name="onboarding_player_theme_desc">Personalize your playback interfaces. Toggle between the clean, modern Marvel Spectrum design or the vibrant, fluid Expressive design.</string>
     
     <!-- Onboarding Updater -->
     <string name="onboarding_update_check_failed">Update Check Failed</string>
@@ -831,7 +831,7 @@
     <string name="onboarding_enable_updates_title">Enable Updates</string>
     <string name="onboarding_enable_updates_desc">Allow the app to check for and download updates</string>
     <string name="onboarding_periodic_check_title">Periodic Check</string>
-    <string name="onboarding_periodic_check_desc">Check for updates from Rhythm\'s GitHub repo automatically</string>
+    <string name="onboarding_periodic_check_desc">Check for updates from Marvel Spectrum\'s GitHub repo automatically</string>
     <string name="onboarding_update_notifications_title">Update Notifications</string>
     <string name="onboarding_update_notifications_desc">Get notified when new versions are available</string>
     <string name="onboarding_smart_polling_title">Smart Polling</string>
@@ -871,9 +871,9 @@
     
     <!-- Onboarding: Notifications Step -->
     <string name="onboarding_notifications_title">Playback Notifications</string>
-    <string name="onboarding_notifications_desc">Control how Rhythm displays music playback in your notification shade. Choose between custom styled notifications or the standard system media controls.</string>
+    <string name="onboarding_notifications_desc">Control how Marvel Spectrum displays music playback in your notification shade. Choose between custom styled notifications or the standard system media controls.</string>
     <string name="onboarding_custom_notifications">Custom Notification Style</string>
-    <string name="onboarding_custom_notifications_desc">Use Rhythm\'s enhanced notification design with additional controls and styling</string>
+    <string name="onboarding_custom_notifications_desc">Use Marvel Spectrum\'s enhanced notification design with additional controls and styling</string>
     <string name="onboarding_notifications_info_title">Notification Features</string>
     <string name="onboarding_notification_tip_1">See current track info at a glance</string>
     <string name="onboarding_notification_tip_2">Control playback with quick actions</string>
@@ -898,7 +898,7 @@
     
     <!-- Onboarding: Widgets Step -->
     <string name="onboarding_widgets_title">Launcher Widgets</string>
-    <string name="onboarding_widgets_desc">Add Rhythm widgets to your launcher for quick music control. Customize what information is displayed and how the widget looks.</string>
+    <string name="onboarding_widgets_desc">Add Marvel Spectrum widgets to your launcher for quick music control. Customize what information is displayed and how the widget looks.</string>
     <string name="onboarding_widget_album_art">Show Album Art</string>
     <string name="onboarding_widget_album_art_desc">Display album artwork in the widget</string>
     <string name="onboarding_widget_artist">Show Artist Name</string>
@@ -934,8 +934,8 @@
     <string name="onboarding_integrations_info_title">Privacy Note</string>
     <string name="onboarding_integrations_info_desc">These features send limited data (song titles, artists) to external services. Your personal data and music files stay on your device. You can enable or disable these at any time in Settings.</string>
     
-    <!-- Onboarding: Rhythm Stats Step -->
-    <string name="onboarding_stats_title">Rhythm Stats</string>
+    <!-- Onboarding: Viewing Stats Step -->
+    <string name="onboarding_stats_title">Viewing Stats</string>
     <string name="onboarding_stats_desc">Discover insights about your music habits. Track your listening time, most played songs, favorite artists, and more with beautiful visualizations.</string>
     <string name="onboarding_stats_show_home">Show Stats on Home</string>
     <string name="onboarding_stats_show_home_desc">Display a listening stats widget on your home screen</string>
@@ -970,9 +970,9 @@
     <string name="settings_tip_gestures_swipe">Swipe up on mini player to open full player, then swipe down to dismiss when done.</string>
     <string name="settings_tip_gestures_artwork">Swipe artwork to switch tracks and double tap album art for quick play or pause.</string>
     <string name="settings_tip_media_scan">Use media scan to hide unwanted files from your library</string>
-    <string name="settings_tip_rhythm_guard_off">Protect your hearing by enabling Rhythm Guard</string>
-    <string name="settings_tip_rhythm_guard_auto">Rhythm Guard automatically manages safe listening limits</string>
-    <string name="settings_tip_rhythm_guard_manual">You are manually controlling Rhythm Guard limits</string>
+    <string name="settings_tip_rhythm_guard_off">Protect your hearing by enabling Spectrum Guard</string>
+    <string name="settings_tip_rhythm_guard_auto">Spectrum Guard automatically manages safe listening limits</string>
+    <string name="settings_tip_rhythm_guard_manual">You are manually controlling Spectrum Guard limits</string>
     <string name="settings_default_screen">Default Landing Screen</string>
     <string name="settings_default_screen_desc">Choose your starting screen</string>
     <string name="settings_home_desc">Discover new music and recommendations</string>
@@ -1093,8 +1093,8 @@
     <!-- Components: Song Info -->
     <string name="song_info_title">Song Information</string>
     <string name="song_info_no_metadata">No metadata available</string>
-    <string name="song_info_permission">Rhythm needs permission to modify this audio file\'s metadata. You may see a system dialog asking for access - please allow it to save your changes.</string>
-    <string name="rhythm_stats">Rhythm Stats</string>
+    <string name="song_info_permission">Marvel Spectrum needs permission to modify this audio file\'s metadata. You may see a system dialog asking for access - please allow it to save your changes.</string>
+    <string name="rhythm_stats">Viewing Stats</string>
     <string name="file_info">File Info</string>
     
     <!-- Components: Add to Playlist -->
@@ -1109,12 +1109,12 @@
     
     <!-- Components: Beta Program -->
     <string name="beta_welcome">Welcome to the Beta Program!</string>
-    <string name="beta_desc">You are currently using the beta release of Rhythm. This version is still in development and may contain bugs, incomplete features, or unexpected behavior.</string>
+    <string name="beta_desc">You are currently using the beta release of Marvel Spectrum. This version is still in development and may contain bugs, incomplete features, or unexpected behavior.</string>
     
-    <!-- Components: Equalizer -->
-    <string name="equalizer_disabled">Equalizer is disabled</string>
+    <!-- Components: Trailer Controls -->
+    <string name="equalizer_disabled">Trailer Controls is disabled</string>
     <string name="equalizer_enable_desc">Enable the equalizer to customize your audio experience.</string>
-    <string name="equalizer_open_system">Open System Equalizer</string>
+    <string name="equalizer_open_system">Open System Trailer Controls</string>
     
     <!-- Theme Customization Notes -->
     <string name="theme_color_schemes_unavailable">Color schemes are only available when using Custom color source.</string>
@@ -1132,7 +1132,7 @@
     <string name="library_reorder_tabs">Reorder tabs to customize your library experience</string>
     <string name="external_services_desc">Control which external API services are active to enhance your music experience. Toggle services on/off to manage data usage and functionality.</string>
     <string name="lyrics_source_priority_title">Lyrics Source Priority</string>
-    <string name="lyrics_source_priority_desc_placeholder">Choose where Rhythm should look for lyrics first</string>
+    <string name="lyrics_source_priority_desc_placeholder">Choose where Marvel Spectrum should look for lyrics first</string>
     <string name="playlist_action_title">Playlist Tap Action</string>
     <string name="playlist_action_desc">Default behavior for playlist taps</string>
     <string name="playlist_action_choose">Select the default playlist tap action</string>
@@ -1176,7 +1176,7 @@
     <string name="updates_disabled_message">App updates have been disabled in settings</string>
     <string name="updates_auto_disabled">Automatic update checking is disabled. You can still check manually.</string>
     <string name="updates_up_to_date_message">You are up to date!</string>
-    <string name="updates_check_frequency">How often should Rhythm check for updates?</string>
+    <string name="updates_check_frequency">How often should Marvel Spectrum check for updates?</string>
     <string name="updates_experimental_coming">More experimental features coming soon in future updates</string>
     <string name="settings_interval_every_48_hours">Every 48 hours</string>
     <string name="settings_interval_every_72_hours">Every 72 hours</string>
@@ -1216,7 +1216,7 @@
     <string name="discord_compatible_apps">Requirements</string>
     <string name="discord_apps_list">• Discord for Android\n• Discord must be running\n• Music status must be enabled in Discord settings</string>
     <string name="discord_how_to">How to Use</string>
-    <string name="discord_setup_steps">1. Install Discord for Android\n2. Enable this setting in Rhythm\n3. Open Discord and enable \"Display current activity\" in User Settings → Activity Status\n4. Your now playing info will appear in your Discord status!</string>
+    <string name="discord_setup_steps">1. Install Discord for Android\n2. Enable this setting in Marvel Spectrum\n3. Open Discord and enable \"Display current activity\" in User Settings → Activity Status\n4. Your now playing info will appear in your Discord status!</string>
     <string name="discord_privacy_note">Privacy Note</string>
     <string name="discord_privacy_desc">Only broadcasts when music is playing. You can toggle this on/off anytime. Discord controls who can see your activity status.</string>
     
@@ -1227,16 +1227,16 @@
     <string name="bluetooth_lyrics_enabled">Bluetooth Lyrics Mode</string>
     <string name="bluetooth_lyrics_desc">Send synced lyric line as Bluetooth track title and move Song - Artist into artist metadata</string>
     <string name="broadcast_status_info_title">What is Status Broadcasting?</string>
-    <string name="broadcast_status_info_desc">Status broadcasting sends standard Android music player intents that automation and widget apps listen for. This allows third-party apps to display your now playing info or trigger automations based on what you\'re listening to.</string>
+    <string name="broadcast_status_info_desc">Status broadcasting sends standard Android MCU viewing app intents that automation and widget apps listen for. This allows third-party apps to display your now playing info or trigger automations based on what you\'re listening to.</string>
     <string name="broadcast_compatible_apps">Compatible Apps</string>
-    <string name="broadcast_apps_list">• Tasker (automation)\n• KWGT/KLWP (Kustom widgets)\n• MacroDroid\n• AutoApps\n• Zooper Widget\n• Any app that listens to music player intents</string>
+    <string name="broadcast_apps_list">• Tasker (automation)\n• KWGT/KLWP (Kustom widgets)\n• MacroDroid\n• AutoApps\n• Zooper Widget\n• Any app that listens to MCU viewing app intents</string>
     <string name="broadcast_how_to">How to Use</string>
     <string name="broadcast_setup_steps">1. Install your automation/widget app (e.g., Tasker, KWGT)\n2. Enable this setting\n3. Configure your app to listen for:\n   • com.android.music.metachanged (track changes)\n   • com.android.music.playstatechanged (play/pause)\n4. Access song data via standard intents!</string>
     <string name="broadcast_use_cases">Use Cases</string>
     <string name="broadcast_use_cases_list">• Display now playing in custom widgets\n• Trigger smart home scenes based on music\n• Auto-pause music when certain apps open\n• Log your listening history\n• Control other apps based on playback state</string>
     
-    <!-- Equalizer -->
-    <string name="equalizer">Equalizer</string>
+    <!-- Trailer Controls -->
+    <string name="equalizer">Trailer Controls</string>
     <string name="frequency_bands">Frequency Bands</string>
     <string name="frequency_response">Frequency Response</string>
     <string name="audio_effects">Audio Effects</string>
@@ -1249,8 +1249,8 @@
     <string name="virtualizer">Spatial Audio</string>
     <string name="virtualizer_desc">Widen the stereo soundstage</string>
     <string name="strength">Strength</string>
-    <string name="open_equalizer_settings">Open Equalizer Settings</string>
-    <string name="system_equalizer">System Equalizer</string>
+    <string name="open_equalizer_settings">Open Trailer Controls Settings</string>
+    <string name="system_equalizer">System Trailer Controls</string>
     <string name="system_equalizer_desc">Access your device\'s built-in equalizer</string>
     <string name="no_equalizer">No system equalizer found</string>
     <string name="no_audio_ID">No audio session ID available</string>
@@ -1359,7 +1359,7 @@
     <string name="settings_show_lyrics_desc">Lyrics display</string>
     <string name="settings_queue_playback_title">Queue &amp; Playback</string>
     <string name="settings_queue_playback_desc">Auto-add, repeat</string>
-    <string name="settings_equalizer_title">Equalizer</string>
+    <string name="settings_equalizer_title">Trailer Controls</string>
     <string name="settings_equalizer_desc">Bass, treble</string>
     <string name="settings_sleep_timer_title">Sleep Timer</string>
     <string name="settings_sleep_timer_desc">Auto-stop playback</string>
@@ -1390,7 +1390,7 @@
     <string name="settings_crash_log_history_desc">Crash reports</string>
     <string name="settings_experimental_features">Experimental Features</string>
     <string name="settings_experimental_features_desc">Cutting-edge features</string>
-    <string name="settings_select_option">Rhythm Settings</string>
+    <string name="settings_select_option">Marvel Spectrum Settings</string>
     <string name="settings_select_option_desc">Choose a setting from the list to configure</string>
     
     <!-- Playlist Actions -->
@@ -1434,7 +1434,7 @@
     <string name="updates_enable_auto_check">Auto-check</string>
     <string name="updates_channel_title">Update Channel</string>
     <string name="updates_source_title">Update Source</string>
-    <string name="updates_source_desc">Choose which release family Rhythm should use for OTA updates.</string>
+    <string name="updates_source_desc">Choose which release family Marvel Spectrum should use for OTA updates.</string>
     <string name="updates_source_installed">Match Installed Build</string>
     <string name="updates_source_installed_label">Installed Build</string>
     <string name="updates_source_github_label">GitHub Builds</string>
@@ -1530,7 +1530,7 @@
     <string name="cd_albums">Albums</string>
     <string name="cd_artists">Artists</string>
     <string name="cd_songs">Songs</string>
-    <string name="cd_rhythm_splash">Rhythm</string>
+    <string name="cd_rhythm_splash">Marvel Spectrum</string>
     <string name="cd_search_in_playlist">Search songs in playlist</string>
     <string name="cd_shuffle_play_action">Shuffle play</string>
     <string name="cd_add_songs_to_playlist">Add songs to playlist</string>
@@ -1564,7 +1564,7 @@
     <string name="cd_move_down">Move down</string>
     <string name="cd_add_songs">Add songs</string>
     <string name="cd_clear_queue">Clear queue</string>
-    <string name="cd_now_playing">Now playing</string>
+    <string name="cd_now_playing">Now watching</string>
     <string name="cd_drag_to_reorder">Drag to reorder</string>
     <string name="cd_remove_from_queue">Remove from queue</string>
     <string name="cd_edit_metadata">Edit metadata</string>
@@ -1661,9 +1661,9 @@
     
     <!-- Bottom Sheet: Backup/Restore -->
     <string name="bottomsheet_backup_success_title">Backup Created Successfully</string>
-    <string name="bottomsheet_backup_success_msg">Your complete Rhythm backup has been created including:\n\n• All playlists and their songs\n• Favorites and play history\n• App settings and preferences\n• Equalizer configurations\n• Theme customizations</string>
+    <string name="bottomsheet_backup_success_msg">Your complete Marvel Spectrum backup has been created including:\n\n• All playlists and their songs\n• Favorites and play history\n• App settings and preferences\n• Trailer Controls configurations\n• Theme customizations</string>
     <string name="bottomsheet_restore_success_title">Restore Completed Successfully</string>
-    <string name="bottomsheet_restore_success_msg">Your Rhythm data has been restored successfully including:\n\n• All playlists and their songs\n• Favorites and play history\n• App settings and preferences\n• Equalizer configurations\n• Theme customizations</string>
+    <string name="bottomsheet_restore_success_msg">Your Marvel Spectrum data has been restored successfully including:\n\n• All playlists and their songs\n• Favorites and play history\n• App settings and preferences\n• Trailer Controls configurations\n• Theme customizations</string>
     <string name="bottomsheet_restart_now">Restart Now</string>
     <string name="bottomsheet_ok">OK</string>
     <string name="bottomsheet_error">Error</string>
@@ -1740,25 +1740,25 @@
     <string name="fallback_unknown_file">Unknown File</string>
     
     <!-- Service Notifications -->
-    <string name="service_app_updates">Rhythm Updater</string>
-    <string name="service_update_status">Rhythm Updater Status</string>
-    <string name="service_rhythm_pulse">Rhythm Tips</string>
-    <string name="service_rhythm_guard_alerts">Rhythm Guard Alerts</string>
-    <string name="service_rhythm_guard_timers">Rhythm Guard Timers</string>
-    <string name="service_rhythm_music">Rhythm Music</string>
+    <string name="service_app_updates">Marvel Spectrum Updates</string>
+    <string name="service_update_status">Marvel Spectrum Updates Status</string>
+    <string name="service_rhythm_pulse">Spectrum Tips</string>
+    <string name="service_rhythm_guard_alerts">Spectrum Guard Alerts</string>
+    <string name="service_rhythm_guard_timers">Spectrum Guard Timers</string>
+    <string name="service_rhythm_music">Marvel Spectrum</string>
     <string name="service_update_status_desc">Status results for background update checks</string>
-    <string name="service_rhythm_pulse_desc">Friendly listening reminders and tips from Rhythm</string>
-    <string name="service_rhythm_guard_alerts_desc">Safety alerts from Rhythm Guard</string>
-    <string name="service_rhythm_guard_timers_desc">Rhythm Guard break and timeout reminders</string>
-    <string name="service_starting">Rhythm is starting.</string>
-    <string name="service_loading_settings">Rhythm is loading your settings.</string>
-    <string name="service_setup_components">Rhythm is preparing core components.</string>
-    <string name="service_initializing_player">Rhythm is preparing playback.</string>
-    <string name="service_creating_controls">Rhythm is creating playback controls.</string>
-    <string name="service_setup_media_session">Rhythm is preparing the media session.</string>
-    <string name="service_initializing_controller">Rhythm is connecting the media controller.</string>
-    <string name="service_ready">Rhythm is ready.</string>
-    <string name="service_init_failed">Rhythm could not start. Please reopen the app.</string>
+    <string name="service_rhythm_pulse_desc">Friendly listening reminders and tips from Marvel Spectrum</string>
+    <string name="service_rhythm_guard_alerts_desc">Safety alerts from Spectrum Guard</string>
+    <string name="service_rhythm_guard_timers_desc">Spectrum Guard break and timeout reminders</string>
+    <string name="service_starting">Marvel Spectrum is starting.</string>
+    <string name="service_loading_settings">Marvel Spectrum is loading your settings.</string>
+    <string name="service_setup_components">Marvel Spectrum is preparing core components.</string>
+    <string name="service_initializing_player">Marvel Spectrum is preparing playback.</string>
+    <string name="service_creating_controls">Marvel Spectrum is creating playback controls.</string>
+    <string name="service_setup_media_session">Marvel Spectrum is preparing the media session.</string>
+    <string name="service_initializing_controller">Marvel Spectrum is connecting the media controller.</string>
+    <string name="service_ready">Marvel Spectrum is ready.</string>
+    <string name="service_init_failed">Marvel Spectrum could not start. Please reopen the app.</string>
     
     <!-- Crash Activity -->
     <string name="crash_bug_report">Bug Report</string>
@@ -1793,7 +1793,7 @@
     <string name="settings_gestures_desc">Swipe to skip</string>
     <string name="settings_local_experience">Local experience</string>
     <string name="settings_local_experience_desc">Choose how you browse your music collection</string>
-    <string name="settings_local_experience_rhythm">Rhythm music UI</string>
+    <string name="settings_local_experience_rhythm">Marvel Spectrum music UI</string>
     <string name="settings_local_experience_rhythm_desc">Default music-first Home, Discovery, Library, Explorer, and Player</string>
     <string name="settings_local_experience_viewing">MARVEL Spectrum</string>
     <string name="settings_local_experience_viewing_desc">Viewing-focused Marvel details, posters, orders, and metadata</string>
@@ -1812,20 +1812,20 @@
     <string name="settings_artwork_cache_trim_failed">Failed to trim artwork cache</string>
     <string name="settings_artist_parsing">Artists</string>
     <string name="settings_artist_parsing_desc">Separators, display</string>
-    <string name="settings_rhythm_stats">Rhythm Stats</string>
+    <string name="settings_rhythm_stats">Viewing Stats</string>
     <string name="settings_rhythm_stats_desc">Listening time, top tracks and trends</string>
-    <string name="settings_rhythm_aura">Rhythm Guard</string>
-    <string name="settings_rhythm_guard">Rhythm Guard</string>
-    <string name="settings_rhythm_aura_list_desc">Listening health guardrails powered by Rhythm Stats</string>
-    <string name="settings_rhythm_guard_list_desc">Listening health guardrails powered by Rhythm Stats</string>
+    <string name="settings_rhythm_aura">Spectrum Guard</string>
+    <string name="settings_rhythm_guard">Spectrum Guard</string>
+    <string name="settings_rhythm_aura_list_desc">Listening health guardrails powered by Viewing Stats</string>
+    <string name="settings_rhythm_guard_list_desc">Listening health guardrails powered by Viewing Stats</string>
     <string name="settings_rhythm_aura_subtitle">Listening Health Monitor</string>
     <string name="settings_rhythm_guard_subtitle">Listening Health Monitor</string>
-    <string name="settings_rhythm_aura_desc">Use your Rhythm Stats activity to keep listening habits safer with age-aware recommendations and manual warnings.</string>
-    <string name="settings_rhythm_guard_desc">Use your Rhythm Stats activity to keep listening habits safer with age-aware recommendations and manual warnings.</string>
+    <string name="settings_rhythm_aura_desc">Use your Viewing Stats activity to keep listening habits safer with age-aware recommendations and manual warnings.</string>
+    <string name="settings_rhythm_guard_desc">Use your Viewing Stats activity to keep listening habits safer with age-aware recommendations and manual warnings.</string>
     <string name="settings_rhythm_aura_mode_title">Protection Mode</string>
     <string name="settings_rhythm_guard_mode_title">Protection Mode</string>
-    <string name="settings_rhythm_aura_mode_desc">Choose how Rhythm Guard manages listening health</string>
-    <string name="settings_rhythm_guard_mode_desc">Choose how Rhythm Guard manages listening health</string>
+    <string name="settings_rhythm_aura_mode_desc">Choose how Spectrum Guard manages listening health</string>
+    <string name="settings_rhythm_guard_mode_desc">Choose how Spectrum Guard manages listening health</string>
     <string name="settings_rhythm_aura_mode_auto">Auto</string>
     <string name="settings_rhythm_guard_mode_auto">Auto</string>
     <string name="settings_rhythm_aura_mode_manual">Manual</string>
@@ -1860,8 +1860,8 @@
     <string name="settings_rhythm_guard_snapshot_lifetime_title">Lifetime Load</string>
     <string name="settings_rhythm_aura_snapshot_lifetime_value">%1$s total listened</string>
     <string name="settings_rhythm_guard_snapshot_lifetime_value">%1$s total listened</string>
-    <string name="settings_rhythm_aura_snapshot_sessions_title">Rhythm Density</string>
-    <string name="settings_rhythm_guard_snapshot_sessions_title">Rhythm Density</string>
+    <string name="settings_rhythm_aura_snapshot_sessions_title">Marvel Spectrum Density</string>
+    <string name="settings_rhythm_guard_snapshot_sessions_title">Marvel Spectrum Density</string>
     <string name="settings_rhythm_aura_snapshot_sessions_value">%1$s sessions/day (7d avg)</string>
     <string name="settings_rhythm_guard_snapshot_sessions_value">%1$s sessions/day (7d avg)</string>
     <string name="settings_rhythm_aura_lifetime_hours">Lifetime listening: %1$s hours</string>
@@ -1872,10 +1872,10 @@
     <string name="settings_rhythm_guard_weekly_sessions">7-day average sessions/day: %1$s</string>
     <string name="settings_rhythm_aura_live_volume">Live volume: %1$d%% (warning above %2$d%%)</string>
     <string name="settings_rhythm_guard_live_volume">Live volume: %1$d%% (warning above %2$d%%)</string>
-    <string name="settings_rhythm_aura_auto_applied_title">Rhythm Guard Auto Profile Active</string>
-    <string name="settings_rhythm_guard_auto_applied_title">Rhythm Guard Auto Profile Active</string>
-    <string name="settings_rhythm_aura_auto_applied_desc">Rhythm Guard automatically keeps safer playback defaults based on your age profile.</string>
-    <string name="settings_rhythm_guard_auto_applied_desc">Rhythm Guard automatically keeps safer playback defaults based on your age profile.</string>
+    <string name="settings_rhythm_aura_auto_applied_title">Spectrum Guard Auto Profile Active</string>
+    <string name="settings_rhythm_guard_auto_applied_title">Spectrum Guard Auto Profile Active</string>
+    <string name="settings_rhythm_aura_auto_applied_desc">Spectrum Guard automatically keeps safer playback defaults based on your age profile.</string>
+    <string name="settings_rhythm_guard_auto_applied_desc">Spectrum Guard automatically keeps safer playback defaults based on your age profile.</string>
     <string name="settings_rhythm_aura_auto_state">System volume: %1$s, Pause at zero: %2$s, Normalization: %3$s, ReplayGain: %4$s</string>
     <string name="settings_rhythm_guard_auto_state">System volume: %1$s, Pause at zero: %2$s, Normalization: %3$s, ReplayGain: %4$s</string>
     <string name="settings_rhythm_aura_last_auto_applied">Last auto adjustment: %1$s</string>
@@ -1890,14 +1890,14 @@
     <string name="settings_rhythm_guard_manual_warning_toggle_desc">Warn when live volume or manual toggles may be risky</string>
     <string name="settings_rhythm_aura_manual_threshold_title">High-Volume Warning Threshold: %1$d%%</string>
     <string name="settings_rhythm_guard_manual_threshold_title">High-Volume Warning Threshold: %1$d%%</string>
-    <string name="settings_rhythm_aura_manual_threshold_desc">Set when Rhythm Guard should warn about potentially harmful volume.</string>
-    <string name="settings_rhythm_guard_manual_threshold_desc">Set when Rhythm Guard should warn about potentially harmful volume.</string>
+    <string name="settings_rhythm_aura_manual_threshold_desc">Set when Spectrum Guard should warn about potentially harmful volume.</string>
+    <string name="settings_rhythm_guard_manual_threshold_desc">Set when Spectrum Guard should warn about potentially harmful volume.</string>
     <string name="settings_rhythm_aura_device_controls_title">Output Controls</string>
     <string name="settings_rhythm_guard_device_controls_title">Output Controls</string>
     <string name="settings_rhythm_aura_device_controls_speaker_limit_title">Apply Volume Limits On Phone Speaker</string>
     <string name="settings_rhythm_guard_device_controls_speaker_limit_title">Apply Volume Limits On Phone Speaker</string>
-    <string name="settings_rhythm_aura_device_controls_speaker_limit_desc">When off, Rhythm Guard skips volume clamping and volume warnings on built-in speaker output.</string>
-    <string name="settings_rhythm_guard_device_controls_speaker_limit_desc">When off, Rhythm Guard skips volume clamping and volume warnings on built-in speaker output.</string>
+    <string name="settings_rhythm_aura_device_controls_speaker_limit_desc">When off, Spectrum Guard skips volume clamping and volume warnings on built-in speaker output.</string>
+    <string name="settings_rhythm_guard_device_controls_speaker_limit_desc">When off, Spectrum Guard skips volume clamping and volume warnings on built-in speaker output.</string>
     <string name="settings_rhythm_guard_alert_controls_title">Listening Alert Controls</string>
     <string name="settings_rhythm_guard_alert_controls_desc">Fine-tune exposure alerts, reminder timeout, and default break resume interval.</string>
     <string name="settings_rhythm_guard_alert_threshold_title">Exposure Alert Threshold: %1$s</string>
@@ -1918,8 +1918,8 @@
     <string name="settings_rhythm_guard_warning_disable_replay_gain">Turning off ReplayGain can raise peak volume unexpectedly.</string>
     <string name="settings_rhythm_aura_warning_disable_zero_volume">Disabling pause-on-zero removes a protective safeguard.</string>
     <string name="settings_rhythm_guard_warning_disable_zero_volume">Disabling pause-on-zero removes a protective safeguard.</string>
-    <string name="settings_rhythm_aura_warning_dialog_title">Rhythm Guard Protection Alert</string>
-    <string name="settings_rhythm_guard_warning_dialog_title">Rhythm Guard Protection Alert</string>
+    <string name="settings_rhythm_aura_warning_dialog_title">Spectrum Guard Protection Alert</string>
+    <string name="settings_rhythm_guard_warning_dialog_title">Spectrum Guard Protection Alert</string>
     <string name="settings_rhythm_aura_warning_dialog_volume_message">System media volume is %1$d%% in real time, above your current protection limit of %2$d%%. Lower volume to reduce hearing risk.</string>
     <string name="settings_rhythm_guard_warning_dialog_volume_message">System media volume is %1$d%% in real time, above your current protection limit of %2$d%%. Lower volume to reduce hearing risk.</string>
     <string name="settings_rhythm_aura_warning_dialog_exposure_message">Estimated listening today is %1$d minutes, above your recommended %2$d minutes. Consider a short break and lower volume for the next session.</string>
@@ -1972,13 +1972,13 @@
     <string name="settings_rhythm_guard_snapshot_widget_within_limit">Within recommended limit</string>
     <string name="settings_rhythm_guard_snapshot_widget_load_label">Current load indicator</string>
     <string name="settings_rhythm_guard_overall_health_title">Overall Health Indicator</string>
-    <string name="settings_rhythm_guard_overall_health_summary">Volume %1$d%%/%2$d%% • Exposure %3$s/%4$s • Rhythm %5$s sessions/day</string>
+    <string name="settings_rhythm_guard_overall_health_summary">Volume %1$d%%/%2$d%% • Exposure %3$s/%4$s • Marvel Spectrum %5$s sessions/day</string>
     <string name="settings_rhythm_guard_health_good">Good</string>
     <string name="settings_rhythm_guard_health_fair">Needs attention</string>
     <string name="settings_rhythm_guard_health_risk">Risky</string>
     <string name="settings_rhythm_guard_health_off">Guard off</string>
-    <string name="settings_rhythm_guard_state_active">Rhythm Guard is Active</string>
-    <string name="settings_rhythm_guard_state_inactive">Rhythm Guard is Inactive</string>
+    <string name="settings_rhythm_guard_state_active">Spectrum Guard is Active</string>
+    <string name="settings_rhythm_guard_state_inactive">Spectrum Guard is Inactive</string>
     <string name="settings_rhythm_guard_state_timeout_active">Listening timeout in progress</string>
     <string name="settings_rhythm_guard_state_cooldown_active">Grace period active</string>
     <string name="settings_rhythm_guard_state_timeout_remaining">Break ends in %1$s</string>
@@ -1991,14 +1991,14 @@
     <string name="settings_rhythm_guard_protection_preset_strict">Strict</string>
     <string name="settings_rhythm_guard_protection_preset_custom">Custom</string>
     <string name="settings_rhythm_guard_timeout_activity_title">Listening Timeout Active</string>
-    <string name="settings_rhythm_guard_timeout_activity_default_reason">Plot twist: your ears started a union and called for a snack break. Rhythm Guard paused playback so everyone can cool down.</string>
-    <string name="settings_rhythm_guard_timeout_activity_comic_desc">Plot twist: your ears started a union and called for a snack break. Rhythm Guard paused playback so everyone can cool down.</string>
+    <string name="settings_rhythm_guard_timeout_activity_default_reason">Plot twist: your ears started a union and called for a snack break. Spectrum Guard paused playback so everyone can cool down.</string>
+    <string name="settings_rhythm_guard_timeout_activity_comic_desc">Plot twist: your ears started a union and called for a snack break. Spectrum Guard paused playback so everyone can cool down.</string>
     <string name="settings_rhythm_guard_timeout_activity_countdown">Resume in %1$s</string>
     <string name="settings_rhythm_guard_timeout_activity_extend">Extend break (+%1$d min)</string>
     <string name="settings_rhythm_guard_timeout_activity_exit">Close Timeout Screen</string>
     <string name="settings_rhythm_guard_timeout_activity_close_app">Close App</string>
-    <string name="settings_rhythm_aura_off_title">Rhythm Guard is Off</string>
-    <string name="settings_rhythm_guard_off_title">Rhythm Guard is Off</string>
+    <string name="settings_rhythm_aura_off_title">Spectrum Guard is Off</string>
+    <string name="settings_rhythm_guard_off_title">Spectrum Guard is Off</string>
     <string name="settings_rhythm_aura_off_desc">No automatic adjustments or warnings are applied. Playback behavior stays unchanged.</string>
     <string name="settings_rhythm_guard_off_desc">No automatic adjustments or warnings are applied. Playback behavior stays unchanged.</string>
     <string name="settings_rhythm_aura_age_search_title">Age Profile</string>
@@ -2012,26 +2012,26 @@
     <string name="settings_rhythm_guard_alert_threshold_search_title">Exposure Alert Threshold</string>
     <string name="settings_rhythm_guard_alert_threshold_search_desc">Set how much daily listening triggers a safety alert</string>
     <string name="settings_rhythm_guard_warning_timeout_search_title">Alert Cooldown</string>
-    <string name="settings_rhythm_guard_warning_timeout_search_desc">Set the cooldown between repeated Rhythm Guard alerts</string>
+    <string name="settings_rhythm_guard_warning_timeout_search_desc">Set the cooldown between repeated Spectrum Guard alerts</string>
     <string name="settings_rhythm_guard_post_timeout_cooldown_search_title">Post-Timeout Cooldown</string>
     <string name="settings_rhythm_guard_post_timeout_cooldown_search_desc">Set cooldown after a timeout ends before another exposure timeout can trigger</string>
     <string name="settings_rhythm_guard_protection_presets_search_title">Protection Presets</string>
     <string name="settings_rhythm_guard_protection_presets_search_desc">Apply Gentle, Balanced, or Strict guardrail bundles in one tap</string>
     <string name="settings_rhythm_guard_break_resume_search_title">Default Break Resume</string>
     <string name="settings_rhythm_guard_break_resume_search_desc">Set how long scheduled listening breaks last by default</string>
-    <string name="settings_rhythm_guard_enable_search_title">Rhythm Guard Power</string>
-    <string name="settings_rhythm_guard_enable_search_desc">Enable or disable Rhythm Guard protections</string>
-    <string name="settings_rhythm_guard_notification_alert_title">Rhythm Guard Safety Alert</string>
-    <string name="settings_rhythm_guard_notification_timer_active_title">Rhythm Guard Timeout Active</string>
+    <string name="settings_rhythm_guard_enable_search_title">Spectrum Guard Power</string>
+    <string name="settings_rhythm_guard_enable_search_desc">Enable or disable Spectrum Guard protections</string>
+    <string name="settings_rhythm_guard_notification_alert_title">Spectrum Guard Safety Alert</string>
+    <string name="settings_rhythm_guard_notification_timer_active_title">Spectrum Guard Timeout Active</string>
     <string name="settings_rhythm_guard_notification_timer_active_text">Playback resumes in %1$s.</string>
-    <string name="settings_rhythm_guard_notification_timer_scheduled_title">Rhythm Guard Break Scheduled</string>
+    <string name="settings_rhythm_guard_notification_timer_scheduled_title">Spectrum Guard Break Scheduled</string>
     <string name="settings_rhythm_guard_notification_timer_scheduled_text">A listening break starts in %1$s.</string>
     <string name="settings_rhythm_guard_notification_tap_open">Tap to view timeout details.</string>
     <string name="label_enabled">Enabled</string>
     <string name="label_disabled">Disabled</string>
     
-    <!-- Rhythm Stats Screen -->
-    <string name="stats_title">Rhythm Stats</string>
+    <!-- Viewing Stats Screen -->
+    <string name="stats_title">Viewing Stats</string>
     <string name="stats_today">Today</string>
     <string name="stats_this_week">This Week</string>
     <string name="stats_this_month">This Month</string>
@@ -2046,7 +2046,7 @@
     <string name="stats_musical_journey">Your Musical Journey</string>
     <string name="stats_no_data">No listening data yet</string>
     <string name="stats_start_listening">Start playing music to see your stats</string>
-    <string name="stats_rise_rhythm">Rise &amp; Rhythm</string>
+    <string name="stats_rise_rhythm">Rise &amp; Marvel Spectrum</string>
     <string name="stats_midday_beats">Midday Beats</string>
     <string name="stats_evening_vibes">Evening Vibes</string>
     <string name="stats_night_grooves">Night Grooves</string>
@@ -2136,7 +2136,7 @@
     <string name="cd_selected">Selected</string>
     <string name="cd_remove">Remove</string>
     <string name="cd_delete_playlist">Delete playlist</string>
-    <string name="cd_rhythm_logo">Rhythm Logo</string>
+    <string name="cd_rhythm_logo">Marvel Spectrum Logo</string>
     <string name="cd_report_bug">Report Bug</string>
     <string name="cd_telegram_support">Telegram Support</string>
     <string name="cd_view_github_profile">View GitHub Profile</string>
@@ -2164,7 +2164,7 @@
     <string name="artist_group_by_album_artist">Group by Album Artist</string>
     <string name="artist_group_by_album_artist_desc">Show collaboration albums under main artist</string>
     <string name="artist_about_multi_parsing">About Multi-Artist Parsing</string>
-    <string name="artist_parsing_description">When enabled, Rhythm will automatically split artist tags containing multiple artists. This is useful for songs downloaded with yt-dlp or other tools that use delimiters like \'/\' to separate artists.\n\nBackslash (\\\\) can be used to escape delimiters.</string>
+    <string name="artist_parsing_description">When enabled, Marvel Spectrum will automatically split artist tags containing multiple artists. This is useful for songs downloaded with yt-dlp or other tools that use delimiters like \'/\' to separate artists.\n\nBackslash (\\\\) can be used to escape delimiters.</string>
     <string name="artist_examples">Examples</string>
     <string name="artist_select_separators">Select artist separators</string>
     <string name="artist_delimiter_slash">Slash</string>
@@ -2186,8 +2186,8 @@
     <string name="about_collab_lead">Collab &amp; Project Booming\'s Lead Dev</string>
     <string name="about_canvas_api">Spotify Canvas API Integration</string>
     
-    <!-- Equalizer -->
-    <string name="equalizer_title">Equalizer</string>
+    <!-- Trailer Controls -->
+    <string name="equalizer_title">Trailer Controls</string>
     <string name="equalizer_my_devices">My Devices</string>
     
     <!-- Common Actions & Dialogs -->
@@ -2211,7 +2211,7 @@
     <string name="content_desc_more_options">More options</string>
     <string name="content_desc_add_to_playlist">Add to playlist</string>
     <string name="content_desc_favorite">Favorite</string>
-    <string name="content_desc_now_playing">Now playing</string>
+    <string name="content_desc_now_playing">Now watching</string>
     <string name="content_desc_drag_reorder">Drag to reorder</string>
     <string name="content_desc_remove_from_queue">Remove from queue</string>
     <string name="content_desc_add_songs">Add songs</string>
@@ -2280,7 +2280,7 @@
     <!-- Multi-Artist Parsing -->
     <string name="multi_artist_parsing_title">Multi-Artist Parsing</string>
     <string name="multi_artist_parsing_about">About Multi-Artist Parsing</string>
-    <string name="multi_artist_parsing_desc">When enabled, Rhythm will automatically split artist tags containing multiple artists. This is useful for songs downloaded with yt-dlp or other tools that use delimiters like \'/\' to separate artists.\\n\\nBackslash (\\\\) can be used to escape delimiters.</string>
+    <string name="multi_artist_parsing_desc">When enabled, Marvel Spectrum will automatically split artist tags containing multiple artists. This is useful for songs downloaded with yt-dlp or other tools that use delimiters like \'/\' to separate artists.\\n\\nBackslash (\\\\) can be used to escape delimiters.</string>
     <string name="multi_artist_parsing_examples">Examples</string>
     <string name="multi_artist_parsing_configure">Configure Delimiters</string>
     <string name="multi_artist_parsing_select_separators">Select artist separators</string>
@@ -2291,7 +2291,7 @@
     <string name="delimiter_ampersand">Ampersand</string>
     
     <!-- About Screen (additional strings) -->
-    <string name="about_app_description">A modern, feature-rich music player for Android</string>
+    <string name="about_app_description">A modern, feature-rich MCU viewing app for Android</string>
     <string name="about_arch_value">ARM64 &amp; ARM32</string>
     <string name="about_lead_dev">Lead Developer &amp; Project Architect</string>
     <string name="about_izzy_role">Manages updates on IzzyOnDroid</string>
@@ -2306,10 +2306,10 @@
     
     <!-- Home Sections -->
     <string name="home_section_greeting">Greeting</string>
-    <string name="home_section_recently_played">Recently Played</string>
+    <string name="home_section_recently_played">Recently Watched</string>
     <string name="home_section_discover">Discover Carousel</string>
-    <string name="home_section_top_artists">Top Artists</string>
-    <string name="home_section_new_releases">New Releases</string>
+    <string name="home_section_top_artists">Top Series</string>
+    <string name="home_section_new_releases">Upcoming Releases</string>
     <string name="home_section_recently_added">Recently Added</string>
     <string name="home_section_recommended">Recommended</string>
     <string name="home_section_listening_stats">Listening Stats</string>
@@ -2329,7 +2329,7 @@
     <!-- Player Chips -->
     <string name="player_chip_favorite">Favorite</string>
     <string name="player_chip_speed">Playback Speed</string>
-    <string name="player_chip_equalizer">Equalizer</string>
+    <string name="player_chip_equalizer">Trailer Controls</string>
     <string name="player_chip_sleep_timer">Sleep Timer</string>
     <string name="player_chip_lyrics">Lyrics</string>
     <string name="player_chip_album">Album</string>
@@ -2364,7 +2364,7 @@
     <string name="backup_unable_to_read">Unable to read the backup file</string>
     <string name="backup_restore_failed">Failed to restore from file: %1$s</string>
     <string name="backup_create_failed">Failed to create backup: %1$s</string>
-    <string name="backup_clipboard_label">Rhythm Backup</string>
+    <string name="backup_clipboard_label">Marvel Spectrum Backup</string>
     <string name="backup_status_never">Never</string>
     <string name="backup_status_enabled">Enabled</string>
     <string name="backup_status_manual">Manual</string>
@@ -2424,7 +2424,7 @@
     <string name="button_export">Export</string>
     <string name="text_file">File</string>
     <string name="text_paste">Paste</string>
-    <string name="logo_content_desc">Rhythm Logo</string>
+    <string name="logo_content_desc">Marvel Spectrum Logo</string>
     
     <!-- PlaceholderScreens - Settings Labels -->
     <string name="settings_about_lyrics">About Lyrics Sources</string>
@@ -2525,7 +2525,7 @@
     <string name="time_twelve_seconds">12s</string>
     
     <!-- Additional PlaceholderScreens UI Strings -->
-    <string name="settings_modern_music_player">A modern, feature-rich music player for Android</string>
+    <string name="settings_modern_music_player">A modern, feature-rich MCU viewing app for Android</string>
     <string name="settings_about_lyrics_sources">About Lyrics Sources</string>
     <string name="settings_about_multi_artist">About Multi-Artist Parsing</string>
     <string name="settings_adjust_snowflake_size">Adjust snowflake size (smaller size = more snowflakes)</string>
@@ -2563,7 +2563,7 @@
     <string name="settings_snowflake_display_area">Snowflake Display Area</string>
     <string name="settings_snowflake_size">Snowflake Size</string>
     <string name="settings_toggle_decoration_elements">Toggle individual decoration elements by position</string>
-    <string name="settings_multi_artist_parsing_info">When enabled, Rhythm will automatically split artist tags containing multiple artists. This is useful for songs downloaded with yt-dlp or other tools that use delimiters like \'/\' to separate artists.\n\nBackslash (\\) can be used to escape delimiters.</string>
+    <string name="settings_multi_artist_parsing_info">When enabled, Marvel Spectrum will automatically split artist tags containing multiple artists. This is useful for songs downloaded with yt-dlp or other tools that use delimiters like \'/\' to separate artists.\n\nBackslash (\\) can be used to escape delimiters.</string>
     <string name="settings_embedded_lyrics_info">• Embedded lyrics are stored in your audio files\n</string>
     <string name="settings_material_design_credit">• Google Material Design Team for design principles\n</string>
     <string name="settings_bullet_point">•</string>
@@ -2640,7 +2640,7 @@
     <string name="settings_audio_routing_default">Default</string>
     <string name="settings_audio_routing_app">App</string>
     <string name="settings_audio_routing_system">System</string>
-    <string name="settings_audio_routing_app_desc">Rhythm handles audio directly with high-resolution mode and requests exclusive USB bit-perfect routing on supported devices. Restart required.</string>
+    <string name="settings_audio_routing_app_desc">Marvel Spectrum handles audio directly with high-resolution mode and requests exclusive USB bit-perfect routing on supported devices. Restart required.</string>
     <string name="settings_audio_routing_system_desc">Uses Android system audio routing. Audio may be resampled to 48 kHz by the OS mixer.</string>
     <string name="settings_audio_routing_default_desc">Android decides how to route audio. Resampling depends on system settings.</string>
 
@@ -2695,7 +2695,7 @@
     <string name="updates_status_disabled">Updates Disabled</string>
     <string name="updates_status_manual">Manual Check</string>
     <string name="updates_status_up_to_date">Up to Date</string>
-    <string name="updates_rhythm_logo_cd">Rhythm Logo</string>
+    <string name="updates_rhythm_logo_cd">Marvel Spectrum Logo</string>
     <string name="updates_version_prefix">V %1$s</string>
     <string name="updates_released_prefix">Released: %1$s</string>
     <string name="updates_unknown_error">Unknown error occurred</string>
@@ -2706,7 +2706,7 @@
     <string name="settings_enable_updates">Enable Updates</string>
     <string name="settings_enable_updates_desc">Allow the app to check for and download updates</string>
     <string name="settings_periodic_check">Periodic Check</string>
-    <string name="settings_periodic_check_desc">Automatically check for updates from Rhythm\'s GitHub repo</string>
+    <string name="settings_periodic_check_desc">Automatically check for updates from Marvel Spectrum\'s GitHub repo</string>
     <string name="settings_update_notifications">Update Notifications</string>
     <string name="settings_update_notifications_desc">Get notified when new versions are available</string>
     <string name="settings_smart_polling">Smart Polling</string>
@@ -2732,17 +2732,17 @@
     <string name="settings_allow_cellular_streaming">Allow Cellular Streaming</string>
     <string name="settings_allow_cellular_streaming_desc">Stream music over mobile data</string>
     <string name="settings_streaming_coming_soon">Streaming features coming soon</string>
-    <string name="streaming_integration_title">Rhythm Go</string>
+    <string name="streaming_integration_title">Marvel Spectrum Go</string>
     <string name="streaming_integration_services">Integration Services</string>
     <string name="streaming_integration_services_empty">No services connected yet</string>
-    <string name="streaming_home_subtitle">Connect at least one service to enter Rhythm Go streaming navigation.</string>
+    <string name="streaming_home_subtitle">Connect at least one service to enter Marvel Spectrum Go streaming navigation.</string>
     <string name="streaming_settings_title">Settings</string>
     <string name="streaming_settings_group_services">Services</string>
     <string name="streaming_settings_group_network">Network &amp; Playback</string>
     <string name="streaming_settings_group_actions">Actions</string>
     <string name="streaming_settings_preferred_service">Preferred Service</string>
     <string name="streaming_settings_quality">Streaming Quality</string>
-    <string name="streaming_settings_service_sheet_desc">Choose which connected service Rhythm Go should prioritize by default.</string>
+    <string name="streaming_settings_service_sheet_desc">Choose which connected service Marvel Spectrum Go should prioritize by default.</string>
     <string name="streaming_settings_quality_sheet_desc">Select your preferred audio quality for streaming playback.</string>
     <string name="streaming_quality_low">Low</string>
     <string name="streaming_quality_normal">Normal</string>
@@ -2754,7 +2754,7 @@
     <string name="streaming_quality_lossless_desc">Best quality where supported (FLAC/ALAC).</string>
     <string name="streaming_settings_offline_mode">Offline Mode</string>
     <string name="streaming_settings_offline_mode_desc">Play downloaded tracks when enabled</string>
-    <string name="streaming_settings_group_wellbeing">Rhythm Insights</string>
+    <string name="streaming_settings_group_wellbeing">Marvel Spectrum Insights</string>
     <string name="streaming_open_full_settings">Open Full Settings</string>
     <string name="streaming_open_full_settings_desc">Open app-wide settings shared across modes</string>
     <string name="streaming_switch_to_local_mode">Switch to Local Mode</string>
@@ -2775,7 +2775,7 @@
     <string name="streaming_manage">Manage</string>
     <string name="streaming_manage_service">Manage Selected Service</string>
     <string name="streaming_service_setup_title">%1$s Setup</string>
-    <string name="streaming_service_setup_subtitle">Connect your account to start streaming in Rhythm Go.</string>
+    <string name="streaming_service_setup_subtitle">Connect your account to start streaming in Marvel Spectrum Go.</string>
     <string name="streaming_service_setup_server_url">Server URL</string>
     <string name="streaming_service_setup_server_url_hint">https://your-server.example.com</string>
     <string name="streaming_service_setup_server_url_supporting">Required for providers that need a server address.</string>
@@ -2784,7 +2784,7 @@
     <string name="streaming_service_setup_password">Password</string>
     <string name="streaming_service_setup_password_hint">Enter your account password</string>
     <string name="streaming_service_setup_remember_password">Remember password on this device</string>
-    <string name="streaming_service_setup_remember_password_desc">Store credentials locally so Rhythm can reconnect automatically later.</string>
+    <string name="streaming_service_setup_remember_password_desc">Store credentials locally so Marvel Spectrum can reconnect automatically later.</string>
     <string name="streaming_service_setup_connecting">Connecting…</string>
     <string name="streaming_service_setup_disconnecting">Disconnecting…</string>
     <string name="streaming_service_setup_action_hint">Fill in the required fields to connect this service.</string>
@@ -2803,7 +2803,7 @@
     <string name="streaming_home_widget_recommended_title">Discover</string>
     <string name="streaming_home_widget_recommended_subtitle">Discover picks from %1$s</string>
     <string name="streaming_home_widget_recommended_empty">Nothing to discover yet</string>
-    <string name="streaming_home_widget_new_releases_title">New Releases</string>
+    <string name="streaming_home_widget_new_releases_title">Upcoming Releases</string>
     <string name="streaming_home_widget_new_releases_subtitle">Recently added albums from %1$s</string>
     <string name="streaming_home_widget_new_releases_empty">No new releases available</string>
     <string name="streaming_home_widget_playlists_title">Featured Playlists</string>
@@ -2840,8 +2840,8 @@
     <string name="settings_codec_monitoring_desc">Log audio codec and format info for debugging. View in Logcat with tag \'CodecMonitor\'</string>
     <string name="settings_audio_device_logging">Audio Device Logging</string>
     <string name="settings_audio_device_logging_desc">Log audio device changes (Bluetooth, headphones, etc.)</string>
-    <string name="settings_launch_onboarding">Launch Rhythm Tour</string>
-    <string name="settings_launch_onboarding_desc">Reset and relaunch the Rhythm Tour experience</string>
+    <string name="settings_launch_onboarding">Launch Marvel Spectrum Tour</string>
+    <string name="settings_launch_onboarding_desc">Reset and relaunch the Marvel Spectrum Tour experience</string>
     <string name="settings_test_crash">Test Crash</string>
     <string name="settings_test_crash_desc">Forcibly crash the app to test crash handling and reporting</string>
     <string name="settings_music_mode_dialog_desc">Choose your music source</string>
@@ -2868,9 +2868,9 @@
     <string name="settings_restore_file">Restore from File</string>
     <string name="settings_restore_file_desc">Import backup from a JSON file</string>
     <string name="settings_backup_success_title">Backup Created Successfully</string>
-    <string name="settings_backup_success_message">Your complete Rhythm backup has been created including:\n\n• All app settings and preferences\n• Library configuration\n• Theme customization\n\nThe backup has been saved and also copied to your clipboard for easy sharing.</string>
+    <string name="settings_backup_success_message">Your complete Marvel Spectrum backup has been created including:\n\n• All app settings and preferences\n• Library configuration\n• Theme customization\n\nThe backup has been saved and also copied to your clipboard for easy sharing.</string>
     <string name="settings_restore_success_title">Restore Completed Successfully</string>
-    <string name="settings_restore_success_message">Your Rhythm data has been restored successfully including:\n\n• All app settings and preferences\n• Library configuration\n• Theme customization\n\nPlease restart the app for all changes to take full effect.</string>
+    <string name="settings_restore_success_message">Your Marvel Spectrum data has been restored successfully including:\n\n• All app settings and preferences\n• Library configuration\n• Theme customization\n\nPlease restart the app for all changes to take full effect.</string>
     <string name="settings_restart_now">Restart Now</string>
 
     <!-- Library Tab Order -->
@@ -3040,9 +3040,9 @@
     <string name="settings_section_order">Section Order &amp; Visibility</string>
     <string name="settings_reorder_sections">Reorder &amp; Toggle Sections</string>
     <string name="settings_reorder_sections_desc">Customize home screen layout</string>
-    <string name="settings_recently_played">Recently Played</string>
-    <string name="settings_top_artists">Top Artists</string>
-    <string name="settings_new_releases">New Releases</string>
+    <string name="settings_recently_played">Recently Watched</string>
+    <string name="settings_top_artists">Top Series</string>
+    <string name="settings_new_releases">Upcoming Releases</string>
     <string name="settings_recently_added">Recently Added</string>
     <string name="settings_recommended">Recommended</string>
     <string name="settings_carousel_style_desc">Choose how albums are displayed</string>
@@ -3127,8 +3127,8 @@
     <string name="settings_exp_codec_monitoring_desc">Log audio info</string>
     <string name="settings_exp_audio_device_logging">Audio Device Logging</string>
     <string name="settings_exp_audio_device_logging_desc">Log device changes</string>
-    <string name="settings_exp_launch_onboarding">Launch Rhythm Tour</string>
-    <string name="settings_exp_launch_onboarding_desc">Relaunch Rhythm Tour</string>
+    <string name="settings_exp_launch_onboarding">Launch Marvel Spectrum Tour</string>
+    <string name="settings_exp_launch_onboarding_desc">Relaunch Marvel Spectrum Tour</string>
     <string name="settings_exp_test_crash">Test Crash</string>
     <string name="settings_exp_test_crash_desc">Force app crash</string>
     <string name="settings_scrobbling_enabled">Enable Scrobbling</string>
@@ -3142,14 +3142,14 @@
     <string name="settings_exp_cellular_streaming">Allow Cellular Streaming</string>
     <string name="settings_exp_cellular_streaming_desc">Mobile data streaming</string>
     <string name="exp_go_mode">Go Mode</string>
-    <string name="exp_go_mode_desc">Switch to Rhythm Go streaming mode</string>
+    <string name="exp_go_mode_desc">Switch to Marvel Spectrum Go streaming mode</string>
 
     <!-- Home Screen Search Strings -->
     <string name="settings_home_section_order">Section Order</string>
     <string name="settings_home_section_order_desc">Reorder home sections</string>
     <string name="settings_home_greeting_search">Show Greeting</string>
     <string name="settings_home_greeting_search_desc">Show greeting message</string>
-    <string name="settings_home_recently_played">Recently Played</string>
+    <string name="settings_home_recently_played">Recently Watched</string>
     <string name="settings_home_recently_played_desc">Show recently played</string>
     <string name="settings_home_discover_carousel">Discover Carousel</string>
     <string name="settings_home_discover_carousel_desc">Show discover carousel</string>
@@ -3163,13 +3163,13 @@
     <string name="settings_notifications_update_available_desc">Alerts when a new app version is available</string>
     <string name="settings_notifications_update_status">Update Status Notifications</string>
     <string name="settings_notifications_update_status_desc">Background check result alerts</string>
-    <string name="settings_notifications_rhythm_guard_alerts">Rhythm Guard Safety Alerts</string>
+    <string name="settings_notifications_rhythm_guard_alerts">Spectrum Guard Safety Alerts</string>
     <string name="settings_notifications_rhythm_guard_alerts_desc">Notify when listening risk warnings are triggered</string>
-    <string name="settings_notifications_rhythm_guard_timers">Rhythm Guard Break Timers</string>
+    <string name="settings_notifications_rhythm_guard_timers">Spectrum Guard Break Timers</string>
     <string name="settings_notifications_rhythm_guard_timers_desc">Notify for scheduled breaks and timeout countdowns</string>
-    <string name="settings_notifications_rhythm_pulse">Rhythm Tips</string>
+    <string name="settings_notifications_rhythm_pulse">Spectrum Tips</string>
     <string name="settings_notifications_rhythm_pulse_desc">Friendly reminders and listening tips.</string>
-    <string name="settings_notifications_rhythm_pulse_interval">Rhythm Tips Interval</string>
+    <string name="settings_notifications_rhythm_pulse_interval">Spectrum Tips Interval</string>
     <string name="settings_notifications_rhythm_pulse_interval_desc">How often tips notifications are delivered</string>
 
     <!-- Expressive Shapes Search Strings -->
@@ -3270,7 +3270,7 @@
     <string name="scan_progress">%1$d / %2$d</string>
 
     <!-- Settings Search -->
-    <string name="search_settings_hint">Search Rhythm Settings…</string>
+    <string name="search_settings_hint">Search Marvel Spectrum Settings…</string>
     <string name="clear_search">Clear search</string>
     <string name="no_results_found">No results found</string>
     <string name="try_different_search">Try a different search term</string>
@@ -3285,8 +3285,8 @@
     <string name="exp_codec_monitoring">Codec Monitoring</string>
     <string name="exp_codec_monitoring_desc">Log audio codec and format info for debugging</string>
     <string name="exp_developer_debugging">Developer &amp; Debugging</string>
-    <string name="exp_launch_onboarding">Launch Rhythm Tour</string>
-    <string name="exp_launch_onboarding_desc">Reset and relaunch the Rhythm Tour experience</string>
+    <string name="exp_launch_onboarding">Launch Marvel Spectrum Tour</string>
+    <string name="exp_launch_onboarding_desc">Reset and relaunch the Marvel Spectrum Tour experience</string>
     <string name="exp_local_files">Local Files</string>
     <string name="exp_local_files_desc">Local files from device</string>
     <string name="exp_music_mode">Music Mode</string>
@@ -3301,7 +3301,7 @@
     <string name="exp_force_player_compact_mode_desc">Force the player screen to use compact mode</string>
     <string name="exp_third_party_integrations">Third-Party Integrations</string>
     <string name="settings_backup_created">Backup Created Successfully</string>
-    <string name="settings_backup_created_body">Your complete Rhythm backup has been created.</string>
+    <string name="settings_backup_created_body">Your complete Marvel Spectrum backup has been created.</string>
     <string name="settings_backup_enabled">Enabled</string>
     <string name="settings_backup_manual">Manual</string>
     <string name="settings_backup_settings">Settings</string>
@@ -3315,7 +3315,7 @@
     <string name="settings_left_aligned">Left aligned</string>
     <string name="settings_player">Player</string>
     <string name="settings_restore_completed">Restore Completed Successfully</string>
-    <string name="settings_restore_completed_body">Your Rhythm data has been restored successfully.</string>
+    <string name="settings_restore_completed_body">Your Marvel Spectrum data has been restored successfully.</string>
     <string name="settings_right_aligned">Right aligned</string>
     <string name="settings_tab_order">Library Tab Order</string>
 
@@ -3345,14 +3345,14 @@
     <string name="theme_mode_desc">Choose your preferred theme</string>
     <string name="ui_apply">Apply</string>
 
-    <string name="crashactivity_uh_oh_looks_like">Uh oh! Looks like Rhythm hit a sour note!</string>
+    <string name="crashactivity_uh_oh_looks_like">Uh oh! Looks like Marvel Spectrum hit a sour note!</string>
     <string name="crashactivity_dont_fret_our_app">Don\'t fret! Our app just had a little \'oopsie\'. Please share the crash details below – it\'s like a secret message for our developers to fix things! Then, let\'s try that again, shall we?</string>
     <string name="crashactivity_secret_crash_scrolls">Secret Crash Scrolls</string>
     <string name="crashactivity_share">Share</string>
     <string name="externalplaybackactivity_unable_to_open_audio">Unable to open audio file</string>
     <string name="externalplaybackactivity_unsupported_or_unreadable_audio">Unsupported or unreadable audio file</string>
     <string name="externalplaybackactivity_failed_to_play_audio">Failed to play audio file</string>
-    <string name="externalplaybackactivity_open_rhythm">Open Rhythm</string>
+    <string name="externalplaybackactivity_open_rhythm">Open Marvel Spectrum</string>
     <string name="mainactivity_error_opening_file">Error opening file</string>
     <string name="mainactivity_unsupported_file_format">Unsupported file format</string>
     <string name="mainactivity_failed_to_initialize_media">Failed to initialize media player</string>
@@ -3425,7 +3425,7 @@
     <string name="onboardingscreen_select_how_youd_like">Select how you\'d like to experience your music. You can change this anytime in settings.</string>
     <string name="onboardingscreen_local_offline_player">Local Offline Player</string>
     <string name="onboardingscreen_play_audio_files_stored">Play audio files stored directly on your device. Supports advanced local directory scanning, statistics, and theme matching.</string>
-    <string name="onboardingscreen_rhythm_go_streaming">Rhythm GO! (Streaming)</string>
+    <string name="onboardingscreen_rhythm_go_streaming">Marvel Spectrum GO! (Streaming)</string>
     <string name="onboardingscreen_connect_to_jellyfin_subsonic">Connect to Jellyfin, Subsonic, or Navidrome servers to stream your entire library on the go, with caching support for offline listening.</string>
     <string name="onboardingscreen_playback_mode_tips">Playback Mode Tips</string>
     <string name="onboardingscreen_switch_easily_anytime_in">Switch easily anytime in Settings &gt; Integration.</string>
@@ -3464,7 +3464,7 @@
     <string name="streamingsettingsscreen_streaming_restricted">Streaming Restricted</string>
     <string name="streamingmusicviewmodel_failed_to_play_next">Failed to play next: Unable to resolve URL</string>
     <string name="streamingmusicviewmodel_failed_to_add_to">Failed to add to queue: Unable to resolve URL</string>
-    <string name="legacywidgetpreview_rhythm_legacy_widget_previews">Rhythm Legacy Widget Previews</string>
+    <string name="legacywidgetpreview_rhythm_legacy_widget_previews">Marvel Spectrum Legacy Widget Previews</string>
     <string name="legacywidgetpreview_remoteviewsbased_widgets_for_maximum">RemoteViews-based widgets for maximum compatibility</string>
     <string name="legacywidgetpreview_str_11_extra_small_widget">1×1 Extra Small Widget</string>
     <string name="legacywidgetpreview_str_21_small_horizontal_widget">2×1 Small Horizontal Widget</string>
@@ -3478,7 +3478,7 @@
     <string name="legacywidgetpreview_migration_to_glance">Migration to Glance</string>
     <string name="legacywidgetpreview_consider_using_glance_widgets">Consider using Glance widgets for better Material 3 theming, dynamic colors, and more customization options.</string>
     <string name="rhythmmusicwidget_album_art_placeholder">Album Art Placeholder</string>
-    <string name="rhythmwidgetpreview_rhythm_glance_widget_previews">Rhythm Glance Widget Previews</string>
+    <string name="rhythmwidgetpreview_rhythm_glance_widget_previews">Marvel Spectrum Glance Widget Previews</string>
     <string name="rhythmwidgetpreview_str_11_compact_widget">1×1 Compact Widget</string>
     <string name="rhythmwidgetpreview_str_21_horizontal_strip">2×1 Horizontal Strip</string>
     <string name="rhythmwidgetpreview_str_22_small_widget">2×2 Small Widget</string>
@@ -3520,7 +3520,7 @@
     <string name="autoeqprofileselector_all">All</string>
     <string name="autoeqsuggestiondialog_audio_device_detected">Audio Device Detected</string>
     <string name="autoeqsuggestiondialog_saved_configuration">Saved Configuration</string>
-    <string name="autoeqsuggestiondialog_note_equalizer_is_currently">Note: Equalizer is currently disabled. Applying the profile will enable it automatically.</string>
+    <string name="autoeqsuggestiondialog_note_equalizer_is_currently">Note: Trailer Controls is currently disabled. Applying the profile will enable it automatically.</string>
     <string name="autoeqsuggestiondialog_apply_profile">Apply Profile</string>
     <string name="autoeqsuggestiondialog_dont_ask">Don\'t Ask</string>
     <string name="autoeqsuggestiondialog_not_now">Not Now</string>
@@ -3528,7 +3528,7 @@
     <string name="betaprogrampopup_shape_the_future">Shape the Future</string>
     <string name="betaprogrampopup_direct_feedback">Direct Feedback</string>
     <string name="betaprogrampopup_welcome_to_the_beta">Welcome to the Beta</string>
-    <string name="betaprogrampopup_youre_part_of_an">You\'re part of an exclusive group helping shape the future of Rhythm music player</string>
+    <string name="betaprogrampopup_youre_part_of_an">You\'re part of an exclusive group helping shape the future of Marvel Spectrum MCU viewing app</string>
     <string name="betaprogrampopup_start_exploring">Start Exploring</string>
     <string name="playbackpitchdialog_adjust_audio_pitch">Adjust audio pitch</string>
     <string name="switchmodedialog_switch_play">Switch &amp; Play</string>
@@ -3573,7 +3573,7 @@
     <string name="playerscreen_open_artist">Open Artist</string>
     <string name="aboutscreen_support_development">Support Development</string>
     <string name="aboutscreen_sponsors">Sponsors</string>
-    <string name="aboutscreen_thanks_to_everyone_supporting">Thanks to everyone supporting Rhythm\'s development.</string>
+    <string name="aboutscreen_thanks_to_everyone_supporting">Thanks to everyone supporting Marvel Spectrum\'s development.</string>
     <string name="aboutscreen_discord_community">Discord Community</string>
     <string name="aboutscreen_support">Support</string>
     <string name="apimanagementsettingsscreen_apple_music">Apple Music</string>
@@ -3611,7 +3611,7 @@
     <string name="lyricssourcesettingsscreen_embedded_lyrics_are_stored">• Embedded lyrics are stored in your audio files
 </string>
     <string name="miniplayercustomizationsettingsscreen_miniplayer_theme">MiniPlayer Theme</string>
-    <string name="miniplayercustomizationsettingsscreen_choose_between_rhythm_default">Choose between Rhythm Default or Expressive theme</string>
+    <string name="miniplayercustomizationsettingsscreen_choose_between_rhythm_default">Choose between Marvel Spectrum Default or Expressive theme</string>
     <string name="miniplayercustomizationsettingsscreen_integrated_directly_into_the">Integrated directly into the MiniPlayer background</string>
     <string name="performancesettingsscreen_performance">Performance</string>
     <string name="performancesettingsscreen_disable_haptics">Disable Haptics</string>
@@ -3627,11 +3627,11 @@
     <string name="rhythmguardsettingsscreen_none">None</string>
     <string name="rhythmguardsettingsscreen_general_settings">General Settings</string>
     <string name="rhythmguardsettingsscreen_library_data">Library Data</string>
-    <string name="rhythmguardsettingsscreen_stats_rhythm_guard">Stats &amp; Rhythm Guard</string>
+    <string name="rhythmguardsettingsscreen_stats_rhythm_guard">Stats &amp; Spectrum Guard</string>
     <string name="settingsscreen_audio_offload">Audio Offload</string>
     <string name="settingsscreen_personalization">Personalization</string>
     <string name="settingsscreen_library_focus">Library Focus</string>
-    <string name="settingsscreen_audio_equalizer">Audio Equalizer</string>
+    <string name="settingsscreen_audio_equalizer">Audio Trailer Controls</string>
     <string name="settingsscreen_library_settings">Library Settings</string>
     <string name="settingssearch_settings_suggestions">Settings Suggestions</string>
     <string name="themecustomizationsettingsscreen_rgb_values">RGB Values</string>
@@ -3641,7 +3641,7 @@
     <string name="widgetsettingsscreen_widget_settings">Widget Settings</string>
     <string name="widgetsettingsscreen_show_favorite_button">Show Favorite Button</string>
     <string name="widgetsettingsscreen_widget_theme">Widget Theme</string>
-    <string name="widgetsettingsscreen_rhythm_uses_material_3">Rhythm uses Material 3 Expressive design with dynamic colors</string>
+    <string name="widgetsettingsscreen_rhythm_uses_material_3">Marvel Spectrum uses Material 3 Expressive design with dynamic colors</string>
     <string name="widgetsettingsscreen_widget_adapts_from_1x1">Widget adapts from 1x1 play button to 5x5+ full layout</string>
     <string name="widgetsettingsscreen_longpress_and_resize_for">Long-press and resize for different expressive layouts</string>
     <string name="widgetsettingsscreen_applies_to_glance_widgets">Applies to Glance widgets only</string>
