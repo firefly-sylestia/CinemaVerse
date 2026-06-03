@@ -28,12 +28,6 @@ android {
 
     // Product flavors for different distribution channels
     flavorDimensions += "distribution"
-    sourceSets {
-        getByName("main") {
-            assets.srcDirs("src/main/assets", "src/main/res/drawable-xxhdpi")
-        }
-    }
-    
     productFlavors {
         create("fdroid") {
             dimension = "distribution"

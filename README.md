@@ -63,7 +63,7 @@ Poster images are exposed to the app as assets at:
 app/src/main/assets/mcu_posters/
 ```
 
-In this repository the existing poster folder is also registered as an asset source so filenames can stay exactly as referenced by JSON, including names that are not Android drawable-resource safe. A JSON value such as:
+Poster files are stored directly under the Android assets tree so filenames can stay exactly as referenced by JSON, including names that are not Android drawable-resource safe. A JSON value such as:
 
 ```json
 { "posterPath": "001-captain-america-the-first-avenger.jpg" }
