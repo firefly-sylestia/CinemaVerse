@@ -106,8 +106,6 @@ object ViewingLists {
         genres = genres,
         plot = plot,
         overview = plot,
-        localPoster = "[I WILL PROVIDE POSTER FOLDER PATH LATER]/$id.jpg",
-        localBackdrop = "[I WILL PROVIDE POSTER FOLDER PATH LATER]/backdrops/$id.jpg",
         trailerUrl = "https://www.youtube.com/results?search_query=${title.replace(" ", "+")}+trailer",
         trailerSource = TrailerSource.MANUAL
     )
