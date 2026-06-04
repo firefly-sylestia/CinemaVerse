@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -246,7 +245,6 @@ fun ViewingLibraryScreen(
                 if (tab == "Collections") {
                     items(data.allLists.visibleManagedLists(), key = { it.id }) { list -> WideListCard(list, onClick = { selectedListId = list.id }) }
                 } else {
-                    item { StatusSummaryRail(data.allItems, onTab = { tab = it }) }
                     if (filtered.isEmpty()) item { EmptyState("Nothing here yet", "Open a title and add it to Watchlist, Favorite, or Watched.") }
                     groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
                 }
@@ -765,40 +763,50 @@ private fun LibrarySecondaryControls(
     onStatus: (ViewingUserStatus?) -> Unit,
     catalogItems: List<ViewingItem>
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            CompactDropdown(
-                label = "Sort",
-                selected = sortMode.label,
-                options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME),
-                optionLabel = { it.label },
-                onSelect = onSort,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                statusFilter?.libraryTitle ?: "All statuses",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-            item {
-                FilterChip(
-                    selected = statusFilter == null,
-                    onClick = { onStatus(null) },
-                    label = { Text("All") },
-                    leadingIcon = if (statusFilter == null) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(28.dp)) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Browse", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(statusFilter?.libraryTitle ?: "All saved statuses", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                CompactDropdown(
+                    label = "Sort",
+                    selected = sortMode.label,
+                    options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME),
+                    optionLabel = { it.label },
+                    onSelect = onSort,
+                    modifier = Modifier.weight(1f)
                 )
             }
-            items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }, key = { it.name }) { status ->
-                val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
-                FilterChip(
-                    selected = statusFilter == status,
-                    onClick = { onStatus(if (statusFilter == status) null else status) },
-                    label = { Text("${status.libraryTitle} $count") },
-                    leadingIcon = if (statusFilter == status) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
-                )
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+                item {
+                    FilterChip(
+                        selected = statusFilter == null,
+                        onClick = { onStatus(null) },
+                        label = { Text("All") },
+                        leadingIcon = { Icon(if (statusFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            iconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                }
+                items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }, key = { it.name }) { status ->
+                    val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
+                    val active = statusFilter == status
+                    FilterChip(
+                        selected = active,
+                        onClick = { onStatus(if (active) null else status) },
+                        leadingIcon = { Icon(status.icon(), contentDescription = null) },
+                        label = { Text("${status.libraryTitle} $count") },
+                        colors = statusChipColors(status, active)
+                    )
+                }
             }
         }
     }
@@ -1000,27 +1008,6 @@ private fun StatusSelector(selected: Set<ViewingUserStatus>, onStatus: (ViewingU
 }
 
 
-
-@Composable
-private fun StatusSummaryRail(catalogItems: List<ViewingItem>, onTab: (String) -> Unit) {
-    val statuses = ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
-        items(statuses, key = { it.name }) { status ->
-            val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
-            Card(
-                onClick = { onTab("Saved") },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                shape = RoundedCornerShape(22.dp),
-                modifier = Modifier.width(150.dp)
-            ) {
-                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(status.libraryTitle, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiaryContainer)
-                    Text("$count titles", color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.76f), style = MaterialTheme.typography.labelMedium)
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun CinemaActivityMiniSurface(item: ViewingItem, onClick: () -> Unit) {
