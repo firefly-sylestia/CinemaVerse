@@ -208,7 +208,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "Configure OMDB_API_KEY, TMDB_API_KEY, and TMDB_READ_ACCESS_TOKEN before building. Rhythm uses bundled viewing-list data when keys are missing.",
+                            text = "OMDb is used first for movie details and posters with a bundled primary/fallback key; TMDB fills only missing artwork, backdrops, and trailers.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
                         )

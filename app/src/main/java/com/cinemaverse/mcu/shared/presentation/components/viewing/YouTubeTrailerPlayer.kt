@@ -34,7 +34,7 @@ fun parseYouTubeVideoId(value: String?): String? {
     if (value.isNullOrBlank()) return null
     val trimmed = value.trim()
     if (YouTubeIdPattern.matches(trimmed)) return trimmed
-    return Regex("(?:youtube\\.com/watch\\?v=|youtu\\.be/|youtube\\.com/embed/)([A-Za-z0-9_-]{11})")
+    return Regex("(?:youtube\\.com/(?:watch\\?v=|embed/|shorts/|v/)|youtu\\.be/)([A-Za-z0-9_-]{11})")
         .find(trimmed)
         ?.groupValues
         ?.getOrNull(1)
@@ -69,7 +69,9 @@ fun YouTubeTrailerWebPlayer(
             webViewClient = WebViewClient()
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
-            settings.mediaPlaybackRequiresUserGesture = true
+            settings.mediaPlaybackRequiresUserGesture = false
+            settings.javaScriptCanOpenWindowsAutomatically = true
+            settings.loadsImagesAutomatically = true
         }
     }
 
@@ -130,7 +132,7 @@ var player;
 function onYouTubeIframeAPIReady(){
   player = new YT.Player('player', {
     width:'100%', height:'100%', videoId:'$videoId',
-    playerVars:{playsinline:1,rel:0,modestbranding:1,autoplay:0},
+    playerVars:{playsinline:1,rel:0,modestbranding:1,autoplay:0,origin:'https://www.youtube.com'},
     events:{'onReady':function(event){}}
   });
 }

@@ -20,7 +20,8 @@ android {
         versionName = "5.0.394.1039 Beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "OMDB_API_KEY", "\"${System.getenv("OMDB_API_KEY") ?: System.getenv("VITE_OMDB_API_KEY") ?: System.getenv("NEXT_PUBLIC_OMDB_API_KEY") ?: ""}\"")
+        buildConfigField("String", "OMDB_API_KEY", "\"${System.getenv("OMDB_API_KEY") ?: System.getenv("VITE_OMDB_API_KEY") ?: System.getenv("NEXT_PUBLIC_OMDB_API_KEY") ?: "14596ed1"}\"")
+        buildConfigField("String", "OMDB_FALLBACK_API_KEY", "\"${System.getenv("OMDB_FALLBACK_API_KEY") ?: "2c971c17"}\"")
         buildConfigField("String", "TMDB_API_KEY", "\"${System.getenv("TMDB_API_KEY") ?: System.getenv("VITE_TMDB_API_KEY") ?: System.getenv("NEXT_PUBLIC_TMDB_API_KEY") ?: ""}\"")
         buildConfigField("String", "TMDB_READ_ACCESS_TOKEN", "\"${System.getenv("TMDB_READ_ACCESS_TOKEN") ?: System.getenv("VITE_TMDB_READ_ACCESS_TOKEN") ?: System.getenv("NEXT_PUBLIC_TMDB_READ_ACCESS_TOKEN") ?: ""}\"")
         buildConfigField("String", "YOUTUBE_DATA_API_KEY", "\"${System.getenv("YOUTUBE_DATA_API_KEY") ?: System.getenv("YOUTUBE_API_KEY") ?: System.getenv("VITE_YOUTUBE_API_KEY") ?: ""}\"")
