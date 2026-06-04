@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
@@ -25,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,7 +53,8 @@ fun YouTubeTrailerWebPlayer(
     youtubeVideoId: String?,
     modifier: Modifier = Modifier,
     trailerUrl: String? = null,
-    title: String = "Trailer"
+    title: String = "Trailer",
+    shape: Shape = RoundedCornerShape(28.dp)
 ) {
     val context = LocalContext.current
     val safeVideoId = remember(youtubeVideoId, trailerUrl) { parseYouTubeVideoId(youtubeVideoId) ?: parseYouTubeVideoId(trailerUrl) }
@@ -64,7 +65,8 @@ fun YouTubeTrailerWebPlayer(
             openAction = trailerUrl?.let { { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) } },
             refreshAction = null,
             posterAction = null,
-            modifier = modifier
+            modifier = modifier,
+            shape = shape
         )
         return
     }
@@ -78,50 +80,55 @@ fun YouTubeTrailerWebPlayer(
             openAction = openYouTube,
             refreshAction = { playerFailed = false },
             posterAction = null,
-            modifier = modifier
+            modifier = modifier,
+            shape = shape
         )
         return
     }
 
     val html = remember(safeVideoId) { iframeHtml(safeVideoId) }
-    val webView = remember {
-        WebView(context).apply {
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            webChromeClient = WebChromeClient()
-            webViewClient = object : WebViewClient() {
-                override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                    if (request?.isForMainFrame != false) playerFailed = true
-                }
-            }
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            settings.mediaPlaybackRequiresUserGesture = false
-            settings.javaScriptCanOpenWindowsAutomatically = true
-            settings.loadsImagesAutomatically = true
-        }
-    }
-
-    DisposableEffect(webView) {
-        onDispose {
-            webView.evaluateJavascript("if (window.player) { player.pauseVideo(); }", null)
-            webView.stopLoading()
-            webView.loadUrl("about:blank")
-            webView.removeAllViews()
-            webView.destroy()
-        }
-    }
 
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         tonalElevation = 2.dp
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
-            factory = { webView },
-            update = { it.loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null) }
+            factory = { viewContext ->
+                WebView(viewContext).apply {
+                    layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    alpha = 0.99f
+                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                    webChromeClient = WebChromeClient()
+                    webViewClient = object : WebViewClient() {
+                        override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                            if (request?.isForMainFrame != false) playerFailed = true
+                        }
+                    }
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    settings.mediaPlaybackRequiresUserGesture = false
+                    settings.javaScriptCanOpenWindowsAutomatically = true
+                    settings.loadsImagesAutomatically = true
+                    loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null)
+                    tag = safeVideoId
+                }
+            },
+            update = { view ->
+                if (view.tag != safeVideoId) {
+                    view.loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null)
+                    view.tag = safeVideoId
+                }
+            },
+            onRelease = { view ->
+                runCatching { view.evaluateJavascript("if (window.player) { player.pauseVideo(); }", null) }
+                view.stopLoading()
+                view.loadUrl("about:blank")
+                view.removeAllViews()
+                view.destroy()
+            }
         )
     }
 }
@@ -133,11 +140,12 @@ private fun TrailerFallback(
     openAction: (() -> Unit)?,
     refreshAction: (() -> Unit)?,
     posterAction: (() -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(28.dp)
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         tonalElevation = 2.dp
     ) {

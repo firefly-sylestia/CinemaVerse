@@ -16,6 +16,7 @@ object McuAssetDataSource {
      */
     private const val TAG = "ViewingCatalogDataSource"
     private const val CATALOG_PATH = "viewing/viewing_catalog.json"
+    @Volatile private var cachedData: ViewingAssetData? = null
 
     data class ViewingAssetData(
         val allItems: List<ViewingItem>,
@@ -57,7 +58,9 @@ object McuAssetDataSource {
         }
     }
 
-    fun load(context: Context): ViewingAssetData = load(context.assets)
+    fun load(context: Context): ViewingAssetData = cachedData ?: synchronized(this) {
+        cachedData ?: load(context.assets).also { cachedData = it }
+    }
 
     fun load(assetManager: AssetManager): ViewingAssetData = runCatching {
         val root = JSONObject(assetManager.open(CATALOG_PATH).bufferedReader().use { it.readText() })
@@ -231,7 +234,6 @@ object McuAssetDataSource {
             .replace(Regex("(^|-)the-"), "-")
             .replace(Regex("-+"), "-")
             .trim('-')
-        fun tokens(value: String): Set<String> = normalized(value).split('-').filter { it.length > 2 }.toSet()
 
         val exact = localAssets.firstOrNull { asset ->
             val core = assetCore(asset)
@@ -239,13 +241,13 @@ object McuAssetDataSource {
         }
         if (exact != null) return ViewingArtworkUtils.localPoster(exact)
 
-        val targetTokens = tokens(idSlug) + tokens(titleSlug)
         val reliable = localAssets.firstOrNull { asset ->
             val core = assetCore(asset)
             val normalizedCore = normalized(core)
-            (titleSlug.length >= 8 && (normalizedCore.contains(normalized(titleSlug)) || normalized(titleSlug).contains(normalizedCore))) ||
-                (idSlug.length >= 8 && (normalizedCore.contains(normalized(idSlug)) || normalized(idSlug).contains(normalizedCore))) ||
-                (targetTokens.isNotEmpty() && tokens(core).containsAll(targetTokens.take(3)))
+            val normalizedTitle = normalized(titleSlug)
+            val normalizedId = normalized(idSlug)
+            (normalizedCore.length >= 8 && titleSlug.length >= 8 && normalizedTitle.contains(normalizedCore)) ||
+                (normalizedCore.length >= 8 && idSlug.length >= 8 && normalizedId.contains(normalizedCore))
         }
         return reliable?.let(ViewingArtworkUtils::localPoster)
     }
