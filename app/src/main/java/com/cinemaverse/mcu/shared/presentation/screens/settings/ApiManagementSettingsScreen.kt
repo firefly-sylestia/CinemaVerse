@@ -88,7 +88,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cinemaverse.mcu.BuildConfig
 import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.service.OmdbService
+import com.cinemaverse.mcu.shared.data.service.TmdbService
 import com.cinemaverse.mcu.shared.data.service.ViewingMetadataStore
+import com.cinemaverse.mcu.shared.data.service.WatchmodeService
 import com.cinemaverse.mcu.shared.data.viewing.MetadataProviderMode
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
 import com.cinemaverse.mcu.shared.data.model.Playlist
@@ -172,6 +175,9 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
     val viewingFetchInProgress by ViewingMetadataStore.isFetching
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val useLocalPosters by ViewingMetadataStore.useLocalPosters
+    val useThirdPartyRemoteArtwork by ViewingMetadataStore.useThirdPartyRemoteArtwork
+    val watchmodeQuotaMessage by ViewingMetadataStore.watchmodeQuotaMessage
+    val remoteMetadataState by ViewingMetadataStore.remoteMetadataState
     val metadataProviderMode by ViewingMetadataStore.providerMode
     val watchmodeEnabled by ViewingMetadataStore.watchmodeApiEnabled
     val watchmodeKey by ViewingMetadataStore.watchmodeApiKey
@@ -309,7 +315,12 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             onEnabled = ViewingMetadataStore::setWatchmodeApiEnabled,
                             onSave = ViewingMetadataStore::setWatchmodeApiKey,
                             getKeyUrl = "https://api.watchmode.com/requestApiKey",
-                            docsUrl = "https://api.watchmode.com/docs"
+                            docsUrl = "https://api.watchmode.com/docs",
+                            onTest = { key ->
+                                WatchmodeService(apiKeyProvider = { key }, enabledProvider = { true })
+                                    .searchByImdbId("tt0371746")
+                                    .fold(onSuccess = { "Connected${it.quota.rateRemaining?.let { remaining -> ": $remaining requests remaining" } ?: ""}" }, onFailure = { it.message ?: "Watchmode connection failed" })
+                            }
                         )
                         CinemaApiKeyRow(
                             provider = "TMDB",
@@ -319,7 +330,15 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             onEnabled = ViewingMetadataStore::setTmdbApiEnabled,
                             onSave = ViewingMetadataStore::setTmdbReadAccessToken,
                             getKeyUrl = "https://developer.themoviedb.org/docs/authentication-application",
-                            docsUrl = "https://developer.themoviedb.org/docs"
+                            docsUrl = "https://developer.themoviedb.org/docs",
+                            onTest = { key ->
+                                val result = if (key.startsWith("eyJ")) {
+                                    TmdbService(readAccessToken = key).getTmdbMovieDetails(1726)
+                                } else {
+                                    TmdbService(apiKey = key, readAccessToken = "").getTmdbMovieDetails(1726)
+                                }
+                                result.fold(onSuccess = { "Connected: ${it.title}" }, onFailure = { it.message ?: "TMDB connection failed" })
+                            }
                         )
                         CinemaApiKeyRow(
                             provider = "OMDb",
@@ -329,8 +348,20 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             onEnabled = ViewingMetadataStore::setOmdbApiEnabled,
                             onSave = ViewingMetadataStore::setOmdbApiKey,
                             getKeyUrl = "https://www.omdbapi.com/apikey.aspx",
-                            docsUrl = "https://www.omdbapi.com/"
+                            docsUrl = "https://www.omdbapi.com/",
+                            onTest = { key ->
+                                OmdbService(apiKey = key, fallbackApiKey = "").getMovieByImdbId("tt0371746")
+                                    .fold(onSuccess = { "Connected: ${it.title}" }, onFailure = { it.message ?: "OMDb connection failed" })
+                            }
                         )
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Use third-party remote artwork", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                                Text("Watchmode image URLs are stored with attribution and only used as poster/backdrop fallbacks when this is enabled.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Switch(checked = useThirdPartyRemoteArtwork, onCheckedChange = ViewingMetadataStore::setUseThirdPartyRemoteArtwork)
+                        }
+                        Text("Remote metadata: ${remoteMetadataState.name.replace('_', ' ')}${watchmodeQuotaMessage?.let { " • $it" } ?: ""}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         CompactRegionSelector(availabilityRegion, ViewingMetadataStore::setCinemaAvailabilityRegion)
                     }
                 }
@@ -478,11 +509,15 @@ private fun CinemaApiKeyRow(
     onEnabled: (Boolean) -> Unit,
     onSave: (String) -> Unit,
     getKeyUrl: String,
-    docsUrl: String
+    docsUrl: String,
+    onTest: (suspend (String) -> String)? = null
 ) {
     val context = LocalContext.current
     var draft by rememberSaveable(provider, key) { mutableStateOf(key) }
     var visible by rememberSaveable(provider) { mutableStateOf(false) }
+    var testMessage by rememberSaveable(provider) { mutableStateOf<String?>(null) }
+    var testing by rememberSaveable(provider) { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 1.dp) {
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -508,10 +543,21 @@ private fun CinemaApiKeyRow(
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { onSave(draft) }) { Text("Save") }
                 OutlinedButton(onClick = { draft = ""; onSave("") }) { Text("Clear") }
-                OutlinedButton(onClick = { Toast.makeText(context, if (draft.isBlank()) "$provider key is empty" else "$provider key saved locally; use Fetch to validate with metadata calls", Toast.LENGTH_SHORT).show() }) { Text("Test connection") }
+                OutlinedButton(enabled = !testing && onTest != null, onClick = {
+                    if (draft.isBlank()) {
+                        testMessage = "$provider key is empty"
+                    } else {
+                        testing = true
+                        scope.launch {
+                            testMessage = onTest?.invoke(draft)
+                            testing = false
+                        }
+                    }
+                }) { Text(if (testing) "Testing…" else "Test connection") }
                 TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getKeyUrl))) }) { Text("Get $provider key") }
                 TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(docsUrl))) }) { Text("Docs") }
             }
+            testMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
     }
 }

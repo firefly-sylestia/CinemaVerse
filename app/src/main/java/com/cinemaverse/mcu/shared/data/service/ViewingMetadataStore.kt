@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
 import com.cinemaverse.mcu.shared.data.viewing.MetadataProviderMode
+import com.cinemaverse.mcu.shared.data.viewing.RemoteMetadataState
+import com.cinemaverse.mcu.shared.data.viewing.ViewingArtworkAttribution
 import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
 import com.cinemaverse.mcu.shared.data.viewing.ViewingUserStatus
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,9 @@ object ViewingMetadataStore {
     val providerMode = mutableStateOf(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
     val statusMessage = mutableStateOf(service.getConfigurationMessage(providerMode.value))
     val useLocalPosters = mutableStateOf(true)
+    val useThirdPartyRemoteArtwork = mutableStateOf(false)
+    val watchmodeQuotaMessage = mutableStateOf<String?>(null)
+    val remoteMetadataState = mutableStateOf(RemoteMetadataState.IDLE)
     val watchmodeApiEnabled = mutableStateOf(false)
     val watchmodeApiKey = mutableStateOf("")
     val tmdbApiEnabled = mutableStateOf(false)
@@ -36,6 +41,7 @@ object ViewingMetadataStore {
         appContext = application
         val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         useLocalPosters.value = prefs.getBoolean(KEY_USE_LOCAL_POSTERS, true)
+        useThirdPartyRemoteArtwork.value = prefs.getBoolean(KEY_USE_THIRD_PARTY_REMOTE_ARTWORK, false)
         watchmodeApiEnabled.value = prefs.getBoolean(KEY_WATCHMODE_ENABLED, false)
         watchmodeApiKey.value = prefs.getString(KEY_WATCHMODE_KEY, "").orEmpty()
         tmdbApiEnabled.value = prefs.getBoolean(KEY_TMDB_ENABLED, false)
@@ -72,6 +78,16 @@ object ViewingMetadataStore {
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putBoolean(KEY_USE_LOCAL_POSTERS, enabled)?.apply()
     }
 
+    fun setUseThirdPartyRemoteArtwork(enabled: Boolean) {
+        useThirdPartyRemoteArtwork.value = enabled
+        enriched.clear()
+        service.clearCache()
+        appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putBoolean(KEY_USE_THIRD_PARTY_REMOTE_ARTWORK, enabled)?.apply()
+    }
+
+    fun setWatchmodeQuotaMessage(message: String?) { watchmodeQuotaMessage.value = message }
+    fun setRemoteMetadataState(state: RemoteMetadataState) { remoteMetadataState.value = state }
+
     fun setWatchmodeApiEnabled(enabled: Boolean) = putBoolean(KEY_WATCHMODE_ENABLED, enabled) { watchmodeApiEnabled.value = it }
     fun setWatchmodeApiKey(key: String) = putString(KEY_WATCHMODE_KEY, key.trim()) { watchmodeApiKey.value = it }
     fun setTmdbApiEnabled(enabled: Boolean) = putBoolean(KEY_TMDB_ENABLED, enabled) { tmdbApiEnabled.value = it }
@@ -82,11 +98,15 @@ object ViewingMetadataStore {
 
     private fun putBoolean(key: String, value: Boolean, update: (Boolean) -> Unit) {
         update(value)
+        enriched.clear()
+        service.clearCache()
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putBoolean(key, value)?.apply()
     }
 
     private fun putString(key: String, value: String, update: (String) -> Unit) {
         update(value)
+        enriched.clear()
+        service.clearCache()
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putString(key, value)?.apply()
     }
 
@@ -167,6 +187,7 @@ object ViewingMetadataStore {
         omdbPoster = remote.omdbPoster ?: local.omdbPoster,
         backdrop = remote.backdrop ?: local.backdrop,
         tmdbBackdrop = remote.tmdbBackdrop ?: local.tmdbBackdrop,
+        remoteArtworkAttribution = remote.remoteArtworkAttribution ?: local.remoteArtworkAttribution,
         trailerUrl = remote.trailerUrl ?: local.trailerUrl,
         youtubeVideoId = remote.youtubeVideoId ?: local.youtubeVideoId,
         trailerSource = remote.trailerSource ?: local.trailerSource,
@@ -228,6 +249,14 @@ object ViewingMetadataStore {
             backdrop = json.optStringOrNull("backdrop"),
             tmdbBackdrop = json.optStringOrNull("tmdbBackdrop"),
             localBackdrop = json.optStringOrNull("localBackdrop"),
+            remoteArtworkAttribution = json.optJSONObject("remoteArtworkAttribution")?.let { art ->
+                ViewingArtworkAttribution(
+                    provider = art.optStringOrNull("provider") ?: "Remote",
+                    posterUrl = art.optStringOrNull("posterUrl"),
+                    backdropUrl = art.optStringOrNull("backdropUrl"),
+                    requiresAttribution = art.optBoolean("requiresAttribution", true)
+                )
+            },
             trailerUrl = json.optStringOrNull("trailerUrl"),
             youtubeVideoId = json.optStringOrNull("youtubeVideoId"),
             trailers = json.optJSONArray("trailers")?.let { array ->
@@ -259,6 +288,7 @@ object ViewingMetadataStore {
         putNullable("imdbRating", imdbRating); tmdbRating?.let { put("tmdbRating", it) }; putNullable("director", director); putNullable("writer", writer); put("actors", JSONArray(actors))
         putNullable("description", description); putNullable("overview", overview); putNullable("plot", plot); putNullable("poster", poster); putNullable("tmdbPoster", tmdbPoster); putNullable("omdbPoster", omdbPoster); putNullable("localPoster", localPoster)
         putNullable("backdrop", backdrop); putNullable("tmdbBackdrop", tmdbBackdrop); putNullable("localBackdrop", localBackdrop); putNullable("trailerUrl", trailerUrl); putNullable("youtubeVideoId", youtubeVideoId)
+        remoteArtworkAttribution?.let { put("remoteArtworkAttribution", JSONObject().apply { put("provider", it.provider); putNullable("posterUrl", it.posterUrl); putNullable("backdropUrl", it.backdropUrl); put("requiresAttribution", it.requiresAttribution) }) }
         put("trailers", JSONArray(trailers.map { JSONObject().apply { put("label", it.label); putNullable("youtubeVideoId", it.youtubeVideoId); putNullable("url", it.url); it.source?.let { source -> put("source", source.name) } } }))
         releaseOrder?.let { put("releaseOrder", it) }; chronologicalOrder?.let { put("chronologicalOrder", it) }; phaseOrder?.let { put("phaseOrder", it) }
         put("metadataSource", metadataSource.name); putNullable("lastUpdated", lastUpdated); put("status", status.name); putNullable("awards", awards)
@@ -279,6 +309,7 @@ object ViewingMetadataStore {
 
     private const val PREFS_NAME = "cinemaverse_user_state"
     private const val KEY_USE_LOCAL_POSTERS = "use_local_posters"
+    private const val KEY_USE_THIRD_PARTY_REMOTE_ARTWORK = "use_third_party_remote_artwork"
     private const val KEY_PROVIDER_MODE = "metadata_provider_mode"
     private const val KEY_WATCHMODE_ENABLED = "watchmode_api_enabled"
     private const val KEY_WATCHMODE_KEY = "watchmode_api_key"

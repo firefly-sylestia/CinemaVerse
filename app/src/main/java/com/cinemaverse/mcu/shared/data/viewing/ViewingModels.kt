@@ -38,6 +38,13 @@ data class ViewingTrailer(
     val source: TrailerSource? = null
 )
 
+data class ViewingArtworkAttribution(
+    val provider: String,
+    val posterUrl: String? = null,
+    val backdropUrl: String? = null,
+    val requiresAttribution: Boolean = true
+)
+
 enum class CinemaMetadataProvider { LOCAL, TMDB, OMDB, WATCHMODE }
 
 data class CinemaProviderConfig(
@@ -83,6 +90,7 @@ data class ViewingItem(
     val backdrop: String? = null,
     val tmdbBackdrop: String? = null,
     val localBackdrop: String? = null,
+    val remoteArtworkAttribution: ViewingArtworkAttribution? = null,
     val trailerUrl: String? = null,
     val youtubeVideoId: String? = null,
     val trailerSource: TrailerSource? = null,
@@ -162,10 +170,13 @@ data class MetadataResult(
     val item: ViewingItem,
     val source: MetadataSource = MetadataSource.LOCAL,
     val isFallback: Boolean = true,
-    val message: String? = null
+    val message: String? = null,
+    val remoteState: RemoteMetadataState = RemoteMetadataState.IDLE
 )
 
 enum class MetadataSource { LOCAL, OMDB, TMDB, WATCHMODE, MERGED, USER }
+
+enum class RemoteMetadataState { IDLE, LOADING, SUCCESS, QUOTA_LIMITED, UNAUTHORIZED, NETWORK_ERROR, NOT_FOUND, NOT_CONFIGURED }
 
 enum class MetadataProviderMode(val label: String, val description: String) {
     OMDB_PRIMARY_TMDB_FALLBACK(

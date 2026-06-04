@@ -1,6 +1,8 @@
 package com.cinemaverse.mcu.shared.data.service
 
+import com.cinemaverse.mcu.BuildConfig
 import com.cinemaverse.mcu.shared.data.viewing.TrailerSource
+import com.cinemaverse.mcu.shared.data.viewing.ViewingArtworkAttribution
 import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
 import com.cinemaverse.mcu.shared.data.viewing.ViewingTrailer
 import com.cinemaverse.mcu.shared.data.viewing.ViewingType
@@ -14,7 +16,7 @@ import java.net.URLEncoder
 import java.net.URL
 
 class WatchmodeService(
-    private val apiKeyProvider: () -> String = { ViewingMetadataStore.watchmodeApiKey.value },
+    private val apiKeyProvider: () -> String = { ViewingMetadataStore.watchmodeApiKey.value.ifBlank { BuildConfig.WATCHMODE_API_KEY } },
     private val enabledProvider: () -> Boolean = { ViewingMetadataStore.watchmodeApiEnabled.value }
 ) {
     data class QuotaHeaders(
@@ -45,8 +47,12 @@ class WatchmodeService(
                     imdbId = json.optString("imdb_id").takeUsable(),
                     tmdbId = json.optInt("tmdb_id").takeIf { it > 0 },
                     tmdbRating = json.optDouble("user_rating").takeIf { it > 0.0 },
-                    poster = json.optString("poster").takeUsable(),
-                    backdrop = json.optString("backdrop").takeUsable(),
+                    genres = json.optJSONArray("genre_names").orEmptyStrings(),
+                    remoteArtworkAttribution = ViewingArtworkAttribution(
+                        provider = "Watchmode",
+                        posterUrl = json.optString("poster").takeUsable(),
+                        backdropUrl = json.optString("backdrop").takeUsable()
+                    ),
                     trailerUrl = json.optString("trailer").takeUsable(),
                     youtubeVideoId = json.optString("trailer").takeUsable()?.extractYoutubeVideoId(),
                     trailerSource = TrailerSource.WATCHMODE,
@@ -126,6 +132,7 @@ class WatchmodeService(
         accountQuotaUsed = getHeaderField("X-Account-Quota-Used")
     )
 
+    private fun JSONArray?.orEmptyStrings(): List<String> = if (this == null) emptyList() else List(length()) { optString(it) }.filter { it.isNotBlank() }
     private fun String.urlEncode(): String = URLEncoder.encode(this, "UTF-8")
     private fun String?.takeUsable(): String? = this?.takeIf { it.isNotBlank() && it != "null" && it != "N/A" }
     private fun String.extractYoutubeVideoId(): String? = Regex("(?:v=|youtu\\.be/|embed/)([A-Za-z0-9_-]{11})").find(this)?.groupValues?.getOrNull(1)

@@ -93,6 +93,7 @@ import coil.request.ImageRequest
 import com.cinemaverse.mcu.R
 import com.cinemaverse.mcu.shared.data.service.ViewingMetadataStore
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
+import com.cinemaverse.mcu.shared.data.viewing.WatchProvider
 import com.cinemaverse.mcu.shared.data.viewing.ViewingCastMember
 import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
 import com.cinemaverse.mcu.shared.data.viewing.ViewingList
@@ -473,17 +474,20 @@ fun ViewingDetailScreen(
                                 }
                             }
                             Text(selected.overview ?: selected.plot ?: selected.description ?: "No overview available.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            if (hasTrailer) {
-                                Button(
-                                    onClick = { haptics.performHapticFeedback(HapticFeedbackType.LongPress); showTrailer = true },
-                                    shape = RoundedCornerShape(24.dp),
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Icon(RhythmIcons.Play, contentDescription = null)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Watch trailer")
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (hasTrailer) {
+                                    Button(
+                                        onClick = { haptics.performHapticFeedback(HapticFeedbackType.LongPress); showTrailer = true },
+                                        shape = RoundedCornerShape(24.dp),
+                                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
+                                    ) {
+                                        Icon(RhythmIcons.Play, contentDescription = null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Watch trailer")
+                                    }
                                 }
+                                OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(selected, ViewingUserStatus.WATCHLIST) }, shape = RoundedCornerShape(24.dp)) { Text(if (ViewingUserStatus.WATCHLIST in userStatuses) "In watchlist" else "Watchlist") }
+                                OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(selected, ViewingUserStatus.WATCHED) }, shape = RoundedCornerShape(24.dp)) { Text(if (ViewingUserStatus.WATCHED in userStatuses) "Watched" else "Mark watched") }
                             }
                             StatusSelector(userStatuses) { next ->
                                 ViewingMetadataStore.toggleStatus(selected, next)
@@ -491,10 +495,11 @@ fun ViewingDetailScreen(
                         }
                     }
                 }
+                item { WhereToWatchSection(selected) }
                 item { MetadataGrid(selected) }
                 item { CreditsBlock(selected) }
                 if (related.isNotEmpty()) item { PosterRail("Related titles", selected.franchise ?: selected.universe ?: "Similar genre", related, onOpenItem = { relatedItemId = it.id }) }
-                item { Text("Metadata source: ${selected.metadataSource} • Updated ${selected.lastUpdated ?: "offline catalog"}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                item { MetadataSourceFooter(selected) }
             }
         }
     }
@@ -505,6 +510,71 @@ fun ViewingDetailScreen(
             onDismiss = { showTrailer = false }
         )
     }
+}
+
+@Composable
+private fun WhereToWatchSection(item: ViewingItem) {
+    val context = LocalContext.current
+    val providers = item.watchProviders
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(26.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Where to watch", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("Region ${ViewingMetadataStore.cinemaAvailabilityRegion.value}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (item.metadataSource == com.cinemaverse.mcu.shared.data.viewing.MetadataSource.WATCHMODE || providers.isNotEmpty()) {
+                    AssistChip(onClick = {}, label = { Text("Watchmode") })
+                }
+            }
+            if (providers.isEmpty()) {
+                Text("No streaming availability has been found yet. Add a Watchmode key in API Management and refresh metadata.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else {
+                providers.groupBy { provider -> provider.type?.lowercase().orEmpty().providerGroupLabel() }
+                    .entries
+                    .sortedBy { entry -> listOf("Stream", "Free", "Rent / Buy", "TV Everywhere", "Other").indexOf(entry.key).let { index -> if (index < 0) Int.MAX_VALUE else index } }
+                    .forEach { (group, groupProviders) ->
+                        Text(group, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            groupProviders.sortedWith(compareBy<WatchProvider> { it.displayPriority ?: Int.MAX_VALUE }.thenBy { it.providerName }).forEach { provider ->
+                                val url = provider.androidUrl ?: provider.webUrl
+                                AssistChip(
+                                    onClick = { url?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) } } },
+                                    enabled = !url.isNullOrBlank(),
+                                    label = { Text(listOfNotNull(provider.providerName, provider.price).joinToString(" • ")) }
+                                )
+                            }
+                        }
+                    }
+                Text("Streaming data by Watchmode. Provider images and links may be third-party content.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetadataSourceFooter(item: ViewingItem) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = RoundedCornerShape(22.dp)) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                AssistChip(onClick = {}, label = { Text("Local") })
+                if (item.metadataSource != com.cinemaverse.mcu.shared.data.viewing.MetadataSource.LOCAL) AssistChip(onClick = {}, label = { Text(item.metadataSource.name) })
+                item.remoteArtworkAttribution?.let { attribution -> AssistChip(onClick = {}, label = { Text("Artwork: ${attribution.provider}") }) }
+            }
+            Text("Metadata source: ${item.metadataSource} • Updated ${item.lastUpdated ?: "offline catalog"}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            item.remoteArtworkAttribution?.takeIf { it.requiresAttribution }?.let { attribution ->
+                Text("${attribution.provider} artwork URLs are third-party metadata and are used only when remote artwork is enabled.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+private fun String.providerGroupLabel(): String = when {
+    this in setOf("sub", "subscription") -> "Stream"
+    this == "free" -> "Free"
+    this in setOf("rent", "buy", "purchase") -> "Rent / Buy"
+    this in setOf("tve", "tv_everywhere") -> "TV Everywhere"
+    else -> "Other"
 }
 
 @Composable

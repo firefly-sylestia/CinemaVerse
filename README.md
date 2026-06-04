@@ -87,18 +87,20 @@ Marvel Spectrum resolves viewing artwork in this order:
 4. OMDb poster
 5. Built-in Marvel-style fallback artwork
 
-### Optional OMDb and TMDB enrichment
+### Optional cinema API enrichment
 
-API keys are optional and are only used to enrich missing metadata or remote artwork. Missing keys do not break the app because local JSON metadata and poster assets are bundled.
+API keys are optional and are only used to enrich missing metadata, trailers, or streaming availability. Missing keys do not break the app because local JSON metadata and poster assets are bundled. In-app API Management lets each user save their own Watchmode, TMDB, and OMDb keys in private device preferences.
 
 ```bash
 export OMDB_API_KEY="YOUR_OMDB_API_KEY_HERE"
 export TMDB_API_KEY="YOUR_TMDB_API_KEY_HERE"
 export TMDB_READ_ACCESS_TOKEN="YOUR_TMDB_READ_ACCESS_TOKEN_HERE"
+# Optional for local developer testing only; prefer entering Watchmode in-app.
+export WATCHMODE_API_KEY="YOUR_WATCHMODE_API_KEY_HERE"
 ./gradlew :app:assembleGithubDebug
 ```
 
-Do not commit real API secrets. `.env.example` contains placeholder names only.
+Do not commit real API secrets. `.env.example` contains placeholder names only. If a Watchmode key is pasted into chat, issues, logs, or source control, revoke/regenerate it in the Watchmode dashboard before using the app again. Watchmode image/media URLs are treated as third-party remote artwork and should remain disabled unless the user accepts the provider's rights/attribution terms. Run a secret scan before commits that touch integration code, for example `git grep -nE "(apiKey=|WATCHMODE_API_KEY=).{12,}" -- . ":!README.md" ":!build"`.
 
 ### Editing viewing lists
 
