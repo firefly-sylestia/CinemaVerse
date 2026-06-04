@@ -79,6 +79,7 @@ data class ViewingItem(
     val watched: Boolean = false,
     val favorite: Boolean = false,
     val watchlisted: Boolean = false,
+    val userStatuses: Set<ViewingUserStatus> = emptySet(),
     val notes: String? = null
 )
 
@@ -97,6 +98,7 @@ data class ViewingList(
     val franchise: String? = null,
     val itemIds: List<String> = emptyList(),
     val items: List<ViewingItem>,
+    val importance: ViewingListImportance = ViewingListImportance.SECONDARY,
     val sortModes: List<ViewingSortMode> = listOf(
         ViewingSortMode.RELEASE,
         ViewingSortMode.CHRONOLOGICAL,
@@ -108,7 +110,18 @@ data class ViewingList(
 
 enum class ViewingType { MOVIE, SERIES, EPISODE, SPECIAL, SHORT, ONE_SHOT }
 enum class ViewingStatus { RELEASED, UPCOMING, ANNOUNCED }
-enum class TrailerSource { TMDB, YOUTUBE, LOCAL, MANUAL }
+enum class TrailerSource { TMDB, YOUTUBE, LOCAL, MANUAL, OMDB }
+enum class ViewingListImportance { PRIMARY, SECONDARY, NICHE, HIDDEN }
+enum class ViewingUserStatus(val activeLabel: String, val inactiveLabel: String, val libraryTitle: String) {
+    BOOKMARKED("Bookmarked", "Bookmark", "Bookmarks"),
+    WATCHLIST("In watchlist", "Add to watchlist", "Watchlist"),
+    WATCH_LATER("Saved for later", "Watch later", "Watch later"),
+    ON_HOLD("On hold", "Put on hold", "On hold"),
+    WATCHING("Continue watching", "Start watching", "Continue"),
+    WATCHED("Watched", "Mark watched", "Watched"),
+    FAVORITE("Favorite", "Favorite", "Favorites"),
+    HIDDEN("Not interested", "Hide", "Hidden")
+}
 enum class ViewingSortMode(val label: String) {
     RELEASE("Release order"),
     CHRONOLOGICAL("Chronological order"),
@@ -128,3 +141,35 @@ data class MetadataResult(
 )
 
 enum class MetadataSource { LOCAL, OMDB, TMDB, MERGED, USER }
+
+enum class ViewingSearchCategory(val label: String) {
+    ESSENTIAL("Essential"),
+    RELEASE_ORDER("Release order"),
+    TIMELINE("Timeline"),
+    PHASES("Phases"),
+    SAGAS("Sagas"),
+    COLLECTIONS("Collections"),
+    SPECIALS("Specials"),
+    SERIES("Series"),
+    UPCOMING("Upcoming"),
+    SAVED("Saved")
+}
+
+enum class ViewingSearchSortMode(val label: String) {
+    RELEVANCE("Relevance"),
+    RELEASE_DATE("Release date"),
+    CHRONOLOGICAL("Chronological"),
+    RATING("Rating"),
+    RUNTIME("Runtime"),
+    TITLE("Title")
+}
+
+data class ViewingSearchFilters(
+    val query: String = "",
+    val universes: Set<String> = emptySet(),
+    val types: Set<ViewingType> = emptySet(),
+    val genres: Set<String> = emptySet(),
+    val categories: Set<ViewingSearchCategory> = emptySet(),
+    val statuses: Set<ViewingUserStatus> = emptySet(),
+    val sortMode: ViewingSearchSortMode = ViewingSearchSortMode.RELEVANCE
+)

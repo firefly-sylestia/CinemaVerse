@@ -167,6 +167,8 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
     val viewingData = remember(context) { McuAssetDataSource.load(context) }
     val viewingFetchMessage by ViewingMetadataStore.statusMessage
     val viewingFetchInProgress by ViewingMetadataStore.isFetching
+    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
+    val useLocalPosters by ViewingMetadataStore.useLocalPosters
 
     // API states
     val deezerApiEnabled by appSettings.deezerApiEnabled.collectAsState()
@@ -202,13 +204,13 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Movie metadata APIs",
+                            text = "Cinema metadata",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "OMDb is used first for movie details and posters with a bundled primary/fallback key; TMDB fills only missing artwork, backdrops, and trailers.",
+                            text = "OMDb powers primary posters and IMDb-style details. TMDB powers backdrops, trailers, and cinema metadata.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
                         )
@@ -222,8 +224,30 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             enabled = !viewingFetchInProgress,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(if (viewingFetchInProgress) "Loading database…" else "Fetch and load movie database")
+                            Text(if (viewingFetchInProgress) "Refreshing cinema metadata…" else "Fetch OMDb posters and TMDB backdrop/trailer metadata")
                         }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    text = "Prefer bundled local posters",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = "Turn off to show API posters first wherever TMDB/OMDb artwork is available.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.72f)
+                                )
+                            }
+                            Switch(checked = useLocalPosters, onCheckedChange = ViewingMetadataStore::setUseLocalPosters)
+                        }
+
                     }
                 }
             }
@@ -231,7 +255,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
             // API Services
             item {
                 Text(
-                    text = context.getString(R.string.external_services),
+                    text = "Music integrations",
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.SemiBold
                     ),

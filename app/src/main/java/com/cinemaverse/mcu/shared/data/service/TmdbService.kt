@@ -47,8 +47,9 @@ class TmdbService(
             val best = (0 until (results?.length() ?: 0))
                 .mapNotNull { results?.optJSONObject(it) }
                 .firstOrNull { candidate ->
-                    candidate.optString("poster_path").takeUsable() != null && candidate.optString("media_type") in setOf("movie", "tv")
-                } ?: throw IllegalStateException("No TMDB poster match for ${item.title}")
+                    candidate.optString("media_type") in setOf("movie", "tv") &&
+                        (candidate.optString("backdrop_path").takeUsable() != null || candidate.optString("poster_path").takeUsable() != null)
+                } ?: throw IllegalStateException("No TMDB artwork match for ${item.title}")
             val mediaType = if (best.optString("media_type") == "tv") "tv" else "movie"
             val id = best.optInt("id")
             normalizeTmdbMovie(request("/$mediaType/$id", "append_to_response=credits,videos,recommendations,images,external_ids"), mediaType)
@@ -60,9 +61,9 @@ class TmdbService(
         runCatching { normalizeTmdbMovie(request("/${if (isTv) "tv" else "movie"}/$movieId", "append_to_response=credits,videos,recommendations,images,external_ids"), if (isTv) "tv" else "movie") }
     }
 
-    suspend fun getTmdbMovieVideos(movieId: Int): Result<List<String>> = withContext(Dispatchers.IO) {
+    suspend fun getTmdbMovieVideos(movieId: Int): Result<List<TmdbTrailer>> = withContext(Dispatchers.IO) {
         if (!hasCredentials) return@withContext Result.failure(IllegalStateException("TMDB API key/token is missing; using local viewing-list data."))
-        runCatching { extractTrailerUrls(request("/movie/$movieId/videos")) }
+        runCatching { extractTrailers(request("/movie/$movieId/videos")) }
     }
 
     suspend fun getTmdbCredits(movieId: Int): Result<Pair<List<ViewingCastMember>, List<ViewingCrewMember>>> = withContext(Dispatchers.IO) {
@@ -94,7 +95,7 @@ class TmdbService(
             (0 until array.length()).mapNotNull { array.optJSONObject(it)?.optString("name")?.takeUsable() }
         } ?: emptyList()
         val credits = extractCredits(json.optJSONObject("credits"))
-        val trailer = extractTrailerUrls(json.optJSONObject("videos")).firstOrNull()
+        val trailer = extractTrailers(json.optJSONObject("videos")).firstOrNull()
         val imdbId = json.optJSONObject("external_ids")?.optString("imdb_id")?.takeUsable()
         val releaseDate = json.optString("release_date").takeUsable()
         return ViewingItem(
@@ -114,7 +115,8 @@ class TmdbService(
             poster = ViewingArtworkUtils.tmdbPoster(json.optString("poster_path").takeUsable()),
             tmdbBackdrop = ViewingArtworkUtils.tmdbBackdrop(json.optString("backdrop_path").takeUsable()),
             backdrop = ViewingArtworkUtils.tmdbBackdrop(json.optString("backdrop_path").takeUsable()),
-            trailerUrl = trailer,
+            trailerUrl = trailer?.url,
+            youtubeVideoId = trailer?.key,
             trailerSource = trailer?.let { TrailerSource.TMDB },
             cast = credits.first,
             crew = credits.second,
@@ -126,15 +128,31 @@ class TmdbService(
         )
     }
 
-    private fun extractTrailerUrls(json: JSONObject?): List<String> {
+    fun extractTrailerUrls(json: JSONObject?): List<String> = extractTrailers(json).map { it.url }
+
+    fun extractTrailers(json: JSONObject?): List<TmdbTrailer> {
         val results = json?.optJSONArray("results") ?: return emptyList()
         return (0 until results.length()).mapNotNull { index ->
-            val video = results.optJSONObject(index)
-            val site = video?.optString("site")
-            val key = video?.optString("key")
-            val type = video?.optString("type")
-            if (site == "YouTube" && !key.isNullOrBlank() && (type == "Trailer" || type == "Teaser")) "https://www.youtube.com/watch?v=$key" else null
-        }
+            val video = results.optJSONObject(index) ?: return@mapNotNull null
+            val site = video.optString("site")
+            val key = video.optString("key").takeUsable()
+            val type = video.optString("type").takeUsable()
+            if (site.equals("YouTube", ignoreCase = true) && key != null && key.matches(Regex("^[A-Za-z0-9_-]{11}$"))) {
+                TmdbTrailer(key = key, name = video.optString("name").takeUsable(), type = type, official = video.optBoolean("official"))
+            } else {
+                null
+            }
+        }.sortedWith(
+            compareBy<TmdbTrailer> { trailer ->
+                when {
+                    trailer.official && trailer.type.equals("Trailer", true) -> 0
+                    trailer.type.equals("Trailer", true) -> 1
+                    trailer.official && trailer.type.equals("Teaser", true) -> 2
+                    trailer.type.equals("Teaser", true) -> 3
+                    else -> 4
+                }
+            }.thenBy { it.name ?: "" }
+        )
     }
 
     private fun extractCredits(json: JSONObject?): Pair<List<ViewingCastMember>, List<ViewingCrewMember>> {
@@ -167,6 +185,10 @@ class TmdbService(
         }
         return connection.inputStream.bufferedReader().use { JSONObject(it.readText()) }
     }
+}
+
+data class TmdbTrailer(val key: String, val name: String? = null, val type: String? = null, val official: Boolean = false) {
+    val url: String = "https://www.youtube.com/watch?v=$key"
 }
 
 private const val DEFAULT_READ_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NWVkYTQ4Y2Y1ODAzZjIyMzA0ZmQyMWY0ZjA2YTM1ZSIsIm5iZiI6MTc3ODY4NTg2My42ODcsInN1YiI6IjZhMDQ5N2E3N2IyZDk3NzQ2MDM3N2E1OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.XTD8e-B7awrTVIJd5WtD3vZ5FnWjE8sWkSjgYIeauAA"

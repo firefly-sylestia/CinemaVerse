@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.util.Log
 import org.json.JSONArray
+import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
 import org.json.JSONObject
 
 object McuAssetDataSource {
@@ -60,8 +61,9 @@ object McuAssetDataSource {
 
     fun load(assetManager: AssetManager): ViewingAssetData = runCatching {
         val root = JSONObject(assetManager.open(CATALOG_PATH).bufferedReader().use { it.readText() })
+        val localAssets = assetManager.list("mcu_posters").orEmpty().toSet()
         val items = root.optJSONArray("items").orEmptyObjects()
-            .map { it.toViewingItem() }
+            .map { it.toViewingItem(localAssets) }
             .distinctBy { it.id }
         buildData(items, root.optString("updated").takeUsable())
     }.getOrElse { error ->
@@ -91,11 +93,12 @@ object McuAssetDataSource {
             phase: String? = null,
             saga: String? = null,
             franchise: String? = null,
-            sort: Comparator<ViewingItem> = releaseComparator()
+            sort: Comparator<ViewingItem> = releaseComparator(),
+            importance: ViewingListImportance = ViewingListImportance.SECONDARY
         ) {
             if (filtered.isEmpty()) return
             val listItems = filtered.sortedWith(sort)
-            val art = listItems.firstOrNull { !it.poster.isNullOrBlank() || !it.backdrop.isNullOrBlank() }
+            val art = listItems.firstOrNull { ViewingArtworkUtils.resolvePoster(it) != null || ViewingArtworkUtils.resolveBackdrop(it) != null }
             lists += ViewingList(
                 id = id,
                 title = title,
@@ -105,23 +108,26 @@ object McuAssetDataSource {
                 phase = phase,
                 saga = saga,
                 franchise = franchise,
-                poster = art?.poster,
-                backdrop = art?.backdrop,
+                poster = art?.let { ViewingArtworkUtils.resolvePoster(it, preferLocalArtwork = false) },
+                localPoster = art?.localPoster,
+                backdrop = art?.let { ViewingArtworkUtils.resolveBackdrop(it, preferLocalArtwork = false) },
+                localBackdrop = art?.localBackdrop,
                 itemIds = listItems.map { it.id },
-                items = listItems
+                items = listItems,
+                importance = importance
             )
         }
 
         val marvel = items.filter { it.universe == "MCU" || it.universe == "Marvel" }
         val dc = items.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }
-        list("all-release-order", "Cinemaverse Release Order", "Marvel and DC titles sorted by public release date.", items, category = "Release Order")
-        list("mcu-release-order", "MCU Release Order", "Marvel Studios films, series, specials, and One-Shots by release date.", marvel, universe = "MCU", category = "Release Order")
-        list("mcu-chronological-order", "MCU Chronological Order", "Official Disney+ timeline-inspired MCU order with Defenders and multiverse labels kept visible.", marvel, universe = "MCU", category = "Chronological Order", sort = chronologicalComparator())
-        list("dc-release-order", "DC Release Order", "DCU, DCEU, and Elseworlds titles by public release date.", dc, universe = "DC", category = "Release Order")
-        list("dceu-release-order", "DCEU Release Order", "The DCEU theatrical and streaming-era watch order.", items.filter { it.universe == "DCEU" }, universe = "DCEU", category = "Release Order")
-        list("dceu-chronological-order", "DCEU Chronological Order", "DCEU stories ordered by in-universe placement where clear.", items.filter { it.universe == "DCEU" }, universe = "DCEU", category = "Chronological Order", sort = chronologicalComparator())
-        list("dcu-release-order", "DCU Release Order", "DC Studios Chapter One titles, including clearly marked upcoming entries.", items.filter { it.universe == "DCU" }, universe = "DCU", category = "Release Order")
-        list("dc-elseworlds", "DC Elseworlds", "Standalone DC film and TV universes such as Joker and The Batman.", items.filter { it.universe == "Elseworlds" }, universe = "Elseworlds", category = "DC Elseworlds")
+        list("all-release-order", "Cinemaverse Release Order", "Marvel and DC titles sorted by public release date.", items, category = "Release Order", importance = ViewingListImportance.PRIMARY)
+        list("mcu-release-order", "MCU Release Order", "Marvel Studios films, series, specials, and One-Shots by release date.", marvel, universe = "MCU", category = "Release Order", importance = ViewingListImportance.PRIMARY)
+        list("mcu-chronological-order", "MCU Chronological Order", "Official Disney+ timeline-inspired MCU order with Defenders and multiverse labels kept visible.", marvel, universe = "MCU", category = "Chronological Order", sort = chronologicalComparator(), importance = ViewingListImportance.PRIMARY)
+        list("dc-release-order", "DC Release Order", "DCU, DCEU, and Elseworlds titles by public release date.", dc, universe = "DC", category = "Release Order", importance = ViewingListImportance.PRIMARY)
+        list("dceu-release-order", "DCEU Release Order", "The DCEU theatrical and streaming-era watch order.", items.filter { it.universe == "DCEU" }, universe = "DCEU", category = "Release Order", importance = ViewingListImportance.PRIMARY)
+        list("dceu-chronological-order", "DCEU Chronological Order", "DCEU stories ordered by in-universe placement where clear.", items.filter { it.universe == "DCEU" }, universe = "DCEU", category = "Chronological Order", sort = chronologicalComparator(), importance = ViewingListImportance.PRIMARY)
+        list("dcu-release-order", "DCU Chapter One", "DC Studios Chapter One titles, including clearly marked upcoming entries.", items.filter { it.universe == "DCU" }, universe = "DCU", category = "Chapter One", importance = ViewingListImportance.PRIMARY)
+        list("dc-elseworlds", "DC Elseworlds", "Standalone DC film and TV universes such as Joker and The Batman.", items.filter { it.universe == "Elseworlds" }, universe = "Elseworlds", category = "DC Elseworlds", importance = ViewingListImportance.PRIMARY)
 
         items.groupBy { it.phase }.forEach { (phase, phaseItems) ->
             if (!phase.isNullOrBlank()) list(phase.slug(), phase, "${phaseItems.size} titles in $phase.", phaseItems, phase = phase, category = "Phases / Chapters", sort = phaseComparator())
@@ -133,15 +139,18 @@ object McuAssetDataSource {
             if (!franchise.isNullOrBlank() && franchiseItems.size > 1) list(franchise.slug(), franchise, "A focused viewing collection for $franchise.", franchiseItems, franchise = franchise, category = "Collections", sort = collectionComparator())
         }
         list("marvel-one-shots", "Marvel One-Shots", "Short-form MCU connective tissue.", items.filter { it.type == ViewingType.ONE_SHOT }, universe = "MCU", category = "Marvel One-Shots", sort = releaseComparator())
-        list("marvel-specials", "Marvel Specials", "Special Presentations and seasonal MCU entries.", items.filter { it.type == ViewingType.SPECIAL }, universe = "MCU", category = "Specials", sort = releaseComparator())
+        list("marvel-specials", "Marvel Specials", "Special Presentations and seasonal MCU entries.", items.filter { it.type == ViewingType.SPECIAL }, universe = "MCU", category = "Specials", sort = releaseComparator(), importance = ViewingListImportance.PRIMARY)
         list("disney-plus-series", "Disney+ Series", "Marvel Studios streaming series in release order.", items.filter { it.category == "Disney+ Series" }, universe = "MCU", category = "Disney+ Series", sort = releaseComparator())
-        list("defenders-saga", "Defenders Saga", "Street-level Marvel Television and Disney+ continuity entries.", items.filter { it.category == "Defenders Saga" }, universe = "MCU", category = "Defenders Saga", sort = releaseComparator())
+        list("defenders-saga", "Defenders Saga", "Street-level Marvel Television and Disney+ continuity entries.", items.filter { it.category == "Defenders Saga" }, universe = "MCU", category = "Defenders Saga", sort = releaseComparator(), importance = ViewingListImportance.PRIMARY)
         return lists.distinctBy { it.id }
     }
 
-    private fun JSONObject.toViewingItem(): ViewingItem {
+    private fun JSONObject.toViewingItem(localAssets: Set<String>): ViewingItem {
         val type = optString("type").toViewingType()
         val releaseDate = optString("releaseDate").takeUsable()
+        val explicitLocalPoster = optString("localPoster").takeUsable()?.let(ViewingArtworkUtils::localPoster)
+        val explicitLocalBackdrop = optString("localBackdrop").takeUsable()?.let(ViewingArtworkUtils::localPoster)
+        val resolvedLocalPoster = explicitLocalPoster ?: resolveLocalArtwork(localAssets, optString("id"), optString("title"))
         val youtubeId = optString("youtubeVideoId").takeUsable() ?: optString("trailerUrl").takeUsable()?.extractYoutubeVideoId()
         return ViewingItem(
             id = optString("id"),
@@ -170,11 +179,13 @@ object McuAssetDataSource {
             description = optString("description").takeUsable(),
             overview = optString("overview").takeUsable(),
             plot = optString("plot").takeUsable(),
-            poster = optString("poster").takeUsable(),
-            tmdbPoster = optString("tmdbPoster").takeUsable(),
+            poster = optString("poster").takeUsable()?.let { ViewingArtworkUtils.tmdbPoster(it) ?: it },
+            tmdbPoster = ViewingArtworkUtils.tmdbPoster(optString("tmdbPoster").takeUsable() ?: optString("poster").takeUsable()?.takeIf { it.contains("themoviedb.org/t/p/") }),
             omdbPoster = optString("omdbPoster").takeUsable(),
-            backdrop = optString("backdrop").takeUsable(),
-            tmdbBackdrop = optString("tmdbBackdrop").takeUsable(),
+            localPoster = resolvedLocalPoster,
+            backdrop = optString("backdrop").takeUsable()?.let { ViewingArtworkUtils.tmdbBackdrop(it) ?: it },
+            tmdbBackdrop = ViewingArtworkUtils.tmdbBackdrop(optString("tmdbBackdrop").takeUsable() ?: optString("backdrop").takeUsable()?.takeIf { it.contains("themoviedb.org/t/p/") }),
+            localBackdrop = explicitLocalBackdrop,
             trailerUrl = optString("trailerUrl").takeUsable() ?: youtubeId?.let { "https://www.youtube.com/watch?v=$it" },
             youtubeVideoId = youtubeId,
             trailerSource = youtubeId?.let { TrailerSource.YOUTUBE },
@@ -186,6 +197,24 @@ object McuAssetDataSource {
             lastUpdated = optString("lastUpdated").takeUsable(),
             status = optString("status").toViewingStatus()
         )
+    }
+
+    private fun resolveLocalArtwork(localAssets: Set<String>, id: String, title: String): String? {
+        if (localAssets.isEmpty()) return null
+        val idSlug = id.slug().removePrefix("mcu-")
+        val titleSlug = title.slug()
+            .removePrefix("marvel-one-shot-")
+            .replace("-and-", "-")
+            .replace("the-", "")
+        fun assetCore(name: String) = name.substringBeforeLast('.').replace(Regex("^\\d+-"), "").slug()
+        val exact = localAssets.firstOrNull { assetCore(it) == idSlug || assetCore(it) == titleSlug }
+        if (exact != null) return ViewingArtworkUtils.localPoster(exact)
+        val reliable = localAssets.firstOrNull { asset ->
+            val core = assetCore(asset)
+            (titleSlug.length >= 8 && (core.contains(titleSlug) || titleSlug.contains(core))) ||
+                (idSlug.length >= 8 && (core.contains(idSlug) || idSlug.contains(core)))
+        }
+        return reliable?.let(ViewingArtworkUtils::localPoster)
     }
 
     private fun releaseComparator() = compareBy<ViewingItem> { it.releaseDate ?: "9999-99-99" }.thenBy { it.releaseOrder ?: Int.MAX_VALUE }.thenBy { it.title }

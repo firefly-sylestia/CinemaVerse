@@ -21,31 +21,32 @@ class MovieMetadataService(
         var source = MetadataSource.LOCAL
         val messages = mutableListOf<String>()
 
+        if (tmdbService.hasCredentials) {
+            tmdbService.getTmdbViewingDetails(localItem).fold(
+                onSuccess = { tmdb ->
+                    merged = mergeTmdbBackdropAndCinema(merged, tmdb)
+                    source = MetadataSource.TMDB
+                },
+                onFailure = { messages += it.message ?: "TMDB lookup failed." }
+            )
+        } else {
+            messages += "TMDB token missing; backdrops, trailers, and cinema metadata use local fallback fields while posters can still come from OMDb."
+        }
+
         if (omdbService.hasApiKey) {
             val omdbResult = localItem.imdbId?.let { omdbService.getMovieByImdbId(it) }
                 ?: omdbService.getMovieByTitle(localItem.title, localItem.year)
             omdbResult.fold(
                 onSuccess = { omdb ->
-                    merged = mergePreferOmdbPoster(merged, omdb)
-                    source = MetadataSource.OMDB
+                    merged = mergeOmdbPosterAndImdbDetails(merged, omdb)
+                    source = if (source == MetadataSource.TMDB) MetadataSource.MERGED else MetadataSource.OMDB
                 },
                 onFailure = { messages += it.message ?: "OMDb lookup failed." }
             )
         } else {
-            messages += "OMDb key not configured; using local fallback fields."
+            messages += "OMDb key not configured; poster artwork falls back to TMDB or local/catalog artwork."
         }
 
-        if (tmdbService.hasCredentials) {
-            tmdbService.getTmdbViewingDetails(localItem).fold(
-                onSuccess = { tmdb ->
-                    merged = mergeTmdbFallbacks(merged, tmdb)
-                    source = if (source == MetadataSource.OMDB) MetadataSource.MERGED else MetadataSource.TMDB
-                },
-                onFailure = { messages += it.message ?: "TMDB lookup failed." }
-            )
-        } else {
-            messages += "TMDB token not configured; using OMDb/local fallback fields."
-        }
 
         val result = MetadataResult(
             item = merged,
@@ -58,13 +59,13 @@ class MovieMetadataService(
     }
 
     fun getConfigurationMessage(): String = buildString {
-        if (!omdbService.hasApiKey) append("OMDb key missing. ")
         if (!tmdbService.hasCredentials) append("TMDB token missing. ")
-        if (isBlank()) append("OMDb metadata is primary; TMDB only fills missing posters/backdrops/trailers.")
-        else append("Cinemaverse remains usable with the offline Marvel/DC viewing catalog.")
+        if (!omdbService.hasApiKey) append("OMDb key missing. ")
+        if (isBlank()) append("OMDb powers primary posters and IMDb-style details. TMDB powers backdrops, trailers, and cinema metadata.")
+        else append("Cinemaverse remains usable with local posters and the offline Marvel/DC catalog.")
     }
 
-    private fun mergePreferOmdbPoster(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(
+    private fun mergeOmdbPosterAndImdbDetails(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(
         originalTitle = api.originalTitle ?: local.originalTitle,
         year = api.year ?: local.year,
         releaseDate = api.releaseDate ?: local.releaseDate,
@@ -90,14 +91,14 @@ class MovieMetadataService(
         country = api.country ?: local.country
     )
 
-    private fun mergeTmdbFallbacks(local: ViewingItem, api: ViewingItem): ViewingItem = mergePreservingLocal(local, api).copy(
-        poster = local.omdbPoster ?: local.poster ?: api.poster,
-        omdbPoster = local.omdbPoster,
-        tmdbPoster = local.tmdbPoster ?: api.tmdbPoster,
-        backdrop = local.backdrop ?: api.backdrop,
-        tmdbBackdrop = local.tmdbBackdrop ?: api.tmdbBackdrop,
-        trailerUrl = local.trailerUrl ?: api.trailerUrl,
-        trailerSource = local.trailerSource ?: api.trailerSource
+    private fun mergeTmdbBackdropAndCinema(local: ViewingItem, api: ViewingItem): ViewingItem = mergePreservingLocal(local, api).copy(
+        poster = local.omdbPoster ?: local.poster ?: api.tmdbPoster ?: api.poster,
+        tmdbPoster = api.tmdbPoster ?: local.tmdbPoster,
+        backdrop = api.tmdbBackdrop ?: api.backdrop ?: local.backdrop,
+        tmdbBackdrop = api.tmdbBackdrop ?: local.tmdbBackdrop,
+        trailerUrl = api.trailerUrl ?: local.trailerUrl,
+        youtubeVideoId = api.youtubeVideoId ?: local.youtubeVideoId,
+        trailerSource = api.trailerSource ?: local.trailerSource
     )
 
     private fun mergePreservingLocal(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(
@@ -110,13 +111,14 @@ class MovieMetadataService(
         genres = local.genres.ifEmpty { api.genres },
         plot = api.plot ?: local.plot,
         overview = api.overview ?: local.overview,
-        poster = api.poster ?: local.poster,
+        poster = local.omdbPoster ?: local.poster ?: api.tmdbPoster ?: api.poster,
         tmdbPoster = api.tmdbPoster ?: local.tmdbPoster,
         omdbPoster = api.omdbPoster ?: local.omdbPoster,
         backdrop = api.backdrop ?: local.backdrop,
         tmdbBackdrop = api.tmdbBackdrop ?: local.tmdbBackdrop,
-        trailerUrl = local.trailerUrl ?: api.trailerUrl,
-        trailerSource = local.trailerSource ?: api.trailerSource,
+        trailerUrl = api.trailerUrl ?: local.trailerUrl,
+        youtubeVideoId = api.youtubeVideoId ?: local.youtubeVideoId,
+        trailerSource = api.trailerSource ?: local.trailerSource,
         director = local.director ?: api.director,
         writer = local.writer ?: api.writer,
         actors = api.actors.ifEmpty { local.actors },

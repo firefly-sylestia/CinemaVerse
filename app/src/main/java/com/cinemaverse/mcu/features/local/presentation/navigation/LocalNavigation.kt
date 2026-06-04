@@ -195,6 +195,15 @@ import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingHomeScreen
 import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingLibraryScreen
 import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingSearchScreen
 
+private object ViewingHomeReselectionBus {
+    var key by mutableIntStateOf(0)
+        private set
+
+    fun trigger() {
+        key += 1
+    }
+}
+
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Search : Screen("search")
@@ -1056,6 +1065,9 @@ private fun LocalNavigationContent(
                                                         haptic,
                                                         HapticFeedbackType.LongPress
                                                     )
+                                                    if (title == "Home" && currentRoute == Screen.Home.route && localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                                                        ViewingHomeReselectionBus.trigger()
+                                                    }
                                                     navigateToTopLevel(route)
                                                 },
                                             contentAlignment = Alignment.Center
@@ -1259,7 +1271,8 @@ private fun LocalNavigationContent(
                             onOpenLibrary = { navigateToTopLevel(Screen.Library.createRoute(firstVisibleLibraryTab)) },
                             onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
                             onOpenDetail = {},
-                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) },
+                            homeReselectionKey = ViewingHomeReselectionBus.key
                         )
                     } else {
                         HomeScreen(
