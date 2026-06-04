@@ -80,6 +80,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -171,6 +173,13 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val useLocalPosters by ViewingMetadataStore.useLocalPosters
     val metadataProviderMode by ViewingMetadataStore.providerMode
+    val watchmodeEnabled by ViewingMetadataStore.watchmodeApiEnabled
+    val watchmodeKey by ViewingMetadataStore.watchmodeApiKey
+    val tmdbEnabled by ViewingMetadataStore.tmdbApiEnabled
+    val tmdbToken by ViewingMetadataStore.tmdbReadAccessToken
+    val omdbEnabled by ViewingMetadataStore.omdbApiEnabled
+    val omdbKey by ViewingMetadataStore.omdbApiKey
+    val availabilityRegion by ViewingMetadataStore.cinemaAvailabilityRegion
 
     // API states
     val deezerApiEnabled by appSettings.deezerApiEnabled.collectAsState()
@@ -275,6 +284,54 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             Switch(checked = useLocalPosters, onCheckedChange = ViewingMetadataStore::setUseLocalPosters)
                         }
 
+                    }
+                }
+            }
+
+            item {
+                ElevatedCard(
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Text("Manual cinema API keys", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Keys stay in this device's private settings and are sent only to the provider you enable. Leave fields blank to keep the offline catalog and current provider behavior.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        CinemaApiKeyRow(
+                            provider = "Watchmode",
+                            description = "Streaming availability, trailers, ratings and source links.",
+                            enabled = watchmodeEnabled,
+                            key = watchmodeKey,
+                            onEnabled = ViewingMetadataStore::setWatchmodeApiEnabled,
+                            onSave = ViewingMetadataStore::setWatchmodeApiKey,
+                            getKeyUrl = "https://api.watchmode.com/requestApiKey",
+                            docsUrl = "https://api.watchmode.com/docs"
+                        )
+                        CinemaApiKeyRow(
+                            provider = "TMDB",
+                            description = "Posters, backdrops, trailers and rich title metadata.",
+                            enabled = tmdbEnabled,
+                            key = tmdbToken,
+                            onEnabled = ViewingMetadataStore::setTmdbApiEnabled,
+                            onSave = ViewingMetadataStore::setTmdbReadAccessToken,
+                            getKeyUrl = "https://developer.themoviedb.org/docs/authentication-application",
+                            docsUrl = "https://developer.themoviedb.org/docs"
+                        )
+                        CinemaApiKeyRow(
+                            provider = "OMDb",
+                            description = "IMDb-style ratings, awards, plots and poster metadata.",
+                            enabled = omdbEnabled,
+                            key = omdbKey,
+                            onEnabled = ViewingMetadataStore::setOmdbApiEnabled,
+                            onSave = ViewingMetadataStore::setOmdbApiKey,
+                            getKeyUrl = "https://www.omdbapi.com/apikey.aspx",
+                            docsUrl = "https://www.omdbapi.com/"
+                        )
+                        CompactRegionSelector(availabilityRegion, ViewingMetadataStore::setCinemaAvailabilityRegion)
                     }
                 }
             }
@@ -408,6 +465,64 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CinemaApiKeyRow(
+    provider: String,
+    description: String,
+    enabled: Boolean,
+    key: String,
+    onEnabled: (Boolean) -> Unit,
+    onSave: (String) -> Unit,
+    getKeyUrl: String,
+    docsUrl: String
+) {
+    val context = LocalContext.current
+    var draft by rememberSaveable(provider, key) { mutableStateOf(key) }
+    var visible by rememberSaveable(provider) { mutableStateOf(false) }
+    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 1.dp) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text(provider, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Switch(checked = enabled, onCheckedChange = onEnabled)
+            }
+            OutlinedTextField(
+                value = draft,
+                onValueChange = { draft = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                label = { Text("$provider API key") },
+                visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { visible = !visible }) {
+                        Icon(if (visible) RhythmIcons.VisibilityOff else RhythmIcons.Visibility, contentDescription = if (visible) "Hide key" else "Show key")
+                    }
+                }
+            )
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { onSave(draft) }) { Text("Save") }
+                OutlinedButton(onClick = { draft = ""; onSave("") }) { Text("Clear") }
+                OutlinedButton(onClick = { Toast.makeText(context, if (draft.isBlank()) "$provider key is empty" else "$provider key saved locally; use Fetch to validate with metadata calls", Toast.LENGTH_SHORT).show() }) { Text("Test connection") }
+                TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getKeyUrl))) }) { Text("Get $provider key") }
+                TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(docsUrl))) }) { Text("Docs") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactRegionSelector(region: String, onRegion: (String) -> Unit) {
+    val regions = listOf("US", "CA", "GB", "AU", "IN", "DE", "FR", "JP")
+    Text("Streaming availability region", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(regions) { option ->
+            FilterChip(selected = region == option, onClick = { onRegion(option) }, label = { Text(option) })
         }
     }
 }

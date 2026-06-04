@@ -68,15 +68,16 @@ object McuAssetDataSource {
         val items = root.optJSONArray("items").orEmptyObjects()
             .map { it.toViewingItem(localAssets) }
             .distinctBy { it.id }
-        buildData(items, root.optString("updated").takeUsable())
+        val hiddenCollectionIds = root.optJSONArray("hiddenCollections").orEmptyStrings().toSet()
+        buildData(items, root.optString("updated").takeUsable(), hiddenCollectionIds)
     }.getOrElse { error ->
         Log.w(TAG, "Unable to load $CATALOG_PATH; falling back to built-in seed data", error)
-        buildData(ViewingLists.allItems, null)
+        buildData(ViewingLists.allItems, null, emptySet())
     }
 
-    private fun buildData(items: List<ViewingItem>, updated: String?): ViewingAssetData {
+    private fun buildData(items: List<ViewingItem>, updated: String?, hiddenCollectionIds: Set<String>): ViewingAssetData {
         val sortedItems = items.sortedWith(compareBy<ViewingItem> { it.universe ?: "" }.thenBy { it.releaseDate ?: "9999-99-99" }.thenBy { it.releaseOrder ?: Int.MAX_VALUE })
-        val lists = buildViewingLists(sortedItems)
+        val lists = buildViewingLists(sortedItems, hiddenCollectionIds)
         val featuredList = lists.firstOrNull { it.id == "mcu-release-order" } ?: lists.first()
         val featuredItem = sortedItems.firstOrNull { it.id == "mcu-iron-man" }
             ?: featuredList.items.firstOrNull()
@@ -84,7 +85,7 @@ object McuAssetDataSource {
         return ViewingAssetData(sortedItems, lists, featuredItem, featuredList, updated)
     }
 
-    private fun buildViewingLists(items: List<ViewingItem>): List<ViewingList> {
+    private fun buildViewingLists(items: List<ViewingItem>, hiddenCollectionIds: Set<String> = emptySet()): List<ViewingList> {
         val lists = mutableListOf<ViewingList>()
         fun list(
             id: String,
@@ -174,7 +175,7 @@ object McuAssetDataSource {
         list("marvel-specials", "Marvel Specials", "Special Presentations and seasonal MCU entries.", items.filter { it.type == ViewingType.SPECIAL }, universe = "MCU", category = "Specials", sort = releaseComparator(), importance = ViewingListImportance.PRIMARY)
         list("disney-plus-series", "Disney+ Series", "Marvel Studios streaming series in release order.", items.filter { it.category == "Disney+ Series" }, universe = "MCU", category = "Disney+ Series", sort = releaseComparator())
         list("defenders-saga", "Defenders Saga", "Street-level Marvel Television and Disney+ continuity entries.", items.filter { it.category == "Defenders Saga" }, universe = "MCU", category = "Defenders Saga", sort = releaseComparator(), importance = ViewingListImportance.PRIMARY)
-        return lists.distinctBy { it.id }
+        return lists.distinctBy { it.id }.filterNot { it.id in hiddenCollectionIds }
     }
 
     private fun JSONObject.toViewingItem(localAssets: Set<String>): ViewingItem {
@@ -184,6 +185,20 @@ object McuAssetDataSource {
         val explicitLocalBackdrop = optString("localBackdrop").takeUsable()?.let(ViewingArtworkUtils::localPoster)
         val resolvedLocalPoster = explicitLocalPoster ?: resolveLocalArtwork(localAssets, optString("id"), optString("title"))
         val youtubeId = optString("youtubeVideoId").takeUsable() ?: optString("trailerUrl").takeUsable()?.extractYoutubeVideoId()
+        val trailerUrl = optString("trailerUrl").takeUsable() ?: youtubeId?.let { "https://www.youtube.com/watch?v=$it" }
+        val explicitTrailers = optJSONArray("trailers").orEmptyObjects().mapIndexedNotNull { index, trailer ->
+            val id = trailer.optString("youtubeVideoId").takeUsable() ?: trailer.optString("url").takeUsable()?.extractYoutubeVideoId()
+            val url = trailer.optString("url").takeUsable() ?: id?.let { "https://www.youtube.com/watch?v=$it" }
+            if (id == null && url == null) null else ViewingTrailer(
+                label = trailer.optString("label").takeUsable() ?: if (index == 0) "Trailer" else "Trailer ${index + 1}",
+                youtubeVideoId = id,
+                url = url,
+                source = runCatching { TrailerSource.valueOf(trailer.optString("source").uppercase()) }.getOrNull() ?: TrailerSource.YOUTUBE
+            )
+        }
+        val trailers = explicitTrailers.ifEmpty {
+            if (youtubeId != null || trailerUrl != null) listOf(ViewingTrailer("Trailer", youtubeId, trailerUrl, TrailerSource.YOUTUBE)) else emptyList()
+        }
         return ViewingItem(
             id = optString("id"),
             title = optString("title"),
@@ -218,9 +233,10 @@ object McuAssetDataSource {
             backdrop = optString("backdrop").takeUsable()?.let { ViewingArtworkUtils.tmdbBackdrop(it) ?: it },
             tmdbBackdrop = ViewingArtworkUtils.tmdbBackdrop(optString("tmdbBackdrop").takeUsable() ?: optString("backdrop").takeUsable()?.takeIf { it.contains("themoviedb.org/t/p/") }),
             localBackdrop = explicitLocalBackdrop,
-            trailerUrl = optString("trailerUrl").takeUsable() ?: youtubeId?.let { "https://www.youtube.com/watch?v=$it" },
+            trailerUrl = trailerUrl,
             youtubeVideoId = youtubeId,
             trailerSource = youtubeId?.let { TrailerSource.YOUTUBE },
+            trailers = trailers,
             releaseOrder = optInt("releaseOrder").takeIf { it > 0 },
             chronologicalOrder = optInt("chronologicalOrder").takeIf { it >= 0 },
             phaseOrder = optInt("phaseOrder").takeIf { it > 0 },

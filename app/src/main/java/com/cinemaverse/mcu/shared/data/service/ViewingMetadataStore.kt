@@ -19,6 +19,13 @@ object ViewingMetadataStore {
     val providerMode = mutableStateOf(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
     val statusMessage = mutableStateOf(service.getConfigurationMessage(providerMode.value))
     val useLocalPosters = mutableStateOf(true)
+    val watchmodeApiEnabled = mutableStateOf(false)
+    val watchmodeApiKey = mutableStateOf("")
+    val tmdbApiEnabled = mutableStateOf(false)
+    val tmdbReadAccessToken = mutableStateOf("")
+    val omdbApiEnabled = mutableStateOf(false)
+    val omdbApiKey = mutableStateOf("")
+    val cinemaAvailabilityRegion = mutableStateOf("US")
     private val userStatuses = mutableStateMapOf<String, Set<ViewingUserStatus>>()
     private val recentlyViewed = mutableStateMapOf<String, Long>()
     private var appContext: Context? = null
@@ -29,6 +36,13 @@ object ViewingMetadataStore {
         appContext = application
         val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         useLocalPosters.value = prefs.getBoolean(KEY_USE_LOCAL_POSTERS, true)
+        watchmodeApiEnabled.value = prefs.getBoolean(KEY_WATCHMODE_ENABLED, false)
+        watchmodeApiKey.value = prefs.getString(KEY_WATCHMODE_KEY, "").orEmpty()
+        tmdbApiEnabled.value = prefs.getBoolean(KEY_TMDB_ENABLED, false)
+        tmdbReadAccessToken.value = prefs.getString(KEY_TMDB_TOKEN, "").orEmpty()
+        omdbApiEnabled.value = prefs.getBoolean(KEY_OMDB_ENABLED, false)
+        omdbApiKey.value = prefs.getString(KEY_OMDB_KEY, "").orEmpty()
+        cinemaAvailabilityRegion.value = prefs.getString(KEY_AVAILABILITY_REGION, "US").orEmpty().ifBlank { "US" }
         providerMode.value = runCatching {
             MetadataProviderMode.valueOf(prefs.getString(KEY_PROVIDER_MODE, MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK.name).orEmpty())
         }.getOrDefault(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
@@ -56,6 +70,24 @@ object ViewingMetadataStore {
     fun setUseLocalPosters(enabled: Boolean) {
         useLocalPosters.value = enabled
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putBoolean(KEY_USE_LOCAL_POSTERS, enabled)?.apply()
+    }
+
+    fun setWatchmodeApiEnabled(enabled: Boolean) = putBoolean(KEY_WATCHMODE_ENABLED, enabled) { watchmodeApiEnabled.value = it }
+    fun setWatchmodeApiKey(key: String) = putString(KEY_WATCHMODE_KEY, key.trim()) { watchmodeApiKey.value = it }
+    fun setTmdbApiEnabled(enabled: Boolean) = putBoolean(KEY_TMDB_ENABLED, enabled) { tmdbApiEnabled.value = it }
+    fun setTmdbReadAccessToken(token: String) = putString(KEY_TMDB_TOKEN, token.trim()) { tmdbReadAccessToken.value = it }
+    fun setOmdbApiEnabled(enabled: Boolean) = putBoolean(KEY_OMDB_ENABLED, enabled) { omdbApiEnabled.value = it }
+    fun setOmdbApiKey(key: String) = putString(KEY_OMDB_KEY, key.trim()) { omdbApiKey.value = it }
+    fun setCinemaAvailabilityRegion(region: String) = putString(KEY_AVAILABILITY_REGION, region.uppercase()) { cinemaAvailabilityRegion.value = it.ifBlank { "US" } }
+
+    private fun putBoolean(key: String, value: Boolean, update: (Boolean) -> Unit) {
+        update(value)
+        appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putBoolean(key, value)?.apply()
+    }
+
+    private fun putString(key: String, value: String, update: (String) -> Unit) {
+        update(value)
+        appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putString(key, value)?.apply()
     }
 
     fun setProviderMode(mode: MetadataProviderMode) {
@@ -138,6 +170,7 @@ object ViewingMetadataStore {
         trailerUrl = remote.trailerUrl ?: local.trailerUrl,
         youtubeVideoId = remote.youtubeVideoId ?: local.youtubeVideoId,
         trailerSource = remote.trailerSource ?: local.trailerSource,
+        trailers = (remote.trailers + local.trailers).distinctBy { listOf(it.label, it.youtubeVideoId, it.url).joinToString(":") },
         director = remote.director ?: local.director,
         writer = remote.writer ?: local.writer,
         actors = remote.actors.ifEmpty { local.actors },
@@ -197,6 +230,18 @@ object ViewingMetadataStore {
             localBackdrop = json.optStringOrNull("localBackdrop"),
             trailerUrl = json.optStringOrNull("trailerUrl"),
             youtubeVideoId = json.optStringOrNull("youtubeVideoId"),
+            trailers = json.optJSONArray("trailers")?.let { array ->
+                List(array.length()) { index -> array.optJSONObject(index) }.mapNotNull { trailer ->
+                    trailer?.let {
+                        com.cinemaverse.mcu.shared.data.viewing.ViewingTrailer(
+                            label = it.optStringOrNull("label") ?: "Trailer",
+                            youtubeVideoId = it.optStringOrNull("youtubeVideoId"),
+                            url = it.optStringOrNull("url"),
+                            source = runCatching { com.cinemaverse.mcu.shared.data.viewing.TrailerSource.valueOf(it.optString("source")) }.getOrNull()
+                        )
+                    }
+                }
+            } ?: emptyList(),
             releaseOrder = json.optIntOrNull("releaseOrder"),
             chronologicalOrder = json.optIntOrNull("chronologicalOrder"),
             phaseOrder = json.optIntOrNull("phaseOrder"),
@@ -214,6 +259,7 @@ object ViewingMetadataStore {
         putNullable("imdbRating", imdbRating); tmdbRating?.let { put("tmdbRating", it) }; putNullable("director", director); putNullable("writer", writer); put("actors", JSONArray(actors))
         putNullable("description", description); putNullable("overview", overview); putNullable("plot", plot); putNullable("poster", poster); putNullable("tmdbPoster", tmdbPoster); putNullable("omdbPoster", omdbPoster); putNullable("localPoster", localPoster)
         putNullable("backdrop", backdrop); putNullable("tmdbBackdrop", tmdbBackdrop); putNullable("localBackdrop", localBackdrop); putNullable("trailerUrl", trailerUrl); putNullable("youtubeVideoId", youtubeVideoId)
+        put("trailers", JSONArray(trailers.map { JSONObject().apply { put("label", it.label); putNullable("youtubeVideoId", it.youtubeVideoId); putNullable("url", it.url); it.source?.let { source -> put("source", source.name) } } }))
         releaseOrder?.let { put("releaseOrder", it) }; chronologicalOrder?.let { put("chronologicalOrder", it) }; phaseOrder?.let { put("phaseOrder", it) }
         put("metadataSource", metadataSource.name); putNullable("lastUpdated", lastUpdated); put("status", status.name); putNullable("awards", awards)
     }
@@ -234,6 +280,13 @@ object ViewingMetadataStore {
     private const val PREFS_NAME = "cinemaverse_user_state"
     private const val KEY_USE_LOCAL_POSTERS = "use_local_posters"
     private const val KEY_PROVIDER_MODE = "metadata_provider_mode"
+    private const val KEY_WATCHMODE_ENABLED = "watchmode_api_enabled"
+    private const val KEY_WATCHMODE_KEY = "watchmode_api_key"
+    private const val KEY_TMDB_ENABLED = "tmdb_api_enabled"
+    private const val KEY_TMDB_TOKEN = "tmdb_read_access_token"
+    private const val KEY_OMDB_ENABLED = "omdb_api_enabled"
+    private const val KEY_OMDB_KEY = "omdb_api_key"
+    private const val KEY_AVAILABILITY_REGION = "cinema_availability_region"
     private const val KEY_STATUS_PREFIX = "statuses:"
     private const val KEY_RECENT_PREFIX = "recent:"
     private const val KEY_ENRICHED_PREFIX = "enriched:"

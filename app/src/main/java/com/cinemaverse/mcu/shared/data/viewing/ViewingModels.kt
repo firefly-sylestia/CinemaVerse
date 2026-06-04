@@ -23,7 +23,27 @@ data class WatchProvider(
     val providerName: String,
     val displayPriority: Int? = null,
     val region: String? = null,
-    val type: String? = null
+    val type: String? = null,
+    val providerId: Int? = null,
+    val webUrl: String? = null,
+    val androidUrl: String? = null,
+    val price: String? = null,
+    val format: String? = null
+)
+
+data class ViewingTrailer(
+    val label: String,
+    val youtubeVideoId: String? = null,
+    val url: String? = null,
+    val source: TrailerSource? = null
+)
+
+enum class CinemaMetadataProvider { LOCAL, TMDB, OMDB, WATCHMODE }
+
+data class CinemaProviderConfig(
+    val provider: CinemaMetadataProvider,
+    val enabled: Boolean,
+    val priority: Int
 )
 
 data class ViewingItem(
@@ -66,6 +86,7 @@ data class ViewingItem(
     val trailerUrl: String? = null,
     val youtubeVideoId: String? = null,
     val trailerSource: TrailerSource? = null,
+    val trailers: List<ViewingTrailer> = emptyList(),
     val releaseOrder: Int? = null,
     val chronologicalOrder: Int? = null,
     val phaseOrder: Int? = null,
@@ -113,7 +134,7 @@ data class ViewingList(
 
 enum class ViewingType { MOVIE, SERIES, EPISODE, SPECIAL, SHORT, ONE_SHOT }
 enum class ViewingStatus { RELEASED, UPCOMING, ANNOUNCED }
-enum class TrailerSource { TMDB, YOUTUBE, LOCAL, MANUAL, OMDB }
+enum class TrailerSource { TMDB, YOUTUBE, LOCAL, MANUAL, OMDB, WATCHMODE }
 enum class ViewingListImportance { PRIMARY, SECONDARY, NICHE, HIDDEN }
 enum class ViewingUserStatus(val activeLabel: String, val inactiveLabel: String, val libraryTitle: String) {
     BOOKMARKED("Bookmarked", "Bookmark", "Bookmarks"),
@@ -133,6 +154,7 @@ enum class ViewingSortMode(val label: String) {
     TITLE("Title"),
     RATING("Rating"),
     RUNTIME("Runtime"),
+    GENRE("Genre"),
     CUSTOM("Custom order")
 }
 
@@ -143,7 +165,7 @@ data class MetadataResult(
     val message: String? = null
 )
 
-enum class MetadataSource { LOCAL, OMDB, TMDB, MERGED, USER }
+enum class MetadataSource { LOCAL, OMDB, TMDB, WATCHMODE, MERGED, USER }
 
 enum class MetadataProviderMode(val label: String, val description: String) {
     OMDB_PRIMARY_TMDB_FALLBACK(

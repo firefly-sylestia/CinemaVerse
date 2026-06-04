@@ -87,6 +87,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cinemaverse.mcu.R
@@ -102,6 +103,7 @@ import com.cinemaverse.mcu.shared.data.viewing.ViewingSortMode
 import com.cinemaverse.mcu.shared.data.viewing.ViewingStatus
 import com.cinemaverse.mcu.shared.data.viewing.ViewingType
 import com.cinemaverse.mcu.shared.data.viewing.ViewingUserStatus
+import com.cinemaverse.mcu.shared.data.viewing.ViewingTrailer
 import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
 import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
@@ -192,7 +194,7 @@ private fun ViewingHomeContent(
             ViewingUserStatus.WATCHING in statuses || ViewingUserStatus.WATCH_LATER in statuses
         }).distinctBy { it.id }.take(12)
     }
-    val trailerItems = remember(data) { data.allItems.filter { !it.youtubeVideoId.isNullOrBlank() || !it.trailerUrl.isNullOrBlank() }.take(16) }
+    val trailerItems = remember(data) { data.allItems.filter { it.hasAnyTrailer() }.take(16) }
     val upcomingItems = remember(data) { data.allItems.filter { it.status == ViewingStatus.UPCOMING || it.status == ViewingStatus.ANNOUNCED }.take(14) }
     val becauseYouWatched = remember(data, recent) {
         val last = recent.firstOrNull()
@@ -237,7 +239,8 @@ fun ViewingLibraryScreen(
     val context = LocalContext.current
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val data = remember(context) { McuAssetDataSource.load(context) }
-    var tab by rememberSaveable { mutableStateOf("Continue") }
+    var tab by rememberSaveable { mutableStateOf("Essentials") }
+    var genreFilter by rememberSaveable { mutableStateOf<String?>(null) }
     var statusFilter by rememberSaveable { mutableStateOf<ViewingUserStatus?>(null) }
     var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
     var selectedItemId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -253,26 +256,29 @@ fun ViewingLibraryScreen(
         selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null })
         selectedList != null -> ViewingListDetailScreen(list = selectedList, onBack = { selectedListId = null }, onOpenTitle = { selectedItemId = it.id; onOpenDetail() })
         else -> {
-            val filtered = remember(tab, sortMode, statusFilter, data) {
+            val genres = remember(data) { data.allItems.flatMap { it.genres }.distinct().sorted() }
+            val filtered = remember(tab, sortMode, statusFilter, genreFilter, data) {
                 val base = when (tab) {
                     "Continue" -> ViewingMetadataStore.recentItems(data).ifEmpty { data.allItems.filter { ViewingUserStatus.WATCHING in ViewingMetadataStore.statusesFor(it) } }
-                    "Essential" -> data.featuredList.items
+                    "Essentials", "Essential" -> data.featuredList.items
                     "MCU" -> data.allItems.filter { it.universe in setOf("MCU", "Marvel") }
                     "DC" -> data.allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }
                     "Timeline" -> data.allItems.sortedFor(ViewingSortMode.CHRONOLOGICAL)
                     "Saved" -> data.allItems.filter { item -> ViewingMetadataStore.statusesFor(item).any { status -> status != ViewingUserStatus.HIDDEN } }
                     else -> data.allItems
                 }
-                base.filter { item -> statusFilter == null || statusFilter in ViewingMetadataStore.statusesFor(item) }.sortedFor(sortMode)
+                base.filter { item -> statusFilter == null || statusFilter in ViewingMetadataStore.statusesFor(item) }
+                    .filter { item -> genreFilter == null || genreFilter in item.genres }
+                    .sortedFor(sortMode)
             }
             LazyColumn(
                 modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                item { CinemaverseHeader(title = "Library", subtitle = "Continue • Essential • MCU • DC • Timeline • Collections • Saved", onOpenSettings = onOpenSettings) }
+                item { CinemaverseHeader(title = "Library", subtitle = "Essentials • Continue • MCU • DC • Timeline • Collections • Saved", onOpenSettings = onOpenSettings) }
                 item { LibraryTabs(tab, onTab = { tab = it }) }
-                item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, data.allItems) }
+                item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, genreFilter, { genreFilter = it }, genres, data.allItems) }
                 if (tab == "Collections") {
                     items(data.allLists.visibleManagedLists(), key = { it.id }) { list -> WideListCard(list, onClick = { selectedListId = list.id }) }
                 } else {
@@ -401,7 +407,7 @@ fun ViewingDetailScreen(
     val selected = rememberEnrichedItem(baseSelected)
     var showTrailer by rememberSaveable(selected.id) { mutableStateOf(false) }
     val userStatuses = ViewingMetadataStore.statusesFor(selected)
-    val hasTrailer = !selected.youtubeVideoId.isNullOrBlank() || !selected.trailerUrl.isNullOrBlank()
+    val hasTrailer = selected.hasAnyTrailer()
     val haptics = LocalHapticFeedback.current
     val related = remember(selected, data) {
         data.allItems.filter { it.id != selected.id && (it.franchise == selected.franchise || it.universe == selected.universe || it.genres.any(selected.genres::contains)) }.take(12)
@@ -505,41 +511,77 @@ fun ViewingDetailScreen(
 private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, onDismiss: () -> Unit) {
     val displayItem = rememberEnrichedItem(item)
     val context = LocalContext.current
-    val trailerAvailable = !displayItem.youtubeVideoId.isNullOrBlank() || !displayItem.trailerUrl.isNullOrBlank()
-    Dialog(onDismissRequest = onDismiss) {
+    var expanded by rememberSaveable(displayItem.id) { mutableStateOf(false) }
+    val trailerOptions = remember(displayItem) { displayItem.availableTrailers() }
+    var selectedTrailerIndex by rememberSaveable(displayItem.id, trailerOptions.size) { mutableStateOf(0) }
+    val selectedTrailer = trailerOptions.getOrNull(selectedTrailerIndex)
+    val trailerAvailable = selectedTrailer != null
+    val openYouTube = selectedTrailer?.externalUrl()?.let { url -> { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } } }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = !expanded)
+    ) {
         Surface(
-            shape = RoundedCornerShape(34.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = 8.dp,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+            shape = RoundedCornerShape(if (expanded) 0.dp else 34.dp),
+            color = if (expanded) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = if (expanded) 0.dp else 8.dp,
+            modifier = (if (expanded) Modifier.fillMaxSize().padding(12.dp) else Modifier.fillMaxWidth().padding(horizontal = 10.dp))
         ) {
-            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    PosterBackdrop(displayItem, Modifier.size(64.dp, 92.dp), ContentScale.Crop, RoundedCornerShape(18.dp))
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(Modifier.padding(if (expanded) 12.dp else 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    PosterBackdrop(displayItem, Modifier.size(46.dp, 64.dp), ContentScale.Crop, RoundedCornerShape(14.dp))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text("Trailer preview", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                        Text(displayItem.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.universe, if (trailerAvailable) "Trailer ready" else "Trailer unavailable").joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(displayItem.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(listOfNotNull(selectedTrailer?.label, displayItem.year, displayItem.runtime, displayItem.universe).joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     FilledIconButton(
-                        onClick = onDismiss,
+                        onClick = { expanded = !expanded },
+                        modifier = Modifier.semantics { contentDescription = if (expanded) "Collapse trailer preview" else "Expand trailer preview" },
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+                    ) { Icon(if (expanded) RhythmIcons.ExpandLess else RhythmIcons.ExpandMore, contentDescription = null) }
+                    FilledIconButton(
+                        enabled = openYouTube != null,
+                        onClick = { openYouTube?.invoke() },
+                        modifier = Modifier.semantics { contentDescription = "Open trailer on YouTube" },
                         colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
+                    ) { Icon(RhythmIcons.OpenInNew, contentDescription = null) }
+                    FilledIconButton(
+                        onClick = onDismiss,
+                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor = MaterialTheme.colorScheme.onSurface)
                     ) { Icon(RhythmIcons.Close, contentDescription = "Close trailer preview") }
+                }
+                if (trailerOptions.size > 1) {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+                        itemsIndexed(trailerOptions, key = { index, trailer -> "${trailer.label}-$index" }) { index, trailer ->
+                            FilterChip(
+                                selected = index == selectedTrailerIndex,
+                                onClick = { selectedTrailerIndex = index },
+                                label = { Text(trailer.label) },
+                                leadingIcon = if (index == selectedTrailerIndex) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
+                            )
+                        }
+                    }
                 }
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
-                        .clip(RoundedCornerShape(26.dp))
-                        .background(MaterialTheme.colorScheme.surface)
+                        .then(if (expanded) Modifier.weight(1f) else Modifier.aspectRatio(16f / 9f))
+                        .clip(RoundedCornerShape(if (expanded) 22.dp else 26.dp))
+                        .background(Color.Black)
                         .semantics { contentDescription = "Video player region for ${displayItem.title} trailer" },
                     contentAlignment = Alignment.Center
                 ) {
                     YouTubeTrailerWebPlayer(
-                        youtubeVideoId = displayItem.youtubeVideoId,
-                        trailerUrl = displayItem.trailerUrl,
+                        youtubeVideoId = selectedTrailer?.youtubeVideoId,
+                        trailerUrl = selectedTrailer?.url,
                         title = displayItem.title,
-                        shape = RoundedCornerShape(26.dp),
+                        shape = RoundedCornerShape(if (expanded) 22.dp else 26.dp),
                         modifier = Modifier.fillMaxSize()
                     )
                     if (!trailerAvailable) {
@@ -551,14 +593,12 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                     OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCH_LATER) }, shape = RoundedCornerShape(22.dp)) { Text("Watch later") }
                     OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.FAVORITE) }, shape = RoundedCornerShape(22.dp)) { Text("Favorite") }
                     OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCHED) }, shape = RoundedCornerShape(22.dp)) { Text("Mark watched") }
-                    displayItem.trailerUrl?.takeIf { it.isNotBlank() }?.let { url ->
-                        TextButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } }) { Text("Open in YouTube") }
-                    }
                 }
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -759,7 +799,7 @@ private fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Uni
     val displayItem = rememberCachedItem(item)
     var expanded by remember { mutableStateOf(false) }
     var showTrailer by rememberSaveable(displayItem.id) { mutableStateOf(false) }
-    val hasTrailer = !displayItem.youtubeVideoId.isNullOrBlank() || !displayItem.trailerUrl.isNullOrBlank()
+    val hasTrailer = displayItem.hasAnyTrailer()
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
@@ -829,11 +869,10 @@ private fun FeaturedTitleCarousel(
     val listState = rememberLazyListState()
     var selectedIndex by rememberSaveable(carouselItems.map { it.id }.joinToString()) { mutableStateOf(0) }
     var autoAdvance by rememberSaveable { mutableStateOf(true) }
-    var userPaused by rememberSaveable { mutableStateOf(false) }
     val visibleItem = carouselItems.getOrNull(selectedIndex) ?: return
 
-    LaunchedEffect(carouselItems, selectedIndex, autoAdvance, userPaused, listState.isScrollInProgress) {
-        if (carouselItems.size <= 1 || !autoAdvance || userPaused || listState.isScrollInProgress) return@LaunchedEffect
+    LaunchedEffect(carouselItems, selectedIndex, autoAdvance, listState.isScrollInProgress) {
+        if (carouselItems.size <= 1 || !autoAdvance || listState.isScrollInProgress) return@LaunchedEffect
         delay(6_000)
         selectedIndex = (selectedIndex + 1) % carouselItems.size
     }
@@ -854,7 +893,7 @@ private fun FeaturedTitleCarousel(
                     list = featuredList,
                     selected = index == selectedIndex,
                     onClick = {
-                        userPaused = true
+                        autoAdvance = false
                         selectedIndex = index
                         onOpenItem(item)
                     },
@@ -867,21 +906,20 @@ private fun FeaturedTitleCarousel(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 FilledIconButton(
                     onClick = {
-                        userPaused = true
+                        autoAdvance = false
                         selectedIndex = (selectedIndex - 1).floorMod(carouselItems.size)
                     },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
                 ) { Icon(RhythmIcons.SkipPrevious, contentDescription = "Previous featured title") }
                 FilledIconButton(
                     onClick = {
-                        userPaused = true
                         autoAdvance = !autoAdvance
                     },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
-                ) { Icon(if (autoAdvance && !userPaused) RhythmIcons.Pause else RhythmIcons.Play, contentDescription = if (autoAdvance && !userPaused) "Pause featured carousel" else "Resume featured carousel") }
+                ) { Text(if (autoAdvance) "Auto" else "Manual", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) }
                 FilledIconButton(
                     onClick = {
-                        userPaused = true
+                        autoAdvance = false
                         selectedIndex = (selectedIndex + 1) % carouselItems.size
                     },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
@@ -942,7 +980,7 @@ private fun FeaturedTitleCarouselCard(
 private fun McuAssetDataSource.ViewingAssetData.homeFeaturedTitles(): List<ViewingItem> {
     val essentials = allLists.firstOrNull { it.id == "mcu-release-order" }?.items.orEmpty().take(5)
     val dcHighlights = allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") && it.status == ViewingStatus.RELEASED }.take(4)
-    val trailerReady = allItems.filter { it.status == ViewingStatus.RELEASED && (!it.youtubeVideoId.isNullOrBlank() || !it.trailerUrl.isNullOrBlank()) && (ViewingArtworkUtils.resolvePoster(it) != null || ViewingArtworkUtils.resolveBackdrop(it) != null) }.take(6)
+    val trailerReady = allItems.filter { it.status == ViewingStatus.RELEASED && (it.hasAnyTrailer()) && (ViewingArtworkUtils.resolvePoster(it) != null || ViewingArtworkUtils.resolveBackdrop(it) != null) }.take(6)
     val upcoming = allItems.filter { it.status == ViewingStatus.UPCOMING || it.status == ViewingStatus.ANNOUNCED }.take(3)
     return (listOf(featuredItem) + trailerReady + essentials + dcHighlights + upcoming).distinctBy { it.id }.take(10)
 }
@@ -1055,6 +1093,9 @@ private fun LibrarySecondaryControls(
     onSort: (ViewingSortMode) -> Unit,
     statusFilter: ViewingUserStatus?,
     onStatus: (ViewingUserStatus?) -> Unit,
+    genreFilter: String?,
+    onGenre: (String?) -> Unit,
+    genres: List<String>,
     catalogItems: List<ViewingItem>
 ) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(28.dp)) {
@@ -1062,16 +1103,33 @@ private fun LibrarySecondaryControls(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("Browse", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Text(statusFilter?.libraryTitle ?: "All saved statuses", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("All statuses and genres") }.joinToString(" • "), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 CompactDropdown(
                     label = "Sort",
                     selected = sortMode.label,
-                    options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME),
+                    options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME, ViewingSortMode.GENRE),
                     optionLabel = { it.label },
                     onSelect = onSort,
                     modifier = Modifier.weight(1f)
                 )
+            }
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+                item {
+                    FilterChip(
+                        selected = genreFilter == null,
+                        onClick = { onGenre(null) },
+                        label = { Text("All genres") },
+                        leadingIcon = { Icon(if (genreFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) }
+                    )
+                }
+                items(genres.take(24), key = { "genre-$it" }) { genre ->
+                    FilterChip(
+                        selected = genreFilter == genre,
+                        onClick = { onGenre(if (genreFilter == genre) null else genre) },
+                        label = { Text(genre) }
+                    )
+                }
             }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
                 item {
@@ -1149,14 +1207,14 @@ private fun LibraryControlPanel(
             CompactDropdown(
                 label = "Category",
                 selected = selectedTab,
-                options = listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved"),
+                options = listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved"),
                 onSelect = onTab,
                 modifier = Modifier.weight(1f)
             )
             CompactDropdown(
                 label = "Sort",
                 selected = sortMode.label,
-                options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME),
+                options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME, ViewingSortMode.GENRE),
                 optionLabel = { it.label },
                 onSelect = onSort,
                 modifier = Modifier.weight(1f)
@@ -1259,7 +1317,7 @@ private fun <T> CompactDropdown(
 @Composable
 private fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-        items(listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> FilterChip(selected = selected == tab, onClick = { onTab(tab) }, label = { Text(tab) }) }
+        items(listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> FilterChip(selected = selected == tab, onClick = { onTab(tab) }, label = { Text(tab) }) }
     }
 }
 
@@ -1663,6 +1721,15 @@ private fun SettingsIconAction(onClick: () -> Unit) {
     ) { Icon(RhythmIcons.Settings, contentDescription = "Settings") }
 }
 
+private fun ViewingItem.hasAnyTrailer(): Boolean = availableTrailers().isNotEmpty()
+
+private fun ViewingItem.availableTrailers(): List<ViewingTrailer> = trailers.ifEmpty {
+    if (!youtubeVideoId.isNullOrBlank() || !trailerUrl.isNullOrBlank()) listOf(ViewingTrailer("Trailer", youtubeVideoId, trailerUrl, trailerSource)) else emptyList()
+}.filter { !it.youtubeVideoId.isNullOrBlank() || !it.url.isNullOrBlank() }
+
+private fun ViewingTrailer.externalUrl(): String? = url?.takeIf { it.isNotBlank() }
+    ?: youtubeVideoId?.takeIf { it.isNotBlank() }?.let { "https://www.youtube.com/watch?v=$it" }
+
 private fun List<ViewingList>.visibleManagedLists(): List<ViewingList> = filter { list ->
     list.importance == ViewingListImportance.PRIMARY ||
         list.category in setOf("Character Journeys", "Specials", "Defenders Saga", "Marvel One-Shots", "Disney+ Series")
@@ -1678,6 +1745,7 @@ private fun List<ViewingItem>.sortedFor(mode: ViewingSortMode): List<ViewingItem
     ViewingSortMode.TITLE -> sortedBy { it.title }
     ViewingSortMode.RATING -> sortedByDescending { it.imdbRating?.toDoubleOrNull() ?: it.tmdbRating ?: 0.0 }
     ViewingSortMode.RUNTIME -> sortedByDescending { it.runtime?.filter(Char::isDigit)?.toIntOrNull() ?: 0 }
+    ViewingSortMode.GENRE -> sortedWith(compareBy<ViewingItem> { it.genres.firstOrNull() ?: "" }.thenBy { it.title })
     else -> sortedWith(compareBy<ViewingItem> { it.releaseDate ?: "9999-99-99" }.thenBy { it.releaseOrder ?: Int.MAX_VALUE })
 }
 

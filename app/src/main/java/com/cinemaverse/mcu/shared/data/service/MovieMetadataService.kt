@@ -146,6 +146,7 @@ class MovieMetadataService(
         trailerUrl = api.trailerUrl ?: local.trailerUrl,
         youtubeVideoId = api.youtubeVideoId ?: local.youtubeVideoId,
         trailerSource = api.trailerSource ?: local.trailerSource,
+        trailers = (api.trailers + local.trailers).distinctBy { listOf(it.label, it.youtubeVideoId, it.url).joinToString(":") },
         director = api.director ?: local.director,
         writer = api.writer ?: local.writer,
         actors = api.actors.ifEmpty { local.actors },
@@ -172,6 +173,7 @@ class MovieMetadataService(
         trailerUrl = local.trailerUrl ?: api.trailerUrl,
         youtubeVideoId = local.youtubeVideoId ?: api.youtubeVideoId,
         trailerSource = local.trailerSource ?: api.trailerSource,
+        trailers = (local.trailers + api.trailers).distinctBy { listOf(it.label, it.youtubeVideoId, it.url).joinToString(":") },
         director = local.director ?: api.director,
         writer = local.writer ?: api.writer,
         actors = local.actors.ifEmpty { api.actors },
@@ -183,7 +185,7 @@ class MovieMetadataService(
     private fun MetadataSource.combine(next: MetadataSource): MetadataSource = when {
         this == MetadataSource.LOCAL -> next
         this == next -> this
-        this in setOf(MetadataSource.OMDB, MetadataSource.TMDB) && next in setOf(MetadataSource.OMDB, MetadataSource.TMDB) -> MetadataSource.MERGED
+        this in setOf(MetadataSource.OMDB, MetadataSource.TMDB, MetadataSource.WATCHMODE) && next in setOf(MetadataSource.OMDB, MetadataSource.TMDB, MetadataSource.WATCHMODE) -> MetadataSource.MERGED
         this == MetadataSource.MERGED -> MetadataSource.MERGED
         else -> next
     }

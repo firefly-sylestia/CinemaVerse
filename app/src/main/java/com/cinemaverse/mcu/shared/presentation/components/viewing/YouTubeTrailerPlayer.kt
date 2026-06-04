@@ -87,7 +87,31 @@ fun YouTubeTrailerWebPlayer(
         return
     }
 
-    val watchUrl = remember(safeVideoId) { "https://www.youtube.com/watch?v=$safeVideoId&playsinline=1" }
+    val embedHtml = remember(safeVideoId) {
+        """
+            <!doctype html>
+            <html>
+              <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+                <style>
+                  html, body { margin:0; width:100%; height:100%; background:#000; overflow:hidden; }
+                  .wrap { position:fixed; inset:0; background:#000; }
+                  iframe { width:100%; height:100%; border:0; display:block; background:#000; }
+                </style>
+              </head>
+              <body>
+                <div class="wrap">
+                  <iframe
+                    src="https://www.youtube.com/embed/$safeVideoId?playsinline=1&rel=0&modestbranding=1&autoplay=1"
+                    title="YouTube trailer player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                  </iframe>
+                </div>
+              </body>
+            </html>
+        """.trimIndent()
+    }
 
     Surface(
         modifier = modifier,
@@ -101,7 +125,7 @@ fun YouTubeTrailerWebPlayer(
                 WebView(viewContext).apply {
                     layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                     alpha = 0.99f
-                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                    setBackgroundColor(android.graphics.Color.BLACK)
                     webChromeClient = WebChromeClient()
                     webViewClient = object : WebViewClient() {
                         override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -115,13 +139,13 @@ fun YouTubeTrailerWebPlayer(
                     settings.loadsImagesAutomatically = true
                     settings.cacheMode = WebSettings.LOAD_DEFAULT
                     settings.userAgentString = settings.userAgentString + " CinemaverseTrailerWeb/1.0"
-                    loadUrl(watchUrl)
+                    loadDataWithBaseURL("https://www.youtube.com", embedHtml, "text/html", "UTF-8", null)
                     tag = safeVideoId
                 }
             },
             update = { view ->
                 if (view.tag != safeVideoId) {
-                    view.loadUrl(watchUrl)
+                    view.loadDataWithBaseURL("https://www.youtube.com", embedHtml, "text/html", "UTF-8", null)
                     view.tag = safeVideoId
                 }
             },
