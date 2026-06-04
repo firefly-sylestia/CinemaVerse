@@ -60,7 +60,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -78,7 +77,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cinemaverse.mcu.R
@@ -173,9 +171,6 @@ private fun ViewingHomeContent(
     onOpenList: (ViewingList) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val message by ViewingMetadataStore.statusMessage
-    val isFetching by ViewingMetadataStore.isFetching
     val marvel = remember(data) { data.allItems.filter { it.universe == "MCU" }.take(14) }
     val dc = remember(data) { data.allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }.take(14) }
     val lists = remember(data) { data.allLists.visibleManagedLists().take(8) }
@@ -196,14 +191,6 @@ private fun ViewingHomeContent(
             )
         }
         if (recent.isNotEmpty()) item { CinemaActivityMiniSurface(recent.first(), onClick = { onOpenItem(recent.first()) }) }
-        item {
-            ApiStateCard(
-                message = message,
-                isFetching = isFetching,
-                onOpenSettings = onOpenSettings,
-                onFetch = { coroutineScope.launch { ViewingMetadataStore.fetchAll(data) } }
-            )
-        }
         item { PosterRail("MCU", "Marvel Studios films, shows, specials, One-Shots, and Defenders", marvel, onOpenItem) }
         item { PosterRail("DC", "DCU, DCEU, Elseworlds, and connected TV", dc, onOpenItem) }
         item { ListRail("Managed collections", "Essentials, timelines, chapters, and character journeys", lists, onOpenList) }
@@ -423,7 +410,7 @@ fun ViewingDetailScreen(
                 item {
                     ElevatedCard(
                         shape = RoundedCornerShape(34.dp),
-                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f))
+                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             Box(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(28.dp))) {
@@ -476,21 +463,29 @@ fun ViewingDetailScreen(
 private fun TrailerPlayerDialog(title: String, youtubeVideoId: String?, trailerUrl: String?, onDismiss: () -> Unit) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
     ) {
-        Box(Modifier.fillMaxSize().background(Color.Black)) {
-            YouTubeTrailerWebPlayer(
-                youtubeVideoId = youtubeVideoId,
-                trailerUrl = trailerUrl,
-                title = title,
-                shape = RoundedCornerShape(0.dp),
-                modifier = Modifier.fillMaxSize()
-            )
-            FilledIconButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.TopEnd).padding(20.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.Black.copy(alpha = 0.62f), contentColor = Color.White)
-            ) { Icon(RhythmIcons.Close, contentDescription = "Close trailer") }
+        Surface(
+            shape = RoundedCornerShape(30.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            tonalElevation = 6.dp,
+            modifier = Modifier.fillMaxWidth().padding(20.dp)
+        ) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Trailer preview", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    FilledIconButton(onClick = onDismiss) { Icon(RhythmIcons.Close, contentDescription = "Close trailer") }
+                }
+                YouTubeTrailerWebPlayer(
+                    youtubeVideoId = youtubeVideoId,
+                    trailerUrl = trailerUrl,
+                    title = title,
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                )
+            }
         }
     }
 }
@@ -861,22 +856,23 @@ private fun SortChips(sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Un
 @Composable
 private fun StatusSelector(selected: Set<ViewingUserStatus>, onStatus: (ViewingUserStatus) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Column(Modifier.weight(1f)) {
-                Text("Title status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(selected.takeIf { it.isNotEmpty() }?.joinToString(" • ") { it.activeLabel } ?: "No saved status", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(26.dp)) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text("Your status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(selected.takeIf { it.isNotEmpty() }?.joinToString(" • ") { it.libraryTitle } ?: "Choose a status for this title", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Done" else "Edit") }
             }
-            OutlinedButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Hide" else "Manage") }
-        }
-        if (expanded) {
+            val visibleStatuses = listOf(ViewingUserStatus.BOOKMARKED, ViewingUserStatus.WATCHLIST, ViewingUserStatus.WATCH_LATER, ViewingUserStatus.WATCHING, ViewingUserStatus.WATCHED, ViewingUserStatus.FAVORITE, ViewingUserStatus.ON_HOLD, ViewingUserStatus.HIDDEN)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap), verticalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-                listOf(ViewingUserStatus.WATCHLIST, ViewingUserStatus.WATCH_LATER, ViewingUserStatus.WATCHING, ViewingUserStatus.WATCHED, ViewingUserStatus.FAVORITE, ViewingUserStatus.BOOKMARKED, ViewingUserStatus.ON_HOLD, ViewingUserStatus.HIDDEN).forEach { status ->
+                visibleStatuses.filter { expanded || it in selected }.ifEmpty { visibleStatuses.take(4) }.forEach { status ->
                     val active = status in selected
                     FilterChip(
                         selected = active,
                         onClick = { onStatus(status) },
-                        leadingIcon = { Icon(if (active) RhythmIcons.Check else status.icon(), contentDescription = null) },
+                        leadingIcon = { Icon(status.icon(), contentDescription = null) },
                         label = { Text(if (active) status.activeLabel else status.inactiveLabel) },
                         colors = statusChipColors(status, active)
                     )
@@ -1043,7 +1039,7 @@ private fun ViewingUserStatus.icon() = when (this) {
     ViewingUserStatus.WATCHING -> RhythmIcons.Play
     ViewingUserStatus.WATCHED -> RhythmIcons.Check
     ViewingUserStatus.FAVORITE -> RhythmIcons.Favorite
-    ViewingUserStatus.BOOKMARKED -> RhythmIcons.PlaylistFilled
+    ViewingUserStatus.BOOKMARKED -> MaterialSymbolIcon("bookmark", filled = true)
     ViewingUserStatus.ON_HOLD -> RhythmIcons.Pause
     ViewingUserStatus.HIDDEN -> RhythmIcons.VisibilityOff
 }
@@ -1132,27 +1128,6 @@ private fun HeroListCard(list: ViewingList) {
                 Text(list.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Text(list.description.orEmpty(), color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
                 Text("${list.items.size} titles", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApiStateCard(message: String, isFetching: Boolean, onOpenSettings: () -> Unit, onFetch: () -> Unit) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer), shape = MaterialTheme.shapes.large) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Column(Modifier.weight(1f)) {
-                    Text("Poster/database", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                    Text(if (isFetching) "Refreshing metadata…" else "Tap to view source details", color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.76f), style = MaterialTheme.typography.labelMedium)
-                }
-                TextButton(onClick = onFetch, enabled = !isFetching) { Text(if (isFetching) "Loading" else "Fetch") }
-                IconButton(onClick = { expanded = !expanded }) { Icon(RhythmIcons.ExpandMore, contentDescription = if (expanded) "Hide metadata status" else "Show metadata status") }
-            }
-            if (expanded) {
-                Text(message, color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f), style = MaterialTheme.typography.bodySmall)
-                TextButton(onClick = onOpenSettings) { Text("Open API settings") }
             }
         }
     }
