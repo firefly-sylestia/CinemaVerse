@@ -142,6 +142,17 @@ data class MetadataResult(
 
 enum class MetadataSource { LOCAL, OMDB, TMDB, MERGED, USER }
 
+enum class MetadataProviderMode(val label: String, val description: String) {
+    OMDB_PRIMARY_TMDB_FALLBACK(
+        "OMDb main • TMDB fallback",
+        "Use OMDb posters/IMDb-style details first, then fill missing posters, backdrops, trailers, and cinema metadata from TMDB."
+    ),
+    TMDB_PRIMARY_OMDB_FALLBACK(
+        "TMDB main • OMDb fallback",
+        "Use TMDB posters/backdrops/trailers first, then fill missing posters and IMDb-style details from OMDb."
+    );
+}
+
 enum class ViewingSearchCategory(val label: String) {
     ESSENTIAL("Essential"),
     RELEASE_ORDER("Release order"),

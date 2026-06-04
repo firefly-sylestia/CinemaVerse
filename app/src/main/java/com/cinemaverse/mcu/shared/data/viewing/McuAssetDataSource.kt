@@ -16,6 +16,7 @@ object McuAssetDataSource {
      */
     private const val TAG = "ViewingCatalogDataSource"
     private const val CATALOG_PATH = "viewing/viewing_catalog.json"
+    @Volatile private var cachedData: ViewingAssetData? = null
 
     data class ViewingAssetData(
         val allItems: List<ViewingItem>,
@@ -57,7 +58,9 @@ object McuAssetDataSource {
         }
     }
 
-    fun load(context: Context): ViewingAssetData = load(context.assets)
+    fun load(context: Context): ViewingAssetData = cachedData ?: synchronized(this) {
+        cachedData ?: load(context.assets).also { cachedData = it }
+    }
 
     fun load(assetManager: AssetManager): ViewingAssetData = runCatching {
         val root = JSONObject(assetManager.open(CATALOG_PATH).bufferedReader().use { it.readText() })
@@ -135,8 +138,30 @@ object McuAssetDataSource {
         items.groupBy { it.saga }.forEach { (saga, sagaItems) ->
             if (!saga.isNullOrBlank()) list(saga.slug(), saga, "${sagaItems.size} titles across $saga.", sagaItems, saga = saga, category = "Saga Order")
         }
+        val characterJourneyFranchises = setOf(
+            "Iron Man Collection",
+            "Captain America Collection",
+            "Thor Collection",
+            "Guardians of the Galaxy Collection",
+            "Spider-Man Collection",
+            "Black Panther Collection",
+            "Superman Collection",
+            "Batman Collection",
+            "Wonder Woman Collection",
+            "Suicide Squad Collection"
+        )
         items.groupBy { it.franchise }.forEach { (franchise, franchiseItems) ->
-            if (!franchise.isNullOrBlank() && franchiseItems.size > 1) list(franchise.slug(), franchise, "A focused viewing collection for $franchise.", franchiseItems, franchise = franchise, category = "Collections", sort = collectionComparator())
+            if (!franchise.isNullOrBlank() && franchiseItems.size > 1 && franchise in characterJourneyFranchises) {
+                list(
+                    id = "${franchise.slug()}-journey",
+                    title = franchise.replace(" Collection", " Journey"),
+                    description = "A compact character journey for $franchise.",
+                    filtered = franchiseItems,
+                    franchise = franchise,
+                    category = "Character Journeys",
+                    sort = collectionComparator()
+                )
+            }
         }
         list("marvel-one-shots", "Marvel One-Shots", "Short-form MCU connective tissue.", items.filter { it.type == ViewingType.ONE_SHOT }, universe = "MCU", category = "Marvel One-Shots", sort = releaseComparator())
         list("marvel-specials", "Marvel Specials", "Special Presentations and seasonal MCU entries.", items.filter { it.type == ViewingType.SPECIAL }, universe = "MCU", category = "Specials", sort = releaseComparator(), importance = ViewingListImportance.PRIMARY)
@@ -202,17 +227,27 @@ object McuAssetDataSource {
     private fun resolveLocalArtwork(localAssets: Set<String>, id: String, title: String): String? {
         if (localAssets.isEmpty()) return null
         val idSlug = id.slug().removePrefix("mcu-")
-        val titleSlug = title.slug()
-            .removePrefix("marvel-one-shot-")
-            .replace("-and-", "-")
-            .replace("the-", "")
+        val titleSlug = title.slug().removePrefix("marvel-one-shot-")
         fun assetCore(name: String) = name.substringBeforeLast('.').replace(Regex("^\\d+-"), "").slug()
-        val exact = localAssets.firstOrNull { assetCore(it) == idSlug || assetCore(it) == titleSlug }
+        fun normalized(value: String): String = value
+            .replace("-and-", "-")
+            .replace(Regex("(^|-)the-"), "-")
+            .replace(Regex("-+"), "-")
+            .trim('-')
+
+        val exact = localAssets.firstOrNull { asset ->
+            val core = assetCore(asset)
+            core == idSlug || core == titleSlug || normalized(core) == normalized(idSlug) || normalized(core) == normalized(titleSlug)
+        }
         if (exact != null) return ViewingArtworkUtils.localPoster(exact)
+
         val reliable = localAssets.firstOrNull { asset ->
             val core = assetCore(asset)
-            (titleSlug.length >= 8 && (core.contains(titleSlug) || titleSlug.contains(core))) ||
-                (idSlug.length >= 8 && (core.contains(idSlug) || idSlug.contains(core)))
+            val normalizedCore = normalized(core)
+            val normalizedTitle = normalized(titleSlug)
+            val normalizedId = normalized(idSlug)
+            (normalizedCore.length >= 8 && titleSlug.length >= 8 && normalizedTitle.contains(normalizedCore)) ||
+                (normalizedCore.length >= 8 && idSlug.length >= 8 && normalizedId.contains(normalizedCore))
         }
         return reliable?.let(ViewingArtworkUtils::localPoster)
     }

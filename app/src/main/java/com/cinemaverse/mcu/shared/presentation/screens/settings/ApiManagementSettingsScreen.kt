@@ -87,6 +87,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cinemaverse.mcu.BuildConfig
 import com.cinemaverse.mcu.shared.data.model.AppSettings
 import com.cinemaverse.mcu.shared.data.service.ViewingMetadataStore
+import com.cinemaverse.mcu.shared.data.viewing.MetadataProviderMode
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
 import com.cinemaverse.mcu.shared.data.model.Playlist
 import com.cinemaverse.mcu.shared.data.model.Song
@@ -169,6 +170,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
     val viewingFetchInProgress by ViewingMetadataStore.isFetching
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val useLocalPosters by ViewingMetadataStore.useLocalPosters
+    val metadataProviderMode by ViewingMetadataStore.providerMode
 
     // API states
     val deezerApiEnabled by appSettings.deezerApiEnabled.collectAsState()
@@ -210,7 +212,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "OMDb powers primary posters and IMDb-style details. TMDB powers backdrops, trailers, and cinema metadata.",
+                            text = "Choose OMDb-first or TMDB-first metadata fallback. OMDb returns the Poster field in title/IMDb lookups; TMDB image paths are expanded to image.tmdb.org/t/p URLs.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
                         )
@@ -224,7 +226,32 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             enabled = !viewingFetchInProgress,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(if (viewingFetchInProgress) "Refreshing cinema metadata…" else "Fetch OMDb posters and TMDB backdrop/trailer metadata")
+                            Text(if (viewingFetchInProgress) "Refreshing cinema metadata…" else "Fetch posters, backdrops, trailers and details")
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = "Metadata source order",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            MetadataProviderMode.entries.forEach { mode ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).clickable { ViewingMetadataStore.setProviderMode(mode) }.padding(vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    RadioButton(
+                                        selected = metadataProviderMode == mode,
+                                        onClick = { ViewingMetadataStore.setProviderMode(mode) }
+                                    )
+                                    Column(Modifier.weight(1f)) {
+                                        Text(mode.label, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                                        Text(mode.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.72f))
+                                    }
+                                }
+                            }
                         }
 
                         Row(

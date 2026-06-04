@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
+import com.cinemaverse.mcu.shared.data.viewing.MetadataProviderMode
 import com.cinemaverse.mcu.shared.data.viewing.ViewingItem
 import com.cinemaverse.mcu.shared.data.viewing.ViewingUserStatus
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,8 @@ object ViewingMetadataStore {
     private val service = MovieMetadataService()
     private val enriched = mutableStateMapOf<String, ViewingItem>()
     val isFetching = mutableStateOf(false)
-    val statusMessage = mutableStateOf(service.getConfigurationMessage())
+    val providerMode = mutableStateOf(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
+    val statusMessage = mutableStateOf(service.getConfigurationMessage(providerMode.value))
     val useLocalPosters = mutableStateOf(true)
     private val userStatuses = mutableStateMapOf<String, Set<ViewingUserStatus>>()
     private val recentlyViewed = mutableStateMapOf<String, Long>()
@@ -25,6 +27,10 @@ object ViewingMetadataStore {
         appContext = application
         val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         useLocalPosters.value = prefs.getBoolean(KEY_USE_LOCAL_POSTERS, true)
+        providerMode.value = runCatching {
+            MetadataProviderMode.valueOf(prefs.getString(KEY_PROVIDER_MODE, MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK.name).orEmpty())
+        }.getOrDefault(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
+        statusMessage.value = service.getConfigurationMessage(providerMode.value)
         userStatuses.clear()
         prefs.all.filterKeys { it.startsWith(KEY_STATUS_PREFIX) }.forEach { (key, value) ->
             val statuses = value.toString().split(',').mapNotNull { runCatching { ViewingUserStatus.valueOf(it) }.getOrNull() }.toSet()
@@ -39,6 +45,15 @@ object ViewingMetadataStore {
     fun setUseLocalPosters(enabled: Boolean) {
         useLocalPosters.value = enabled
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putBoolean(KEY_USE_LOCAL_POSTERS, enabled)?.apply()
+    }
+
+    fun setProviderMode(mode: MetadataProviderMode) {
+        if (providerMode.value == mode) return
+        providerMode.value = mode
+        enriched.clear()
+        service.clearCache()
+        statusMessage.value = service.getConfigurationMessage(mode)
+        appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.putString(KEY_PROVIDER_MODE, mode.name)?.apply()
     }
 
     fun statusesFor(item: ViewingItem): Set<ViewingUserStatus> = userStatuses[item.id] ?: buildSet {
@@ -68,14 +83,14 @@ object ViewingMetadataStore {
     suspend fun enrich(item: ViewingItem): ViewingItem {
         enriched[item.id]?.let { return it }
         return withContext(Dispatchers.IO) {
-            service.getEnrichedViewingItem(item).item
+            service.getEnrichedViewingItem(item, providerMode.value).item
         }.also { enriched[item.id] = mergeKeepingIdentity(item, it) }
     }
 
     suspend fun fetchAll(data: McuAssetDataSource.ViewingAssetData) {
         if (isFetching.value) return
         isFetching.value = true
-        statusMessage.value = "Fetching OMDb posters plus TMDB backdrops, trailers, and cinema metadata…"
+        statusMessage.value = "Fetching ${providerMode.value.label} artwork and cinema metadata…"
         var loaded = 0
         try {
             data.allItems.forEach { item ->
@@ -83,7 +98,7 @@ object ViewingMetadataStore {
                 loaded += 1
                 statusMessage.value = "Fetched $loaded of ${data.allItems.size} Cinemaverse titles."
             }
-            statusMessage.value = "Database loaded: $loaded titles refreshed with OMDb posters and TMDB backdrops/trailers. Cached for this app session."
+            statusMessage.value = "Database loaded: $loaded titles refreshed with ${providerMode.value.label}. Cached for this app session."
         } catch (error: Throwable) {
             statusMessage.value = error.message ?: "Metadata fetch failed."
         } finally {
@@ -101,7 +116,7 @@ object ViewingMetadataStore {
         genres = remote.genres.ifEmpty { local.genres },
         plot = remote.plot ?: local.plot,
         overview = remote.overview ?: local.overview,
-        poster = remote.omdbPoster ?: remote.poster ?: local.poster ?: remote.tmdbPoster,
+        poster = remote.poster ?: remote.omdbPoster ?: remote.tmdbPoster ?: local.poster,
         tmdbPoster = remote.tmdbPoster ?: local.tmdbPoster,
         omdbPoster = remote.omdbPoster ?: local.omdbPoster,
         backdrop = remote.backdrop ?: local.backdrop,
@@ -121,7 +136,7 @@ object ViewingMetadataStore {
         language = remote.language ?: local.language,
         country = remote.country ?: local.country,
         metadataSource = remote.metadataSource,
-        lastUpdated = "TMDB + OMDb fallback"
+        lastUpdated = providerMode.value.label
     )
 
     private fun saveStatuses(itemId: String, statuses: Set<ViewingUserStatus>) {
@@ -133,6 +148,7 @@ object ViewingMetadataStore {
 
     private const val PREFS_NAME = "cinemaverse_user_state"
     private const val KEY_USE_LOCAL_POSTERS = "use_local_posters"
+    private const val KEY_PROVIDER_MODE = "metadata_provider_mode"
     private const val KEY_STATUS_PREFIX = "statuses:"
     private const val KEY_RECENT_PREFIX = "recent:"
 }

@@ -15,7 +15,7 @@ import java.net.URL
 
 class TmdbService(
     private val apiKey: String = BuildConfig.TMDB_API_KEY,
-    private val readAccessToken: String = BuildConfig.TMDB_READ_ACCESS_TOKEN.ifBlank { DEFAULT_READ_ACCESS_TOKEN }
+    private val readAccessToken: String = BuildConfig.TMDB_READ_ACCESS_TOKEN
 ) {
     val hasCredentials: Boolean get() = apiKey.isNotBlank() || readAccessToken.isNotBlank()
 
@@ -191,7 +191,6 @@ data class TmdbTrailer(val key: String, val name: String? = null, val type: Stri
     val url: String = "https://www.youtube.com/watch?v=$key"
 }
 
-private const val DEFAULT_READ_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NWVkYTQ4Y2Y1ODAzZjIyMzA0ZmQyMWY0ZjA2YTM1ZSIsIm5iZiI6MTc3ODY4NTg2My42ODcsInN1YiI6IjZhMDQ5N2E3N2IyZDk3NzQ2MDM3N2E1OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.XTD8e-B7awrTVIJd5WtD3vZ5FnWjE8sWkSjgYIeauAA"
 
 private fun String.urlEncode(): String = URLEncoder.encode(this, "UTF-8")
 private fun String.takeUsable(): String? = takeIf { it.isNotBlank() && it != "N/A" && it != "null" }

@@ -12,11 +12,13 @@ object ViewingArtworkUtils {
 
     fun tmdbBackdrop(path: String?, size: String = "w1280"): String? = normalizeTmdbImage(path, size)
 
+    fun tmdbProfile(path: String?, size: String = "w185"): String? = normalizeTmdbImage(path, size)
+
     fun localPoster(fileName: String?): String? = fileName
         ?.trim()
         ?.takeIf { it.isNotBlank() }
         ?.let { if (it.startsWith("file:///android_asset/")) it else LOCAL_POSTER_BASE_URL + it.substringAfterLast('/') }
-        ?.takeIf(::isLocalAssetArtwork)
+        ?.takeIf { it.startsWith("file:///android_asset/") }
 
     fun resolvePoster(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = firstUsable(
         item.localPoster?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
@@ -50,7 +52,7 @@ object ViewingArtworkUtils {
         list.items.firstOrNull()?.let { resolvePoster(it, preferLocalArtwork) }
     )
 
-    fun isLocalAssetArtwork(value: String): Boolean = value.startsWith(LOCAL_POSTER_BASE_URL)
+    fun isLocalAssetArtwork(value: String): Boolean = value.startsWith("file:///android_asset/")
 
     fun isUsableArtwork(value: String?): Boolean = !value.isNullOrBlank() &&
         !value.contains(PLACEHOLDER_SENTINEL) &&
@@ -60,10 +62,12 @@ object ViewingArtworkUtils {
     fun isRealImageUrl(value: String?): Boolean = isUsableArtwork(value) &&
         (value!!.startsWith("http://") || value.startsWith("https://") || value.startsWith("file:///android_asset/")) &&
         !value.contains("/movie/") &&
-        !value.contains("/tv/")
+        !value.contains("/tv/") &&
+        !looksLikeGeneratedTmdbIdUrl(value)
 
     private fun normalizeTmdbImage(path: String?, size: String): String? {
         val value = path?.trim()?.takeIf(::isUsableArtwork) ?: return null
+        if (looksLikeGeneratedTmdbIdUrl(value)) return null
         if (value.startsWith(TMDB_IMAGE_BASE_URL)) return value
         if (value.contains("themoviedb.org/t/p/")) {
             val tail = value.substringAfter("/t/p/").substringAfter('/')
@@ -73,8 +77,11 @@ object ViewingArtworkUtils {
         return "$TMDB_IMAGE_BASE_URL/$size/${value.trimStart('/')}"
     }
 
-    private fun normalizeRemotePoster(value: String): String? = if (value.contains("themoviedb.org/t/p/")) tmdbPoster(value) else value
-    private fun normalizeRemoteBackdrop(value: String): String? = if (value.contains("themoviedb.org/t/p/")) tmdbBackdrop(value) else value
+    private fun normalizeRemotePoster(value: String): String? = if (looksLikeGeneratedTmdbIdUrl(value)) null else if (value.contains("themoviedb.org/t/p/")) tmdbPoster(value) else value
+    private fun normalizeRemoteBackdrop(value: String): String? = if (looksLikeGeneratedTmdbIdUrl(value)) null else if (value.contains("themoviedb.org/t/p/")) tmdbBackdrop(value) else value
+
+    private fun looksLikeGeneratedTmdbIdUrl(value: String): Boolean =
+        value.contains("image.tmdb.org/t/p/") && Regex("/w\\d+/\\d+\\.(jpg|png|webp)$", RegexOption.IGNORE_CASE).containsMatchIn(value)
 
     private fun firstUsable(vararg values: String?): String? = values.firstOrNull(::isUsableArtwork)
 }
