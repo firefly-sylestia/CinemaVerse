@@ -47,8 +47,9 @@ class TmdbService(
             val best = (0 until (results?.length() ?: 0))
                 .mapNotNull { results?.optJSONObject(it) }
                 .firstOrNull { candidate ->
-                    candidate.optString("poster_path").takeUsable() != null && candidate.optString("media_type") in setOf("movie", "tv")
-                } ?: throw IllegalStateException("No TMDB poster match for ${item.title}")
+                    candidate.optString("media_type") in setOf("movie", "tv") &&
+                        (candidate.optString("backdrop_path").takeUsable() != null || candidate.optString("poster_path").takeUsable() != null)
+                } ?: throw IllegalStateException("No TMDB artwork match for ${item.title}")
             val mediaType = if (best.optString("media_type") == "tv") "tv" else "movie"
             val id = best.optInt("id")
             normalizeTmdbMovie(request("/$mediaType/$id", "append_to_response=credits,videos,recommendations,images,external_ids"), mediaType)

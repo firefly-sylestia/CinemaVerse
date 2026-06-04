@@ -20,15 +20,17 @@ object ViewingArtworkUtils {
 
     fun resolvePoster(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = firstUsable(
         item.localPoster?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
+        item.omdbPoster?.takeIf(::isRealImageUrl),
         item.tmdbPoster?.let(::tmdbPoster),
         item.poster?.takeIf(::isRealImageUrl)?.let(::normalizeRemotePoster),
-        item.omdbPoster?.takeIf(::isRealImageUrl),
-        item.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) }
+        item.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
+        item.tmdbBackdrop?.let(::tmdbBackdrop)
     )
 
     fun resolvePoster(list: ViewingList, preferLocalArtwork: Boolean = true): String? = firstUsable(
         list.localPoster?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        list.poster?.let(::normalizeRemotePoster),
+        list.items.firstOrNull { it.omdbPoster?.takeIf(::isRealImageUrl) != null }?.omdbPoster,
+        list.poster?.takeIf { preferLocalArtwork || !isLocalAssetArtwork(it) }?.let(::normalizeRemotePoster),
         list.items.firstOrNull()?.let { resolvePoster(it, preferLocalArtwork) }
     )
 
@@ -36,13 +38,14 @@ object ViewingArtworkUtils {
         item.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
         item.tmdbBackdrop?.let(::tmdbBackdrop),
         item.backdrop?.takeIf(::isRealImageUrl)?.let(::normalizeRemoteBackdrop),
+        item.omdbPoster?.takeIf(::isRealImageUrl),
         item.tmdbPoster?.let(::tmdbPoster),
         item.poster?.takeIf(::isRealImageUrl)?.let(::normalizeRemotePoster)
     )
 
     fun resolveBackdrop(list: ViewingList, preferLocalArtwork: Boolean = true): String? = firstUsable(
         list.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        list.backdrop?.let(::normalizeRemoteBackdrop),
+        list.backdrop?.takeIf { preferLocalArtwork || !isLocalAssetArtwork(it) }?.let(::normalizeRemoteBackdrop),
         list.items.firstOrNull()?.let { resolveBackdrop(it, preferLocalArtwork) },
         list.items.firstOrNull()?.let { resolvePoster(it, preferLocalArtwork) }
     )

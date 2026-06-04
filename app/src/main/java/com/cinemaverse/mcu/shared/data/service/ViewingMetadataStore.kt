@@ -75,7 +75,7 @@ object ViewingMetadataStore {
     suspend fun fetchAll(data: McuAssetDataSource.ViewingAssetData) {
         if (isFetching.value) return
         isFetching.value = true
-        statusMessage.value = "Fetching TMDB posters, backdrops, trailers, and cinema metadata with OMDb IMDb-style fallback…"
+        statusMessage.value = "Fetching OMDb posters plus TMDB backdrops, trailers, and cinema metadata…"
         var loaded = 0
         try {
             data.allItems.forEach { item ->
@@ -83,7 +83,7 @@ object ViewingMetadataStore {
                 loaded += 1
                 statusMessage.value = "Fetched $loaded of ${data.allItems.size} Cinemaverse titles."
             }
-            statusMessage.value = "Database loaded: $loaded titles refreshed from TMDB with OMDb IMDb-style fallback. Cached for this app session."
+            statusMessage.value = "Database loaded: $loaded titles refreshed with OMDb posters and TMDB backdrops/trailers. Cached for this app session."
         } catch (error: Throwable) {
             statusMessage.value = error.message ?: "Metadata fetch failed."
         } finally {
@@ -101,7 +101,7 @@ object ViewingMetadataStore {
         genres = remote.genres.ifEmpty { local.genres },
         plot = remote.plot ?: local.plot,
         overview = remote.overview ?: local.overview,
-        poster = remote.tmdbPoster ?: remote.poster ?: local.poster ?: remote.omdbPoster,
+        poster = remote.omdbPoster ?: remote.poster ?: local.poster ?: remote.tmdbPoster,
         tmdbPoster = remote.tmdbPoster ?: local.tmdbPoster,
         omdbPoster = remote.omdbPoster ?: local.omdbPoster,
         backdrop = remote.backdrop ?: local.backdrop,

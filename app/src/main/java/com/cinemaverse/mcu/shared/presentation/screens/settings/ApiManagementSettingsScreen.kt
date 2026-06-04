@@ -210,7 +210,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "TMDB powers posters, backdrops, trailers, and cinema metadata. OMDb is optional and used for IMDb-style details.",
+                            text = "OMDb powers primary posters and IMDb-style details. TMDB powers backdrops, trailers, and cinema metadata.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
                         )
@@ -224,7 +224,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             enabled = !viewingFetchInProgress,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(if (viewingFetchInProgress) "Refreshing cinema metadata…" else "Fetch poster/backdrop/trailer metadata")
+                            Text(if (viewingFetchInProgress) "Refreshing cinema metadata…" else "Fetch OMDb posters and TMDB backdrop/trailer metadata")
                         }
 
                         Row(

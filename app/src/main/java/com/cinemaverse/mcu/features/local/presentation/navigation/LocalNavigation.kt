@@ -195,6 +195,15 @@ import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingHomeScreen
 import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingLibraryScreen
 import com.cinemaverse.mcu.shared.presentation.screens.viewing.ViewingSearchScreen
 
+private object ViewingHomeReselectionBus {
+    var key by mutableIntStateOf(0)
+        private set
+
+    fun trigger() {
+        key += 1
+    }
+}
+
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Search : Screen("search")
@@ -389,7 +398,6 @@ fun LocalNavigation(
 
     // Track current destination for hiding navigation bar on player screen
     var currentRoute by remember { mutableStateOf(Screen.Home.route) }
-    var viewingHomeReselectionKey by remember { mutableStateOf(0) }
 
     // Update current route when destination changes
     LaunchedEffect(navController) {
@@ -1058,7 +1066,7 @@ private fun LocalNavigationContent(
                                                         HapticFeedbackType.LongPress
                                                     )
                                                     if (title == "Home" && currentRoute == Screen.Home.route && localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                                                        viewingHomeReselectionKey += 1
+                                                        ViewingHomeReselectionBus.trigger()
                                                     }
                                                     navigateToTopLevel(route)
                                                 },
@@ -1264,7 +1272,7 @@ private fun LocalNavigationContent(
                             onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
                             onOpenDetail = {},
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) },
-                            homeReselectionKey = viewingHomeReselectionKey
+                            homeReselectionKey = ViewingHomeReselectionBus.key
                         )
                     } else {
                         HomeScreen(

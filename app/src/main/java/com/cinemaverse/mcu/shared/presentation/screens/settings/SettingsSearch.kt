@@ -89,7 +89,7 @@ fun buildSettingsSearchIndex(context: Context): List<SearchableSettingItem> {
         add(SearchableSettingItem(
             id = "cinemaverse_api_metadata",
             title = "Cinemaverse API and cinema metadata",
-            description = "TMDB powers posters, backdrops, trailers, and cinema metadata. OMDb is optional for IMDb-style details.",
+            description = "OMDb powers primary posters and IMDb-style details. TMDB powers backdrops, trailers, and cinema metadata.",
             keywords = listOf("tmdb", "the movie database", "movie database", "poster", "backdrop", "trailer", "youtube trailer", "omdb", "cinema metadata", "cinemaverse api", "api posters"),
             icon = RhythmIcons.Settings,
             route = SettingsRoutes.API_MANAGEMENT,

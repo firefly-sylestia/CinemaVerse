@@ -24,13 +24,13 @@ class MovieMetadataService(
         if (tmdbService.hasCredentials) {
             tmdbService.getTmdbViewingDetails(localItem).fold(
                 onSuccess = { tmdb ->
-                    merged = mergeTmdbPrimary(merged, tmdb)
+                    merged = mergeTmdbBackdropAndCinema(merged, tmdb)
                     source = MetadataSource.TMDB
                 },
                 onFailure = { messages += it.message ?: "TMDB lookup failed." }
             )
         } else {
-            messages += "TMDB token missing; posters, backdrops, trailers, and cinema metadata use local/OMDb fallback fields."
+            messages += "TMDB token missing; backdrops, trailers, and cinema metadata use local fallback fields while posters can still come from OMDb."
         }
 
         if (omdbService.hasApiKey) {
@@ -38,13 +38,13 @@ class MovieMetadataService(
                 ?: omdbService.getMovieByTitle(localItem.title, localItem.year)
             omdbResult.fold(
                 onSuccess = { omdb ->
-                    merged = mergeOmdbFallbacks(merged, omdb)
+                    merged = mergeOmdbPosterAndImdbDetails(merged, omdb)
                     source = if (source == MetadataSource.TMDB) MetadataSource.MERGED else MetadataSource.OMDB
                 },
                 onFailure = { messages += it.message ?: "OMDb lookup failed." }
             )
         } else {
-            messages += "OMDb key not configured; using local fallback fields."
+            messages += "OMDb key not configured; poster artwork falls back to TMDB or local/catalog artwork."
         }
 
 
@@ -61,11 +61,11 @@ class MovieMetadataService(
     fun getConfigurationMessage(): String = buildString {
         if (!tmdbService.hasCredentials) append("TMDB token missing. ")
         if (!omdbService.hasApiKey) append("OMDb key missing. ")
-        if (isBlank()) append("TMDB powers posters, backdrops, trailers, and cinema metadata. OMDb is optional and used for IMDb-style details.")
+        if (isBlank()) append("OMDb powers primary posters and IMDb-style details. TMDB powers backdrops, trailers, and cinema metadata.")
         else append("Cinemaverse remains usable with local posters and the offline Marvel/DC catalog.")
     }
 
-    private fun mergeOmdbFallbacks(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(
+    private fun mergeOmdbPosterAndImdbDetails(local: ViewingItem, api: ViewingItem): ViewingItem = local.copy(
         originalTitle = api.originalTitle ?: local.originalTitle,
         year = api.year ?: local.year,
         releaseDate = api.releaseDate ?: local.releaseDate,
@@ -74,8 +74,8 @@ class MovieMetadataService(
         genres = api.genres.ifEmpty { local.genres },
         plot = api.plot ?: local.plot,
         overview = api.overview ?: local.overview,
-        poster = local.poster ?: api.omdbPoster ?: api.poster,
-        omdbPoster = local.omdbPoster ?: api.omdbPoster,
+        poster = api.omdbPoster ?: api.poster ?: local.poster,
+        omdbPoster = api.omdbPoster ?: local.omdbPoster,
         tmdbPoster = local.tmdbPoster,
         backdrop = local.backdrop,
         tmdbBackdrop = local.tmdbBackdrop,
@@ -91,8 +91,8 @@ class MovieMetadataService(
         country = api.country ?: local.country
     )
 
-    private fun mergeTmdbPrimary(local: ViewingItem, api: ViewingItem): ViewingItem = mergePreservingLocal(local, api).copy(
-        poster = api.tmdbPoster ?: api.poster ?: local.poster,
+    private fun mergeTmdbBackdropAndCinema(local: ViewingItem, api: ViewingItem): ViewingItem = mergePreservingLocal(local, api).copy(
+        poster = local.omdbPoster ?: local.poster ?: api.tmdbPoster ?: api.poster,
         tmdbPoster = api.tmdbPoster ?: local.tmdbPoster,
         backdrop = api.tmdbBackdrop ?: api.backdrop ?: local.backdrop,
         tmdbBackdrop = api.tmdbBackdrop ?: local.tmdbBackdrop,
@@ -111,7 +111,7 @@ class MovieMetadataService(
         genres = local.genres.ifEmpty { api.genres },
         plot = api.plot ?: local.plot,
         overview = api.overview ?: local.overview,
-        poster = api.poster ?: local.poster,
+        poster = local.omdbPoster ?: local.poster ?: api.tmdbPoster ?: api.poster,
         tmdbPoster = api.tmdbPoster ?: local.tmdbPoster,
         omdbPoster = api.omdbPoster ?: local.omdbPoster,
         backdrop = api.backdrop ?: local.backdrop,
