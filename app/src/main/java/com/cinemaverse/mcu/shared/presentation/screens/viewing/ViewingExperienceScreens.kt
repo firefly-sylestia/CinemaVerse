@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -93,10 +94,10 @@ import com.cinemaverse.mcu.shared.data.viewing.ViewingStatus
 import com.cinemaverse.mcu.shared.data.viewing.ViewingType
 import com.cinemaverse.mcu.shared.data.viewing.ViewingUserStatus
 import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
 import com.cinemaverse.mcu.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
-import kotlinx.coroutines.launch
 
 
 private object ViewingUi {
@@ -410,7 +411,7 @@ fun ViewingDetailScreen(
                 item {
                     ElevatedCard(
                         shape = RoundedCornerShape(34.dp),
-                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f))
                     ) {
                         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             Box(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(28.dp))) {
@@ -498,13 +499,38 @@ private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpe
             TopAppBar(
                 title = { Text(list.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f))
             )
         }
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(ViewingUi.screenHPad, 12.dp, ViewingUi.screenHPad, ViewingUi.bottomPad), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            item { HeroListCard(list) }
-            groupedViewingItems(list.items, ViewingSortMode.PHASE, onOpenTitle)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.34f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                            MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
+        ) {
+            LazyColumn(
+                Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(ViewingUi.screenHPad, 14.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                item { CollectionAlbumHero(list, onPlayFirst = { list.items.firstOrNull()?.let(onOpenTitle) }) }
+                item { CollectionTrackHeader(list.items.size) }
+                items(list.items, key = { it.id }) { item ->
+                    CollectionTitleRow(
+                        item = item,
+                        order = list.items.indexOf(item) + 1,
+                        onClick = { onOpenTitle(item) }
+                    )
+                }
+            }
         }
     }
 }
@@ -525,6 +551,97 @@ private fun CinemaverseHeader(title: String = "Cinemaverse", subtitle: String = 
             }
         }
         SettingsIconAction(onOpenSettings)
+    }
+}
+
+@Composable
+private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit) {
+    val poster = ViewingArtworkUtils.resolvePoster(list, ViewingMetadataStore.useLocalPosters.value)
+        ?: ViewingArtworkUtils.resolveBackdrop(list, ViewingMetadataStore.useLocalPosters.value)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)),
+        shape = RoundedCornerShape(34.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(Modifier.fillMaxWidth()) {
+            ArtworkImage(poster, "${list.title} background", Modifier.matchParentSize(), ContentScale.Crop)
+            Box(Modifier.matchParentSize().background(MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)))
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+                    ArtworkImage(
+                        data = poster,
+                        description = "${list.title} poster",
+                        modifier = Modifier.size(132.dp).clip(RoundedCornerShape(38.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(list.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                        Text(list.category ?: list.universe ?: "Cinemaverse collection", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            CollectionPill("${list.items.size} titles")
+                            CollectionPill(list.phase ?: list.saga ?: "Curated")
+                        }
+                    }
+                }
+                Text(list.description.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(onClick = onPlayFirst, modifier = Modifier.weight(1f), shape = RoundedCornerShape(24.dp)) {
+                        Icon(RhythmIcons.Play, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Start")
+                    }
+                    OutlinedButton(onClick = onPlayFirst, modifier = Modifier.weight(1f), shape = RoundedCornerShape(24.dp)) {
+                        Icon(RhythmIcons.ArrowRight, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("First title")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CollectionPill(text: String) {
+    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.70f)) {
+        Text(text, modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+    }
+}
+
+@Composable
+private fun CollectionTrackHeader(count: Int) {
+    Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Column {
+            Text("Titles", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+            Text("$count total", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Text(count.toString(), modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+    }
+}
+
+@Composable
+private fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Unit) {
+    val displayItem = rememberCachedItem(item)
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.30f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(order.toString(), modifier = Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            PosterBackdrop(displayItem, Modifier.size(56.dp).clip(RoundedCornerShape(18.dp)), ContentScale.Crop)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(displayItem.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(listOfNotNull(displayItem.runtime, displayItem.year, displayItem.universe).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+            }
+            FilledIconButton(
+                onClick = onClick,
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.42f), contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+            ) { Icon(RhythmIcons.More, contentDescription = "Open ${displayItem.title}") }
+        }
     }
 }
 

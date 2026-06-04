@@ -53,6 +53,7 @@ import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServic
 import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
 import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch
 import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun StreamingServiceSetupScreen(
