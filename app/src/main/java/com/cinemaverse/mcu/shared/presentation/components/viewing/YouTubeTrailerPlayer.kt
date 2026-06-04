@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Arrangement
@@ -86,7 +87,7 @@ fun YouTubeTrailerWebPlayer(
         return
     }
 
-    val html = remember(safeVideoId) { iframeHtml(safeVideoId) }
+    val watchUrl = remember(safeVideoId) { "https://www.youtube.com/watch?v=$safeVideoId&playsinline=1" }
 
     Surface(
         modifier = modifier,
@@ -112,13 +113,15 @@ fun YouTubeTrailerWebPlayer(
                     settings.mediaPlaybackRequiresUserGesture = false
                     settings.javaScriptCanOpenWindowsAutomatically = true
                     settings.loadsImagesAutomatically = true
-                    loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null)
+                    settings.cacheMode = WebSettings.LOAD_DEFAULT
+                    settings.userAgentString = settings.userAgentString + " CinemaverseTrailerWeb/1.0"
+                    loadUrl(watchUrl)
                     tag = safeVideoId
                 }
             },
             update = { view ->
                 if (view.tag != safeVideoId) {
-                    view.loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null)
+                    view.loadUrl(watchUrl)
                     view.tag = safeVideoId
                 }
             },
@@ -162,20 +165,3 @@ private fun TrailerFallback(
         }
     }
 }
-
-private fun iframeHtml(videoId: String): String = """
-<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>html,body,#player{margin:0;width:100%;height:100%;background:#000;overflow:hidden;}</style>
-</head><body><div id="player"></div>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script>
-var player;
-function onYouTubeIframeAPIReady(){
-  player = new YT.Player('player', {
-    width:'100%', height:'100%', videoId:'$videoId',
-    playerVars:{playsinline:1,rel:0,modestbranding:1,autoplay:0,enablejsapi:1,origin:'https://www.youtube.com'},
-    events:{'onReady':function(event){},'onError':function(event){document.body.setAttribute('data-error', event.data);}}
-  });
-}
-</script></body></html>
-""".trimIndent()

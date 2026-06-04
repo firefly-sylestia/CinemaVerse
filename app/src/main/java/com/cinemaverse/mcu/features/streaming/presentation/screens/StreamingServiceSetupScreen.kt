@@ -27,10 +27,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,11 +45,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.cinemaverse.mcu.R
 import com.cinemaverse.mcu.shared.data.model.AppSettings
+import com.cinemaverse.mcu.shared.data.service.ViewingMetadataStore
+import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
+import com.cinemaverse.mcu.shared.data.viewing.MetadataProviderMode
 import com.cinemaverse.mcu.features.streaming.domain.model.StreamingServiceRules
 import com.cinemaverse.mcu.features.streaming.presentation.model.StreamingServiceOptions
 import com.cinemaverse.mcu.features.streaming.presentation.viewmodel.StreamingMusicViewModel
 import com.cinemaverse.mcu.shared.presentation.screens.settings.TunerAnimatedSwitch
 import com.cinemaverse.mcu.shared.presentation.components.common.CollapsibleHeaderScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun StreamingServiceSetupScreen(
@@ -384,6 +390,15 @@ fun StreamingServiceSetupScreen(
 
 @Composable
 private fun CinemaverseSetupContent(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val data = remember(context) { McuAssetDataSource.load(context) }
+    val coroutineScope = rememberCoroutineScope()
+    val fetchMessage by ViewingMetadataStore.statusMessage
+    val isFetching by ViewingMetadataStore.isFetching
+    val useLocalPosters by ViewingMetadataStore.useLocalPosters
+    val providerMode by ViewingMetadataStore.providerMode
+    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
+
     LazyColumn(
         modifier = modifier.fillMaxSize().padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -391,24 +406,55 @@ private fun CinemaverseSetupContent(onBackClick: () -> Unit, modifier: Modifier 
         item { Spacer(Modifier.height(12.dp)) }
         item {
             Card(
-                shape = RoundedCornerShape(28.dp),
+                shape = RoundedCornerShape(30.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(Modifier.fillMaxWidth().padding(22.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Icon(MaterialSymbolIcon("movie_filter"), contentDescription = null, modifier = Modifier.size(42.dp))
+                    Icon(MaterialSymbolIcon("theaters", filled = true), contentDescription = null, modifier = Modifier.size(44.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     Text("Set up Cinemaverse", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Text("Marvel and DC viewing libraries work offline first. Optional TMDb, OMDb, and YouTube metadata can fetch posters, ratings, and trailers later.", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
+                    Text("Offline Marvel/DC posters load immediately. Optional OMDb/TMDB metadata is fetched here, cached locally, and reused the next time you open the app.", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
                 }
             }
         }
-        item { SetupChoiceCard("Choose universes", "Marvel", "DC", "Both enabled by default") }
-        item { SetupChoiceCard("Catalog scope", "Core cinematic universes", "TV, shorts, specials", "Legacy and multiverse collections") }
-        item { SetupChoiceCard("Metadata setup", "Local catalog", "TMDb / OMDb optional", "YouTube trailer IDs only") }
-        item { SetupChoiceCard("Poster & database fetch", "Load offline catalog", "Fetch TMDb posters/backdrops", "Cache ratings and trailer IDs") }
+        item { SetupChoiceCard("Catalog", "Marvel + DC enabled", "Movies, series, shorts, specials", "Release and timeline collections") }
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = RoundedCornerShape(26.dp)) {
+                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Poster & metadata loading", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(fetchMessage, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+                    if (isFetching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    MetadataProviderMode.entries.forEach { mode ->
+                        Surface(
+                            onClick = { ViewingMetadataStore.setProviderMode(mode) },
+                            shape = RoundedCornerShape(18.dp),
+                            color = if (providerMode == mode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(mode.label, fontWeight = FontWeight.SemiBold, color = if (providerMode == mode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface)
+                                Text(mode.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Prefer bundled posters", fontWeight = FontWeight.SemiBold)
+                            Text("Keeps the offline artwork first while still caching online details.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(checked = useLocalPosters, onCheckedChange = ViewingMetadataStore::setUseLocalPosters)
+                    }
+                    FilledTonalButton(
+                        onClick = { coroutineScope.launch { ViewingMetadataStore.fetchAll(data); onBackClick() } },
+                        enabled = !isFetching,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(if (isFetching) "Loading posters…" else "Set up, cache posters, and open library") }
+                }
+            }
+        }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = onBackClick) { Text("Back") }
-                FilledTonalButton(onClick = onBackClick) { Text("Open Library") }
+                FilledTonalButton(onClick = onBackClick) { Text("Open offline library") }
             }
         }
         item { Spacer(Modifier.height(90.dp)) }

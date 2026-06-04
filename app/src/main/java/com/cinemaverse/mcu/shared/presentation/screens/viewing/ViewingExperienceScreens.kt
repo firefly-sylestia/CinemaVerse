@@ -60,7 +60,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -78,7 +77,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cinemaverse.mcu.R
@@ -95,10 +93,10 @@ import com.cinemaverse.mcu.shared.data.viewing.ViewingStatus
 import com.cinemaverse.mcu.shared.data.viewing.ViewingType
 import com.cinemaverse.mcu.shared.data.viewing.ViewingUserStatus
 import com.cinemaverse.mcu.shared.presentation.components.icons.Icon
+import com.cinemaverse.mcu.shared.presentation.components.icons.MaterialSymbolIcon
 import com.cinemaverse.mcu.shared.presentation.components.icons.RhythmIcons
 import com.cinemaverse.mcu.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.cinemaverse.mcu.shared.util.ViewingArtworkUtils
-import kotlinx.coroutines.launch
 
 
 private object ViewingUi {
@@ -173,9 +171,6 @@ private fun ViewingHomeContent(
     onOpenList: (ViewingList) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val message by ViewingMetadataStore.statusMessage
-    val isFetching by ViewingMetadataStore.isFetching
     val marvel = remember(data) { data.allItems.filter { it.universe == "MCU" }.take(14) }
     val dc = remember(data) { data.allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") }.take(14) }
     val lists = remember(data) { data.allLists.visibleManagedLists().take(8) }
@@ -196,14 +191,6 @@ private fun ViewingHomeContent(
             )
         }
         if (recent.isNotEmpty()) item { CinemaActivityMiniSurface(recent.first(), onClick = { onOpenItem(recent.first()) }) }
-        item {
-            ApiStateCard(
-                message = message,
-                isFetching = isFetching,
-                onOpenSettings = onOpenSettings,
-                onFetch = { coroutineScope.launch { ViewingMetadataStore.fetchAll(data) } }
-            )
-        }
         item { PosterRail("MCU", "Marvel Studios films, shows, specials, One-Shots, and Defenders", marvel, onOpenItem) }
         item { PosterRail("DC", "DCU, DCEU, Elseworlds, and connected TV", dc, onOpenItem) }
         item { ListRail("Managed collections", "Essentials, timelines, chapters, and character journeys", lists, onOpenList) }
@@ -258,7 +245,6 @@ fun ViewingLibraryScreen(
                 if (tab == "Collections") {
                     items(data.allLists.visibleManagedLists(), key = { it.id }) { list -> WideListCard(list, onClick = { selectedListId = list.id }) }
                 } else {
-                    item { StatusSummaryRail(data.allItems, onTab = { tab = it }) }
                     if (filtered.isEmpty()) item { EmptyState("Nothing here yet", "Open a title and add it to Watchlist, Favorite, or Watched.") }
                     groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
                 }
@@ -476,21 +462,29 @@ fun ViewingDetailScreen(
 private fun TrailerPlayerDialog(title: String, youtubeVideoId: String?, trailerUrl: String?, onDismiss: () -> Unit) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
     ) {
-        Box(Modifier.fillMaxSize().background(Color.Black)) {
-            YouTubeTrailerWebPlayer(
-                youtubeVideoId = youtubeVideoId,
-                trailerUrl = trailerUrl,
-                title = title,
-                shape = RoundedCornerShape(0.dp),
-                modifier = Modifier.fillMaxSize()
-            )
-            FilledIconButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.TopEnd).padding(20.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.Black.copy(alpha = 0.62f), contentColor = Color.White)
-            ) { Icon(RhythmIcons.Close, contentDescription = "Close trailer") }
+        Surface(
+            shape = RoundedCornerShape(30.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            tonalElevation = 6.dp,
+            modifier = Modifier.fillMaxWidth().padding(20.dp)
+        ) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Trailer preview", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    FilledIconButton(onClick = onDismiss) { Icon(RhythmIcons.Close, contentDescription = "Close trailer") }
+                }
+                YouTubeTrailerWebPlayer(
+                    youtubeVideoId = youtubeVideoId,
+                    trailerUrl = trailerUrl,
+                    title = title,
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                )
+            }
         }
     }
 }
@@ -503,13 +497,38 @@ private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpe
             TopAppBar(
                 title = { Text(list.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f))
             )
         }
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(ViewingUi.screenHPad, 12.dp, ViewingUi.screenHPad, ViewingUi.bottomPad), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            item { HeroListCard(list) }
-            groupedViewingItems(list.items, ViewingSortMode.PHASE, onOpenTitle)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.34f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                            MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
+        ) {
+            LazyColumn(
+                Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(ViewingUi.screenHPad, 14.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                item { CollectionAlbumHero(list, onPlayFirst = { list.items.firstOrNull()?.let(onOpenTitle) }) }
+                item { CollectionTrackHeader(list.items.size) }
+                items(list.items, key = { it.id }) { item ->
+                    CollectionTitleRow(
+                        item = item,
+                        order = list.items.indexOf(item) + 1,
+                        onClick = { onOpenTitle(item) }
+                    )
+                }
+            }
         }
     }
 }
@@ -530,6 +549,97 @@ private fun CinemaverseHeader(title: String = "Cinemaverse", subtitle: String = 
             }
         }
         SettingsIconAction(onOpenSettings)
+    }
+}
+
+@Composable
+private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit) {
+    val poster = ViewingArtworkUtils.resolvePoster(list, ViewingMetadataStore.useLocalPosters.value)
+        ?: ViewingArtworkUtils.resolveBackdrop(list, ViewingMetadataStore.useLocalPosters.value)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)),
+        shape = RoundedCornerShape(34.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(Modifier.fillMaxWidth()) {
+            ArtworkImage(poster, "${list.title} background", Modifier.matchParentSize(), ContentScale.Crop)
+            Box(Modifier.matchParentSize().background(MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)))
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+                    ArtworkImage(
+                        data = poster,
+                        description = "${list.title} poster",
+                        modifier = Modifier.size(132.dp).clip(RoundedCornerShape(38.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(list.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                        Text(list.category ?: list.universe ?: "Cinemaverse collection", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            CollectionPill("${list.items.size} titles")
+                            CollectionPill(list.phase ?: list.saga ?: "Curated")
+                        }
+                    }
+                }
+                Text(list.description.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(onClick = onPlayFirst, modifier = Modifier.weight(1f), shape = RoundedCornerShape(24.dp)) {
+                        Icon(RhythmIcons.Play, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Start")
+                    }
+                    OutlinedButton(onClick = onPlayFirst, modifier = Modifier.weight(1f), shape = RoundedCornerShape(24.dp)) {
+                        Icon(RhythmIcons.ArrowRight, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("First title")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CollectionPill(text: String) {
+    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.70f)) {
+        Text(text, modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+    }
+}
+
+@Composable
+private fun CollectionTrackHeader(count: Int) {
+    Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Column {
+            Text("Titles", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+            Text("$count total", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Text(count.toString(), modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+    }
+}
+
+@Composable
+private fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Unit) {
+    val displayItem = rememberCachedItem(item)
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.30f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(order.toString(), modifier = Modifier.width(28.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            PosterBackdrop(displayItem, Modifier.size(56.dp).clip(RoundedCornerShape(18.dp)), ContentScale.Crop)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(displayItem.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(listOfNotNull(displayItem.runtime, displayItem.year, displayItem.universe).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+            }
+            FilledIconButton(
+                onClick = onClick,
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.42f), contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+            ) { Icon(RhythmIcons.More, contentDescription = "Open ${displayItem.title}") }
+        }
     }
 }
 
@@ -653,40 +763,50 @@ private fun LibrarySecondaryControls(
     onStatus: (ViewingUserStatus?) -> Unit,
     catalogItems: List<ViewingItem>
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            CompactDropdown(
-                label = "Sort",
-                selected = sortMode.label,
-                options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME),
-                optionLabel = { it.label },
-                onSelect = onSort,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                statusFilter?.libraryTitle ?: "All statuses",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-            item {
-                FilterChip(
-                    selected = statusFilter == null,
-                    onClick = { onStatus(null) },
-                    label = { Text("All") },
-                    leadingIcon = if (statusFilter == null) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(28.dp)) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Browse", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(statusFilter?.libraryTitle ?: "All saved statuses", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                CompactDropdown(
+                    label = "Sort",
+                    selected = sortMode.label,
+                    options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME),
+                    optionLabel = { it.label },
+                    onSelect = onSort,
+                    modifier = Modifier.weight(1f)
                 )
             }
-            items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }, key = { it.name }) { status ->
-                val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
-                FilterChip(
-                    selected = statusFilter == status,
-                    onClick = { onStatus(if (statusFilter == status) null else status) },
-                    label = { Text("${status.libraryTitle} $count") },
-                    leadingIcon = if (statusFilter == status) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
-                )
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+                item {
+                    FilterChip(
+                        selected = statusFilter == null,
+                        onClick = { onStatus(null) },
+                        label = { Text("All") },
+                        leadingIcon = { Icon(if (statusFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            iconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                }
+                items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }, key = { it.name }) { status ->
+                    val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
+                    val active = statusFilter == status
+                    FilterChip(
+                        selected = active,
+                        onClick = { onStatus(if (active) null else status) },
+                        leadingIcon = { Icon(status.icon(), contentDescription = null) },
+                        label = { Text("${status.libraryTitle} $count") },
+                        colors = statusChipColors(status, active)
+                    )
+                }
             }
         }
     }
@@ -861,22 +981,23 @@ private fun SortChips(sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Un
 @Composable
 private fun StatusSelector(selected: Set<ViewingUserStatus>, onStatus: (ViewingUserStatus) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Column(Modifier.weight(1f)) {
-                Text("Title status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(selected.takeIf { it.isNotEmpty() }?.joinToString(" • ") { it.activeLabel } ?: "No saved status", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(26.dp)) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text("Your status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(selected.takeIf { it.isNotEmpty() }?.joinToString(" • ") { it.libraryTitle } ?: "Choose a status for this title", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Done" else "Edit") }
             }
-            OutlinedButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Hide" else "Manage") }
-        }
-        if (expanded) {
+            val visibleStatuses = listOf(ViewingUserStatus.BOOKMARKED, ViewingUserStatus.WATCHLIST, ViewingUserStatus.WATCH_LATER, ViewingUserStatus.WATCHING, ViewingUserStatus.WATCHED, ViewingUserStatus.FAVORITE, ViewingUserStatus.ON_HOLD, ViewingUserStatus.HIDDEN)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap), verticalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-                listOf(ViewingUserStatus.WATCHLIST, ViewingUserStatus.WATCH_LATER, ViewingUserStatus.WATCHING, ViewingUserStatus.WATCHED, ViewingUserStatus.FAVORITE, ViewingUserStatus.BOOKMARKED, ViewingUserStatus.ON_HOLD, ViewingUserStatus.HIDDEN).forEach { status ->
+                visibleStatuses.filter { expanded || it in selected }.ifEmpty { visibleStatuses.take(4) }.forEach { status ->
                     val active = status in selected
                     FilterChip(
                         selected = active,
                         onClick = { onStatus(status) },
-                        leadingIcon = { Icon(if (active) RhythmIcons.Check else status.icon(), contentDescription = null) },
+                        leadingIcon = { Icon(status.icon(), contentDescription = null) },
                         label = { Text(if (active) status.activeLabel else status.inactiveLabel) },
                         colors = statusChipColors(status, active)
                     )
@@ -887,27 +1008,6 @@ private fun StatusSelector(selected: Set<ViewingUserStatus>, onStatus: (ViewingU
 }
 
 
-
-@Composable
-private fun StatusSummaryRail(catalogItems: List<ViewingItem>, onTab: (String) -> Unit) {
-    val statuses = ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
-        items(statuses, key = { it.name }) { status ->
-            val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
-            Card(
-                onClick = { onTab("Saved") },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                shape = RoundedCornerShape(22.dp),
-                modifier = Modifier.width(150.dp)
-            ) {
-                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(status.libraryTitle, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiaryContainer)
-                    Text("$count titles", color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.76f), style = MaterialTheme.typography.labelMedium)
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun CinemaActivityMiniSurface(item: ViewingItem, onClick: () -> Unit) {
@@ -1043,7 +1143,7 @@ private fun ViewingUserStatus.icon() = when (this) {
     ViewingUserStatus.WATCHING -> RhythmIcons.Play
     ViewingUserStatus.WATCHED -> RhythmIcons.Check
     ViewingUserStatus.FAVORITE -> RhythmIcons.Favorite
-    ViewingUserStatus.BOOKMARKED -> RhythmIcons.PlaylistFilled
+    ViewingUserStatus.BOOKMARKED -> MaterialSymbolIcon("bookmark", filled = true)
     ViewingUserStatus.ON_HOLD -> RhythmIcons.Pause
     ViewingUserStatus.HIDDEN -> RhythmIcons.VisibilityOff
 }
@@ -1132,27 +1232,6 @@ private fun HeroListCard(list: ViewingList) {
                 Text(list.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Text(list.description.orEmpty(), color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
                 Text("${list.items.size} titles", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ApiStateCard(message: String, isFetching: Boolean, onOpenSettings: () -> Unit, onFetch: () -> Unit) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer), shape = MaterialTheme.shapes.large) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Column(Modifier.weight(1f)) {
-                    Text("Poster/database", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                    Text(if (isFetching) "Refreshing metadata…" else "Tap to view source details", color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.76f), style = MaterialTheme.typography.labelMedium)
-                }
-                TextButton(onClick = onFetch, enabled = !isFetching) { Text(if (isFetching) "Loading" else "Fetch") }
-                IconButton(onClick = { expanded = !expanded }) { Icon(RhythmIcons.ExpandMore, contentDescription = if (expanded) "Hide metadata status" else "Show metadata status") }
-            }
-            if (expanded) {
-                Text(message, color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f), style = MaterialTheme.typography.bodySmall)
-                TextButton(onClick = onOpenSettings) { Text("Open API settings") }
             }
         }
     }

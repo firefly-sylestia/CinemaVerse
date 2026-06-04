@@ -1,6 +1,8 @@
 package com.cinemaverse.mcu.shared.data.service
 
 import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.cinemaverse.mcu.shared.data.viewing.McuAssetDataSource
@@ -31,6 +33,15 @@ object ViewingMetadataStore {
             MetadataProviderMode.valueOf(prefs.getString(KEY_PROVIDER_MODE, MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK.name).orEmpty())
         }.getOrDefault(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
         statusMessage.value = service.getConfigurationMessage(providerMode.value)
+        enriched.clear()
+        prefs.all.filterKeys { it.startsWith(KEY_ENRICHED_PREFIX + providerMode.value.name + ":") }.forEach { (key, value) ->
+            (value as? String)?.let { json ->
+                cachedItemFromJson(json)?.let { cached ->
+                    val itemId = key.removePrefix(KEY_ENRICHED_PREFIX).substringAfter(':')
+                    enriched[itemId] = cached
+                }
+            }
+        }
         userStatuses.clear()
         prefs.all.filterKeys { it.startsWith(KEY_STATUS_PREFIX) }.forEach { (key, value) ->
             val statuses = value.toString().split(',').mapNotNull { runCatching { ViewingUserStatus.valueOf(it) }.getOrNull() }.toSet()
@@ -78,13 +89,16 @@ object ViewingMetadataStore {
 
     fun recentItems(data: McuAssetDataSource.ViewingAssetData, limit: Int = 6): List<ViewingItem> = recentlyViewed.entries.sortedByDescending { it.value }.mapNotNull { data.findItem(it.key) }.take(limit)
 
-    fun itemFor(item: ViewingItem): ViewingItem = enriched[item.id] ?: item
+    fun itemFor(item: ViewingItem): ViewingItem = enriched[item.id]?.let { mergeKeepingIdentity(item, it) } ?: item
 
     suspend fun enrich(item: ViewingItem): ViewingItem {
-        enriched[item.id]?.let { return it }
+        enriched[item.id]?.let { return mergeKeepingIdentity(item, it) }
         return withContext(Dispatchers.IO) {
             service.getEnrichedViewingItem(item, providerMode.value).item
-        }.also { enriched[item.id] = mergeKeepingIdentity(item, it) }
+        }.let { mergeKeepingIdentity(item, it) }.also { merged ->
+            enriched[item.id] = merged
+            saveEnriched(item.id, merged)
+        }
     }
 
     suspend fun fetchAll(data: McuAssetDataSource.ViewingAssetData) {
@@ -98,7 +112,7 @@ object ViewingMetadataStore {
                 loaded += 1
                 statusMessage.value = "Fetched $loaded of ${data.allItems.size} Cinemaverse titles."
             }
-            statusMessage.value = "Database loaded: $loaded titles refreshed with ${providerMode.value.label}. Cached for this app session."
+            statusMessage.value = "Database loaded: $loaded titles refreshed with ${providerMode.value.label}. Cached locally for future app launches."
         } catch (error: Throwable) {
             statusMessage.value = error.message ?: "Metadata fetch failed."
         } finally {
@@ -139,6 +153,77 @@ object ViewingMetadataStore {
         lastUpdated = providerMode.value.label
     )
 
+    private fun saveEnriched(itemId: String, item: ViewingItem) {
+        appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()
+            ?.putString(KEY_ENRICHED_PREFIX + providerMode.value.name + ":" + itemId, item.toCacheJson().toString())
+            ?.apply()
+    }
+
+    private fun cachedItemFromJson(value: String): ViewingItem? = runCatching {
+        val json = JSONObject(value)
+        ViewingItem(
+            id = json.getString("id"),
+            title = json.getString("title"),
+            originalTitle = json.optStringOrNull("originalTitle"),
+            universe = json.optStringOrNull("universe"),
+            franchise = json.optStringOrNull("franchise"),
+            studio = json.optStringOrNull("studio"),
+            type = runCatching { com.cinemaverse.mcu.shared.data.viewing.ViewingType.valueOf(json.optString("type")) }.getOrDefault(com.cinemaverse.mcu.shared.data.viewing.ViewingType.MOVIE),
+            phase = json.optStringOrNull("phase"),
+            saga = json.optStringOrNull("saga"),
+            category = json.optStringOrNull("category"),
+            releaseDate = json.optStringOrNull("releaseDate"),
+            year = json.optStringOrNull("year"),
+            runtime = json.optStringOrNull("runtime"),
+            genres = json.optStringList("genres"),
+            language = json.optStringOrNull("language"),
+            country = json.optStringOrNull("country"),
+            imdbId = json.optStringOrNull("imdbId"),
+            tmdbId = json.optIntOrNull("tmdbId"),
+            imdbRating = json.optStringOrNull("imdbRating"),
+            tmdbRating = json.optDoubleOrNull("tmdbRating"),
+            director = json.optStringOrNull("director"),
+            writer = json.optStringOrNull("writer"),
+            actors = json.optStringList("actors"),
+            description = json.optStringOrNull("description"),
+            overview = json.optStringOrNull("overview"),
+            plot = json.optStringOrNull("plot"),
+            poster = json.optStringOrNull("poster"),
+            tmdbPoster = json.optStringOrNull("tmdbPoster"),
+            omdbPoster = json.optStringOrNull("omdbPoster"),
+            localPoster = json.optStringOrNull("localPoster"),
+            backdrop = json.optStringOrNull("backdrop"),
+            tmdbBackdrop = json.optStringOrNull("tmdbBackdrop"),
+            localBackdrop = json.optStringOrNull("localBackdrop"),
+            trailerUrl = json.optStringOrNull("trailerUrl"),
+            youtubeVideoId = json.optStringOrNull("youtubeVideoId"),
+            releaseOrder = json.optIntOrNull("releaseOrder"),
+            chronologicalOrder = json.optIntOrNull("chronologicalOrder"),
+            phaseOrder = json.optIntOrNull("phaseOrder"),
+            metadataSource = runCatching { com.cinemaverse.mcu.shared.data.viewing.MetadataSource.valueOf(json.optString("metadataSource")) }.getOrDefault(com.cinemaverse.mcu.shared.data.viewing.MetadataSource.LOCAL),
+            lastUpdated = json.optStringOrNull("lastUpdated"),
+            status = runCatching { com.cinemaverse.mcu.shared.data.viewing.ViewingStatus.valueOf(json.optString("status")) }.getOrDefault(com.cinemaverse.mcu.shared.data.viewing.ViewingStatus.RELEASED),
+            awards = json.optStringOrNull("awards")
+        )
+    }.getOrNull()
+
+    private fun ViewingItem.toCacheJson(): JSONObject = JSONObject().apply {
+        put("id", id); put("title", title); putNullable("originalTitle", originalTitle); putNullable("universe", universe); putNullable("franchise", franchise); putNullable("studio", studio)
+        put("type", type.name); putNullable("phase", phase); putNullable("saga", saga); putNullable("category", category); putNullable("releaseDate", releaseDate); putNullable("year", year); putNullable("runtime", runtime)
+        put("genres", JSONArray(genres)); putNullable("language", language); putNullable("country", country); putNullable("imdbId", imdbId); tmdbId?.let { put("tmdbId", it) }
+        putNullable("imdbRating", imdbRating); tmdbRating?.let { put("tmdbRating", it) }; putNullable("director", director); putNullable("writer", writer); put("actors", JSONArray(actors))
+        putNullable("description", description); putNullable("overview", overview); putNullable("plot", plot); putNullable("poster", poster); putNullable("tmdbPoster", tmdbPoster); putNullable("omdbPoster", omdbPoster); putNullable("localPoster", localPoster)
+        putNullable("backdrop", backdrop); putNullable("tmdbBackdrop", tmdbBackdrop); putNullable("localBackdrop", localBackdrop); putNullable("trailerUrl", trailerUrl); putNullable("youtubeVideoId", youtubeVideoId)
+        releaseOrder?.let { put("releaseOrder", it) }; chronologicalOrder?.let { put("chronologicalOrder", it) }; phaseOrder?.let { put("phaseOrder", it) }
+        put("metadataSource", metadataSource.name); putNullable("lastUpdated", lastUpdated); put("status", status.name); putNullable("awards", awards)
+    }
+
+    private fun JSONObject.putNullable(name: String, value: String?) { if (value != null) put(name, value) }
+    private fun JSONObject.optStringOrNull(name: String): String? = optString(name).takeIf { it.isNotBlank() && it != "null" }
+    private fun JSONObject.optIntOrNull(name: String): Int? = if (has(name) && !isNull(name)) optInt(name) else null
+    private fun JSONObject.optDoubleOrNull(name: String): Double? = if (has(name) && !isNull(name)) optDouble(name) else null
+    private fun JSONObject.optStringList(name: String): List<String> = optJSONArray(name)?.let { array -> List(array.length()) { array.optString(it) }.filter { it.isNotBlank() } } ?: emptyList()
+
     private fun saveStatuses(itemId: String, statuses: Set<ViewingUserStatus>) {
         if (statuses.isEmpty()) userStatuses.remove(itemId) else userStatuses[itemId] = statuses
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)?.edit()?.apply {
@@ -151,4 +236,5 @@ object ViewingMetadataStore {
     private const val KEY_PROVIDER_MODE = "metadata_provider_mode"
     private const val KEY_STATUS_PREFIX = "statuses:"
     private const val KEY_RECENT_PREFIX = "recent:"
+    private const val KEY_ENRICHED_PREFIX = "enriched:"
 }
