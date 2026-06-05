@@ -11,6 +11,7 @@ plugins {
 android {
     namespace = "com.marvelspectrum"
     compileSdk = 37
+    buildToolsVersion = "37.0.0"
 
     defaultConfig {
         applicationId = "com.marvelspectrum"

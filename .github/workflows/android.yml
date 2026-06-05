@@ -18,17 +18,19 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v3
         with:
-          # Command-line tools 20.0 understand the Android 17 / API 37 preview repository metadata.
+          # Keep the published v3 action, but use current command-line tools for API 37.
           cmdline-tools-version: 14742923
+          packages: platform-tools
 
       - name: Install and verify Android SDK 37
         run: |
           set -euo pipefail
-          sdkmanager --channel=3 "platforms;android-37" "build-tools;36.0.0"
+          sdkmanager --channel=3 "platforms;android-37" "build-tools;37.0.0"
           test -f "$ANDROID_SDK_ROOT/platforms/android-37/android.jar"
-          echo "Android SDK 37 installed at $ANDROID_SDK_ROOT/platforms/android-37"
+          test -x "$ANDROID_SDK_ROOT/build-tools/37.0.0/aapt2"
+          echo "Android SDK 37 and Build Tools 37.0.0 installed"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -55,17 +57,19 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v3
         with:
-          # Command-line tools 20.0 understand the Android 17 / API 37 preview repository metadata.
+          # Keep the published v3 action, but use current command-line tools for API 37.
           cmdline-tools-version: 14742923
+          packages: platform-tools
 
       - name: Install and verify Android SDK 37
         run: |
           set -euo pipefail
-          sdkmanager --channel=3 "platforms;android-37" "build-tools;36.0.0"
+          sdkmanager --channel=3 "platforms;android-37" "build-tools;37.0.0"
           test -f "$ANDROID_SDK_ROOT/platforms/android-37/android.jar"
-          echo "Android SDK 37 installed at $ANDROID_SDK_ROOT/platforms/android-37"
+          test -x "$ANDROID_SDK_ROOT/build-tools/37.0.0/aapt2"
+          echo "Android SDK 37 and Build Tools 37.0.0 installed"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
