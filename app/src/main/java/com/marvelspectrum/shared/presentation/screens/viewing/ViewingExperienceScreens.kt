@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -46,6 +47,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -562,17 +564,18 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
     var selectedTrailerIndex by rememberSaveable(displayItem.id, trailerOptions.size) { mutableStateOf(0) }
     val selectedTrailer = trailerOptions.getOrNull(selectedTrailerIndex)
     val trailerAvailable = selectedTrailer != null
+    val userStatuses = ViewingMetadataStore.statusesFor(displayItem)
     val openYouTube = selectedTrailer?.externalUrl()?.let { url -> { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } } }
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = !expanded)
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
             shape = RoundedCornerShape(if (expanded) 0.dp else 34.dp),
             color = if (expanded) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerHigh,
             tonalElevation = if (expanded) 0.dp else 8.dp,
-            modifier = (if (expanded) Modifier.fillMaxSize().padding(12.dp) else Modifier.fillMaxWidth().padding(horizontal = 10.dp))
+            modifier = (if (expanded) Modifier.fillMaxSize().padding(12.dp) else Modifier.fillMaxWidth().padding(horizontal = 20.dp))
         ) {
             Column(Modifier.padding(if (expanded) 12.dp else 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(
@@ -580,11 +583,9 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    PosterBackdrop(displayItem, Modifier.size(46.dp, 64.dp), ContentScale.Crop, RoundedCornerShape(14.dp))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text("Trailer preview", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                        Text(displayItem.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(listOfNotNull(selectedTrailer?.label, displayItem.year, displayItem.runtime, displayItem.universe).joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("Trailer", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold)
+                        Text(listOfNotNull(selectedTrailer?.label, displayItem.year, displayItem.runtime).joinToString(" • "), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     FilledIconButton(
                         onClick = { expanded = !expanded },
@@ -626,7 +627,6 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                     YouTubeTrailerWebPlayer(
                         youtubeVideoId = selectedTrailer?.youtubeVideoId,
                         trailerUrl = selectedTrailer?.url,
-                        title = displayItem.title,
                         shape = RoundedCornerShape(if (expanded) 22.dp else 26.dp),
                         modifier = Modifier.fillMaxSize()
                     )
@@ -636,11 +636,41 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = onOpenDetails, shape = RoundedCornerShape(22.dp)) { Text("Details") }
-                    OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCH_LATER) }, shape = RoundedCornerShape(22.dp)) { Text("Watch later") }
-                    OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.FAVORITE) }, shape = RoundedCornerShape(22.dp)) { Text("Favorite") }
-                    OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCHED) }, shape = RoundedCornerShape(22.dp)) { Text("Mark watched") }
+                    TrailerStatusButton(displayItem, ViewingUserStatus.WATCH_LATER, userStatuses)
+                    TrailerStatusButton(displayItem, ViewingUserStatus.FAVORITE, userStatuses)
+                    TrailerStatusButton(displayItem, ViewingUserStatus.WATCHED, userStatuses)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun TrailerStatusButton(
+    item: ViewingItem,
+    status: ViewingUserStatus,
+    activeStatuses: Set<ViewingUserStatus>
+) {
+    val selected = status in activeStatuses
+    val shape = RoundedCornerShape(22.dp)
+    val onClick = { ViewingMetadataStore.toggleStatus(item, status) }
+
+    if (selected) {
+        FilledTonalButton(
+            onClick = onClick,
+            shape = shape,
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        ) {
+            Icon(RhythmIcons.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(status.activeLabel)
+        }
+    } else {
+        OutlinedButton(onClick = onClick, shape = shape) {
+            Text(status.inactiveLabel)
         }
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -87,31 +88,10 @@ fun YouTubeTrailerWebPlayer(
         return
     }
 
-    val embedHtml = remember(safeVideoId) {
-        """
-            <!doctype html>
-            <html>
-              <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-                <style>
-                  html, body { margin:0; width:100%; height:100%; background:#000; overflow:hidden; }
-                  .wrap { position:fixed; inset:0; background:#000; }
-                  iframe { width:100%; height:100%; border:0; display:block; background:#000; }
-                </style>
-              </head>
-              <body>
-                <div class="wrap">
-                  <iframe
-                    src="https://www.youtube.com/embed/$safeVideoId?playsinline=1&rel=0&modestbranding=1&autoplay=1"
-                    title="YouTube trailer player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen>
-                  </iframe>
-                </div>
-              </body>
-            </html>
-        """.trimIndent()
+    val embedUrl = remember(safeVideoId) {
+        "https://www.youtube.com/embed/$safeVideoId?playsinline=1&rel=0&autoplay=1&enablejsapi=1&origin=https%3A%2F%2Fwww.youtube.com"
     }
+    val requestHeaders = remember { mapOf("Referer" to "https://www.youtube.com/") }
 
     Surface(
         modifier = modifier,
@@ -138,14 +118,15 @@ fun YouTubeTrailerWebPlayer(
                     settings.javaScriptCanOpenWindowsAutomatically = true
                     settings.loadsImagesAutomatically = true
                     settings.cacheMode = WebSettings.LOAD_DEFAULT
-                    settings.userAgentString = settings.userAgentString + " CinemaverseTrailerWeb/1.0"
-                    loadDataWithBaseURL("https://www.youtube.com", embedHtml, "text/html", "UTF-8", null)
+                    CookieManager.getInstance().setAcceptCookie(true)
+                    CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+                    loadUrl(embedUrl, requestHeaders)
                     tag = safeVideoId
                 }
             },
             update = { view ->
                 if (view.tag != safeVideoId) {
-                    view.loadDataWithBaseURL("https://www.youtube.com", embedHtml, "text/html", "UTF-8", null)
+                    view.loadUrl(embedUrl, requestHeaders)
                     view.tag = safeVideoId
                 }
             },
