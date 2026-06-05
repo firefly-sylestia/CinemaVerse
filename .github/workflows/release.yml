@@ -23,9 +23,10 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@v3.2.2
         with:
-          # Install SDK packages explicitly below so preview-channel API 37 is available.
+          # v3 is the latest published action tag; use current tools for API 37 metadata.
+          cmdline-tools-version: 14742923
           packages: ''
 
       - name: Install and verify Android SDK 37
