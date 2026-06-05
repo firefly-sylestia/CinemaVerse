@@ -19,7 +19,7 @@ Marvel Spectrum is an Android/Kotlin Jetpack Compose app focused on MCU viewing 
 The active Android namespace and package are:
 
 ```text
-com.cinemaverse.mcu
+com.marvelspectrum
 ```
 
 Music and streaming integrations are disabled for viewing-first builds. Bundled MCU JSON and local poster assets are the primary offline data source, while TMDB and OMDb keys are optional enrichment only.
@@ -104,4 +104,4 @@ Do not commit real API secrets. `.env.example` contains placeholder names only. 
 
 ### Editing viewing lists
 
-Add or edit curated viewing orders in `app/src/main/java/com/cinemaverse/mcu/shared/data/viewing/ViewingLists.kt`. Keep MCU/movie metadata there when it is richer than JSON, and add/refresh poster filenames in the JSON/assets layer so artwork remains local, stable, and offline-friendly.
+Add or edit curated viewing orders in `app/src/main/java/com/marvelspectrum/shared/data/viewing/ViewingLists.kt`. Keep MCU/movie metadata there when it is richer than JSON, and add/refresh poster filenames in the JSON/assets layer so artwork remains local, stable, and offline-friendly.

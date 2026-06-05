@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.cinemaverse.mcu"
+    namespace = "com.marvelspectrum"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.cinemaverse.mcu"
+        applicationId = "com.marvelspectrum"
         minSdk = 26
         targetSdk = 36
         versionCode = 503941039
@@ -33,7 +33,7 @@ android {
     productFlavors {
         create("fdroid") {
             dimension = "distribution"
-            applicationId = "com.cinemaverse.mcu"
+            applicationId = "com.marvelspectrum"
             
             // F-Droid build: Enable all features (FOSS ethos)
             buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "false")
@@ -48,7 +48,7 @@ android {
         
         create("github") {
             dimension = "distribution"
-            applicationId = "com.cinemaverse.mcu"
+            applicationId = "com.marvelspectrum"
             
             // GitHub releases: Enable all features. This is the only variant built by CI.
             buildConfigField("boolean", "ENABLE_YOUTUBE_MUSIC", "false")
@@ -160,7 +160,7 @@ androidComponents {
                 ?: ""
 
             output.outputFileName.set(
-                "Rhythm-${android.defaultConfig.versionName}-${variant.name}${abiSuffix}.apk"
+                "Marvel-Spectrum-${android.defaultConfig.versionName}-${variant.name}${abiSuffix}.apk"
             )
         }
     }

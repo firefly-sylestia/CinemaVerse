@@ -83,9 +83,9 @@
             android:label="Marvel Spectrum Widget (Legacy)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.cinemaverse.mcu.infrastructure.widget.PLAY_PAUSE" />
-                <action android:name="com.cinemaverse.mcu.infrastructure.widget.SKIP_NEXT" />
-                <action android:name="com.cinemaverse.mcu.infrastructure.widget.SKIP_PREVIOUS" />
+                <action android:name="com.marvelspectrum.infrastructure.widget.PLAY_PAUSE" />
+                <action android:name="com.marvelspectrum.infrastructure.widget.SKIP_NEXT" />
+                <action android:name="com.marvelspectrum.infrastructure.widget.SKIP_PREVIOUS" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

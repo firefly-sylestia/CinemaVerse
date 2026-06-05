@@ -23,6 +23,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Rhythm"
+rootProject.name = "Marvel Spectrum"
 include(":app")
  

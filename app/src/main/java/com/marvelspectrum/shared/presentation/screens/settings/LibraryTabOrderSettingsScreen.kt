@@ -1,0 +1,378 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+
+package com.marvelspectrum.shared.presentation.screens.settings
+
+
+import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
+import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
+import com.marvelspectrum.shared.presentation.components.icons.Icon
+
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.DocumentsContract
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import com.marvelspectrum.R
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material3.*
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Slider
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.marvelspectrum.BuildConfig
+import com.marvelspectrum.shared.data.model.AppSettings
+import com.marvelspectrum.shared.data.model.Playlist
+import com.marvelspectrum.shared.data.model.Song
+import com.marvelspectrum.shared.data.repository.PlaybackStatsRepository
+import com.marvelspectrum.shared.data.repository.StatsTimeRange
+import com.marvelspectrum.util.GsonUtils
+import com.marvelspectrum.util.HapticUtils
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import kotlin.system.exitProcess
+import com.marvelspectrum.shared.presentation.components.common.CollapsibleHeaderScreen
+import com.marvelspectrum.shared.presentation.components.common.ButtonGroupStyle
+import com.marvelspectrum.shared.presentation.components.common.ExpressiveScrollBar
+import com.marvelspectrum.shared.presentation.components.common.ExpressiveButtonGroup
+import com.marvelspectrum.shared.presentation.components.common.ExpressiveGroupButton
+import com.marvelspectrum.shared.presentation.components.bottomsheets.StandardBottomSheetHeader
+import com.marvelspectrum.shared.presentation.components.common.StyledProgressBar
+import com.marvelspectrum.shared.presentation.components.common.ProgressStyle
+import com.marvelspectrum.shared.presentation.components.common.ThumbStyle
+import com.marvelspectrum.shared.presentation.components.bottomsheets.LicensesBottomSheet
+import com.marvelspectrum.shared.presentation.components.bottomsheets.UpdateBottomSheet
+import com.marvelspectrum.ui.utils.LazyListStateSaver
+import com.marvelspectrum.features.local.presentation.viewmodel.MusicViewModel
+import com.marvelspectrum.shared.presentation.components.common.ExpressiveShapeProvider
+import com.marvelspectrum.shared.presentation.components.common.ExpressiveShapes
+import com.marvelspectrum.shared.presentation.components.common.buildSplashBackdropShapes
+import com.marvelspectrum.shared.presentation.components.common.SplashBackgroundOrbs
+import com.marvelspectrum.shared.presentation.viewmodel.AppUpdaterViewModel
+import com.marvelspectrum.shared.presentation.viewmodel.AppVersion
+import com.marvelspectrum.ui.theme.getFontPreviewStyle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.io.File
+import com.marvelspectrum.utils.FontLoader
+import com.marvelspectrum.ui.theme.parseCustomColorScheme
+import androidx.compose.ui.viewinterop.AndroidView
+import android.widget.TextView
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.core.text.HtmlCompat
+import com.marvelspectrum.shared.presentation.components.common.M3FourColorCircularLoader
+import com.marvelspectrum.shared.presentation.components.player.PlayingEqIcon
+import com.marvelspectrum.shared.presentation.components.dialogs.CreatePlaylistDialog
+import com.marvelspectrum.shared.presentation.components.dialogs.BulkPlaylistExportDialog
+import com.marvelspectrum.shared.presentation.components.dialogs.PlaylistImportDialog
+import com.marvelspectrum.shared.presentation.components.common.rememberExpressiveShape
+import com.marvelspectrum.shared.presentation.components.dialogs.PlaylistOperationProgressDialog
+import com.marvelspectrum.shared.presentation.components.dialogs.PlaylistOperationResultDialog
+import com.marvelspectrum.shared.presentation.components.dialogs.AppRestartDialog
+import com.marvelspectrum.shared.presentation.components.player.PlayerChipOrderBottomSheet
+import com.marvelspectrum.features.local.presentation.components.settings.HomeSectionOrderBottomSheet
+import com.marvelspectrum.features.local.presentation.components.settings.LibraryTabOrderBottomSheet
+import com.marvelspectrum.shared.presentation.components.Material3SettingsGroup
+import com.marvelspectrum.shared.presentation.components.Material3SettingsItem
+
+import com.marvelspectrum.shared.presentation.screens.settings.TunerSettingRow
+import com.marvelspectrum.shared.presentation.screens.settings.TunerAnimatedSwitch
+import com.marvelspectrum.shared.presentation.screens.settings.TunerSettingCard
+import com.marvelspectrum.shared.presentation.screens.settings.SettingItem
+import com.marvelspectrum.shared.presentation.screens.settings.SettingGroup
+
+
+// Library Tab Order Screen (merged from LibraryTabOrderBottomSheet)
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LibraryTabOrderSettingsScreen(onBackClick: () -> Unit) {
+    val context = LocalContext.current
+    val appSettings = AppSettings.getInstance(context)
+    val haptics = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+
+    val tabOrder by appSettings.libraryTabOrder.collectAsState()
+    var reorderableList by remember { mutableStateOf(tabOrder.toList()) }
+
+    // Helper function to get display name and icon for tab
+    fun getTabInfo(tabId: String): Pair<String, MaterialSymbolIcon> {
+        return when (tabId) {
+            "SONGS" -> Pair("Songs", RhythmIcons.Relax)
+            "PLAYLISTS" -> Pair("Playlists", RhythmIcons.PlaylistFilled)
+            "ALBUMS" -> Pair("Albums", RhythmIcons.Music.Album)
+            "ARTISTS" -> Pair("Artists", RhythmIcons.Artist)
+            "EXPLORER" -> Pair("Explorer", RhythmIcons.Folder)
+            else -> Pair(tabId, RhythmIcons.Music.Song)
+        }
+    }
+
+    CollapsibleHeaderScreen(
+        title = context.getString(R.string.settings_tab_order),
+        showBackButton = true,
+        onBackClick = onBackClick
+    ) { modifier ->
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+            item {
+                Text(
+                    text = context.getString(R.string.library_reorder_tabs),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+            // Reorderable list
+            itemsIndexed(
+                items = reorderableList,
+                key = { _, item -> item }
+            ) { index, tabId ->
+                val (tabName, tabIcon) = getTabInfo(tabId)
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .animateItem(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            // Position indicator
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = "${index + 1}",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+
+                            // Tab icon
+                            Icon(
+                                imageVector = tabIcon,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+
+                            // Tab name
+                            Text(
+                                text = tabName,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        // Reorder buttons
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            // Move up button
+                            FilledIconButton(
+                                onClick = {
+                                    if (index > 0) {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                        val newList = reorderableList.toMutableList()
+                                        val item = newList.removeAt(index)
+                                        newList.add(index - 1, item)
+                                        reorderableList = newList
+                                    }
+                                },
+                                enabled = index > 0,
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                ),
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.ArrowUpward,
+                                    contentDescription = context.getString(R.string.settings_move_up),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            // Move down button
+                            FilledIconButton(
+                                onClick = {
+                                    if (index < reorderableList.size - 1) {
+                                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                        val newList = reorderableList.toMutableList()
+                                        val item = newList.removeAt(index)
+                                        newList.add(index + 1, item)
+                                        reorderableList = newList
+                                    }
+                                },
+                                enabled = index < reorderableList.size - 1,
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                ),
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = RhythmIcons.ArrowDownward,
+                                    contentDescription = context.getString(R.string.settings_move_down),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Reset button
+                    OutlinedButton(
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                            appSettings.resetLibraryTabOrder()
+                            reorderableList = listOf("SONGS", "PLAYLISTS", "ALBUMS", "ARTISTS", "EXPLORER")
+                            Toast.makeText(context, context.getString(R.string.settings_tab_order_reset), Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = MaterialSymbolIcon("restart_alt"),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(context.getString(R.string.ui_reset))
+                    }
+
+                    // Save button
+                    Button(
+                        onClick = {
+                            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+                            appSettings.setLibraryTabOrder(reorderableList)
+                            Toast.makeText(context, context.getString(R.string.settings_tab_order_saved), Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = RhythmIcons.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.ui_save))
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+        }
+    }
+}

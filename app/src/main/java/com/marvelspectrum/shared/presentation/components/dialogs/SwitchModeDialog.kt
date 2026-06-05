@@ -1,0 +1,103 @@
+package com.marvelspectrum.shared.presentation.components.dialogs
+
+import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
+import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
+import com.marvelspectrum.shared.presentation.components.icons.Icon
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.marvelspectrum.R
+import androidx.compose.ui.res.stringResource
+
+@Composable
+fun SwitchModeDialog(
+    targetMode: String, // "LOCAL" or "STREAMING"
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val title = if (targetMode == "STREAMING") "Switch to Rhythm Go?" else "Switch to Local?"
+    val text = if (targetMode == "STREAMING") {
+        "This item belongs to Rhythm Go. Switch to Streaming Mode now to stream and play it?"
+    } else {
+        "This item belongs to your Local Library. Switch to Local Mode now to play your offline tracks?"
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        icon = {
+            Icon(
+                imageVector = if (targetMode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+        },
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        confirmButton = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = {
+                        onConfirm()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Icon(
+                        imageVector = if (targetMode == "STREAMING") MaterialSymbolIcon("cloud", filled = true) else RhythmIcons.Folder,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.switchmodedialog_switch_play))
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        onDismissRequest()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Icon(
+                        imageVector = RhythmIcons.Close,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.ui_cancel))
+                }
+            }
+        },
+        dismissButton = {},
+        shape = RoundedCornerShape(24.dp),
+        modifier = modifier
+    )
+}
