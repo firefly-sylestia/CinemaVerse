@@ -7,6 +7,7 @@ import android.net.Uri
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -117,7 +118,7 @@ private object ViewingUi {
     val screenHPad = 20.dp
     val topPad = 30.dp
     val bottomPad = 120.dp
-    val sectionGap = 22.dp
+    val sectionGap = 28.dp
     val cardGap = 14.dp
     val chipGap = 8.dp
     val cardPad = 16.dp
@@ -210,7 +211,17 @@ private fun ViewingHomeContent(
         contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
         verticalArrangement = Arrangement.spacedBy(ViewingUi.sectionGap)
     ) {
-        item { CinemaverseHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
+        item { UnifiedViewingTop(title = "Marvel Spectrum", onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
+        item { LibraryTabs(selected = "Continue", onTab = { onOpenLibrary() }) }
+        item {
+            SpectrumSectionIdentity(
+                icon = RhythmIcons.Play,
+                eyebrow = "YOUR SPECTRUM",
+                title = "Continue your story",
+                status = "${continueItems.size} ready",
+                description = "Pick up where you left off or discover the next essential chapter."
+            )
+        }
         item {
             FeaturedTitleCarousel(
                 items = remember(data) { data.homeFeaturedTitles() },
@@ -277,14 +288,24 @@ fun ViewingLibraryScreen(
                 contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                item { CinemaverseHeader(title = "Library", subtitle = "Essentials • Continue • MCU • DC • Timeline • Collections • Saved", onOpenSettings = onOpenSettings) }
+                item { UnifiedViewingTop(title = "Library", onOpenSettings = onOpenSettings) }
                 item { LibraryTabs(tab, onTab = { tab = it }) }
+                item {
+                    SpectrumSectionIdentity(
+                        icon = tab.libraryTabIcon(),
+                        eyebrow = "LIBRARY / ${tab.uppercase()}",
+                        title = tab.librarySectionTitle(),
+                        status = if (tab == "Collections") "${data.allLists.visibleManagedLists().size} collections" else "${filtered.size} titles",
+                        description = tab.librarySectionDescription()
+                    )
+                }
                 item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, genreFilter, { genreFilter = it }, genres, data.allItems) }
                 if (tab == "Collections") {
-                    items(data.allLists.visibleManagedLists(), key = { it.id }) { list -> WideListCard(list, onClick = { selectedListId = list.id }) }
+                    twoColumnListCards(data.allLists.visibleManagedLists()) { selectedListId = it.id }
                 } else {
                     if (filtered.isEmpty()) item { EmptyState("Nothing here yet", "Open a title and add it to Watchlist, Favorite, or Watched.") }
-                    groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
+                    if (tab in setOf("MCU", "DC")) twoColumnViewingCards(filtered) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
+                    else groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
                 }
             }
         }
@@ -770,6 +791,41 @@ private fun ViewingList.orderingBasisText(): String = when {
 }
 
 @Composable
+private fun UnifiedViewingTop(title: String, onOpenSearch: (() -> Unit)? = null, onOpenSettings: () -> Unit) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Text(title, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(50), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)) {
+            Row(Modifier.fillMaxWidth().padding(6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Card(onClick = { onOpenSearch?.invoke() }, enabled = onOpenSearch != null, shape = RoundedCornerShape(50), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = Modifier.weight(1f)) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Icon(RhythmIcons.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(if (onOpenSearch != null) "Search titles, heroes, collections" else "Your curated viewing universe", color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+                FilledIconButton(onClick = onOpenSettings, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)) { Icon(RhythmIcons.Settings, contentDescription = "Settings") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpectrumSectionIdentity(icon: MaterialSymbolIcon, eyebrow: String, title: String, status: String, description: String) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primary, tonalElevation = 4.dp) { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, size = 28.dp, modifier = Modifier.padding(15.dp)) }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(eyebrow, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+            Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.secondaryContainer) { Text(status, modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSecondaryContainer, fontWeight = FontWeight.Bold) }
+    }
+}
+
+private fun String.libraryTabIcon(): MaterialSymbolIcon = when (this) { "Continue" -> RhythmIcons.Play; "Essential", "Essentials" -> RhythmIcons.Favorite; "MCU", "DC" -> RhythmIcons.AppsGrid; "Timeline" -> RhythmIcons.Sort; "Collections" -> RhythmIcons.Playlist; else -> RhythmIcons.Check }
+private fun String.librarySectionTitle(): String = when (this) { "Continue" -> "Continue watching"; "Essential", "Essentials" -> "Essential viewing"; "MCU" -> "Marvel Cinematic Universe"; "DC" -> "DC worlds"; "Timeline" -> "The complete timeline"; "Collections" -> "Curated collections"; "Saved" -> "Your saved spectrum"; else -> this }
+private fun String.librarySectionDescription(): String = when (this) { "Continue" -> "Recent titles and stories already in progress."; "Essential", "Essentials" -> "The defining chapters to watch first."; "MCU" -> "Films, series, specials, and connected Marvel stories."; "DC" -> "DCU, DCEU, Elseworlds, and connected television."; "Timeline" -> "Explore every chapter in chronological order."; "Collections" -> "Album-like journeys built around heroes, eras, and sagas."; "Saved" -> "Everything you bookmarked, loved, or marked to watch."; else -> "Explore the spectrum." }
+
+@Composable
 private fun CinemaverseHeader(title: String = "Cinemaverse", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSearch: (() -> Unit)? = null, onOpenSettings: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer, tonalElevation = 3.dp) {
@@ -1059,9 +1115,9 @@ private fun Int.floorMod(size: Int): Int = ((this % size) + size) % size
 
 @Composable
 private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenItem: (ViewingItem) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         SectionHeader(title, subtitle)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(18.dp), contentPadding = PaddingValues(end = 10.dp)) {
             items(items, key = { it.id }) { PosterCard(it) { onOpenItem(it) } }
         }
     }
@@ -1070,9 +1126,9 @@ private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>
 
 @Composable
 private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenTrailer: (ViewingItem) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         SectionHeader(title, subtitle)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(18.dp), contentPadding = PaddingValues(end = 10.dp)) {
             items(items, key = { "trailer-${it.id}" }) { item ->
                 PosterCard(item) { onOpenTrailer(item) }
             }
@@ -1082,9 +1138,9 @@ private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem
 
 @Composable
 private fun ListRail(title: String, subtitle: String, lists: List<ViewingList>, onOpenList: (ViewingList) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         SectionHeader(title, subtitle)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) { items(lists, key = { it.id }) { ViewingListCard(it) { onOpenList(it) } } }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(18.dp), contentPadding = PaddingValues(end = 10.dp)) { items(lists, key = { it.id }) { ViewingListCard(it) { onOpenList(it) } } }
     }
 }
 
@@ -1159,75 +1215,45 @@ private fun ViewingOrderRow(item: ViewingItem, order: Int, onClick: () -> Unit) 
 
 @Composable
 private fun LibrarySecondaryControls(
-    sortMode: ViewingSortMode,
-    onSort: (ViewingSortMode) -> Unit,
-    statusFilter: ViewingUserStatus?,
-    onStatus: (ViewingUserStatus?) -> Unit,
-    genreFilter: String?,
-    onGenre: (String?) -> Unit,
-    genres: List<String>,
-    catalogItems: List<ViewingItem>
+    sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Unit,
+    statusFilter: ViewingUserStatus?, onStatus: (ViewingUserStatus?) -> Unit,
+    genreFilter: String?, onGenre: (String?) -> Unit,
+    genres: List<String>, catalogItems: List<ViewingItem>
 ) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(28.dp)) {
-        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Browse", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Text(listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("All statuses and genres") }.joinToString(" • "), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    var sortExpanded by remember { mutableStateOf(false) }
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.94f)), shape = RoundedCornerShape(32.dp), elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("Refine your shelf", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                    Text(listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("All titles") }.joinToString(" • "), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                CompactDropdown(
-                    label = "Sort",
-                    selected = sortMode.label,
-                    options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME, ViewingSortMode.GENRE),
-                    optionLabel = { it.label },
-                    onSelect = onSort,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-                item {
-                    FilterChip(
-                        selected = genreFilter == null,
-                        onClick = { onGenre(null) },
-                        label = { Text("All genres") },
-                        leadingIcon = { Icon(if (genreFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) }
-                    )
-                }
-                items(genres.take(24), key = { "genre-$it" }) { genre ->
-                    FilterChip(
-                        selected = genreFilter == genre,
-                        onClick = { onGenre(if (genreFilter == genre) null else genre) },
-                        label = { Text(genre) }
-                    )
+                Box {
+                    Card(onClick = { sortExpanded = true }, shape = RoundedCornerShape(50), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+                        Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Icon(RhythmIcons.Sort, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, size = 19.dp)
+                            Column { Text("SORT", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f), fontWeight = FontWeight.Bold); Text(sortMode.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.ExtraBold) }
+                            Icon(RhythmIcons.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, size = 18.dp)
+                        }
+                    }
+                    DropdownMenu(expanded = sortExpanded, onDismissRequest = { sortExpanded = false }, shape = RoundedCornerShape(24.dp), containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 8.dp, shadowElevation = 10.dp) {
+                        listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME, ViewingSortMode.GENRE).forEach { mode ->
+                            DropdownMenuItem(text = { Text(mode.label, fontWeight = if (sortMode == mode) FontWeight.Bold else FontWeight.Normal) }, leadingIcon = { Icon(if (sortMode == mode) RhythmIcons.Check else RhythmIcons.Sort, contentDescription = null) }, onClick = { sortExpanded = false; onSort(mode) })
+                        }
+                    }
                 }
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-                item {
-                    FilterChip(
-                        selected = statusFilter == null,
-                        onClick = { onStatus(null) },
-                        label = { Text("All") },
-                        leadingIcon = { Icon(if (statusFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            iconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                }
+            Text("GENRE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item { SpectrumPillTab("All genres", RhythmIcons.AppsGrid, genreFilter == null) { onGenre(null) } }
+                items(genres.take(24), key = { "genre-$it" }) { genre -> SpectrumPillTab(genre, RhythmIcons.AppsGrid, genreFilter == genre) { onGenre(if (genreFilter == genre) null else genre) } }
+            }
+            Text("STATUS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item { SpectrumPillTab("All", RhythmIcons.Check, statusFilter == null) { onStatus(null) } }
                 items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }, key = { it.name }) { status ->
                     val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
-                    val active = statusFilter == status
-                    FilterChip(
-                        selected = active,
-                        onClick = { onStatus(if (active) null else status) },
-                        leadingIcon = { Icon(status.icon(), contentDescription = null) },
-                        label = { Text("${status.libraryTitle} $count") },
-                        colors = statusChipColors(status, active)
-                    )
+                    SpectrumPillTab("${status.libraryTitle} $count", status.icon(), statusFilter == status) { onStatus(if (statusFilter == status) null else status) }
                 }
             }
         }
@@ -1243,22 +1269,8 @@ private fun SearchCompactFilters(
     onSort: (ViewingSearchSortMode) -> Unit
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        CompactDropdown(
-            label = "Genre",
-            selected = selectedGenre ?: "All genres",
-            options = listOf<String?>(null) + genres,
-            optionLabel = { it ?: "All genres" },
-            onSelect = onGenre,
-            modifier = Modifier.weight(1f)
-        )
-        CompactDropdown(
-            label = "Sort",
-            selected = sortMode.label,
-            options = ViewingSearchSortMode.entries,
-            optionLabel = { it.label },
-            onSelect = onSort,
-            modifier = Modifier.weight(1f)
-        )
+        CompactDropdown(label = "Genre", selected = selectedGenre ?: "All genres", options = listOf<String?>(null) + genres, optionLabel = { it ?: "All genres" }, onSelect = onGenre, modifier = Modifier.weight(1f))
+        CompactDropdown(label = "Sort", selected = sortMode.label, options = ViewingSearchSortMode.entries, optionLabel = { it.label }, onSelect = onSort, modifier = Modifier.weight(1f))
     }
 }
 
@@ -1386,8 +1398,32 @@ private fun <T> CompactDropdown(
 
 @Composable
 private fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-        items(listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> FilterChip(selected = selected == tab, onClick = { onTab(tab) }, label = { Text(tab) }) }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(vertical = 2.dp)) {
+        items(listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved"), key = { it }) { tab ->
+            SpectrumPillTab(label = tab, icon = tab.libraryTabIcon(), selected = selected == tab || (selected == "Essentials" && tab == "Essential"), onClick = { onTab(tab) })
+        }
+    }
+}
+
+@Composable
+private fun SpectrumPillTab(label: String, icon: MaterialSymbolIcon, selected: Boolean, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) 0.96f else 1f, ViewingUi.pressSpec(), label = "spectrumTabScale")
+    val container by animateColorAsState(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh, tween(180), label = "spectrumTabContainer")
+    val content by animateColorAsState(if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, tween(180), label = "spectrumTabContent")
+    Card(
+        onClick = onClick,
+        interactionSource = interaction,
+        shape = RoundedCornerShape(50),
+        colors = CardDefaults.cardColors(containerColor = container),
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),
+        modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale }
+    ) {
+        Row(Modifier.padding(horizontal = 15.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            Icon(icon, contentDescription = null, tint = content, size = 18.dp)
+            Text(label, color = content, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -1506,6 +1542,45 @@ private fun ResultSection(title: String, subtitle: String, items: List<ViewingIt
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title, subtitle)
         items.forEachIndexed { index, item -> ViewingOrderRow(item, index + 1, onClick = { onOpen(item) }) }
+    }
+}
+
+private fun LazyListScope.twoColumnViewingCards(items: List<ViewingItem>, onOpenTitle: (ViewingItem) -> Unit) {
+    items(items.chunked(2), key = { row -> row.joinToString("-") { it.id } }) { row ->
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+            row.forEach { item -> CompactSpectrumTitleCard(item, Modifier.weight(1f)) { onOpenTitle(item) } }
+            if (row.size == 1) Spacer(Modifier.weight(1f))
+        }
+    }
+}
+
+private fun LazyListScope.twoColumnListCards(lists: List<ViewingList>, onOpenList: (ViewingList) -> Unit) {
+    items(lists.chunked(2), key = { row -> row.joinToString("-") { it.id } }) { row ->
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+            row.forEach { list -> CompactSpectrumListCard(list, Modifier.weight(1f)) { onOpenList(list) } }
+            if (row.size == 1) Spacer(Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun CompactSpectrumTitleCard(item: ViewingItem, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val displayItem = rememberCachedItem(item)
+    PressableCard(modifier = modifier, onClick = onClick) {
+        PosterBackdrop(displayItem, Modifier.fillMaxWidth().aspectRatio(1f), ContentScale.Crop, RoundedCornerShape(24.dp))
+        Spacer(Modifier.height(12.dp))
+        Text(displayItem.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(listOfNotNull(displayItem.year, displayItem.universe).joinToString(" • "), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+    }
+}
+
+@Composable
+private fun CompactSpectrumListCard(list: ViewingList, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    PressableCard(modifier = modifier, onClick = onClick) {
+        CollectionArtwork(list, Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(24.dp)), ContentScale.Crop)
+        Spacer(Modifier.height(12.dp))
+        Text(list.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text("${list.items.size} titles • ${list.category ?: "Collection"}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -1656,7 +1731,14 @@ private fun HeroListCard(list: ViewingList) {
 
 @Composable
 private fun SectionHeader(title: String, subtitle: String) {
-    Column { Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold); Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(title.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+            Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surfaceContainerHigh) { Icon(RhythmIcons.ExpandMore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(9.dp), size = 18.dp) }
+    }
 }
 
 @Composable
