@@ -20,44 +20,57 @@ object ViewingArtworkUtils {
         ?.let { if (it.startsWith("file:///android_asset/")) it else LOCAL_POSTER_BASE_URL + it.substringAfterLast('/') }
         ?.takeIf { it.startsWith("file:///android_asset/") }
 
-    fun resolvePoster(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = firstUsable(
-        item.localPoster?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        item.omdbPoster?.takeIf(::isRealImageUrl),
+    /** Resolves wide artwork intended for hero and detail backgrounds. */
+    fun resolveHeroBackdrop(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = firstUsable(
+        item.localBackdrop.takeIfLocalArtwork(preferLocalArtwork),
+        item.tmdbBackdrop?.let(::tmdbBackdrop),
+        item.backdrop.takeIfRemoteArtwork()?.let(::normalizeRemoteBackdrop),
         item.tmdbPoster?.let(::tmdbPoster),
-        item.poster?.takeIf(::isRealImageUrl)?.let(::normalizeRemotePoster),
-        item.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        item.tmdbBackdrop?.let(::tmdbBackdrop)
+        item.omdbPoster.takeIfRemoteArtwork()
     )
+
+    /** Resolves portrait-first artwork intended for poster cards. */
+    fun resolveCardPoster(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = firstUsable(
+        item.localPoster.takeIfLocalArtwork(preferLocalArtwork),
+        item.tmdbPoster?.let(::tmdbPoster),
+        item.omdbPoster.takeIfRemoteArtwork(),
+        item.poster.takeIfRemoteArtwork()?.let(::normalizeRemotePoster),
+        item.localBackdrop.takeIfLocalArtwork(preferLocalArtwork),
+        item.tmdbBackdrop?.let(::tmdbBackdrop),
+        item.backdrop.takeIfRemoteArtwork()?.let(::normalizeRemoteBackdrop)
+    )
+
+    /** Resolves collection-level background artwork before falling back to artwork from its titles. */
+    fun resolveCollectionBackdrop(list: ViewingList, preferLocalArtwork: Boolean = true): String? = firstUsable(
+        list.localBackdrop.takeIfLocalArtwork(preferLocalArtwork),
+        list.backdrop.takeIfRemoteArtwork()?.let(::normalizeRemoteBackdrop),
+        list.artworkItems.ifEmpty { list.items }.firstNotNullOfOrNull { resolveHeroBackdrop(it, preferLocalArtwork) },
+        list.localPoster.takeIfLocalArtwork(preferLocalArtwork),
+        list.poster.takeIfRemoteArtwork()?.let(::normalizeRemotePoster),
+        list.artworkItems.ifEmpty { list.items }.firstNotNullOfOrNull { resolveCardPoster(it, preferLocalArtwork) }
+    )
+
+    fun resolvePoster(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = resolveCardPoster(item, preferLocalArtwork)
 
     fun resolvePoster(list: ViewingList, preferLocalArtwork: Boolean = true): String? = firstUsable(
-        list.localPoster?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        list.items.firstOrNull { it.omdbPoster?.takeIf(::isRealImageUrl) != null }?.omdbPoster,
-        list.poster?.takeIf { preferLocalArtwork || !isLocalAssetArtwork(it) }?.let(::normalizeRemotePoster),
-        list.items.firstOrNull()?.let { resolvePoster(it, preferLocalArtwork) }
+        list.localPoster.takeIfLocalArtwork(preferLocalArtwork),
+        list.poster.takeIfRemoteArtwork()?.let(::normalizeRemotePoster),
+        list.artworkItems.ifEmpty { list.items }.firstNotNullOfOrNull { resolveCardPoster(it, preferLocalArtwork) }
     )
 
-    fun resolveBackdrop(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = firstUsable(
-        item.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        item.tmdbBackdrop?.let(::tmdbBackdrop),
-        item.backdrop?.takeIf(::isRealImageUrl)?.let(::normalizeRemoteBackdrop),
-        item.omdbPoster?.takeIf(::isRealImageUrl),
-        item.tmdbPoster?.let(::tmdbPoster),
-        item.poster?.takeIf(::isRealImageUrl)?.let(::normalizeRemotePoster)
-    )
+    fun resolveBackdrop(item: ViewingItem, preferLocalArtwork: Boolean = true): String? = resolveHeroBackdrop(item, preferLocalArtwork)
 
-    fun resolveBackdrop(list: ViewingList, preferLocalArtwork: Boolean = true): String? = firstUsable(
-        list.localBackdrop?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) },
-        list.backdrop?.takeIf { preferLocalArtwork || !isLocalAssetArtwork(it) }?.let(::normalizeRemoteBackdrop),
-        list.items.firstOrNull()?.let { resolveBackdrop(it, preferLocalArtwork) },
-        list.items.firstOrNull()?.let { resolvePoster(it, preferLocalArtwork) }
-    )
+    fun resolveBackdrop(list: ViewingList, preferLocalArtwork: Boolean = true): String? = resolveCollectionBackdrop(list, preferLocalArtwork)
 
     fun isLocalAssetArtwork(value: String): Boolean = value.startsWith("file:///android_asset/")
 
-    fun isUsableArtwork(value: String?): Boolean = !value.isNullOrBlank() &&
-        !value.contains(PLACEHOLDER_SENTINEL) &&
-        value != "N/A" &&
-        value != "null"
+    fun isUsableArtwork(value: String?): Boolean {
+        val normalized = value?.trim() ?: return false
+        return normalized.isNotEmpty() &&
+            !normalized.contains(PLACEHOLDER_SENTINEL) &&
+            !normalized.equals("N/A", ignoreCase = true) &&
+            !normalized.equals("null", ignoreCase = true)
+    }
 
     fun isRealImageUrl(value: String?): Boolean = isUsableArtwork(value) &&
         (value!!.startsWith("http://") || value.startsWith("https://") || value.startsWith("file:///android_asset/")) &&
@@ -76,6 +89,12 @@ object ViewingArtworkUtils {
         if (value.startsWith("http://") || value.startsWith("https://")) return value.takeIf { it.contains("image.tmdb.org/t/p/") }
         return "$TMDB_IMAGE_BASE_URL/$size/${value.trimStart('/')}"
     }
+
+    private fun String?.takeIfLocalArtwork(preferLocalArtwork: Boolean): String? =
+        this?.takeIf { preferLocalArtwork && isLocalAssetArtwork(it) && isUsableArtwork(it) }
+
+    private fun String?.takeIfRemoteArtwork(): String? =
+        this?.takeIf { !isLocalAssetArtwork(it) && isRealImageUrl(it) }
 
     private fun normalizeRemotePoster(value: String): String? = if (looksLikeGeneratedTmdbIdUrl(value)) null else if (value.contains("themoviedb.org/t/p/")) tmdbPoster(value) else value
     private fun normalizeRemoteBackdrop(value: String): String? = if (looksLikeGeneratedTmdbIdUrl(value)) null else if (value.contains("themoviedb.org/t/p/")) tmdbBackdrop(value) else value

@@ -425,7 +425,7 @@ fun ViewingDetailScreen(
                     SpectrumGlassSurface(shape = RoundedCornerShape(34.dp), accent = accent) {
                         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             Box(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(28.dp))) {
-                                PosterBackdrop(selected, Modifier.fillMaxSize(), ContentScale.Crop)
+                                PosterBackdrop(selected, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
                                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.72f)))))
                                 Column(
                                     Modifier.align(Alignment.BottomStart).padding(18.dp),
@@ -768,8 +768,7 @@ private fun CinemaverseHeader(title: String = "Cinemaverse", subtitle: String = 
 private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit, onShuffle: () -> Unit) {
     val watchedCount = list.items.count { ViewingUserStatus.WATCHED in ViewingMetadataStore.statusesFor(it) }
     var expanded by remember { mutableStateOf(false) }
-    val poster = ViewingArtworkUtils.resolvePoster(list, ViewingMetadataStore.useLocalPosters.value)
-        ?: ViewingArtworkUtils.resolveBackdrop(list, ViewingMetadataStore.useLocalPosters.value)
+    val poster = ViewingArtworkUtils.resolveCollectionBackdrop(list, ViewingMetadataStore.useLocalPosters.value)
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         shape = RoundedCornerShape(34.dp),
@@ -888,7 +887,7 @@ private fun HeroViewingCard(item: ViewingItem, list: ViewingList, onOpenDetail: 
     val displayItem = rememberEnrichedItem(item)
     PressableCard(onClick = onOpenDetail, modifier = Modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxWidth().height(ViewingUi.heroHeight).clip(RoundedCornerShape(28.dp))) {
-            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop)
+            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)))))
             Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Featured order", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -1002,7 +1001,7 @@ private fun FeaturedTitleCarouselCard(
         modifier = modifier
     ) {
         Box(Modifier.fillMaxWidth().height(ViewingUi.heroHeight).clip(RoundedCornerShape(30.dp))) {
-            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop)
+            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
             Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)))))
             Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(displayItem.universe ?: "Cinemaverse highlight", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -1020,7 +1019,7 @@ private fun FeaturedTitleCarouselCard(
 private fun McuAssetDataSource.ViewingAssetData.homeFeaturedTitles(): List<ViewingItem> {
     val essentials = allLists.firstOrNull { it.id == "mcu-release-order" }?.items.orEmpty().take(5)
     val dcHighlights = allItems.filter { it.universe in setOf("DCU", "DCEU", "Elseworlds") && it.status == ViewingStatus.RELEASED }.take(4)
-    val trailerReady = allItems.filter { it.status == ViewingStatus.RELEASED && (it.hasAnyTrailer()) && (ViewingArtworkUtils.resolvePoster(it) != null || ViewingArtworkUtils.resolveBackdrop(it) != null) }.take(6)
+    val trailerReady = allItems.filter { it.status == ViewingStatus.RELEASED && (it.hasAnyTrailer()) && ViewingArtworkUtils.resolveCardPoster(it) != null }.take(6)
     val upcoming = allItems.filter { it.status == ViewingStatus.UPCOMING || it.status == ViewingStatus.ANNOUNCED }.take(3)
     return (listOf(featuredItem) + trailerReady + essentials + dcHighlights + upcoming).distinctBy { it.id }.take(10)
 }
@@ -1406,7 +1405,7 @@ private fun CinemaActivityMiniSurface(item: ViewingItem, onClick: () -> Unit) {
     val displayItem = rememberCachedItem(item)
     Card(onClick = onClick, shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = Modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxWidth().height(104.dp)) {
-            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop)
+            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
             Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.96f), MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.78f), Color.Transparent))))
             Row(Modifier.fillMaxSize().padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 PosterBackdrop(displayItem, Modifier.size(50.dp, 72.dp), ContentScale.Crop, RoundedCornerShape(16.dp))
@@ -1653,10 +1652,10 @@ private fun rememberEnrichedItem(item: ViewingItem): ViewingItem {
 
 @Composable
 private fun CollectionArtwork(list: ViewingList, modifier: Modifier, contentScale: ContentScale) {
-    val direct = ViewingArtworkUtils.resolvePoster(list, ViewingMetadataStore.useLocalPosters.value)
-        ?: ViewingArtworkUtils.resolveBackdrop(list, ViewingMetadataStore.useLocalPosters.value)
-    val artworkItems = remember(list.id, list.artworkItems, list.items) {
-        list.artworkItems.ifEmpty { list.items }.filter { ViewingArtworkUtils.resolvePoster(it, ViewingMetadataStore.useLocalPosters.value) != null || ViewingArtworkUtils.resolveBackdrop(it, ViewingMetadataStore.useLocalPosters.value) != null }.take(4)
+    val preferLocalArtwork = ViewingMetadataStore.useLocalPosters.value
+    val direct = ViewingArtworkUtils.resolveCollectionBackdrop(list, preferLocalArtwork)
+    val artworkItems = remember(list.id, list.artworkItems, list.items, preferLocalArtwork) {
+        list.artworkItems.ifEmpty { list.items }.filter { ViewingArtworkUtils.resolveCardPoster(it, preferLocalArtwork) != null }.take(4)
     }
     when {
         direct != null -> ArtworkImage(direct, "${list.title} artwork", modifier, contentScale, fallbackTitle = list.title, fallbackLabel = list.accentLabel ?: list.category ?: list.universe)
@@ -1707,11 +1706,24 @@ private fun collectionBrush(seed: String?): Brush {
 
 private fun String.initials(): String = trim().split(Regex("\\s+")).filter { it.isNotBlank() && it.first().isLetterOrDigit() }.take(3).joinToString("") { it.first().uppercase() }.ifBlank { "CU" }
 
+private enum class ArtworkDisplayIntent { CARD_POSTER, HERO_BACKDROP }
+
 @Composable
-private fun PosterBackdrop(item: ViewingItem, modifier: Modifier, contentScale: ContentScale, shape: RoundedCornerShape? = null) {
+private fun PosterBackdrop(
+    item: ViewingItem,
+    modifier: Modifier,
+    contentScale: ContentScale,
+    shape: RoundedCornerShape? = null,
+    intent: ArtworkDisplayIntent = ArtworkDisplayIntent.CARD_POSTER
+) {
     val m = if (shape != null) modifier.clip(shape) else modifier
+    val preferLocalArtwork = ViewingMetadataStore.useLocalPosters.value
+    val artwork = when (intent) {
+        ArtworkDisplayIntent.CARD_POSTER -> ViewingArtworkUtils.resolveCardPoster(item, preferLocalArtwork)
+        ArtworkDisplayIntent.HERO_BACKDROP -> ViewingArtworkUtils.resolveHeroBackdrop(item, preferLocalArtwork)
+    }
     ArtworkImage(
-        ViewingArtworkUtils.resolveBackdrop(item, ViewingMetadataStore.useLocalPosters.value) ?: ViewingArtworkUtils.resolvePoster(item, ViewingMetadataStore.useLocalPosters.value),
+        artwork,
         "Poster for ${item.title}",
         m,
         contentScale,
