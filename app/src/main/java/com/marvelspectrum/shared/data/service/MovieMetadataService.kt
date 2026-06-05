@@ -24,7 +24,7 @@ class MovieMetadataService(
         val cacheKey = listOf(
             providerMode.name,
             localItem.imdbId ?: localItem.tmdbId?.toString() ?: localItem.id,
-            "wm=${ViewingMetadataStore.watchmodeApiEnabled.value}",
+            "wm=${ViewingMetadataStore.watchmodeApiEnabled.value && ViewingMetadataStore.watchmodeApiKey.value.isNotBlank()}",
             "region=${ViewingMetadataStore.cinemaAvailabilityRegion.value}",
             "remoteArt=${ViewingMetadataStore.useThirdPartyRemoteArtwork.value}",
             "omdbUser=${ViewingMetadataStore.omdbApiEnabled.value && ViewingMetadataStore.omdbApiKey.value.isNotBlank()}",
@@ -36,6 +36,7 @@ class MovieMetadataService(
         var source = MetadataSource.LOCAL
         val messages = mutableListOf<String>()
         var remoteState = RemoteMetadataState.IDLE
+        var watchmodeAttempted = false
 
         suspend fun applyOmdb(primary: Boolean) {
             val activeOmdb = activeOmdbService()
@@ -70,14 +71,16 @@ class MovieMetadataService(
         }
 
 
-        suspend fun applyWatchmodeIfUseful() {
+        suspend fun applyWatchmodeIfUseful(primary: Boolean = false) {
             val needsStreaming = merged.watchProviders.isEmpty()
             val needsTrailer = merged.trailers.isEmpty() && merged.youtubeVideoId.isNullOrBlank() && merged.trailerUrl.isNullOrBlank()
-            if (!needsStreaming && !needsTrailer) return
-            val lookupKey = localItem.imdbId ?: localItem.tmdbId?.let { "tmdb:$it" } ?: return
+            if (!primary && !needsStreaming && !needsTrailer) return
+            val lookupKey = merged.imdbId ?: merged.tmdbId?.let { "tmdb:$it" } ?: return
+            if (watchmodeAttempted) return
+            watchmodeAttempted = true
             val titleId = watchmodeTitleIdCache[lookupKey] ?: run {
-                val searchResult = localItem.imdbId?.let { watchmodeService.searchByImdbId(it) }
-                    ?: localItem.tmdbId?.let { watchmodeService.searchByTmdbId(it, localItem.type) }
+                val searchResult = merged.imdbId?.let { watchmodeService.searchByImdbId(it) }
+                    ?: merged.tmdbId?.let { watchmodeService.searchByTmdbId(it, merged.type) }
                 searchResult?.fold(
                     onSuccess = { response ->
                         recordWatchmodeQuota(response.quota)
@@ -99,7 +102,11 @@ class MovieMetadataService(
             watchmodeService.getTitleDetails(titleId).fold(
                 onSuccess = { response ->
                     recordWatchmodeQuota(response.quota)
-                    merged = mergeWatchmodeFallback(merged, response.value, ViewingMetadataStore.useThirdPartyRemoteArtwork.value)
+                    merged = if (primary) {
+                        mergeWatchmodePrimary(merged, response.value, ViewingMetadataStore.useThirdPartyRemoteArtwork.value)
+                    } else {
+                        mergeWatchmodeFallback(merged, response.value, ViewingMetadataStore.useThirdPartyRemoteArtwork.value)
+                    }
                     source = source.combine(MetadataSource.WATCHMODE)
                     remoteState = RemoteMetadataState.SUCCESS
                 },
@@ -132,6 +139,11 @@ class MovieMetadataService(
             MetadataProviderMode.TMDB_PRIMARY_OMDB_FALLBACK -> {
                 applyTmdb(primary = true)
                 applyOmdb(primary = false)
+            }
+            MetadataProviderMode.WATCHMODE_PRIMARY_OMDB_TMDB_FALLBACK -> {
+                applyWatchmodeIfUseful(primary = true)
+                applyOmdb(primary = false)
+                applyTmdb(primary = false)
             }
         }
 
@@ -273,6 +285,27 @@ class MovieMetadataService(
         crew = local.crew.ifEmpty { api.crew },
         tmdbRating = local.tmdbRating ?: api.tmdbRating
     )
+
+
+    private fun mergeWatchmodePrimary(local: ViewingItem, api: ViewingItem, allowThirdPartyArtwork: Boolean): ViewingItem {
+        val attribution = api.remoteArtworkAttribution ?: local.remoteArtworkAttribution
+        return local.copy(
+            year = api.year ?: local.year,
+            imdbId = api.imdbId ?: local.imdbId,
+            tmdbId = api.tmdbId ?: local.tmdbId,
+            runtime = api.runtime ?: local.runtime,
+            genres = api.genres.ifEmpty { local.genres },
+            tmdbRating = api.tmdbRating ?: local.tmdbRating,
+            poster = if (allowThirdPartyArtwork) attribution?.posterUrl ?: local.poster else local.poster,
+            backdrop = if (allowThirdPartyArtwork) attribution?.backdropUrl ?: local.backdrop else local.backdrop,
+            remoteArtworkAttribution = attribution,
+            trailerUrl = api.trailerUrl ?: local.trailerUrl,
+            youtubeVideoId = api.youtubeVideoId ?: local.youtubeVideoId,
+            trailerSource = api.trailerSource ?: local.trailerSource,
+            trailers = (api.trailers + local.trailers).distinctBy { listOf(it.label, it.youtubeVideoId, it.url).joinToString(":") },
+            metadataSource = MetadataSource.WATCHMODE
+        )
+    }
 
     private fun mergeWatchmodeFallback(local: ViewingItem, api: ViewingItem, allowThirdPartyArtwork: Boolean): ViewingItem {
         val attribution = api.remoteArtworkAttribution ?: local.remoteArtworkAttribution

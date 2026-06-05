@@ -227,7 +227,7 @@ fun ApiManagementSettingsScreen(onBackClick: () -> Unit) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "Choose OMDb-first or TMDB-first metadata fallback. OMDb returns the Poster field in title/IMDb lookups; TMDB image paths are expanded to image.tmdb.org/t/p URLs.",
+                            text = "Choose Watchmode-first, OMDb-first, or TMDB-first metadata fallback. OMDb returns the Poster field in title/IMDb lookups; TMDB image paths are expanded to image.tmdb.org/t/p URLs.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
                         )

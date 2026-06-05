@@ -9,6 +9,7 @@ import com.marvelspectrum.shared.data.viewing.McuAssetDataSource
 import com.marvelspectrum.shared.data.viewing.MetadataProviderMode
 import com.marvelspectrum.shared.data.viewing.RemoteMetadataState
 import com.marvelspectrum.shared.data.viewing.ViewingArtworkAttribution
+import com.marvelspectrum.shared.data.viewing.WatchProvider
 import com.marvelspectrum.shared.data.viewing.ViewingItem
 import com.marvelspectrum.shared.data.viewing.ViewingUserStatus
 import kotlinx.coroutines.Dispatchers
@@ -192,6 +193,7 @@ object ViewingMetadataStore {
         youtubeVideoId = remote.youtubeVideoId ?: local.youtubeVideoId,
         trailerSource = remote.trailerSource ?: local.trailerSource,
         trailers = (remote.trailers + local.trailers).distinctBy { listOf(it.label, it.youtubeVideoId, it.url).joinToString(":") },
+        watchProviders = remote.watchProviders.ifEmpty { local.watchProviders },
         director = remote.director ?: local.director,
         writer = remote.writer ?: local.writer,
         actors = remote.actors.ifEmpty { local.actors },
@@ -271,6 +273,23 @@ object ViewingMetadataStore {
                     }
                 }
             } ?: emptyList(),
+            watchProviders = json.optJSONArray("watchProviders")?.let { array ->
+                List(array.length()) { index -> array.optJSONObject(index) }.mapNotNull { provider ->
+                    provider?.optStringOrNull("providerName")?.let { name ->
+                        WatchProvider(
+                            providerName = name,
+                            displayPriority = provider.optIntOrNull("displayPriority"),
+                            region = provider.optStringOrNull("region"),
+                            type = provider.optStringOrNull("type"),
+                            providerId = provider.optIntOrNull("providerId"),
+                            webUrl = provider.optStringOrNull("webUrl"),
+                            androidUrl = provider.optStringOrNull("androidUrl"),
+                            price = provider.optStringOrNull("price"),
+                            format = provider.optStringOrNull("format")
+                        )
+                    }
+                }
+            } ?: emptyList(),
             releaseOrder = json.optIntOrNull("releaseOrder"),
             chronologicalOrder = json.optIntOrNull("chronologicalOrder"),
             phaseOrder = json.optIntOrNull("phaseOrder"),
@@ -290,6 +309,10 @@ object ViewingMetadataStore {
         putNullable("backdrop", backdrop); putNullable("tmdbBackdrop", tmdbBackdrop); putNullable("localBackdrop", localBackdrop); putNullable("trailerUrl", trailerUrl); putNullable("youtubeVideoId", youtubeVideoId)
         remoteArtworkAttribution?.let { put("remoteArtworkAttribution", JSONObject().apply { put("provider", it.provider); putNullable("posterUrl", it.posterUrl); putNullable("backdropUrl", it.backdropUrl); put("requiresAttribution", it.requiresAttribution) }) }
         put("trailers", JSONArray(trailers.map { JSONObject().apply { put("label", it.label); putNullable("youtubeVideoId", it.youtubeVideoId); putNullable("url", it.url); it.source?.let { source -> put("source", source.name) } } }))
+        put("watchProviders", JSONArray(watchProviders.map { provider -> JSONObject().apply {
+            put("providerName", provider.providerName); provider.displayPriority?.let { put("displayPriority", it) }; putNullable("region", provider.region); putNullable("type", provider.type)
+            provider.providerId?.let { put("providerId", it) }; putNullable("webUrl", provider.webUrl); putNullable("androidUrl", provider.androidUrl); putNullable("price", provider.price); putNullable("format", provider.format)
+        } }))
         releaseOrder?.let { put("releaseOrder", it) }; chronologicalOrder?.let { put("chronologicalOrder", it) }; phaseOrder?.let { put("phaseOrder", it) }
         put("metadataSource", metadataSource.name); putNullable("lastUpdated", lastUpdated); put("status", status.name); putNullable("awards", awards)
     }

@@ -190,6 +190,9 @@ fun SettingsScreen(
     val showAlphabetBar by appSettings.showAlphabetBar.collectAsState()
     val showScrollToTop by appSettings.showScrollToTop.collectAsState()
     val appMode by appSettings.appMode.collectAsState()
+    val useSystemTheme by appSettings.useSystemTheme.collectAsState()
+    val darkMode by appSettings.darkMode.collectAsState()
+    val customColorScheme by appSettings.customColorScheme.collectAsState()
     val localExperienceMode by appSettings.localExperienceMode.collectAsState()
     val rhythmGuardMode by appSettings.rhythmGuardMode.collectAsState()
     val showSettingsSuggestions by appSettings.showSettingsSuggestions.collectAsState()
@@ -236,7 +239,12 @@ fun SettingsScreen(
             SettingGroup(
                 title = context.getString(R.string.settings_section_appearance),
                 items = buildList {
-                    add(SettingItem(RhythmIcons.Palette, context.getString(R.string.settings_theme_customization), context.getString(R.string.settings_theme_customization_desc), onClick = { onNavigateTo(SettingsRoutes.THEME_CUSTOMIZATION) }))
+                    add(SettingItem(
+                        RhythmIcons.Palette,
+                        "Theme options",
+                        "${if (useSystemTheme) "System" else if (darkMode) "Dark" else "Light"} • $customColorScheme palette • Dynamic, AMOLED, and color presets",
+                        onClick = { onNavigateTo(SettingsRoutes.THEME_CUSTOMIZATION) }
+                    ))
                     add(SettingItem(MaterialSymbolIcon("interests"), context.getString(R.string.settings_shapes), context.getString(R.string.settings_shapes_desc), onClick = { onNavigateTo(SettingsRoutes.EXPRESSIVE_SHAPES) }))
                     add(SettingItem(RhythmIcons.MusicNote, context.getString(R.string.settings_player_customization), context.getString(R.string.settings_player_customization_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYER_CUSTOMIZATION) }))
                     add(SettingItem(RhythmIcons.PlayCircle, context.getString(R.string.settings_miniplayer_customization), context.getString(R.string.settings_miniplayer_customization_desc), onClick = { onNavigateTo(SettingsRoutes.MINIPLAYER_CUSTOMIZATION) }))

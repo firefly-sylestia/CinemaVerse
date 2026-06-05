@@ -186,6 +186,10 @@ enum class MetadataProviderMode(val label: String, val description: String) {
     TMDB_PRIMARY_OMDB_FALLBACK(
         "TMDB main • OMDb fallback",
         "Use TMDB posters/backdrops/trailers first, then fill missing posters and IMDb-style details from OMDb."
+    ),
+    WATCHMODE_PRIMARY_OMDB_TMDB_FALLBACK(
+        "Watchmode main • OMDb + TMDB fallback",
+        "Use Watchmode streaming sources, links, trailers, and ratings first, then fill missing metadata from OMDb and TMDB."
     );
 }
 

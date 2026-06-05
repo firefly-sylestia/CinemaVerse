@@ -5,10 +5,7 @@ package com.marvelspectrum.shared.presentation.screens.viewing
 import android.content.Intent
 import android.net.Uri
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
@@ -114,18 +111,11 @@ import kotlinx.coroutines.delay
 
 
 private object ViewingUi {
-    val screenHPad = 20.dp
     val topPad = 30.dp
-    val bottomPad = 120.dp
-    val sectionGap = 22.dp
-    val cardGap = 14.dp
-    val chipGap = 8.dp
-    val cardPad = 16.dp
     val posterWidth = 146.dp
     val rowPosterWidth = 58.dp
     val rowPosterHeight = 86.dp
     val heroHeight = 288.dp
-    fun pressSpec() = tween<Float>(durationMillis = 160, easing = FastOutSlowInEasing)
 }
 
 @Composable
@@ -207,8 +197,8 @@ private fun ViewingHomeContent(
 
     LazyColumn(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
-        verticalArrangement = Arrangement.spacedBy(ViewingUi.sectionGap)
+        contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
+        verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.sectionGap)
     ) {
         item { CinemaverseHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
         item {
@@ -274,7 +264,7 @@ fun ViewingLibraryScreen(
             }
             LazyColumn(
                 modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-                contentPadding = PaddingValues(ViewingUi.screenHPad, ViewingUi.topPad, ViewingUi.screenHPad, ViewingUi.bottomPad),
+                contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item { CinemaverseHeader(title = "Library", subtitle = "Essentials • Continue • MCU • DC • Timeline • Collections • Saved", onOpenSettings = onOpenSettings) }
@@ -357,14 +347,14 @@ fun ViewingSearchScreen(
                 title = { Text("Cinemaverse Search") },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
                 actions = { SettingsIconAction(onOpenSettings) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(ViewingUi.screenHPad, 10.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
-            verticalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)
+            contentPadding = PaddingValues(SpectrumSpacing.screenPadding, 10.dp, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
+            verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)
         ) {
             item { ExpressiveSearchField(query, { query = it }) }
             item { SearchChipRail("Universe", listOf("All", "Marvel", "DC", "MCU", "DCEU", "DCU", "Elseworlds"), selectedUniverse) { selectedUniverse = it } }
@@ -413,42 +403,26 @@ fun ViewingDetailScreen(
     val related = remember(selected, data) {
         data.allItems.filter { it.id != selected.id && (it.franchise == selected.franchise || it.universe == selected.universe || it.genres.any(selected.genres::contains)) }.take(12)
     }
-    val accent = if (selected.universe == "MCU") Color(0xFFE62429) else Color(0xFF2F80ED)
+    val accent = spectrumUniverseAccent(selected.universe)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(selected.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         },
         modifier = modifier
     ) { padding ->
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            accent.copy(alpha = 0.28f),
-                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.18f),
-                            MaterialTheme.colorScheme.background,
-                            MaterialTheme.colorScheme.background
-                        )
-                    )
-                )
-        ) {
+        SpectrumGradientScaffoldBackground(universe = selected.universe) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(ViewingUi.screenHPad, 12.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
+                contentPadding = PaddingValues(SpectrumSpacing.screenPadding, 12.dp, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item {
-                    ElevatedCard(
-                        shape = RoundedCornerShape(34.dp),
-                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f))
-                    ) {
+                    SpectrumGlassSurface(shape = RoundedCornerShape(34.dp), accent = accent) {
                         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             Box(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(28.dp))) {
                                 PosterBackdrop(selected, Modifier.fillMaxSize(), ContentScale.Crop)
@@ -516,8 +490,8 @@ fun ViewingDetailScreen(
 private fun WhereToWatchSection(item: ViewingItem) {
     val context = LocalContext.current
     val providers = item.watchProviders
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(26.dp)) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    SpectrumGlassSurface(modifier = Modifier.fillMaxWidth(), accent = spectrumUniverseAccent(item.universe)) {
+        Column(Modifier.fillMaxWidth().padding(SpectrumSpacing.cardContentPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("Where to watch", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -538,11 +512,13 @@ private fun WhereToWatchSection(item: ViewingItem) {
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             groupProviders.sortedWith(compareBy<WatchProvider> { it.displayPriority ?: Int.MAX_VALUE }.thenBy { it.providerName }).forEach { provider ->
                                 val url = provider.androidUrl ?: provider.webUrl
-                                AssistChip(
-                                    onClick = { url?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) } } },
-                                    enabled = !url.isNullOrBlank(),
-                                    label = { Text(listOfNotNull(provider.providerName, provider.price).joinToString(" • ")) }
-                                )
+                                SpectrumPillTab(
+                                    selected = !url.isNullOrBlank(),
+                                    onClick = { url?.let { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) } } }
+                                ) {
+                                    Text(listOfNotNull(provider.providerName, provider.format, provider.price).joinToString(" • "))
+                                    if (!url.isNullOrBlank()) Icon(RhythmIcons.OpenInNew, contentDescription = "Open ${provider.providerName}")
+                                }
                             }
                         }
                     }
@@ -554,7 +530,7 @@ private fun WhereToWatchSection(item: ViewingItem) {
 
 @Composable
 private fun MetadataSourceFooter(item: ViewingItem) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = RoundedCornerShape(22.dp)) {
+    SpectrumGlassSurface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), accent = spectrumUniverseAccent(item.universe)) {
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AssistChip(onClick = {}, label = { Text("Local") })
@@ -627,7 +603,7 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                     ) { Icon(RhythmIcons.Close, contentDescription = "Close trailer preview") }
                 }
                 if (trailerOptions.size > 1) {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
                         itemsIndexed(trailerOptions, key = { index, trailer -> "${trailer.label}-$index" }) { index, trailer ->
                             FilterChip(
                                 selected = index == selectedTrailerIndex,
@@ -680,7 +656,7 @@ private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpe
             TopAppBar(
                 title = { Text(list.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { padding ->
@@ -691,7 +667,7 @@ private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpe
                     Brush.verticalGradient(
                         listOf(
                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.34f),
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                            MaterialTheme.colorScheme.surfaceContainerHigh,
                             MaterialTheme.colorScheme.background
                         )
                     )
@@ -699,7 +675,7 @@ private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpe
         ) {
             LazyColumn(
                 Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(ViewingUi.screenHPad, 14.dp, ViewingUi.screenHPad, ViewingUi.bottomPad),
+                contentPadding = PaddingValues(SpectrumSpacing.screenPadding, 14.dp, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 item { CollectionAlbumHero(list, onPlayFirst = { firstPlayable?.let(onOpenTitle) }, onShuffle = { list.items.shuffled().firstOrNull()?.let(onOpenTitle) }) }
@@ -721,12 +697,12 @@ private fun ViewingListDetailScreen(list: ViewingList, onBack: () -> Unit, onOpe
 
 @Composable
 private fun ViewingOrderEducationChip(list: ViewingList, onWhy: () -> Unit) {
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f)) {
+    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Icon(RhythmIcons.Info, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(list.orderingBasisText(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                Text("Numbers reflect this visible collection order.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.78f))
+                Text("Numbers reflect this visible collection order.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
             }
             AssistChip(onClick = onWhy, label = { Text("Why this order?") })
         }
@@ -795,13 +771,13 @@ private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit, onSh
     val poster = ViewingArtworkUtils.resolvePoster(list, ViewingMetadataStore.useLocalPosters.value)
         ?: ViewingArtworkUtils.resolveBackdrop(list, ViewingMetadataStore.useLocalPosters.value)
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         shape = RoundedCornerShape(34.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(Modifier.fillMaxWidth()) {
             ArtworkImage(poster, "${list.title} background", Modifier.matchParentSize(), ContentScale.Crop)
-            Box(Modifier.matchParentSize().background(MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)))
+            Box(Modifier.matchParentSize().background(MaterialTheme.colorScheme.surfaceContainerHigh))
             Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                     CollectionArtwork(list, Modifier.size(132.dp).clip(RoundedCornerShape(38.dp)), ContentScale.Crop)
@@ -846,7 +822,7 @@ private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit, onSh
 
 @Composable
 private fun CollectionPill(text: String) {
-    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.70f)) {
+    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer) {
         Text(text, modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
     }
 }
@@ -873,7 +849,7 @@ private fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Uni
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.30f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -954,7 +930,7 @@ private fun FeaturedTitleCarousel(
         SectionHeader("Featured titles", "Auto-cycling Cinemaverse highlights with accessible controls")
         LazyRow(
             state = listState,
-            horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap),
+            horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap),
             modifier = Modifier.semantics { contentDescription = "Featured title carousel" }
         ) {
             itemsIndexed(carouselItems, key = { index, item -> "featured-${item.id}-$index" }) { index, item ->
@@ -974,26 +950,20 @@ private fun FeaturedTitleCarousel(
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                FilledIconButton(
-                    onClick = {
-                        autoAdvance = false
-                        selectedIndex = (selectedIndex - 1).floorMod(carouselItems.size)
-                    },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-                ) { Icon(RhythmIcons.SkipPrevious, contentDescription = "Previous featured title") }
+                SpectrumIconButton(onClick = {
+                    autoAdvance = false
+                    selectedIndex = (selectedIndex - 1).floorMod(carouselItems.size)
+                }) { Icon(RhythmIcons.SkipPrevious, contentDescription = "Previous featured title") }
                 FilledIconButton(
                     onClick = {
                         autoAdvance = !autoAdvance
                     },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                 ) { Text(if (autoAdvance) "Auto" else "Manual", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) }
-                FilledIconButton(
-                    onClick = {
-                        autoAdvance = false
-                        selectedIndex = (selectedIndex + 1) % carouselItems.size
-                    },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-                ) { Icon(RhythmIcons.SkipNext, contentDescription = "Next featured title") }
+                SpectrumIconButton(onClick = {
+                    autoAdvance = false
+                    selectedIndex = (selectedIndex + 1) % carouselItems.size
+                }) { Icon(RhythmIcons.SkipNext, contentDescription = "Next featured title") }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                 carouselItems.forEachIndexed { index, _ ->
@@ -1023,7 +993,7 @@ private fun FeaturedTitleCarouselCard(
     modifier: Modifier = Modifier
 ) {
     val displayItem = rememberEnrichedItem(item)
-    val border = if (selected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.70f)) else null
+    val border = if (selected) BorderStroke(1.dp, spectrumUniverseAccent(item.universe).primary) else null
     Card(
         onClick = onClick,
         shape = RoundedCornerShape(30.dp),
@@ -1061,7 +1031,7 @@ private fun Int.floorMod(size: Int): Int = ((this % size) + size) % size
 private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenItem: (ViewingItem) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title, subtitle)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) {
             items(items, key = { it.id }) { PosterCard(it) { onOpenItem(it) } }
         }
     }
@@ -1072,7 +1042,7 @@ private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>
 private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenTrailer: (ViewingItem) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title, subtitle)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) {
             items(items, key = { "trailer-${it.id}" }) { item ->
                 PosterCard(item) { onOpenTrailer(item) }
             }
@@ -1084,7 +1054,7 @@ private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem
 private fun ListRail(title: String, subtitle: String, lists: List<ViewingList>, onOpenList: (ViewingList) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title, subtitle)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.cardGap)) { items(lists, key = { it.id }) { ViewingListCard(it) { onOpenList(it) } } }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) { items(lists, key = { it.id }) { ViewingListCard(it) { onOpenList(it) } } }
     }
 }
 
@@ -1092,7 +1062,7 @@ private fun ListRail(title: String, subtitle: String, lists: List<ViewingList>, 
 private fun PosterCard(item: ViewingItem, onClick: () -> Unit) {
     val displayItem = rememberCachedItem(item)
     PressableCard(onClick = onClick, modifier = Modifier.width(ViewingUi.posterWidth)) {
-        PosterBackdrop(displayItem, Modifier.fillMaxWidth().aspectRatio(2f / 3f), ContentScale.Crop, RoundedCornerShape(22.dp))
+        PosterBackdrop(displayItem, Modifier.fillMaxWidth().aspectRatio(2f / 3f), ContentScale.Crop, SpectrumShapes.posterMask)
         Spacer(Modifier.height(10.dp))
         Text(displayItem.title, modifier = Modifier.height(40.dp), maxLines = 2, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
         Text(listOfNotNull(displayItem.year, displayItem.universe).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -1135,7 +1105,7 @@ private fun ViewingOrderRow(item: ViewingItem, order: Int, onClick: () -> Unit) 
                     Surface(
                         modifier = Modifier.align(Alignment.TopStart).padding(4.dp),
                         shape = RoundedCornerShape(9.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f)
+                        color = MaterialTheme.colorScheme.primaryContainer
                     ) { Text(order.toString(), modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 }
             }
@@ -1184,7 +1154,7 @@ private fun LibrarySecondaryControls(
                     modifier = Modifier.weight(1f)
                 )
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
                 item {
                     FilterChip(
                         selected = genreFilter == null,
@@ -1201,7 +1171,7 @@ private fun LibrarySecondaryControls(
                     )
                 }
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
                 item {
                     FilterChip(
                         selected = statusFilter == null,
@@ -1386,16 +1356,16 @@ private fun <T> CompactDropdown(
 
 @Composable
 private fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-        items(listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> FilterChip(selected = selected == tab, onClick = { onTab(tab) }, label = { Text(tab) }) }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
+        items(listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> SpectrumPillTab(selected = selected == tab, onClick = { onTab(tab) }) { Text(tab) } }
     }
 }
 
 @Composable
 private fun SortChips(sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
         items(listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME)) { mode ->
-            FilterChip(selected = sortMode == mode, onClick = { onSort(mode) }, label = { Text(mode.label) })
+            SpectrumPillTab(selected = sortMode == mode, onClick = { onSort(mode) }) { Text(mode.label) }
         }
     }
 }
@@ -1413,7 +1383,7 @@ private fun StatusSelector(selected: Set<ViewingUserStatus>, onStatus: (ViewingU
                 TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Done" else "Edit") }
             }
             val visibleStatuses = listOf(ViewingUserStatus.BOOKMARKED, ViewingUserStatus.WATCHLIST, ViewingUserStatus.WATCH_LATER, ViewingUserStatus.WATCHING, ViewingUserStatus.WATCHED, ViewingUserStatus.FAVORITE, ViewingUserStatus.ON_HOLD, ViewingUserStatus.HIDDEN)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap), verticalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap), verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
                 visibleStatuses.filter { expanded || it in selected }.ifEmpty { visibleStatuses.take(4) }.forEach { status ->
                     val active = status in selected
                     FilterChip(
@@ -1471,7 +1441,7 @@ private fun ExpressiveSearchField(query: String, onQuery: (String) -> Unit) {
 private fun SearchChipRail(title: String, values: List<String>, selected: String, onSelect: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
             items(values) { value -> FilterChip(selected = selected == value, onClick = { onSelect(value) }, leadingIcon = if (selected == value) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null, label = { Text(value.replace('_', '-')) }) }
         }
     }
@@ -1481,7 +1451,7 @@ private fun SearchChipRail(title: String, values: List<String>, selected: String
 private fun GenreChipRail(genres: List<String>, selected: String?, onSelect: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Genres", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
             items(genres) { genre -> FilterChip(selected = selected == genre, onClick = { onSelect(genre) }, leadingIcon = { Text("•", color = if (selected == genre) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary) }, label = { Text(genre) }) }
         }
     }
@@ -1489,15 +1459,15 @@ private fun GenreChipRail(genres: List<String>, selected: String?, onSelect: (St
 
 @Composable
 private fun CategoryChipRail(selected: ViewingSearchCategory, onSelect: (ViewingSearchCategory) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
         items(ViewingSearchCategory.entries) { category -> FilterChip(selected = selected == category, onClick = { onSelect(category) }, leadingIcon = if (selected == category) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null, label = { Text(category.label) }) }
     }
 }
 
 @Composable
 private fun SearchSortRail(sortMode: ViewingSearchSortMode, onSort: (ViewingSearchSortMode) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) {
-        items(ViewingSearchSortMode.entries) { mode -> FilterChip(selected = sortMode == mode, onClick = { onSort(mode) }, label = { Text(mode.label) }) }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
+        items(ViewingSearchSortMode.entries) { mode -> SpectrumPillTab(selected = sortMode == mode, onClick = { onSort(mode) }) { Text(mode.label) } }
     }
 }
 
@@ -1521,43 +1491,32 @@ private fun LazyListScope.groupedViewingItems(items: List<ViewingItem>, sortMode
 private fun PhaseDivider(title: String, items: List<ViewingItem>) {
     Surface(
         shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
+        color = MaterialTheme.colorScheme.primaryContainer,
         tonalElevation = 2.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Text(title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-            Text("${items.size} titles", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.76f))
+            Text("${items.size} titles", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }
 
 @Composable
 private fun SmallStatusPill(status: ViewingUserStatus) {
-    Surface(shape = RoundedCornerShape(50), color = status.activeColor().copy(alpha = 0.22f)) {
+    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.secondaryContainer) {
         Text(status.activeLabel, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
 @Composable
 private fun statusChipColors(status: ViewingUserStatus, active: Boolean) = FilterChipDefaults.filterChipColors(
-    selectedContainerColor = status.activeColor().copy(alpha = 0.82f),
+    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
     selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     labelColor = MaterialTheme.colorScheme.onSurfaceVariant
 )
 
-@Composable
-private fun ViewingUserStatus.activeColor(): Color = when (this) {
-    ViewingUserStatus.WATCHLIST -> MaterialTheme.colorScheme.primaryContainer
-    ViewingUserStatus.WATCH_LATER -> MaterialTheme.colorScheme.tertiaryContainer
-    ViewingUserStatus.WATCHING -> Color(0xFFFFB74D)
-    ViewingUserStatus.WATCHED -> Color(0xFF81C784)
-    ViewingUserStatus.FAVORITE -> Color(0xFFF48FB1)
-    ViewingUserStatus.BOOKMARKED -> Color(0xFF9575CD)
-    ViewingUserStatus.ON_HOLD -> MaterialTheme.colorScheme.secondaryContainer
-    ViewingUserStatus.HIDDEN -> MaterialTheme.colorScheme.surfaceVariant
-}
 
 private fun ViewingUserStatus.icon() = when (this) {
     ViewingUserStatus.WATCHLIST -> RhythmIcons.Add
@@ -1637,7 +1596,7 @@ private fun DetailLine(label: String, value: String) {
 
 @Composable
 private fun FlowChips(values: List<String>) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(ViewingUi.chipGap)) { items(values.distinct()) { AssistChip(onClick = {}, label = { Text(it) }) } }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) { items(values.distinct()) { AssistChip(onClick = {}, label = { Text(it) }) } }
 }
 
 @Composable
@@ -1647,7 +1606,7 @@ private fun HeroListCard(list: ViewingList) {
             CollectionArtwork(list, Modifier.size(86.dp, 122.dp).clip(RoundedCornerShape(22.dp)), ContentScale.Crop)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(list.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                Text(list.description.orEmpty(), color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
+                Text(list.description.orEmpty(), color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Text("${list.items.size} titles", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.SemiBold)
             }
         }
@@ -1672,9 +1631,9 @@ private fun EmptyState(title: String, body: String) {
 private fun PressableCard(modifier: Modifier = Modifier, onClick: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed) 0.98f else 1f, ViewingUi.pressSpec(), label = "viewingPress")
-    Card(onClick = onClick, interactionSource = interaction, shape = MaterialTheme.shapes.large, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }) {
-        Column(Modifier.padding(ViewingUi.cardPad), content = content)
+    val scale by animateFloatAsState(if (pressed) SpectrumMotion.pressedScale else 1f, SpectrumMotion.pressSpec(), label = "viewingPress")
+    Card(onClick = onClick, interactionSource = interaction, shape = SpectrumShapes.largeSoftCard, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }) {
+        Column(Modifier.padding(SpectrumSpacing.cardContentPadding), content = content)
     }
 }
 
@@ -1726,7 +1685,7 @@ private fun BrandedArtworkPlaceholder(title: String, label: String?, modifier: M
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(12.dp)) {
             Text(title.initials(), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimaryContainer, textAlign = TextAlign.Center, maxLines = 1)
             if (!label.isNullOrBlank()) {
-                Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)) {
+                Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surfaceContainerHighest) {
                     Text(label, modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
