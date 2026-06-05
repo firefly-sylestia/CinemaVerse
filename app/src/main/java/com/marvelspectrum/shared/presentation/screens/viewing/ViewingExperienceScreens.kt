@@ -202,7 +202,9 @@ private fun ViewingHomeContent(
         contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
         verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.sectionGap)
     ) {
-        item { CinemaverseHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
+        item { CinemaverseHeader(title = "Marvel Spectrum", subtitle = "Your cinematic universe, beautifully organized", onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
+        item { LibraryTabs("Continue", onTab = { onOpenLibrary() }) }
+        item { SectionIdentityBlock(RhythmIcons.Play, "Continue your spectrum", "${continueItems.size} ready", "Recent activity, saved titles, and the stories waiting for you") }
         item {
             FeaturedTitleCarousel(
                 items = remember(data) { data.homeFeaturedTitles() },
@@ -232,7 +234,7 @@ fun ViewingLibraryScreen(
     val context = LocalContext.current
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val data = remember(context) { McuAssetDataSource.load(context) }
-    var tab by rememberSaveable { mutableStateOf("Essentials") }
+    var tab by rememberSaveable { mutableStateOf("Essential") }
     var genreFilter by rememberSaveable { mutableStateOf<String?>(null) }
     var statusFilter by rememberSaveable { mutableStateOf<ViewingUserStatus?>(null) }
     var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
@@ -269,14 +271,19 @@ fun ViewingLibraryScreen(
                 contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                item { CinemaverseHeader(title = "Library", subtitle = "Essentials • Continue • MCU • DC • Timeline • Collections • Saved", onOpenSettings = onOpenSettings) }
+                item { CinemaverseHeader(title = "Library", subtitle = "Every universe, timeline, and collection in one place", onOpenSettings = onOpenSettings) }
                 item { LibraryTabs(tab, onTab = { tab = it }) }
+                item { SectionIdentityBlock(tabIdentityIcon(tab), tab, if (tab == "Collections") "${data.allLists.visibleManagedLists().size} collections" else "${filtered.size} titles", tabIdentitySubtitle(tab)) }
                 item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, genreFilter, { genreFilter = it }, genres, data.allItems) }
                 if (tab == "Collections") {
-                    items(data.allLists.visibleManagedLists(), key = { it.id }) { list -> WideListCard(list, onClick = { selectedListId = list.id }) }
+                    item { CollectionCardGrid(data.allLists.visibleManagedLists(), onOpenList = { selectedListId = it.id }) }
                 } else {
                     if (filtered.isEmpty()) item { EmptyState("Nothing here yet", "Open a title and add it to Watchlist, Favorite, or Watched.") }
-                    groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
+                    if (tab in setOf("MCU", "DC")) {
+                        item { LibraryPosterGrid(filtered) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() } }
+                    } else {
+                        groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
+                    }
                 }
             }
         }
@@ -380,112 +387,35 @@ fun ViewingSearchScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewingDetailScreen(
-    item: ViewingItem? = null,
-    list: ViewingList? = null,
-    onBack: () -> Unit = {},
-    modifier: Modifier = Modifier
-) {
+fun ViewingDetailScreen(item: ViewingItem? = null, list: ViewingList? = null, onBack: () -> Unit = {}, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val data = remember(context) { McuAssetDataSource.load(context) }
     var relatedItemId by rememberSaveable { mutableStateOf<String?>(null) }
-    val nestedRelated = data.findItem(relatedItemId)
-    if (nestedRelated != null) {
-        ViewingDetailScreen(item = nestedRelated, list = list, onBack = { relatedItemId = null }, modifier = modifier)
-        return
-    }
-    val baseSelected = item ?: data.featuredItem
-    LaunchedEffect(baseSelected.id) { ViewingMetadataStore.markViewed(baseSelected) }
-    val selected = rememberEnrichedItem(baseSelected)
+    data.findItem(relatedItemId)?.let { related -> ViewingDetailScreen(related, list, { relatedItemId = null }, modifier); return }
+    val selected = rememberEnrichedItem(item ?: data.featuredItem)
+    LaunchedEffect(selected.id) { ViewingMetadataStore.markViewed(selected) }
     var showTrailer by rememberSaveable(selected.id) { mutableStateOf(false) }
-    val userStatuses = ViewingMetadataStore.statusesFor(selected)
-    val hasTrailer = selected.hasAnyTrailer()
-    val haptics = LocalHapticFeedback.current
-    val related = remember(selected, data) {
-        data.allItems.filter { it.id != selected.id && (it.franchise == selected.franchise || it.universe == selected.universe || it.genres.any(selected.genres::contains)) }.take(12)
-    }
-    val accent = spectrumUniverseAccent(selected.universe)
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(selected.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
-            )
-        },
-        modifier = modifier
-    ) { padding ->
+    val statuses = ViewingMetadataStore.statusesFor(selected)
+    val related = remember(selected, data) { data.allItems.filter { it.id != selected.id && (it.franchise == selected.franchise || it.universe == selected.universe || it.genres.any(selected.genres::contains)) }.take(12) }
+    Scaffold(topBar = { TopAppBar(title = {}, navigationIcon = { SpectrumIconButton(onClick = onBack) { Icon(RhythmIcons.Back, "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)) }, modifier = modifier) { padding ->
         SpectrumGradientScaffoldBackground(universe = selected.universe) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(SpectrumSpacing.screenPadding, 12.dp, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                item {
-                    SpectrumGlassSurface(shape = RoundedCornerShape(34.dp), accent = accent) {
-                        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Box(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(28.dp))) {
-                                PosterBackdrop(selected, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
-                                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.72f)))))
-                                Column(
-                                    Modifier.align(Alignment.BottomStart).padding(18.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(selected.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = Color.White)
-                                    Text(
-                                        listOfNotNull(selected.year, selected.runtime, selected.universe, selected.phase ?: selected.saga).joinToString(" • "),
-                                        color = Color.White.copy(alpha = 0.86f),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    if (selected.genres.isNotEmpty()) FlowChips(selected.genres.take(4))
-                                }
-                                if (hasTrailer) {
-                                    FilledIconButton(
-                                        onClick = { haptics.performHapticFeedback(HapticFeedbackType.LongPress); showTrailer = true },
-                                        modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-                                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
-                                    ) { Icon(RhythmIcons.Play, contentDescription = "Play trailer for ${selected.title}") }
-                                }
-                            }
-                            Text(selected.overview ?: selected.plot ?: selected.description ?: "No overview available.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (hasTrailer) {
-                                    Button(
-                                        onClick = { haptics.performHapticFeedback(HapticFeedbackType.LongPress); showTrailer = true },
-                                        shape = RoundedCornerShape(24.dp),
-                                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
-                                    ) {
-                                        Icon(RhythmIcons.Play, contentDescription = null)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Watch trailer")
-                                    }
-                                }
-                                OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(selected, ViewingUserStatus.WATCHLIST) }, shape = RoundedCornerShape(24.dp)) { Text(if (ViewingUserStatus.WATCHLIST in userStatuses) "In watchlist" else "Watchlist") }
-                                OutlinedButton(onClick = { ViewingMetadataStore.toggleStatus(selected, ViewingUserStatus.WATCHED) }, shape = RoundedCornerShape(24.dp)) { Text(if (ViewingUserStatus.WATCHED in userStatuses) "Watched" else "Mark watched") }
-                            }
-                            StatusSelector(userStatuses) { next ->
-                                ViewingMetadataStore.toggleStatus(selected, next)
-                            }
-                        }
-                    }
-                }
-                item { WhereToWatchSection(selected) }
-                item { MetadataGrid(selected) }
-                item { CreditsBlock(selected) }
-                if (related.isNotEmpty()) item { PosterRail("Related titles", selected.franchise ?: selected.universe ?: "Similar genre", related, onOpenItem = { relatedItemId = it.id }) }
-                item { MetadataSourceFooter(selected) }
+            LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, SpectrumSpacing.bottomSafePadding), verticalArrangement = Arrangement.spacedBy(22.dp)) {
+                item { CinematicDetailHero(selected, statuses, onTrailer = { showTrailer = true }) }
+                item { Column(Modifier.padding(horizontal = SpectrumSpacing.screenPadding), verticalArrangement = Arrangement.spacedBy(22.dp)) {
+                    Text(selected.overview ?: selected.plot ?: selected.description ?: "No overview available.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (selected.genres.isNotEmpty()) FlowChips(selected.genres.take(6))
+                    MetadataGrid(selected)
+                    WhereToWatchSection(selected)
+                    CreditsBlock(selected)
+                    MetadataSourceFooter(selected)
+                    list?.let { HeroListCard(it) }
+                } }
+                if (related.isNotEmpty()) item { Column(Modifier.padding(horizontal = SpectrumSpacing.screenPadding)) { PosterRail("More in your spectrum", "Related by universe, franchise, and genre", related) { relatedItemId = it.id } } }
             }
         }
     }
-    if (showTrailer) {
-        TrailerPlayerDialog(
-            item = selected,
-            onOpenDetails = { showTrailer = false },
-            onDismiss = { showTrailer = false }
-        )
-    }
+    if (showTrailer) TrailerPlayerDialog(selected, onOpenDetails = { showTrailer = false }, onDismiss = { showTrailer = false })
 }
 
 @Composable
@@ -776,21 +706,25 @@ private fun ViewingList.orderingBasisText(): String = when {
 }
 
 @Composable
-private fun CinemaverseHeader(title: String = "Cinemaverse", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSearch: (() -> Unit)? = null, onOpenSettings: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer, tonalElevation = 3.dp) {
-            Image(painter = painterResource(R.drawable.ic_cinemaverse), contentDescription = "Cinemaverse", modifier = Modifier.size(58.dp).padding(12.dp))
+private fun CinemaverseHeader(title: String = "Marvel Spectrum", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSearch: (() -> Unit)? = null, onOpenSettings: () -> Unit) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(title, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
+            Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        if (onOpenSearch != null) {
-            FilledIconButton(onClick = onOpenSearch, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)) {
-                Icon(RhythmIcons.Search, contentDescription = "Search Cinemaverse")
+        SpectrumGlassSurface(shape = RoundedCornerShape(30.dp)) {
+            Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                    Image(painter = painterResource(R.drawable.ic_cinemaverse), contentDescription = "Marvel Spectrum", modifier = Modifier.size(52.dp).padding(11.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text("Explore your spectrum", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text("Search, filter, and tune your view", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (onOpenSearch != null) SpectrumIconButton(onClick = onOpenSearch) { Icon(RhythmIcons.Search, contentDescription = "Search Marvel Spectrum") }
+                SettingsIconAction(onOpenSettings)
             }
         }
-        SettingsIconAction(onOpenSettings)
     }
 }
 
@@ -806,7 +740,7 @@ private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit, onSh
     ) {
         Box(Modifier.fillMaxWidth()) {
             ArtworkImage(poster, "${list.title} background", Modifier.matchParentSize(), ContentScale.Crop)
-            Box(Modifier.matchParentSize().background(MaterialTheme.colorScheme.surfaceContainerHigh))
+            Box(Modifier.matchParentSize().background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = .82f)))
             Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                     CollectionArtwork(list, Modifier.size(132.dp).clip(RoundedCornerShape(38.dp)), ContentScale.Crop)
@@ -824,10 +758,10 @@ private fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit, onSh
                             onClick = { expanded = true },
                             colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                         ) { Icon(RhythmIcons.More, contentDescription = "More actions for ${list.title}") }
-                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
-                            DropdownMenuItem(text = { Text("Save list") }, onClick = { expanded = false; list.items.forEach { if (ViewingUserStatus.BOOKMARKED !in ViewingMetadataStore.statusesFor(it)) ViewingMetadataStore.toggleStatus(it, ViewingUserStatus.BOOKMARKED) } })
-                            DropdownMenuItem(text = { Text("Mark all watched") }, onClick = { expanded = false; list.items.forEach { if (ViewingUserStatus.WATCHED !in ViewingMetadataStore.statusesFor(it)) ViewingMetadataStore.toggleStatus(it, ViewingUserStatus.WATCHED) } })
-                            DropdownMenuItem(text = { Text("Clear watched") }, onClick = { expanded = false; list.items.forEach { if (ViewingUserStatus.WATCHED in ViewingMetadataStore.statusesFor(it)) ViewingMetadataStore.toggleStatus(it, ViewingUserStatus.WATCHED) } })
+                        SpectrumPopupMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            SpectrumPopupMenuItem("Save list", leading = { Icon(MaterialSymbolIcon("bookmark", filled = true), null) }) { expanded = false; list.items.forEach { if (ViewingUserStatus.BOOKMARKED !in ViewingMetadataStore.statusesFor(it)) ViewingMetadataStore.toggleStatus(it, ViewingUserStatus.BOOKMARKED) } }
+                            SpectrumPopupMenuItem("Mark all watched", leading = { Icon(RhythmIcons.Check, null) }) { expanded = false; list.items.forEach { if (ViewingUserStatus.WATCHED !in ViewingMetadataStore.statusesFor(it)) ViewingMetadataStore.toggleStatus(it, ViewingUserStatus.WATCHED) } }
+                            SpectrumPopupMenuItem("Clear watched", leading = { Icon(RhythmIcons.Remove, null) }) { expanded = false; list.items.forEach { if (ViewingUserStatus.WATCHED in ViewingMetadataStore.statusesFor(it)) ViewingMetadataStore.toggleStatus(it, ViewingUserStatus.WATCHED) } }
                         }
                     }
                 }
@@ -893,18 +827,14 @@ private fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Uni
                     onClick = { expanded = true },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                 ) { Icon(RhythmIcons.More, contentDescription = "More actions for ${displayItem.title}") }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                ) {
-                    DropdownMenuItem(text = { Text("Open details", color = MaterialTheme.colorScheme.onSurface) }, onClick = { expanded = false; onClick() })
-                    if (hasTrailer) DropdownMenuItem(text = { Text("Play trailer", color = MaterialTheme.colorScheme.onSurface) }, onClick = { expanded = false; showTrailer = true })
+                SpectrumPopupMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    SpectrumPopupMenuItem("Open details", leading = { Icon(RhythmIcons.Info, null) }) { expanded = false; onClick() }
+                    if (hasTrailer) SpectrumPopupMenuItem("Play trailer", leading = { Icon(RhythmIcons.Play, null) }) { expanded = false; showTrailer = true }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
-                    DropdownMenuItem(text = { Text("Add to watchlist", color = MaterialTheme.colorScheme.onSurface) }, onClick = { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCHLIST) })
-                    DropdownMenuItem(text = { Text("Mark watched", color = MaterialTheme.colorScheme.onSurface) }, onClick = { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCHED) })
-                    DropdownMenuItem(text = { Text("Favorite", color = MaterialTheme.colorScheme.onSurface) }, onClick = { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.FAVORITE) })
-                    DropdownMenuItem(text = { Text("Hide", color = MaterialTheme.colorScheme.onSurfaceVariant) }, onClick = { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.HIDDEN) })
+                    SpectrumPopupMenuItem("Add to watchlist", leading = { Icon(RhythmIcons.Add, null) }) { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCHLIST) }
+                    SpectrumPopupMenuItem("Mark watched", leading = { Icon(RhythmIcons.Check, null) }) { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.WATCHED) }
+                    SpectrumPopupMenuItem("Favorite", leading = { Icon(RhythmIcons.Favorite, null) }) { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.FAVORITE) }
+                    SpectrumPopupMenuItem("Hide", leading = { Icon(RhythmIcons.VisibilityOff, null) }) { expanded = false; ViewingMetadataStore.toggleStatus(displayItem, ViewingUserStatus.HIDDEN) }
                 }
             }
         }
@@ -1013,34 +943,19 @@ private fun FeaturedTitleCarousel(
 }
 
 @Composable
-private fun FeaturedTitleCarouselCard(
-    item: ViewingItem,
-    list: ViewingList,
-    selected: Boolean,
-    onClick: () -> Unit,
-    onLibrary: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun FeaturedTitleCarouselCard(item: ViewingItem, list: ViewingList, selected: Boolean, onClick: () -> Unit, onLibrary: () -> Unit, modifier: Modifier = Modifier) {
     val displayItem = rememberEnrichedItem(item)
-    val border = if (selected) BorderStroke(1.dp, spectrumUniverseAccent(item.universe).primary) else null
-    Card(
-        onClick = onClick,
-        shape = RoundedCornerShape(30.dp),
-        border = border,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        modifier = modifier
-    ) {
-        Box(Modifier.fillMaxWidth().height(ViewingUi.heroHeight).clip(RoundedCornerShape(30.dp))) {
+    val accent = spectrumUniverseAccent(displayItem.universe)
+    Card(onClick = onClick, shape = RoundedCornerShape(34.dp), border = if (selected) BorderStroke(2.dp, accent.primary) else null, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier) {
+        Box(Modifier.fillMaxWidth().height(330.dp).clip(RoundedCornerShape(34.dp))) {
             PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
-            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)))))
-            Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(displayItem.universe ?: "Cinemaverse highlight", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga, list.title).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(onClick = onClick) { Text("Details") }
-                    OutlinedButton(onClick = onLibrary) { Text("Library") }
-                }
+            UniverseGlow(displayItem.universe, Modifier.matchParentSize())
+            Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .12f), Color.Black.copy(alpha = .68f)))))
+            Column(Modifier.align(Alignment.BottomStart).padding(20.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                SpectrumArtworkPill(displayItem.universe ?: "Spectrum premiere")
+                Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga, list.title).joinToString(" • "), color = Color.White.copy(alpha = .84f), maxLines = 2)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { Button(onClick = onClick, shape = RoundedCornerShape(50)) { Text("Details") }; OutlinedButton(onClick = onLibrary, shape = RoundedCornerShape(50)) { Text("Library", color = Color.White) } }
             }
         }
     }
@@ -1058,8 +973,8 @@ private fun Int.floorMod(size: Int): Int = ((this % size) + size) % size
 
 @Composable
 private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenItem: (ViewingItem) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        SectionHeader(title, subtitle)
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        SpectrumSectionHeader(title = title, subtitle = subtitle)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) {
             items(items, key = { it.id }) { PosterCard(it) { onOpenItem(it) } }
         }
@@ -1069,8 +984,8 @@ private fun PosterRail(title: String, subtitle: String, items: List<ViewingItem>
 
 @Composable
 private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem>, onOpenTrailer: (ViewingItem) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        SectionHeader(title, subtitle)
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        SpectrumSectionHeader(title = title, subtitle = subtitle)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) {
             items(items, key = { "trailer-${it.id}" }) { item ->
                 PosterCard(item) { onOpenTrailer(item) }
@@ -1081,8 +996,8 @@ private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem
 
 @Composable
 private fun ListRail(title: String, subtitle: String, lists: List<ViewingList>, onOpenList: (ViewingList) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        SectionHeader(title, subtitle)
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        SpectrumSectionHeader(title = title, subtitle = subtitle)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) { items(lists, key = { it.id }) { ViewingListCard(it) { onOpenList(it) } } }
     }
 }
@@ -1157,78 +1072,23 @@ private fun ViewingOrderRow(item: ViewingItem, order: Int, onClick: () -> Unit) 
 
 
 @Composable
-private fun LibrarySecondaryControls(
-    sortMode: ViewingSortMode,
-    onSort: (ViewingSortMode) -> Unit,
-    statusFilter: ViewingUserStatus?,
-    onStatus: (ViewingUserStatus?) -> Unit,
-    genreFilter: String?,
-    onGenre: (String?) -> Unit,
-    genres: List<String>,
-    catalogItems: List<ViewingItem>
-) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh), shape = RoundedCornerShape(28.dp)) {
-        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("Browse", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Text(listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("All statuses and genres") }.joinToString(" • "), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                CompactDropdown(
-                    label = "Sort",
-                    selected = sortMode.label,
-                    options = listOf(ViewingSortMode.RELEASE, ViewingSortMode.CHRONOLOGICAL, ViewingSortMode.TITLE, ViewingSortMode.RATING, ViewingSortMode.RUNTIME, ViewingSortMode.GENRE),
-                    optionLabel = { it.label },
-                    onSelect = onSort,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
-                item {
-                    FilterChip(
-                        selected = genreFilter == null,
-                        onClick = { onGenre(null) },
-                        label = { Text("All genres") },
-                        leadingIcon = { Icon(if (genreFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) }
-                    )
-                }
-                items(genres.take(24), key = { "genre-$it" }) { genre ->
-                    FilterChip(
-                        selected = genreFilter == genre,
-                        onClick = { onGenre(if (genreFilter == genre) null else genre) },
-                        label = { Text(genre) }
-                    )
+private fun LibrarySecondaryControls(sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Unit, statusFilter: ViewingUserStatus?, onStatus: (ViewingUserStatus?) -> Unit, genreFilter: String?, onGenre: (String?) -> Unit, genres: List<String>, catalogItems: List<ViewingItem>) {
+    var sortOpen by remember { mutableStateOf(false) }
+    SpectrumGlassSurface(shape = RoundedCornerShape(32.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f)) { Text("Sort & filter", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold); Text(listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("Showing everything") }.joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                Box {
+                    Button(onClick = { sortOpen = true }, shape = RoundedCornerShape(50), contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp)) { Icon(RhythmIcons.Sort, null); Spacer(Modifier.width(8.dp)); Text(sortMode.label); Spacer(Modifier.width(4.dp)); Icon(RhythmIcons.ExpandMore, null) }
+                    SpectrumPopupMenu(sortOpen, { sortOpen = false }) {
+                        ViewingSortMode.entries.forEach { mode -> SpectrumPopupMenuItem(mode.label, selected = mode == sortMode, leading = { Icon(RhythmIcons.Sort, null) }) { sortOpen = false; onSort(mode) } }
+                    }
                 }
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
-                item {
-                    FilterChip(
-                        selected = statusFilter == null,
-                        onClick = { onStatus(null) },
-                        label = { Text("All") },
-                        leadingIcon = { Icon(if (statusFilter == null) RhythmIcons.Check else RhythmIcons.AppsGrid, contentDescription = null) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            iconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                }
-                items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }, key = { it.name }) { status ->
-                    val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }
-                    val active = statusFilter == status
-                    FilterChip(
-                        selected = active,
-                        onClick = { onStatus(if (active) null else status) },
-                        leadingIcon = { Icon(status.icon(), contentDescription = null) },
-                        label = { Text("${status.libraryTitle} $count") },
-                        colors = statusChipColors(status, active)
-                    )
-                }
-            }
+            Text("Genres", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) { item { SpectrumPillTab(genreFilter == null, { onGenre(null) }) { Icon(RhythmIcons.AppsGrid, null); Text("All genres") } }; items(genres.take(24)) { genre -> SpectrumPillTab(genreFilter == genre, { onGenre(if (genreFilter == genre) null else genre) }) { Text(genre) } } }
+            Text("Status", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) { item { SpectrumPillTab(statusFilter == null, { onStatus(null) }) { Icon(RhythmIcons.AppsGrid, null); Text("All") } }; items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }) { status -> val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }; SpectrumPillTab(statusFilter == status, { onStatus(if (statusFilter == status) null else status) }) { Icon(status.icon(), null); Text("${status.libraryTitle} $count") } } }
         }
     }
 }
@@ -1276,7 +1136,7 @@ private fun LibraryControlPanel(
             CompactDropdown(
                 label = "Category",
                 selected = selectedTab,
-                options = listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved"),
+                options = listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved"),
                 onSelect = onTab,
                 modifier = Modifier.weight(1f)
             )
@@ -1372,13 +1232,8 @@ private fun <T> CompactDropdown(
             }
             Icon(RhythmIcons.ExpandMore, contentDescription = null)
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(optionLabel(option)) },
-                    onClick = { expanded = false; onSelect(option) }
-                )
-            }
+        SpectrumPopupMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { option -> SpectrumPopupMenuItem(optionLabel(option), selected = optionLabel(option) == selected) { expanded = false; onSelect(option) } }
         }
     }
 }
@@ -1386,7 +1241,7 @@ private fun <T> CompactDropdown(
 @Composable
 private fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
-        items(listOf("Essentials", "Continue", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> SpectrumPillTab(selected = selected == tab, onClick = { onTab(tab) }) { Text(tab) } }
+        items(listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> SpectrumPillTab(selected = selected == tab, onClick = { onTab(tab) }) { Text(tab) } }
     }
 }
 
@@ -1502,8 +1357,8 @@ private fun SearchSortRail(sortMode: ViewingSearchSortMode, onSort: (ViewingSear
 
 @Composable
 private fun ResultSection(title: String, subtitle: String, items: List<ViewingItem>, onOpen: (ViewingItem) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        SectionHeader(title, subtitle)
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        SpectrumSectionHeader(title = title, subtitle = subtitle)
         items.forEachIndexed { index, item -> ViewingOrderRow(item, index + 1, onClick = { onOpen(item) }) }
     }
 }
@@ -1565,6 +1420,79 @@ private fun List<ViewingItem>.sortedForSearch(mode: ViewingSearchSortMode): List
     ViewingSearchSortMode.RUNTIME -> sortedFor(ViewingSortMode.RUNTIME)
     ViewingSearchSortMode.TITLE -> sortedFor(ViewingSortMode.TITLE)
     ViewingSearchSortMode.RELEVANCE -> this
+}
+
+
+@Composable
+private fun SectionIdentityBlock(icon: MaterialSymbolIcon, title: String, status: String, subtitle: String) {
+    val accent = spectrumUniverseAccent(if (title in setOf("MCU", "Essential")) "MCU" else if (title == "DC") "DC" else null)
+    SpectrumGlassSurface(shape = RoundedCornerShape(32.dp), accent = accent) {
+        Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Surface(shape = RoundedCornerShape(20.dp), color = accent.container, contentColor = accent.onContainer) { Icon(icon, null, Modifier.padding(14.dp).size(26.dp)) }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) { Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold); Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium) }
+            Surface(shape = RoundedCornerShape(50), color = accent.primary, contentColor = MaterialTheme.colorScheme.onPrimary) { Text(status, Modifier.padding(horizontal = 12.dp, vertical = 8.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) }
+        }
+    }
+}
+
+private fun tabIdentityIcon(tab: String) = when (tab) { "Continue" -> RhythmIcons.Play; "MCU", "DC" -> MaterialSymbolIcon("movie", filled = true); "Timeline" -> RhythmIcons.AccessTime; "Collections" -> RhythmIcons.AppsGrid; "Saved" -> RhythmIcons.Favorite; else -> MaterialSymbolIcon("star", filled = true) }
+private fun tabIdentitySubtitle(tab: String) = when (tab) { "Continue" -> "Pick up exactly where your journey paused"; "Essential" -> "The defining stories across the spectrum"; "MCU" -> "Marvel Studios, sagas, phases, and heroes"; "DC" -> "DCU, DCEU, Elseworlds, and connected television"; "Timeline" -> "Every story arranged in chronological order"; "Collections" -> "Curated journeys with album-like artwork"; else -> "Your watchlists, favorites, and watched titles" }
+
+@Composable
+private fun LibraryPosterGrid(items: List<ViewingItem>, onOpenItem: (ViewingItem) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { items.chunked(2).forEach { row -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) { row.forEach { item -> Box(Modifier.weight(1f)) { PosterCard(item) { onOpenItem(item) } } }; if (row.size == 1) Spacer(Modifier.weight(1f)) } } }
+}
+
+@Composable
+private fun CollectionCardGrid(lists: List<ViewingList>, onOpenList: (ViewingList) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { lists.chunked(2).forEach { row -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) { row.forEach { list -> PressableCard(Modifier.weight(1f), { onOpenList(list) }) { CollectionArtwork(list, Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(24.dp)), ContentScale.Crop); Spacer(Modifier.height(10.dp)); Text(list.title, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis); Text("${list.items.size} titles", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium) } }; if (row.size == 1) Spacer(Modifier.weight(1f)) } } }
+}
+
+@Composable
+private fun CinematicDetailHero(item: ViewingItem, statuses: Set<ViewingUserStatus>, onTrailer: () -> Unit) {
+    val accent = spectrumUniverseAccent(item.universe)
+    Box(Modifier.fillMaxWidth().height(620.dp)) {
+        PosterBackdrop(item, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
+        UniverseGlow(item.universe, Modifier.matchParentSize())
+        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .10f), Color.Black.copy(alpha = .56f), MaterialTheme.colorScheme.background.copy(alpha = .96f)))))
+        PosterBackdrop(item, Modifier.align(Alignment.CenterStart).padding(start = 20.dp, top = 40.dp).width(142.dp).aspectRatio(2f / 3f), ContentScale.Crop, SpectrumShapes.posterMask)
+        SpectrumGlassSurface(Modifier.align(Alignment.BottomCenter).padding(horizontal = 20.dp), RoundedCornerShape(32.dp), accent) {
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                Text(listOfNotNull(item.year, item.runtime, item.universe, item.phase ?: item.saga, item.imdbRating?.let { "IMDb $it" }).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (item.hasAnyTrailer()) DetailActionPill("Trailer", RhythmIcons.Play, true, onTrailer)
+                    DetailActionPill("Watch later", RhythmIcons.AccessTime, ViewingUserStatus.WATCH_LATER in statuses) { ViewingMetadataStore.toggleStatus(item, ViewingUserStatus.WATCH_LATER) }
+                    DetailActionPill("Favorite", RhythmIcons.Favorite, ViewingUserStatus.FAVORITE in statuses) { ViewingMetadataStore.toggleStatus(item, ViewingUserStatus.FAVORITE) }
+                    DetailActionPill("Watched", RhythmIcons.Check, ViewingUserStatus.WATCHED in statuses) { ViewingMetadataStore.toggleStatus(item, ViewingUserStatus.WATCHED) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailActionPill(label: String, icon: MaterialSymbolIcon, selected: Boolean, onClick: () -> Unit) { SpectrumPillTab(selected, onClick) { Icon(icon, null); Text(label) } }
+
+@Composable
+private fun UniverseGlow(universe: String?, modifier: Modifier = Modifier) {
+    val colors = when { universe.equals("MCU", true) || universe.orEmpty().contains("Marvel", true) -> listOf(Color(0x99D71936), Color(0x66F7B733), Color.Transparent); universe.orEmpty().contains("DC", true) || universe.equals("Elseworlds", true) -> listOf(Color(0x994A72FF), Color(0x6659E7FF), Color.Transparent); else -> listOf(Color(0x998A55FF), Color(0x66FF5FAA), Color.Transparent) }
+    Box(modifier.background(Brush.radialGradient(colors)))
+}
+
+@Composable
+private fun SpectrumArtworkPill(label: String) { Surface(shape = RoundedCornerShape(50), color = Color.Black.copy(alpha = .34f), contentColor = Color.White) { Text(label, Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) } }
+
+@Composable
+private fun SpectrumPopupMenu(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest, shape = RoundedCornerShape(30.dp), containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 8.dp, shadowElevation = 10.dp, content = content)
+}
+
+@Composable
+private fun SpectrumPopupMenuItem(label: String, selected: Boolean = false, leading: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
+    Surface(shape = RoundedCornerShape(22.dp), color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent, contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)) {
+        DropdownMenuItem(text = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) }, onClick = onClick, leadingIcon = leading, trailingIcon = if (selected) ({ Icon(RhythmIcons.Check, null) }) else null, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp))
+    }
 }
 
 @Composable

@@ -140,12 +140,12 @@ fun SpectrumPillTab(
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed) SpectrumMotion.pressedScale else 1f, SpectrumMotion.pressSpec(), label = "spectrumTabPress")
     val container by animateColorAsState(
-        if (selected) accent.container else MaterialTheme.colorScheme.surfaceContainer,
+        if (selected) accent.primary else MaterialTheme.colorScheme.surfaceContainer,
         SpectrumMotion.selectionSpec(),
         label = "spectrumTabContainer"
     )
     val contentColor by animateColorAsState(
-        if (selected) accent.onContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
         SpectrumMotion.selectionSpec(),
         label = "spectrumTabContent"
     )
@@ -154,7 +154,7 @@ fun SpectrumPillTab(
         shape = SpectrumShapes.pillTab,
         color = container,
         contentColor = contentColor,
-        border = BorderStroke(1.dp, if (selected) accent.primary else MaterialTheme.colorScheme.outlineVariant)
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
     ) {
         Row(
             modifier = Modifier.clickable(interactionSource = interaction, indication = null, onClick = onClick).padding(horizontal = 14.dp, vertical = 9.dp),
