@@ -23,10 +23,17 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          # Command-line tools 20.0 understand the Android 17 / API 37 preview repository metadata.
+          cmdline-tools-version: 14742923
 
-      - name: Install Android SDK packages
-        run: sdkmanager --channel=3 "platforms;android-37" "build-tools;36.0.0"
+      - name: Install and verify Android SDK 37
+        run: |
+          set -euo pipefail
+          sdkmanager --channel=3 "platforms;android-37" "build-tools;36.0.0"
+          test -f "$ANDROID_SDK_ROOT/platforms/android-37/android.jar"
+          echo "Android SDK 37 installed at $ANDROID_SDK_ROOT/platforms/android-37"
 
       - name: Create private.properties for build
         env:
