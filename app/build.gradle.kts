@@ -11,6 +11,8 @@ plugins {
 android {
     namespace = "com.marvelspectrum"
     compileSdk = 37
+    // AGP 9.2 resolves Build Tools 36.0.0; API 37 is the compile platform, not a Build Tools requirement.
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.marvelspectrum"
