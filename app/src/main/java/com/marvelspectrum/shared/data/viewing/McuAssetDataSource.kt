@@ -28,32 +28,78 @@ object McuAssetDataSource {
         fun findItem(id: String?): ViewingItem? = allItems.firstOrNull { it.id == id }
         fun findList(id: String?): ViewingList? = allLists.firstOrNull { it.id == id }
 
+        private val itemSearchIndex: Map<String, String> by lazy(LazyThreadSafetyMode.NONE) {
+            allItems.associate { item -> item.id to item.searchTokens().joinToString(separator = "\n").lowercase() }
+        }
+        private val listSearchIndex: Map<String, String> by lazy(LazyThreadSafetyMode.NONE) {
+            allLists.associate { list -> list.id to list.searchTokens().joinToString(separator = "\n").lowercase() }
+        }
+
         fun search(query: String): Pair<List<ViewingItem>, List<ViewingList>> {
             val normalized = query.trim().lowercase()
             if (normalized.isBlank()) return allItems.take(18) to allLists.take(12)
             return allItems.filter { item ->
-                listOfNotNull(
-                    item.title,
-                    item.originalTitle,
-                    item.year,
-                    item.releaseDate,
-                    item.phase,
-                    item.saga,
-                    item.franchise,
-                    item.universe,
-                    item.category,
-                    item.studio,
-                    item.director,
-                    item.writer,
-                    item.imdbId
-                ).any { it.lowercase().contains(normalized) } ||
-                    item.genres.any { it.lowercase().contains(normalized) } ||
-                    item.actors.any { it.lowercase().contains(normalized) } ||
-                    item.cast.any { it.name.lowercase().contains(normalized) || it.character.orEmpty().lowercase().contains(normalized) }
+                itemSearchIndex[item.id]?.contains(normalized) == true
             } to allLists.filter { list ->
-                listOfNotNull(list.title, list.description, list.universe, list.category, list.phase, list.saga, list.franchise)
-                    .any { it.lowercase().contains(normalized) } ||
-                    list.items.any { it.title.lowercase().contains(normalized) }
+                listSearchIndex[list.id]?.contains(normalized) == true
+            }
+        }
+
+        private fun ViewingItem.searchTokens(): List<String> = buildList {
+            add(title)
+            addAll(
+                listOfNotNull(
+                    originalTitle,
+                    year,
+                    releaseDate,
+                    phase,
+                    saga,
+                    franchise,
+                    universe,
+                    category,
+                    studio,
+                    director,
+                    writer,
+                    imdbId,
+                    description,
+                    overview,
+                    plot,
+                    awards,
+                    notes,
+                    type.name,
+                    status.name,
+                    metadataSource.name,
+                    trailerSource?.name,
+                    trailerUrl,
+                    youtubeVideoId
+                )
+            )
+            addAll(genres)
+            addAll(actors)
+            cast.forEach { member -> add(member.name); member.character?.let(::add) }
+            crew.forEach { member ->
+                add(member.name)
+                member.job?.let(::add)
+                member.department?.let(::add)
+            }
+            trailers.forEach { trailer ->
+                add(trailer.label)
+                trailer.url?.let(::add)
+                trailer.youtubeVideoId?.let(::add)
+                trailer.source?.name?.let(::add)
+            }
+            watchProviders.forEach { provider ->
+                add(provider.providerName)
+                addAll(listOfNotNull(provider.region, provider.type, provider.format, provider.price, provider.webUrl, provider.androidUrl))
+            }
+        }
+
+        private fun ViewingList.searchTokens(): List<String> = buildList {
+            add(title)
+            addAll(listOfNotNull(description, universe, category, phase, saga, franchise, accentLabel))
+            items.forEach { item ->
+                add(item.title)
+                addAll(listOfNotNull(item.description, item.overview, item.plot))
             }
         }
     }
