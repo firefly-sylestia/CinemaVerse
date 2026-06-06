@@ -16,8 +16,8 @@ animationCore = "1.11.2"
 roomKtx = "2.8.4"
 appcompat = "1.7.1"
 desugarJdkLibs = "2.1.5"
-# alpha18+ pulls Compose 1.12 artifacts that require compileSdk 37; keep CI on stable API 36.
-material3 = "1.5.0-alpha17"
+# SDK 37 is installed in CI, so Material3 artifacts that require compileSdk 37 are supported.
+material3 = "1.5.0-alpha18"
 material = "1.14.0"
 media3 = "1.10.1"
 paletteKtx = "1.0.0"

@@ -809,7 +809,6 @@ fun StreamingContentHomeScreen(
                     }
                 }
             }
-            }
 
             item {
                 Spacer(modifier = Modifier.height(30.dp))
@@ -821,45 +820,44 @@ fun StreamingContentHomeScreen(
             val albumForSheet = selectedAlbumForSheet!!
             val streamingTracks = albumForSheet.tracks
             val libraryAlbum = albumForSheet.toLibraryAlbum(recentlyPlayedSongs)
-            
-                AlbumBottomSheet(
-                    album = libraryAlbum,
-                    onDismiss = {
-                        showAlbumBottomSheet = false
-                        selectedAlbumForSheet = null
-                    },
-                    onSongClick = { song ->
-                        val streamingSong = streamingTracks.firstOrNull { it.id == song.id }
-                        streamingSong?.let { ss ->
-                            viewModel.playQueue(queue = listOf(ss), startIndex = 0, shuffle = false)
-                        }
-                    },
-                    onPlayAll = { songs ->
-                        if (streamingTracks.isNotEmpty()) {
-                            viewModel.playQueue(queue = streamingTracks, startIndex = 0, shuffle = false)
-                        }
-                    },
-                    onShufflePlay = { songs ->
-                        if (streamingTracks.isNotEmpty()) {
-                            val startIndex = (0 until streamingTracks.size).random()
-                            viewModel.playQueue(queue = streamingTracks, startIndex = startIndex, shuffle = true)
-                        }
-                    },
-                    onAddToQueue = { },
-                    onAddSongToPlaylist = { },
-                    onPlayerClick = { },
-                    sheetState = albumSheetState,
-                    haptics = haptics,
-                    showPlayNextAction = false,
-                    showAddToQueueAction = false,
-                    showToggleFavoriteAction = false,
-                    showAddToPlaylistAction = false,
-                    showSongInfoAction = false,
-                    showAddToBlacklistAction = false,
-                    currentSong = null,
-                    isPlaying = false
-                )
-            
+
+            AlbumBottomSheet(
+                album = libraryAlbum,
+                onDismiss = {
+                    showAlbumBottomSheet = false
+                    selectedAlbumForSheet = null
+                },
+                onSongClick = { song ->
+                    val streamingSong = streamingTracks.firstOrNull { it.id == song.id }
+                    streamingSong?.let { ss ->
+                        viewModel.playQueue(queue = listOf(ss), startIndex = 0, shuffle = false)
+                    }
+                },
+                onPlayAll = { _ ->
+                    if (streamingTracks.isNotEmpty()) {
+                        viewModel.playQueue(queue = streamingTracks, startIndex = 0, shuffle = false)
+                    }
+                },
+                onShufflePlay = { _ ->
+                    if (streamingTracks.isNotEmpty()) {
+                        val startIndex = (0 until streamingTracks.size).random()
+                        viewModel.playQueue(queue = streamingTracks, startIndex = startIndex, shuffle = true)
+                    }
+                },
+                onAddToQueue = { },
+                onAddSongToPlaylist = { },
+                onPlayerClick = { },
+                sheetState = albumSheetState,
+                haptics = haptics,
+                showPlayNextAction = false,
+                showAddToQueueAction = false,
+                showToggleFavoriteAction = false,
+                showAddToPlaylistAction = false,
+                showSongInfoAction = false,
+                showAddToBlacklistAction = false,
+                currentSong = null,
+                isPlaying = false
+            )
         }
     }
 }
