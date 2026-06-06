@@ -40,8 +40,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -236,9 +234,6 @@ fun ViewingLibraryScreen(
     LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
     val data = remember(context) { McuAssetDataSource.load(context) }
     var tab by rememberSaveable { mutableStateOf("Essential") }
-    var genreFilter by rememberSaveable { mutableStateOf<String?>(null) }
-    var statusFilter by rememberSaveable { mutableStateOf<ViewingUserStatus?>(null) }
-    var sortMode by rememberSaveable { mutableStateOf(ViewingSortMode.RELEASE) }
     var selectedItemId by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedListId by rememberSaveable { mutableStateOf<String?>(null) }
     val selectedItem = data.findItem(selectedItemId)
@@ -252,8 +247,7 @@ fun ViewingLibraryScreen(
         selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null })
         selectedList != null -> ViewingListDetailScreen(list = selectedList, onBack = { selectedListId = null }, onOpenTitle = { selectedItemId = it.id; onOpenDetail() })
         else -> {
-            val genres = remember(data) { data.allItems.flatMap { it.genres }.distinct().sorted() }
-            val filtered = remember(tab, sortMode, statusFilter, genreFilter, data) {
+            val filtered = remember(tab, data) {
                 val base = when (tab) {
                     "Continue" -> ViewingMetadataStore.recentItems(data).ifEmpty { data.allItems.filter { ViewingUserStatus.WATCHING in ViewingMetadataStore.statusesFor(it) } }
                     "Essentials", "Essential" -> data.featuredList.items
@@ -263,9 +257,11 @@ fun ViewingLibraryScreen(
                     "Saved" -> data.allItems.filter { item -> ViewingMetadataStore.statusesFor(item).any { status -> status != ViewingUserStatus.HIDDEN } }
                     else -> data.allItems
                 }
-                base.filter { item -> statusFilter == null || statusFilter in ViewingMetadataStore.statusesFor(item) }
-                    .filter { item -> genreFilter == null || genreFilter in item.genres }
-                    .sortedFor(sortMode)
+                when (tab) {
+                    "Timeline" -> base
+                    "Collections" -> base
+                    else -> base.sortedFor(ViewingSortMode.RELEASE)
+                }
             }
             LazyColumn(
                 modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
@@ -275,7 +271,6 @@ fun ViewingLibraryScreen(
                 item { CinemaverseHeader(title = "Library", subtitle = "Every universe, timeline, and collection in one place", onOpenSettings = onOpenSettings) }
                 item { LibraryTabs(tab, onTab = { tab = it }) }
                 item { SectionIdentityBlock(tabIdentityIcon(tab), tab, if (tab == "Collections") "${data.allLists.visibleManagedLists().size} collections" else "${filtered.size} titles", tabIdentitySubtitle(tab)) }
-                item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, genreFilter, { genreFilter = it }, genres, data.allItems) }
                 if (tab == "Collections") {
                     item { CollectionCardGrid(data.allLists.visibleManagedLists(), onOpenList = { selectedListId = it.id }) }
                 } else {
@@ -283,7 +278,7 @@ fun ViewingLibraryScreen(
                     if (tab in setOf("MCU", "DC")) {
                         item { LibraryPosterGrid(filtered) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() } }
                     } else {
-                        groupedViewingItems(filtered, sortMode) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
+                        groupedViewingItems(filtered, if (tab == "Timeline") ViewingSortMode.CHRONOLOGICAL else ViewingSortMode.RELEASE) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail() }
                     }
                 }
             }
@@ -1486,13 +1481,57 @@ private fun SpectrumArtworkPill(label: String) { Surface(shape = RoundedCornerSh
 
 @Composable
 private fun SpectrumPopupMenu(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest, shape = RoundedCornerShape(30.dp), containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 8.dp, shadowElevation = 10.dp, content = content)
+    if (!expanded) return
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            shape = RoundedCornerShape(30.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = 8.dp,
+            shadowElevation = 10.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                content = content
+            )
+        }
+    }
 }
 
 @Composable
 private fun SpectrumPopupMenuItem(label: String, selected: Boolean = false, leading: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
-    Surface(shape = RoundedCornerShape(22.dp), color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent, contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)) {
-        DropdownMenuItem(text = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) }, onClick = onClick, leadingIcon = leading, trailingIcon = if (selected) ({ Icon(RhythmIcons.Check, null) }) else null, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp))
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(22.dp),
+        color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+        contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            leading?.invoke()
+            Text(
+                text = label,
+                modifier = Modifier.weight(1f),
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (selected) Icon(RhythmIcons.Check, contentDescription = null)
+        }
     }
 }
 
