@@ -1456,11 +1456,105 @@ private fun CinematicDetailHero(item: ViewingItem, statuses: Set<ViewingUserStat
             Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(item.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
                 Text(listOfNotNull(item.year, item.runtime, item.universe, item.phase ?: item.saga, item.imdbRating?.let { "IMDb $it" }).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (item.hasAnyTrailer()) {
+                    TrailerPosterCard(item = item, onClick = onTrailer)
+                }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (item.hasAnyTrailer()) DetailActionPill("Trailer", RhythmIcons.Play, true, onTrailer)
                     DetailActionPill("Watch later", RhythmIcons.AccessTime, ViewingUserStatus.WATCH_LATER in statuses) { ViewingMetadataStore.toggleStatus(item, ViewingUserStatus.WATCH_LATER) }
                     DetailActionPill("Favorite", RhythmIcons.Favorite, ViewingUserStatus.FAVORITE in statuses) { ViewingMetadataStore.toggleStatus(item, ViewingUserStatus.FAVORITE) }
                     DetailActionPill("Watched", RhythmIcons.Check, ViewingUserStatus.WATCHED in statuses) { ViewingMetadataStore.toggleStatus(item, ViewingUserStatus.WATCHED) }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun TrailerPosterCard(item: ViewingItem, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) SpectrumMotion.pressedScale else 1f,
+        animationSpec = SpectrumMotion.pressSpec(),
+        label = "trailerPosterPress"
+    )
+    val poster = ViewingArtworkUtils.resolveCardPoster(
+        item,
+        preferLocalArtwork = ViewingMetadataStore.useLocalPosters.value
+    )
+
+    Card(
+        onClick = onClick,
+        interactionSource = interaction,
+        shape = SpectrumShapes.largeSoftCard,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SpectrumSpacing.cardContentPadding),
+            horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(82.dp)
+                    .aspectRatio(2f / 3f)
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+                ArtworkImage(
+                    data = poster,
+                    description = "Trailer poster for ${item.title}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    fallbackTitle = item.title,
+                    fallbackLabel = item.universe ?: item.category ?: item.type.name.lowercase().replaceFirstChar { it.titlecase() },
+                    fallbackSeed = item.universe
+                )
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.90f),
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(RhythmIcons.Play, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Text("Trailer", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Watch trailer", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                Text(
+                    "Open a poster-first preview and start playback when you are ready.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(RhythmIcons.Play, contentDescription = null, modifier = Modifier.size(17.dp))
+                        Text("See trailer", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
