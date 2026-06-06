@@ -19,6 +19,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -66,6 +67,7 @@ private object RhythmIconFontCache {
         }
     }
 
+    @OptIn(ExperimentalTextApi::class)
     fun getOrCreate(
         context: Context,
         filled: Boolean,

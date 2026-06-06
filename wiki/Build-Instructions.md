@@ -113,7 +113,7 @@ Check `app/build.gradle.kts`:
 ```kotlin
 android {
     namespace = "chromahub.rhythm.app"
-    compileSdk = 37
+    compileSdk = 36
     
     defaultConfig {
         applicationId = "chromahub.rhythm.app"
