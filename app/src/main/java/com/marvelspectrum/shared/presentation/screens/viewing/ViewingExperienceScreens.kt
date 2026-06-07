@@ -465,7 +465,7 @@ fun ViewingSearchScreen(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.searchDockHeight),
+            contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, ViewingUi.searchDockHeight),
             verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.sectionGap)
         ) {
             item { SearchHero(onOpenSettings = onOpenSettings) }
@@ -518,7 +518,7 @@ private fun SearchHero(onOpenSettings: () -> Unit) {
 @Composable
 private fun BrowseByGenreGrid(genres: List<String>, genreCounts: Map<String, Int>, onSelectGenre: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        SpectrumSectionHeader("Browse by Genre", "Music-style discovery cards tuned for Marvel Spectrum")
+        SpectrumSectionHeader(title = "Browse by Genre", subtitle = "Music-style discovery cards tuned for Marvel Spectrum")
         genres.chunked(2).forEachIndexed { rowIndex, row ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 row.forEachIndexed { index, genre ->
