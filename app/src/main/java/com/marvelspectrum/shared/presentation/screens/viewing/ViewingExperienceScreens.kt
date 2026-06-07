@@ -61,6 +61,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -90,6 +91,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.marvelspectrum.R
 import com.marvelspectrum.shared.data.service.ViewingMetadataStore
 import com.marvelspectrum.shared.data.viewing.McuAssetDataSource
@@ -109,6 +111,7 @@ import com.marvelspectrum.shared.presentation.components.icons.Icon
 import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
 import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
 import com.marvelspectrum.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
+import com.marvelspectrum.shared.presentation.viewmodel.ViewingViewModel
 import com.marvelspectrum.shared.util.ViewingArtworkUtils
 import kotlinx.coroutines.delay
 
@@ -122,17 +125,146 @@ private object ViewingUi {
 }
 
 @Composable
+private fun ViewingCatalogLoadingState(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null
+) {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            if (onBack != null) {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(RhythmIcons.Back, contentDescription = "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+                )
+            }
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(
+                SpectrumSpacing.screenPadding,
+                ViewingUi.topPad,
+                SpectrumSpacing.screenPadding,
+                SpectrumSpacing.bottomSafePadding
+            ),
+            verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)
+        ) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(30.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(SpectrumSpacing.cardContentPadding),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            MaterialSymbolIcon("theaters", filled = true),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(42.dp)
+                        )
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f)
+                        )
+                    }
+                }
+            }
+            items(3) { index ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 58.dp, height = 86.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(if (index == 0) 0.72f else 0.58f)
+                                    .height(18.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.92f)
+                                    .height(12.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.62f)
+                                    .height(12.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun ViewingHomeScreen(
     onOpenLibrary: () -> Unit,
     onOpenSearch: () -> Unit,
     onOpenDetail: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    homeReselectionKey: Int = 0
+    openSearchInternally: Boolean = true,
+    homeReselectionKey: Int = 0,
+    viewingViewModel: ViewingViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
-    val data = remember(context) { McuAssetDataSource.load(context) }
+    val viewingState by viewingViewModel.uiState.collectAsState()
+    val data = viewingState.data
+    if (data == null) {
+        ViewingCatalogLoadingState(
+            title = "Preparing Cinemaverse",
+            message = viewingState.errorMessage ?: "Loading your Marvel and DC viewing catalog…",
+            modifier = modifier
+        )
+        return
+    }
     var selectedItemId by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedListId by rememberSaveable { mutableStateOf<String?>(null) }
     var showSearch by rememberSaveable { mutableStateOf(false) }
@@ -153,13 +285,19 @@ fun ViewingHomeScreen(
     }
 
     when {
-        selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null })
+        selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null }, viewingViewModel = viewingViewModel)
         selectedList != null -> ViewingListDetailScreen(list = selectedList, onBack = { selectedListId = null }, onOpenTitle = { selectedItemId = it.id })
-        showSearch -> ViewingSearchScreen(onBack = { showSearch = false }, onOpenDetail = { selectedItemId = it.id }, onOpenSettings = onOpenSettings)
+        showSearch -> ViewingSearchScreen(onBack = { showSearch = false }, onOpenDetail = { selectedItemId = it.id }, onOpenSettings = onOpenSettings, viewingViewModel = viewingViewModel)
         else -> ViewingHomeContent(
             data = data,
             onOpenLibrary = onOpenLibrary,
-            onOpenSearch = { showSearch = true; onOpenSearch() },
+            onOpenSearch = {
+                if (openSearchInternally) {
+                    showSearch = true
+                } else {
+                    onOpenSearch()
+                }
+            },
             onOpenSettings = onOpenSettings,
             onOpenItem = { selectedItemId = it.id; ViewingMetadataStore.markViewed(it); onOpenDetail() },
             onOpenList = { selectedListId = it.id },
@@ -230,11 +368,19 @@ private fun ViewingHomeContent(
 fun ViewingLibraryScreen(
     onOpenDetail: () -> Unit,
     onOpenSettings: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewingViewModel: ViewingViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
-    val data = remember(context) { McuAssetDataSource.load(context) }
+    val viewingState by viewingViewModel.uiState.collectAsState()
+    val data = viewingState.data
+    if (data == null) {
+        ViewingCatalogLoadingState(
+            title = "Loading Library",
+            message = viewingState.errorMessage ?: "Organizing viewing timelines, collections, and saved state…",
+            modifier = modifier
+        )
+        return
+    }
     var tab by rememberSaveable { mutableStateOf("Essential") }
     var genreFilter by rememberSaveable { mutableStateOf<String?>(null) }
     var statusFilter by rememberSaveable { mutableStateOf<ViewingUserStatus?>(null) }
@@ -249,7 +395,7 @@ fun ViewingLibraryScreen(
     }
 
     when {
-        selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null })
+        selectedItem != null -> ViewingDetailScreen(item = selectedItem, list = selectedList, onBack = { selectedItemId = null }, viewingViewModel = viewingViewModel)
         selectedList != null -> ViewingListDetailScreen(list = selectedList, onBack = { selectedListId = null }, onOpenTitle = { selectedItemId = it.id; onOpenDetail() })
         else -> {
             val genres = remember(data) { data.allItems.flatMap { it.genres }.distinct().sorted() }
@@ -297,11 +443,20 @@ fun ViewingSearchScreen(
     onBack: () -> Unit,
     onOpenDetail: (ViewingItem) -> Unit,
     onOpenSettings: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewingViewModel: ViewingViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
-    val data = remember(context) { McuAssetDataSource.load(context) }
+    val viewingState by viewingViewModel.uiState.collectAsState()
+    val data = viewingState.data
+    if (data == null) {
+        ViewingCatalogLoadingState(
+            title = "Loading Search",
+            message = viewingState.errorMessage ?: "Preparing Cinemaverse search filters and results…",
+            modifier = modifier,
+            onBack = onBack
+        )
+        return
+    }
     var query by rememberSaveable { mutableStateOf("") }
     var selectedUniverse by rememberSaveable { mutableStateOf("All") }
     var selectedType by rememberSaveable { mutableStateOf("All") }
@@ -312,7 +467,7 @@ fun ViewingSearchScreen(
     val selectedItem = data.findItem(selectedItemId)
     if (selectedItem != null) {
         androidx.activity.compose.BackHandler { selectedItemId = null }
-        ViewingDetailScreen(item = selectedItem, onBack = { selectedItemId = null }, modifier = modifier)
+        ViewingDetailScreen(item = selectedItem, onBack = { selectedItemId = null }, modifier = modifier, viewingViewModel = viewingViewModel)
         return
     }
 
@@ -388,12 +543,26 @@ fun ViewingSearchScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewingDetailScreen(item: ViewingItem? = null, list: ViewingList? = null, onBack: () -> Unit = {}, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
-    val data = remember(context) { McuAssetDataSource.load(context) }
+fun ViewingDetailScreen(
+    item: ViewingItem? = null,
+    list: ViewingList? = null,
+    onBack: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewingViewModel: ViewingViewModel = viewModel()
+) {
+    val viewingState by viewingViewModel.uiState.collectAsState()
+    val data = viewingState.data
+    if (data == null) {
+        ViewingCatalogLoadingState(
+            title = "Loading Details",
+            message = viewingState.errorMessage ?: "Getting title details ready…",
+            modifier = modifier,
+            onBack = onBack
+        )
+        return
+    }
     var relatedItemId by rememberSaveable { mutableStateOf<String?>(null) }
-    data.findItem(relatedItemId)?.let { related -> ViewingDetailScreen(related, list, { relatedItemId = null }, modifier); return }
+    data.findItem(relatedItemId)?.let { related -> ViewingDetailScreen(related, list, { relatedItemId = null }, modifier, viewingViewModel); return }
     val selected = rememberEnrichedItem(item ?: data.featuredItem)
     LaunchedEffect(selected.id) { ViewingMetadataStore.markViewed(selected) }
     var showTrailer by rememberSaveable(selected.id) { mutableStateOf(false) }

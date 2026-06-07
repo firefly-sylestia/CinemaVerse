@@ -1272,6 +1272,7 @@ private fun LocalNavigationContent(
                             onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
                             onOpenDetail = {},
                             onOpenSettings = { navigateToTopLevel(Screen.Settings.route) },
+                            openSearchInternally = false,
                             homeReselectionKey = ViewingHomeReselectionBus.key
                         )
                     } else {

@@ -178,13 +178,6 @@ fun StreamingLibraryScreen(
     isPlayerPlaying: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    com.marvelspectrum.shared.presentation.screens.viewing.ViewingLibraryScreen(
-        onOpenDetail = {},
-        onOpenSettings = { onConfigureService("CINEMAVERSE") },
-        modifier = modifier
-    )
-    return
-
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     val appSettings = remember { AppSettings.getInstance(context) }
