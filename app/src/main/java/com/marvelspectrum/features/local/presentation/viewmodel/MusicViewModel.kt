@@ -1073,7 +1073,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         Log.d(TAG, "Starting safe data initialization")
         val initStartTime = System.currentTimeMillis()
 
-        if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+        if (!appSettings.musicLibraryEnabled.value) {
             loadAllSettings()
             _songs.value = emptyList()
             _albums.value = emptyList()
@@ -1082,7 +1082,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             _isMediaScanning.value = false
             _isLibraryRefreshing.value = false
             _isInitialized.value = true
-            Log.d(TAG, "Viewing mode initialization complete without music service, scans, or player queue")
+            Log.d(TAG, "Music library disabled by setting; skipping scans and playback queue initialization")
             return
         }
         
@@ -1146,8 +1146,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * Room database relationships required for Albums and Artists on a cold start.
      */
     private suspend fun initializeCoreDataParallel(): InitializationResult {
-        if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            Log.d(TAG, "Viewing mode active; skipping device song scan during initialization")
+        if (!appSettings.musicLibraryEnabled.value) {
+            Log.d(TAG, "Music library disabled; skipping device song scan during initialization")
             _songs.value = emptyList()
             _albums.value = emptyList()
             _artists.value = emptyList()
@@ -1436,8 +1436,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * This is called AFTER _isInitialized is set to true, so UI is already responsive.
      */
     private fun startBackgroundTasksDeferred() {
-        if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            Log.d(TAG, "Viewing mode active; skipping music background scanners and observers")
+        if (!appSettings.musicLibraryEnabled.value) {
+            Log.d(TAG, "Music library disabled; skipping music background scanners and observers")
             return
         }
 
@@ -1890,8 +1890,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      * This will update the songs, albums, and artists in the ViewModel.
      */
     fun refreshLibrary(showMediaScanLoader: Boolean = true) {
-        if (appSettings.localExperienceMode.value == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            Log.d(TAG, "Viewing mode active; ignoring music library refresh request")
+        if (!appSettings.musicLibraryEnabled.value) {
+            Log.d(TAG, "Music library disabled; ignoring music library refresh request")
             _isMediaScanning.value = false
             _isLibraryRefreshing.value = false
             _isInitialized.value = true

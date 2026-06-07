@@ -194,6 +194,11 @@ fun SettingsScreen(
     val darkMode by appSettings.darkMode.collectAsState()
     val customColorScheme by appSettings.customColorScheme.collectAsState()
     val localExperienceMode by appSettings.localExperienceMode.collectAsState()
+    val musicLibraryEnabled by appSettings.musicLibraryEnabled.collectAsState()
+    val viewingCatalogEnabled by appSettings.viewingCatalogEnabled.collectAsState()
+    val miniPlayerEnabled by appSettings.miniPlayerEnabled.collectAsState()
+    val queueFeaturesEnabled by appSettings.queueFeaturesEnabled.collectAsState()
+    val useExperimentalPlayerUi by appSettings.useExperimentalPlayerUi.collectAsState()
     val rhythmGuardMode by appSettings.rhythmGuardMode.collectAsState()
     val showSettingsSuggestions by appSettings.showSettingsSuggestions.collectAsState()
     val showKeyboardOnSearchOpen by appSettings.showKeyboardOnSearchOpen.collectAsState()
@@ -259,10 +264,12 @@ fun SettingsScreen(
                     add(SettingItem(
                         MaterialSymbolIcon("movie_filter"),
                         context.getString(R.string.settings_local_experience),
-                        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                            context.getString(R.string.settings_local_experience_viewing)
-                        } else {
-                            context.getString(R.string.settings_local_experience_rhythm)
+                        buildString {
+                            append(if (musicLibraryEnabled) "Music on" else "Music off")
+                            append(" • ")
+                            append(if (viewingCatalogEnabled) "Cinema on" else "Cinema off")
+                            append(" • Default: ")
+                            append(if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) "Cinema" else "Rhythm")
                         },
                         onClick = { showLocalExperienceModeDialog = true }
                     ))
@@ -349,9 +356,7 @@ fun SettingsScreen(
                     ))
                     //add(SettingItem(MaterialSymbolIcon("graphic_eq"), context.getString(R.string.audio_normalization), context.getString(R.string.audio_normalization_desc), toggleState = audioNormalization, onToggleChange = { appSettings.setAudioNormalization(it) }))
                     //add(SettingItem(MaterialSymbolIcon("graphic_eq"), context.getString(R.string.replay_gain), context.getString(R.string.replay_gain_desc), toggleState = replayGain, onToggleChange = { appSettings.setReplayGain(it) }))
-                    if (localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        add(SettingItem(RhythmIcons.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
-                    }
+                    add(SettingItem(RhythmIcons.Equalizer, context.getString(R.string.settings_equalizer_title), context.getString(R.string.settings_equalizer_desc), onClick = { onNavigateTo(SettingsRoutes.EQUALIZER) }))
                     add(SettingItem(
                         icon = MaterialSymbolIcon("battery_charging_full"),
                         title = stringResource(R.string.performancesettingsscreen_performance),
@@ -371,14 +376,11 @@ fun SettingsScreen(
             if (appMode == "LOCAL") SettingGroup(
                 title = context.getString(R.string.settings_section_library_content),
                 items = buildList {
-                    if (localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        add(SettingItem(RhythmIcons.Folder, context.getString(R.string.settings_media_scan_title), context.getString(R.string.settings_media_scan_desc), onClick = { onNavigateTo(SettingsRoutes.MEDIA_SCAN) }))
-                        add(SettingItem(RhythmIcons.Artist, context.getString(R.string.settings_artist_parsing), context.getString(R.string.settings_artist_parsing_desc), onClick = { onNavigateTo(SettingsRoutes.ARTIST_SEPARATORS) }))
-                        add(SettingItem(MaterialSymbolIcon("playlist_add_check_circle"), context.getString(R.string.settings_playlists_title), context.getString(R.string.settings_playlists_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYLISTS) }))
-                        add(SettingItem(RhythmIcons.Library, context.getString(R.string.settings_library_settings), context.getString(R.string.settings_library_settings_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_SETTINGS) }))
-                    } else {
-                        add(SettingItem(RhythmIcons.Library, "Viewing metadata", "Bundled MCU JSON and poster assets are available offline", onClick = { onNavigateTo(SettingsRoutes.API_MANAGEMENT) }))
-                    }
+                    add(SettingItem(RhythmIcons.Folder, context.getString(R.string.settings_media_scan_title), context.getString(R.string.settings_media_scan_desc), onClick = { onNavigateTo(SettingsRoutes.MEDIA_SCAN) }))
+                    add(SettingItem(RhythmIcons.Artist, context.getString(R.string.settings_artist_parsing), context.getString(R.string.settings_artist_parsing_desc), onClick = { onNavigateTo(SettingsRoutes.ARTIST_SEPARATORS) }))
+                    add(SettingItem(MaterialSymbolIcon("playlist_add_check_circle"), context.getString(R.string.settings_playlists_title), context.getString(R.string.settings_playlists_desc), onClick = { onNavigateTo(SettingsRoutes.PLAYLISTS) }))
+                    add(SettingItem(RhythmIcons.Library, context.getString(R.string.settings_library_settings), context.getString(R.string.settings_library_settings_desc), onClick = { onNavigateTo(SettingsRoutes.LIBRARY_SETTINGS) }))
+                    add(SettingItem(MaterialSymbolIcon("movie_filter"), "Viewing metadata", "Bundled MCU JSON/posters plus optional TMDB, OMDb, and Watchmode enrichment", onClick = { onNavigateTo(SettingsRoutes.API_MANAGEMENT) }))
                 }
             ) else null,
             // 6. Notifications & Services
@@ -843,138 +845,110 @@ fun SettingsScreen(
                         }
                     }
                     
-                    // Rhythm music UI option
-                    Card(
-                        onClick = {
-                            HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                            appSettings.setLocalExperienceMode(AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM)
-                            showLocalExperienceModeDialog = false
-                        },
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
-                                MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
+                    fun toggleHaptic() {
+                        HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
+                    }
+
+                    @Composable
+                    fun FeatureToggleCard(
+                        icon: MaterialSymbolIcon,
+                        title: String,
+                        description: String,
+                        checked: Boolean,
+                        onCheckedChange: (Boolean) -> Unit
                     ) {
-                        Row(
+                        Card(
+                            onClick = {
+                                toggleHaptic()
+                                onCheckedChange(!checked)
+                            },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (checked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh
+                            ),
+                            shape = RoundedCornerShape(16.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(vertical = 6.dp)
                         ) {
-                            Icon(
-                                imageVector = RhythmIcons.MusicNote,
-                                contentDescription = null,
-                                tint = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            
-                            Spacer(modifier = Modifier.width(16.dp))
-                            
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.settings_local_experience_rhythm),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
-                                        MaterialTheme.colorScheme.onPrimaryContainer 
-                                    else 
-                                        MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = context.getString(R.string.settings_local_experience_rhythm_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) 
-                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                                    else 
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            
-                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Icon(
-                                    imageVector = RhythmIcons.CheckCircle,
-                                    contentDescription = stringResource(R.string.streaming_selected),
-                                    modifier = Modifier.size(24.dp)
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = if (checked) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (checked) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Switch(
+                                    checked = checked,
+                                    onCheckedChange = { enabled ->
+                                        toggleHaptic()
+                                        onCheckedChange(enabled)
+                                    }
                                 )
                             }
                         }
                     }
-                    
-                    // MARVEL Spectrum option
-                    Card(
-                        onClick = {
-                            HapticUtils.performHapticFeedback(context, hapticFeedback, HapticFeedbackType.TextHandleMove)
-                            appSettings.setLocalExperienceMode(AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING)
-                            showLocalExperienceModeDialog = false
-                        },
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
-                                MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = MaterialSymbolIcon("movie_filter"),
-                                contentDescription = null,
-                                tint = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                else
-                                    MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            
-                            Spacer(modifier = Modifier.width(16.dp))
-                            
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = context.getString(R.string.settings_local_experience_viewing),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
-                                        MaterialTheme.colorScheme.onPrimaryContainer 
-                                    else 
-                                        MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = context.getString(R.string.settings_local_experience_viewing_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) 
-                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                                    else 
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            
-                            if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                                Icon(
-                                    imageVector = RhythmIcons.CheckCircle,
-                                    contentDescription = stringResource(R.string.streaming_selected),
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
+
+                    FeatureToggleCard(
+                        icon = RhythmIcons.MusicNote,
+                        title = "Enable music library",
+                        description = "Auto-scan local songs, keep albums/artists/playlists available, and initialize Rhythm playback.",
+                        checked = musicLibraryEnabled,
+                        onCheckedChange = { enabled ->
+                            appSettings.setMusicLibraryEnabled(enabled)
+                            if (enabled) appSettings.setLocalExperienceMode(AppSettings.LOCAL_EXPERIENCE_MODE_RHYTHM)
                         }
-                    }
-                    
+                    )
+                    FeatureToggleCard(
+                        icon = MaterialSymbolIcon("movie_filter"),
+                        title = "Enable Cinemaverse catalog",
+                        description = "Show Marvel Spectrum viewing home, collections, trailers, and TMDB/OMDb enrichment without disabling music.",
+                        checked = viewingCatalogEnabled,
+                        onCheckedChange = { enabled ->
+                            appSettings.setViewingCatalogEnabled(enabled)
+                            if (enabled) appSettings.setLocalExperienceMode(AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING)
+                        }
+                    )
+                    FeatureToggleCard(
+                        icon = RhythmIcons.PlayCircle,
+                        title = "Show mini player",
+                        description = "Keep the compact Rhythm/expressive player visible above navigation while browsing music or Cinemaverse.",
+                        checked = miniPlayerEnabled,
+                        onCheckedChange = appSettings::setMiniPlayerEnabled
+                    )
+                    FeatureToggleCard(
+                        icon = MaterialSymbolIcon("cloud_queue", filled = true),
+                        title = "Show player queue",
+                        description = "Keep queue restore, queue dialogs, add/remove, and reorder controls enabled in the full player.",
+                        checked = queueFeaturesEnabled,
+                        onCheckedChange = appSettings::setQueueFeaturesEnabled
+                    )
+                    FeatureToggleCard(
+                        icon = MaterialSymbolIcon("auto_awesome", filled = true),
+                        title = "Use expressive player",
+                        description = "Toggle the expressive player style while preserving the classic Rhythm controls.",
+                        checked = useExperimentalPlayerUi,
+                        onCheckedChange = appSettings::setUseExperimentalPlayerUi
+                    )
+
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -1309,13 +1283,13 @@ fun SettingsScreenWrapper(
                     when (route) {
                         SettingsRoutes.NOTIFICATIONS -> NotificationsSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.PLAYLISTS -> PlaylistsSettingsScreen(onBackClick = { currentRoute = null })
-                        SettingsRoutes.MEDIA_SCAN -> if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) DisabledViewingSettingsRoute("Audio scans disabled", "Marvel Spectrum uses bundled MCU JSON/poster assets, so song scans are hidden in viewing mode.") { currentRoute = null } else MediaScanSettingsScreen(onBackClick = { currentRoute = null })
+                        SettingsRoutes.MEDIA_SCAN -> MediaScanSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.ARTIST_SEPARATORS -> ArtistSeparatorsSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.ABOUT -> com.marvelspectrum.shared.presentation.screens.settings.AboutScreen(
                             onBackClick = { currentRoute = null },
                             onNavigateToUpdates = { currentRoute = SettingsRoutes.UPDATES }
                         )
-                        SettingsRoutes.UPDATES -> if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) DisabledViewingSettingsRoute("Updates disabled", "Automatic update checks are disabled for viewing mode. TMDB/OMDb are optional enrichment only.") { currentRoute = null } else UpdatesSettingsScreen(onBackClick = { currentRoute = null })
+                        SettingsRoutes.UPDATES -> UpdatesSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null }, onNavigateToGoSettings = { currentRoute = SettingsRoutes.GO_SETTINGS })
                         SettingsRoutes.API_MANAGEMENT -> ApiManagementSettingsScreen(onBackClick = { currentRoute = null })
                         SettingsRoutes.CACHE_MANAGEMENT -> CacheManagementSettingsScreen(onBackClick = { currentRoute = null })
@@ -1423,13 +1397,13 @@ fun SettingsScreenWrapper(
             when (route) {
                 SettingsRoutes.NOTIFICATIONS -> NotificationsSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.PLAYLISTS -> PlaylistsSettingsScreen(onBackClick = { currentRoute = null })
-                SettingsRoutes.MEDIA_SCAN -> if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) DisabledViewingSettingsRoute("Audio scans disabled", "Marvel Spectrum uses bundled MCU JSON/poster assets, so song scans are hidden in viewing mode.") { currentRoute = null } else MediaScanSettingsScreen(onBackClick = { currentRoute = null })
+                SettingsRoutes.MEDIA_SCAN -> MediaScanSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.ARTIST_SEPARATORS -> ArtistSeparatorsSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.ABOUT -> com.marvelspectrum.shared.presentation.screens.settings.AboutScreen(
                     onBackClick = { currentRoute = null },
                     onNavigateToUpdates = { currentRoute = SettingsRoutes.UPDATES }
                 )
-                SettingsRoutes.UPDATES -> if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) DisabledViewingSettingsRoute("Updates disabled", "Automatic update checks are disabled for viewing mode. TMDB/OMDb are optional enrichment only.") { currentRoute = null } else UpdatesSettingsScreen(onBackClick = { currentRoute = null })
+                SettingsRoutes.UPDATES -> UpdatesSettingsScreen(onBackClick = { currentRoute = null })
                 SettingsRoutes.EXPERIMENTAL_FEATURES -> ExperimentalFeaturesScreen(onBackClick = { currentRoute = null }, onNavigateToGoSettings = { currentRoute = SettingsRoutes.GO_SETTINGS })
                 SettingsRoutes.GO_SETTINGS -> com.marvelspectrum.features.streaming.presentation.screens.GoSettingsScreen(
                     onBackClick = { currentRoute = null },
