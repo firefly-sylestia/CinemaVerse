@@ -39,39 +39,99 @@ object ViewingMetadataStore {
     fun initialize(context: Context) {
         val application = context.applicationContext
         if (appContext === application) return
-        appContext = application
-        val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        useLocalPosters.value = prefs.getBoolean(KEY_USE_LOCAL_POSTERS, true)
-        useThirdPartyRemoteArtwork.value = prefs.getBoolean(KEY_USE_THIRD_PARTY_REMOTE_ARTWORK, false)
-        watchmodeApiEnabled.value = prefs.getBoolean(KEY_WATCHMODE_ENABLED, false)
-        watchmodeApiKey.value = prefs.getString(KEY_WATCHMODE_KEY, "").orEmpty()
-        tmdbApiEnabled.value = prefs.getBoolean(KEY_TMDB_ENABLED, false)
-        tmdbReadAccessToken.value = prefs.getString(KEY_TMDB_TOKEN, "").orEmpty()
-        omdbApiEnabled.value = prefs.getBoolean(KEY_OMDB_ENABLED, false)
-        omdbApiKey.value = prefs.getString(KEY_OMDB_KEY, "").orEmpty()
-        cinemaAvailabilityRegion.value = prefs.getString(KEY_AVAILABILITY_REGION, "US").orEmpty().ifBlank { "US" }
-        providerMode.value = runCatching {
-            MetadataProviderMode.valueOf(prefs.getString(KEY_PROVIDER_MODE, MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK.name).orEmpty())
-        }.getOrDefault(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
-        statusMessage.value = service.getConfigurationMessage(providerMode.value)
-        enriched.clear()
-        prefs.all.filterKeys { it.startsWith(KEY_ENRICHED_PREFIX + providerMode.value.name + ":") }.forEach { (key, value) ->
-            (value as? String)?.let { json ->
-                cachedItemFromJson(json)?.let { cached ->
-                    val itemId = key.removePrefix(KEY_ENRICHED_PREFIX).substringAfter(':')
-                    enriched[itemId] = cached
-                }
+        applyPrefsSnapshot(application, loadPrefsSnapshot(application))
+    }
+
+    suspend fun initializeAsync(context: Context) {
+        val application = context.applicationContext
+        if (appContext === application) return
+        val snapshot = withContext(Dispatchers.IO) { loadPrefsSnapshot(application) }
+        withContext(Dispatchers.Main.immediate) {
+            if (appContext !== application) {
+                applyPrefsSnapshot(application, snapshot)
             }
         }
+    }
+
+    private data class PrefsSnapshot(
+        val useLocalPosters: Boolean,
+        val useThirdPartyRemoteArtwork: Boolean,
+        val watchmodeApiEnabled: Boolean,
+        val watchmodeApiKey: String,
+        val tmdbApiEnabled: Boolean,
+        val tmdbReadAccessToken: String,
+        val omdbApiEnabled: Boolean,
+        val omdbApiKey: String,
+        val cinemaAvailabilityRegion: String,
+        val providerMode: MetadataProviderMode,
+        val enrichedItems: Map<String, ViewingItem>,
+        val userStatuses: Map<String, Set<ViewingUserStatus>>,
+        val recentlyViewed: Map<String, Long>
+    )
+
+    private fun loadPrefsSnapshot(application: Context): PrefsSnapshot {
+        val prefs = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val loadedProviderMode = runCatching {
+            MetadataProviderMode.valueOf(prefs.getString(KEY_PROVIDER_MODE, MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK.name).orEmpty())
+        }.getOrDefault(MetadataProviderMode.OMDB_PRIMARY_TMDB_FALLBACK)
+        val loadedEnriched = prefs.all
+            .filterKeys { it.startsWith(KEY_ENRICHED_PREFIX + loadedProviderMode.name + ":") }
+            .mapNotNull { (key, value) ->
+                (value as? String)?.let { json ->
+                    cachedItemFromJson(json)?.let { cached ->
+                        key.removePrefix(KEY_ENRICHED_PREFIX).substringAfter(':') to cached
+                    }
+                }
+            }
+            .toMap()
+        val loadedStatuses = prefs.all
+            .filterKeys { it.startsWith(KEY_STATUS_PREFIX) }
+            .mapNotNull { (key, value) ->
+                val statuses = value.toString().split(',').mapNotNull { runCatching { ViewingUserStatus.valueOf(it) }.getOrNull() }.toSet()
+                if (statuses.isEmpty()) null else key.removePrefix(KEY_STATUS_PREFIX) to statuses
+            }
+            .toMap()
+        val loadedRecentlyViewed = prefs.all
+            .filterKeys { it.startsWith(KEY_RECENT_PREFIX) }
+            .mapNotNull { (key, value) -> (value as? Long)?.let { key.removePrefix(KEY_RECENT_PREFIX) to it } }
+            .toMap()
+
+        return PrefsSnapshot(
+            useLocalPosters = prefs.getBoolean(KEY_USE_LOCAL_POSTERS, true),
+            useThirdPartyRemoteArtwork = prefs.getBoolean(KEY_USE_THIRD_PARTY_REMOTE_ARTWORK, false),
+            watchmodeApiEnabled = prefs.getBoolean(KEY_WATCHMODE_ENABLED, false),
+            watchmodeApiKey = prefs.getString(KEY_WATCHMODE_KEY, "").orEmpty(),
+            tmdbApiEnabled = prefs.getBoolean(KEY_TMDB_ENABLED, false),
+            tmdbReadAccessToken = prefs.getString(KEY_TMDB_TOKEN, "").orEmpty(),
+            omdbApiEnabled = prefs.getBoolean(KEY_OMDB_ENABLED, false),
+            omdbApiKey = prefs.getString(KEY_OMDB_KEY, "").orEmpty(),
+            cinemaAvailabilityRegion = prefs.getString(KEY_AVAILABILITY_REGION, "US").orEmpty().ifBlank { "US" },
+            providerMode = loadedProviderMode,
+            enrichedItems = loadedEnriched,
+            userStatuses = loadedStatuses,
+            recentlyViewed = loadedRecentlyViewed
+        )
+    }
+
+    private fun applyPrefsSnapshot(application: Context, snapshot: PrefsSnapshot) {
+        appContext = application
+        useLocalPosters.value = snapshot.useLocalPosters
+        useThirdPartyRemoteArtwork.value = snapshot.useThirdPartyRemoteArtwork
+        watchmodeApiEnabled.value = snapshot.watchmodeApiEnabled
+        watchmodeApiKey.value = snapshot.watchmodeApiKey
+        tmdbApiEnabled.value = snapshot.tmdbApiEnabled
+        tmdbReadAccessToken.value = snapshot.tmdbReadAccessToken
+        omdbApiEnabled.value = snapshot.omdbApiEnabled
+        omdbApiKey.value = snapshot.omdbApiKey
+        cinemaAvailabilityRegion.value = snapshot.cinemaAvailabilityRegion
+        providerMode.value = snapshot.providerMode
+        statusMessage.value = service.getConfigurationMessage(snapshot.providerMode)
+        enriched.clear()
+        enriched.putAll(snapshot.enrichedItems)
         userStatuses.clear()
-        prefs.all.filterKeys { it.startsWith(KEY_STATUS_PREFIX) }.forEach { (key, value) ->
-            val statuses = value.toString().split(',').mapNotNull { runCatching { ViewingUserStatus.valueOf(it) }.getOrNull() }.toSet()
-            if (statuses.isNotEmpty()) userStatuses[key.removePrefix(KEY_STATUS_PREFIX)] = statuses
-        }
+        userStatuses.putAll(snapshot.userStatuses)
         recentlyViewed.clear()
-        prefs.all.filterKeys { it.startsWith(KEY_RECENT_PREFIX) }.forEach { (key, value) ->
-            (value as? Long)?.let { recentlyViewed[key.removePrefix(KEY_RECENT_PREFIX)] = it }
-        }
+        recentlyViewed.putAll(snapshot.recentlyViewed)
     }
 
     fun setUseLocalPosters(enabled: Boolean) {

@@ -1,7 +1,7 @@
 package com.marvelspectrum.features.streaming.presentation.screens
 
-import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
 import com.marvelspectrum.shared.presentation.components.icons.Icon
+import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,15 +24,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,15 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.marvelspectrum.R
 import com.marvelspectrum.shared.data.model.AppSettings
-import com.marvelspectrum.shared.data.service.ViewingMetadataStore
-import com.marvelspectrum.shared.data.viewing.McuAssetDataSource
-import com.marvelspectrum.shared.data.viewing.MetadataProviderMode
 import com.marvelspectrum.features.streaming.domain.model.StreamingServiceRules
 import com.marvelspectrum.features.streaming.presentation.model.StreamingServiceOptions
 import com.marvelspectrum.features.streaming.presentation.viewmodel.StreamingMusicViewModel
 import com.marvelspectrum.shared.presentation.screens.settings.TunerAnimatedSwitch
 import com.marvelspectrum.shared.presentation.components.common.CollapsibleHeaderScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun StreamingServiceSetupScreen(
@@ -62,9 +54,6 @@ fun StreamingServiceSetupScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    CinemaverseSetupContent(onBackClick = onBackClick, modifier = modifier)
-    return
-
     val context = LocalContext.current
     val appSettings = remember(context) { AppSettings.getInstance(context) }
     val sessions by viewModel.serviceSessions.collectAsState()
@@ -383,90 +372,6 @@ fun StreamingServiceSetupScreen(
             item {
                 Spacer(modifier = Modifier.height(18.dp))
             }
-        }
-    }
-}
-
-
-@Composable
-private fun CinemaverseSetupContent(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val data = remember(context) { McuAssetDataSource.load(context) }
-    val coroutineScope = rememberCoroutineScope()
-    val fetchMessage by ViewingMetadataStore.statusMessage
-    val isFetching by ViewingMetadataStore.isFetching
-    val useLocalPosters by ViewingMetadataStore.useLocalPosters
-    val providerMode by ViewingMetadataStore.providerMode
-    LaunchedEffect(context) { ViewingMetadataStore.initialize(context) }
-
-    LazyColumn(
-        modifier = modifier.fillMaxSize().padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        item { Spacer(Modifier.height(12.dp)) }
-        item {
-            Card(
-                shape = RoundedCornerShape(30.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Column(Modifier.fillMaxWidth().padding(22.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Icon(MaterialSymbolIcon("theaters", filled = true), contentDescription = null, modifier = Modifier.size(44.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Text("Set up Cinemaverse", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Text("Offline Marvel/DC posters load immediately. Optional OMDb/TMDB metadata is fetched here, cached locally, and reused the next time you open the app.", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f))
-                }
-            }
-        }
-        item { SetupChoiceCard("Catalog", "Marvel + DC enabled", "Movies, series, shorts, specials", "Release and timeline collections") }
-        item {
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = RoundedCornerShape(26.dp)) {
-                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Poster & metadata loading", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(fetchMessage, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                    if (isFetching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    MetadataProviderMode.entries.forEach { mode ->
-                        Surface(
-                            onClick = { ViewingMetadataStore.setProviderMode(mode) },
-                            shape = RoundedCornerShape(18.dp),
-                            color = if (providerMode == mode) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(mode.label, fontWeight = FontWeight.SemiBold, color = if (providerMode == mode) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface)
-                                Text(mode.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    }
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column(Modifier.weight(1f)) {
-                            Text("Prefer bundled posters", fontWeight = FontWeight.SemiBold)
-                            Text("Keeps the offline artwork first while still caching online details.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(checked = useLocalPosters, onCheckedChange = ViewingMetadataStore::setUseLocalPosters)
-                    }
-                    FilledTonalButton(
-                        onClick = { coroutineScope.launch { ViewingMetadataStore.fetchAll(data); onBackClick() } },
-                        enabled = !isFetching,
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text(if (isFetching) "Loading posters…" else "Set up, cache posters, and open library") }
-                }
-            }
-        }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onBackClick) { Text("Back") }
-                FilledTonalButton(onClick = onBackClick) { Text("Open offline library") }
-            }
-        }
-        item { Spacer(Modifier.height(90.dp)) }
-    }
-}
-
-@Composable
-private fun SetupChoiceCard(title: String, first: String, second: String, third: String) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.large) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("• $first\n• $second\n• $third", color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

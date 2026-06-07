@@ -6,6 +6,9 @@ import android.util.Log
 import org.json.JSONArray
 import com.marvelspectrum.shared.util.ViewingArtworkUtils
 import org.json.JSONObject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object McuAssetDataSource {
     /**
@@ -60,6 +63,13 @@ object McuAssetDataSource {
 
     fun load(context: Context): ViewingAssetData = cachedData ?: synchronized(this) {
         cachedData ?: load(context.assets).also { cachedData = it }
+    }
+
+    suspend fun loadAsync(
+        context: Context,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default
+    ): ViewingAssetData = cachedData ?: withContext(dispatcher) {
+        load(context.applicationContext)
     }
 
     fun load(assetManager: AssetManager): ViewingAssetData = runCatching {
