@@ -182,7 +182,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
-    implementation(libs.android.youtube.player.core)
     
     // Compose dependencies
     implementation(platform(libs.androidx.compose.bom))
