@@ -406,6 +406,20 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_CONTEXT_QUEUE_PREFERENCE = "context_queue_preference" // ARTIST_FIRST | GENRE_FIRST | ARTIST_THEN_GENRE
         private const val KEY_CONTEXT_QUEUE_PERSISTENCE = "context_queue_persistence" // EPHEMERAL | PERSISTENT
         private const val KEY_CONTEXT_QUEUE_SIZE = "context_queue_size" // default number of contextual tracks to build
+        private const val KEY_SMART_AUTO_QUEUE_ENABLED = "smart_auto_queue_enabled"
+        private const val KEY_SMART_AUTO_QUEUE_OFFLINE_ONLY = "smart_auto_queue_offline_only"
+        private const val KEY_SMART_AUTO_QUEUE_ONLINE_METADATA = "smart_auto_queue_online_metadata"
+        private const val KEY_SMART_AUTO_QUEUE_TARGET_SIZE = "smart_auto_queue_target_size"
+        private const val KEY_SMART_AUTO_QUEUE_REFILL_THRESHOLD = "smart_auto_queue_refill_threshold"
+        private const val KEY_SMART_AUTO_QUEUE_RECENT_COOLDOWN_MINUTES = "smart_auto_queue_recent_cooldown_minutes"
+        private const val KEY_SMART_AUTO_QUEUE_RESET_COOLDOWN_ON_SESSION_END = "smart_auto_queue_reset_cooldown_on_session_end"
+        private const val KEY_SMART_AUTO_QUEUE_LANGUAGE_MIX_MODE = "smart_auto_queue_language_mix_mode"
+        private const val KEY_SMART_AUTO_QUEUE_ALLOW_ENGLISH_BETWEEN_HINDI = "smart_auto_queue_allow_english_between_hindi"
+        private const val KEY_SMART_AUTO_QUEUE_ALLOW_HINDI_BETWEEN_ENGLISH = "smart_auto_queue_allow_hindi_between_english"
+        private const val KEY_SMART_AUTO_QUEUE_PREFER_SAME_LANGUAGE = "smart_auto_queue_prefer_same_language"
+        private const val KEY_SMART_AUTO_QUEUE_DISCOVERY_LEVEL = "smart_auto_queue_discovery_level"
+        private const val KEY_SMART_AUTO_QUEUE_DIVERSITY_STRENGTH = "smart_auto_queue_diversity_strength"
+        private const val KEY_SMART_AUTO_QUEUE_AVOID_SAME_ARTIST_BACK_TO_BACK = "smart_auto_queue_avoid_same_artist_back_to_back"
         private const val KEY_HIDE_PLAYED_SONGS_IN_QUEUE = "hide_played_songs_in_queue"
         private const val KEY_SHOW_QUEUE_DIALOG = "show_queue_dialog"
         private const val KEY_LIST_QUEUE_ACTION_BEHAVIOR = "list_queue_action_behavior" // "replace", "ask", "play_next", "add_to_end"
@@ -846,7 +860,7 @@ class AppSettings private constructor(context: Context) {
     val appMode: StateFlow<String> = _appMode.asStateFlow()
 
     private val _localExperienceMode = MutableStateFlow(
-        prefs.getString(KEY_LOCAL_EXPERIENCE_MODE, LOCAL_EXPERIENCE_MODE_VIEWING) ?: LOCAL_EXPERIENCE_MODE_VIEWING
+        prefs.getString(KEY_LOCAL_EXPERIENCE_MODE, LOCAL_EXPERIENCE_MODE_RHYTHM) ?: LOCAL_EXPERIENCE_MODE_RHYTHM
     )
     val localExperienceMode: StateFlow<String> = _localExperienceMode.asStateFlow()
     
@@ -993,6 +1007,48 @@ class AppSettings private constructor(context: Context) {
 
     private val _contextQueueSize = MutableStateFlow(prefs.getInt(KEY_CONTEXT_QUEUE_SIZE, 50))
     val contextQueueSize: StateFlow<Int> = _contextQueueSize.asStateFlow()
+
+    private val _smartAutoQueueEnabled = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_ENABLED, false))
+    val smartAutoQueueEnabled: StateFlow<Boolean> = _smartAutoQueueEnabled.asStateFlow()
+
+    private val _smartAutoQueueOfflineOnly = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_OFFLINE_ONLY, true))
+    val smartAutoQueueOfflineOnly: StateFlow<Boolean> = _smartAutoQueueOfflineOnly.asStateFlow()
+
+    private val _smartAutoQueueOnlineMetadata = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_ONLINE_METADATA, false))
+    val smartAutoQueueOnlineMetadata: StateFlow<Boolean> = _smartAutoQueueOnlineMetadata.asStateFlow()
+
+    private val _smartAutoQueueTargetSize = MutableStateFlow(prefs.getInt(KEY_SMART_AUTO_QUEUE_TARGET_SIZE, 20).coerceIn(5, 30))
+    val smartAutoQueueTargetSize: StateFlow<Int> = _smartAutoQueueTargetSize.asStateFlow()
+
+    private val _smartAutoQueueRefillThreshold = MutableStateFlow(prefs.getInt(KEY_SMART_AUTO_QUEUE_REFILL_THRESHOLD, 8).coerceIn(1, (_smartAutoQueueTargetSize.value - 1).coerceAtLeast(1)))
+    val smartAutoQueueRefillThreshold: StateFlow<Int> = _smartAutoQueueRefillThreshold.asStateFlow()
+
+    private val _smartAutoQueueRecentCooldownMinutes = MutableStateFlow(prefs.getInt(KEY_SMART_AUTO_QUEUE_RECENT_COOLDOWN_MINUTES, 120).coerceAtLeast(0))
+    val smartAutoQueueRecentCooldownMinutes: StateFlow<Int> = _smartAutoQueueRecentCooldownMinutes.asStateFlow()
+
+    private val _smartAutoQueueResetCooldownOnSessionEnd = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_RESET_COOLDOWN_ON_SESSION_END, true))
+    val smartAutoQueueResetCooldownOnSessionEnd: StateFlow<Boolean> = _smartAutoQueueResetCooldownOnSessionEnd.asStateFlow()
+
+    private val _smartAutoQueueLanguageMixMode = MutableStateFlow(prefs.getString(KEY_SMART_AUTO_QUEUE_LANGUAGE_MIX_MODE, "BALANCED") ?: "BALANCED")
+    val smartAutoQueueLanguageMixMode: StateFlow<String> = _smartAutoQueueLanguageMixMode.asStateFlow()
+
+    private val _smartAutoQueueAllowEnglishBetweenHindi = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_ALLOW_ENGLISH_BETWEEN_HINDI, true))
+    val smartAutoQueueAllowEnglishBetweenHindi: StateFlow<Boolean> = _smartAutoQueueAllowEnglishBetweenHindi.asStateFlow()
+
+    private val _smartAutoQueueAllowHindiBetweenEnglish = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_ALLOW_HINDI_BETWEEN_ENGLISH, true))
+    val smartAutoQueueAllowHindiBetweenEnglish: StateFlow<Boolean> = _smartAutoQueueAllowHindiBetweenEnglish.asStateFlow()
+
+    private val _smartAutoQueuePreferSameLanguage = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_PREFER_SAME_LANGUAGE, true))
+    val smartAutoQueuePreferSameLanguage: StateFlow<Boolean> = _smartAutoQueuePreferSameLanguage.asStateFlow()
+
+    private val _smartAutoQueueDiscoveryLevel = MutableStateFlow(prefs.getString(KEY_SMART_AUTO_QUEUE_DISCOVERY_LEVEL, "MEDIUM") ?: "MEDIUM")
+    val smartAutoQueueDiscoveryLevel: StateFlow<String> = _smartAutoQueueDiscoveryLevel.asStateFlow()
+
+    private val _smartAutoQueueDiversityStrength = MutableStateFlow(prefs.getString(KEY_SMART_AUTO_QUEUE_DIVERSITY_STRENGTH, "MEDIUM") ?: "MEDIUM")
+    val smartAutoQueueDiversityStrength: StateFlow<String> = _smartAutoQueueDiversityStrength.asStateFlow()
+
+    private val _smartAutoQueueAvoidSameArtistBackToBack = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_AVOID_SAME_ARTIST_BACK_TO_BACK, true))
+    val smartAutoQueueAvoidSameArtistBackToBack: StateFlow<Boolean> = _smartAutoQueueAvoidSameArtistBackToBack.asStateFlow()
     
     private val _savedQueue = MutableStateFlow<List<String>>(
         try {
@@ -2531,6 +2587,91 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         val safeSize = size.coerceAtLeast(1)
         prefs.edit().putInt(KEY_CONTEXT_QUEUE_SIZE, safeSize).apply()
         _contextQueueSize.value = safeSize
+    }
+
+
+    fun setSmartAutoQueueEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_ENABLED, enabled).apply()
+        _smartAutoQueueEnabled.value = enabled
+    }
+
+    fun setSmartAutoQueueOfflineOnly(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_OFFLINE_ONLY, enabled).apply()
+        _smartAutoQueueOfflineOnly.value = enabled
+        if (enabled) setSmartAutoQueueOnlineMetadata(false)
+    }
+
+    fun setSmartAutoQueueOnlineMetadata(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_ONLINE_METADATA, enabled).apply()
+        _smartAutoQueueOnlineMetadata.value = enabled
+        if (enabled) {
+            prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_OFFLINE_ONLY, false).apply()
+            _smartAutoQueueOfflineOnly.value = false
+        }
+    }
+
+    fun setSmartAutoQueueTargetSize(size: Int) {
+        val safeSize = size.coerceIn(5, 30)
+        prefs.edit().putInt(KEY_SMART_AUTO_QUEUE_TARGET_SIZE, safeSize).apply()
+        _smartAutoQueueTargetSize.value = safeSize
+        if (_smartAutoQueueRefillThreshold.value >= safeSize) {
+            setSmartAutoQueueRefillThreshold((safeSize - 1).coerceAtLeast(1))
+        }
+    }
+
+    fun setSmartAutoQueueRefillThreshold(threshold: Int) {
+        val safeThreshold = threshold.coerceIn(1, (_smartAutoQueueTargetSize.value - 1).coerceAtLeast(1))
+        prefs.edit().putInt(KEY_SMART_AUTO_QUEUE_REFILL_THRESHOLD, safeThreshold).apply()
+        _smartAutoQueueRefillThreshold.value = safeThreshold
+    }
+
+    fun setSmartAutoQueueRecentCooldownMinutes(minutes: Int) {
+        val safeMinutes = minutes.coerceAtLeast(0)
+        prefs.edit().putInt(KEY_SMART_AUTO_QUEUE_RECENT_COOLDOWN_MINUTES, safeMinutes).apply()
+        _smartAutoQueueRecentCooldownMinutes.value = safeMinutes
+    }
+
+    fun setSmartAutoQueueResetCooldownOnSessionEnd(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_RESET_COOLDOWN_ON_SESSION_END, enabled).apply()
+        _smartAutoQueueResetCooldownOnSessionEnd.value = enabled
+    }
+
+    fun setSmartAutoQueueLanguageMixMode(mode: String) {
+        val safeMode = if (mode in listOf("SAME_LANGUAGE", "BALANCED", "MIX_ENGLISH_HINDI", "DISCOVERY")) mode else "BALANCED"
+        prefs.edit().putString(KEY_SMART_AUTO_QUEUE_LANGUAGE_MIX_MODE, safeMode).apply()
+        _smartAutoQueueLanguageMixMode.value = safeMode
+    }
+
+    fun setSmartAutoQueueAllowEnglishBetweenHindi(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_ALLOW_ENGLISH_BETWEEN_HINDI, enabled).apply()
+        _smartAutoQueueAllowEnglishBetweenHindi.value = enabled
+    }
+
+    fun setSmartAutoQueueAllowHindiBetweenEnglish(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_ALLOW_HINDI_BETWEEN_ENGLISH, enabled).apply()
+        _smartAutoQueueAllowHindiBetweenEnglish.value = enabled
+    }
+
+    fun setSmartAutoQueuePreferSameLanguage(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_PREFER_SAME_LANGUAGE, enabled).apply()
+        _smartAutoQueuePreferSameLanguage.value = enabled
+    }
+
+    fun setSmartAutoQueueDiscoveryLevel(level: String) {
+        val safeLevel = if (level in listOf("LOW", "MEDIUM", "HIGH")) level else "MEDIUM"
+        prefs.edit().putString(KEY_SMART_AUTO_QUEUE_DISCOVERY_LEVEL, safeLevel).apply()
+        _smartAutoQueueDiscoveryLevel.value = safeLevel
+    }
+
+    fun setSmartAutoQueueDiversityStrength(strength: String) {
+        val safeStrength = if (strength in listOf("LOW", "MEDIUM", "HIGH")) strength else "MEDIUM"
+        prefs.edit().putString(KEY_SMART_AUTO_QUEUE_DIVERSITY_STRENGTH, safeStrength).apply()
+        _smartAutoQueueDiversityStrength.value = safeStrength
+    }
+
+    fun setSmartAutoQueueAvoidSameArtistBackToBack(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_AVOID_SAME_ARTIST_BACK_TO_BACK, enabled).apply()
+        _smartAutoQueueAvoidSameArtistBackToBack.value = enabled
     }
     
     // Cache Settings Methods
