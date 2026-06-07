@@ -124,6 +124,7 @@ fun PlayerScreen(
     onSaveLyrics: (String, String) -> Unit = { _, _ -> },
     playlists: List<Playlist> = emptyList(),
     queue: List<Song> = emptyList(),
+    smartRecommendationSongIds: Set<String> = emptySet(),
     onSongClick: (Song) -> Unit = {},
     onSongClickAtIndex: (Int) -> Unit = { _ -> },
     onRemoveFromQueueAtIndex: (Int) -> Unit = { _ -> },
@@ -394,6 +395,7 @@ fun PlayerScreen(
                 currentSong = song,
                 queue = queue,
                 currentQueueIndex = queuePosition - 1,
+                smartRecommendationSongIds = smartRecommendationSongIds,
                 isShuffleEnabled = isShuffleEnabled,
                 repeatMode = repeatMode,
                 onSongClick = { selectedSong ->
@@ -823,6 +825,7 @@ fun PlayerScreen(
             onSaveLyrics = onSaveLyrics,
             playlists = playlists,
             queue = queue,
+            smartRecommendationSongIds = smartRecommendationSongIds,
             onSongClick = onSongClick,
             onSongClickAtIndex = onSongClickAtIndex,
             onRemoveFromQueueAtIndex = onRemoveFromQueueAtIndex,

@@ -36,6 +36,13 @@ import com.marvelspectrum.shared.data.model.AppSettings
 import com.marvelspectrum.shared.data.model.Artist
 import com.marvelspectrum.shared.data.model.LyricsSourcePreference
 import com.marvelspectrum.features.local.data.repository.MusicRepository
+import com.marvelspectrum.features.local.domain.recommendation.DiscoveryLevel
+import com.marvelspectrum.features.local.domain.recommendation.DiversityStrength
+import com.marvelspectrum.features.local.domain.recommendation.LanguageMixMode
+import com.marvelspectrum.features.local.domain.recommendation.QueueLaneState
+import com.marvelspectrum.features.local.domain.recommendation.SmartAutoQueueManager
+import com.marvelspectrum.features.local.domain.recommendation.SmartRecommendationSettings
+import com.marvelspectrum.features.local.domain.recommendation.TrackFeatureFactory
 import com.marvelspectrum.shared.data.model.PlaybackLocation
 import com.marvelspectrum.shared.data.model.Playlist
 import com.marvelspectrum.shared.data.model.Queue
@@ -676,6 +683,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _currentQueue = MutableStateFlow(Queue(emptyList(), -1))
     val currentQueue: StateFlow<Queue> = _currentQueue.asStateFlow()
+
+    private val smartAutoQueueManager = SmartAutoQueueManager()
+    private val _smartRecommendationSongIds = MutableStateFlow<Set<String>>(emptySet())
+    val smartRecommendationSongIds: StateFlow<Set<String>> = _smartRecommendationSongIds.asStateFlow()
 
     private val _progress = MutableStateFlow(0f)
     val progress: StateFlow<Float> = _progress.asStateFlow()
@@ -3007,6 +3018,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                             _duration.value = resolvePlaybackDuration(controller)
                         }
                     }
+
+                    smartAutoQueueManager.markPlayed(TrackFeatureFactory.fromSong(song).songId)
+                    refillSmartAutoQueueIfNeeded(song)
                 }
             }
         }
@@ -3387,6 +3401,103 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             .build()
     }
 
+
+    private fun buildSmartRecommendationSettings(): SmartRecommendationSettings {
+        return SmartRecommendationSettings(
+            enabled = appSettings.smartAutoQueueEnabled.value,
+            offlineOnly = appSettings.smartAutoQueueOfflineOnly.value,
+            onlineMetadataEnrichmentEnabled = appSettings.smartAutoQueueOnlineMetadata.value,
+            targetQueueSize = appSettings.smartAutoQueueTargetSize.value,
+            refillThreshold = appSettings.smartAutoQueueRefillThreshold.value,
+            recentCooldownMinutes = appSettings.smartAutoQueueRecentCooldownMinutes.value,
+            resetCooldownOnSessionEnd = appSettings.smartAutoQueueResetCooldownOnSessionEnd.value,
+            languageMixMode = runCatching { LanguageMixMode.valueOf(appSettings.smartAutoQueueLanguageMixMode.value) }.getOrDefault(LanguageMixMode.BALANCED),
+            allowEnglishBetweenHindi = appSettings.smartAutoQueueAllowEnglishBetweenHindi.value,
+            allowHindiBetweenEnglish = appSettings.smartAutoQueueAllowHindiBetweenEnglish.value,
+            preferSameLanguageAsSeed = appSettings.smartAutoQueuePreferSameLanguage.value,
+            discoveryLevel = runCatching { DiscoveryLevel.valueOf(appSettings.smartAutoQueueDiscoveryLevel.value) }.getOrDefault(DiscoveryLevel.MEDIUM),
+            diversityStrength = runCatching { DiversityStrength.valueOf(appSettings.smartAutoQueueDiversityStrength.value) }.getOrDefault(DiversityStrength.MEDIUM),
+            avoidSameArtistBackToBack = appSettings.smartAutoQueueAvoidSameArtistBackToBack.value
+        ).normalized()
+    }
+
+    private fun smartFeaturePairs(): List<Pair<Song, com.marvelspectrum.features.local.domain.recommendation.TrackFeatureVector>> {
+        val playCounts = _songPlayCounts.value
+        val favorites = _favoriteSongs.value
+        return _songs.value.distinctBy { it.id }.map { song ->
+            song to TrackFeatureFactory.fromSong(
+                song = song,
+                isFavorite = favorites.contains(song.id),
+                playCount = playCounts[song.id] ?: 0
+            )
+        }
+    }
+
+    private fun createSmartAutoQueueRecommendations(seed: Song): List<Song> {
+        val settings = buildSmartRecommendationSettings()
+        if (!settings.enabled) return emptyList()
+        val pairs = smartFeaturePairs()
+        val seedPair = pairs.firstOrNull { it.first.id == seed.id } ?: (seed to TrackFeatureFactory.fromSong(seed))
+        val featureByLongId = pairs.associate { it.second.songId to it.first }
+        val update = smartAutoQueueManager.ensureRecommendations(
+            seed = seedPair.second,
+            library = pairs.map { it.second },
+            state = QueueLaneState(currentItem = seedPair.second.songId),
+            settings = settings
+        )
+        return update.laneState.smartRecommendationItems
+            .mapNotNull { featureByLongId[it] }
+            .filterNot { it.id == seed.id }
+            .distinctBy { it.id }
+            .take(settings.targetQueueSize)
+    }
+
+    private fun refillSmartAutoQueueIfNeeded(seed: Song) {
+        val settings = buildSmartRecommendationSettings()
+        if (!settings.enabled || _smartRecommendationSongIds.value.isEmpty()) return
+        val controller = mediaController ?: return
+        val currentQueue = _currentQueue.value
+        val currentIndex = currentQueue.currentIndex.coerceAtLeast(controller.currentMediaItemIndex.coerceAtLeast(0))
+        val smartIds = _smartRecommendationSongIds.value
+        val remainingSmartIds = currentQueue.songs
+            .drop((currentIndex + 1).coerceAtMost(currentQueue.songs.size))
+            .map { it.id }
+            .filter { it in smartIds }
+        if (remainingSmartIds.size > settings.refillThreshold) return
+
+        val pairs = smartFeaturePairs()
+        val seedPair = pairs.firstOrNull { it.first.id == seed.id } ?: return
+        val featureByLongId = pairs.associate { it.second.songId to it.first }
+        val longBySongId = pairs.associate { it.first.id to it.second.songId }
+        val manualLongIds = currentQueue.songs
+            .filterNot { it.id in smartIds }
+            .mapNotNull { longBySongId[it.id] }
+        val smartLongIds = currentQueue.songs
+            .filter { it.id in smartIds }
+            .mapNotNull { longBySongId[it.id] }
+        val update = smartAutoQueueManager.ensureRecommendations(
+            seed = seedPair.second,
+            library = pairs.map { it.second },
+            state = QueueLaneState(
+                currentItem = seedPair.second.songId,
+                manualQueueItems = manualLongIds,
+                smartRecommendationItems = smartLongIds
+            ),
+            settings = settings
+        )
+        val songsToAdd = update.recommendationsToAdd
+            .mapNotNull { featureByLongId[it] }
+            .filterNot { it.id in smartIds || it.id == seed.id }
+            .distinctBy { it.id }
+        if (songsToAdd.isEmpty()) return
+
+        controller.addMediaItems(songsToAdd.map { it.toMediaItem() })
+        _currentQueue.value = currentQueue.copy(songs = currentQueue.songs + songsToAdd)
+        _smartRecommendationSongIds.value = _smartRecommendationSongIds.value + songsToAdd.map { it.id }
+        saveQueueToPersistence()
+        Log.d(TAG, "Refilled Smart Auto Queue with ${songsToAdd.size} songs; smart lane now has ${_smartRecommendationSongIds.value.size} ids")
+    }
+
     private fun mediaItemToTransientSong(mediaItem: MediaItem): Song? {
         val mediaId = mediaItem.mediaId
         val metadata = mediaItem.mediaMetadata
@@ -3574,6 +3685,20 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         val shouldShowQueueDialog = appSettings.showQueueDialog.value
         val currentQueueSongs = _currentQueue.value.songs.toMutableList()
         val songIndexInQueue = currentQueueSongs.indexOfFirst { it.id == song.id }
+
+        if (appSettings.smartAutoQueueEnabled.value && songIndexInQueue == -1) {
+            val smartRecommendations = createSmartAutoQueueRecommendations(song)
+            if (smartRecommendations.isNotEmpty()) {
+                Log.d(TAG, "Starting Smart Auto Queue session with ${smartRecommendations.size} recommendations")
+                playQueue(
+                    songs = listOf(song) + smartRecommendations,
+                    enableShuffle = false,
+                    startIndex = 0,
+                    smartRecommendationIds = smartRecommendations.map { it.id }.toSet()
+                )
+                return
+            }
+        }
 
         mediaController?.let { controller ->
             if (shouldClearQueue) {
@@ -4314,7 +4439,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun playQueue(songs: List<Song>, enableShuffle: Boolean? = null, startIndex: Int = 0) {
+    fun playQueue(
+        songs: List<Song>,
+        enableShuffle: Boolean? = null,
+        startIndex: Int = 0,
+        smartRecommendationIds: Set<String> = emptySet()
+    ) {
         Log.d(TAG, "Playing queue with ${songs.size} songs, shuffle: $enableShuffle, startIndex: $startIndex")
 
         if (!canStartPlayback("playQueue")) {
@@ -4378,6 +4508,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                         
                         // Set the queue in the view model with the correct starting index
                         _currentQueue.value = Queue(songs, validStartIndex)
+                        _smartRecommendationSongIds.value = smartRecommendationIds
                         
                         // Clear original queue state since this is a new queue
                         queueStateHolder.clearOriginalQueue()
@@ -6514,8 +6645,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     )
                     .build()
                 
-                // Add to media controller queue
-                controller.addMediaItem(mediaItem)
+                val firstSmartIndex = _currentQueue.value.songs.indexOfFirst { it.id in _smartRecommendationSongIds.value }
+                val insertIndex = if (firstSmartIndex >= 0) firstSmartIndex else controller.mediaItemCount
+
+                // Add manual queue items before the Smart Auto Queue recommendation lane.
+                controller.addMediaItem(insertIndex.coerceIn(0, controller.mediaItemCount), mediaItem)
                 
                 // If nothing is currently playing, start playback
                 if (controller.playbackState == Player.STATE_IDLE || controller.playbackState == Player.STATE_ENDED) {
@@ -6534,7 +6668,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     // When shuffle is disabled, we can safely update the queue manually
                     val currentQueueSongs = _currentQueue.value.songs.toMutableList()
-                    currentQueueSongs.add(song)
+                    val queueInsertIndex = if (firstSmartIndex >= 0) firstSmartIndex else currentQueueSongs.size
+                    currentQueueSongs.add(queueInsertIndex.coerceIn(0, currentQueueSongs.size), song)
+                    _smartRecommendationSongIds.value = _smartRecommendationSongIds.value - song.id
                     
                     // Make sure current index is valid and matches MediaController
                     val currentIndex = if (_currentQueue.value.currentIndex == -1 && currentQueueSongs.size == 1) {
@@ -6624,6 +6760,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                         0
                     }
                     currentQueueSongs.add(queueInsertIndex, song)
+                    _smartRecommendationSongIds.value = _smartRecommendationSongIds.value - song.id
                     
                     // Keep current index pointing to the currently playing song
                     _currentQueue.value = Queue(currentQueueSongs, currentQueueIndex)
@@ -7006,6 +7143,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 
                 _currentQueue.value = Queue(newQueue, if (newQueue.isNotEmpty()) 0 else -1)
+                _smartRecommendationSongIds.value = emptySet()
                 
                 // Save queue to persistence
                 saveQueueToPersistence()

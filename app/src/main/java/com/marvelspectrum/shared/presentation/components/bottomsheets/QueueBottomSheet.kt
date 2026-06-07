@@ -111,6 +111,7 @@ fun QueueBottomSheet(
     currentSong: Song?,
     queue: List<Song>,
     currentQueueIndex: Int = 0,
+    smartRecommendationSongIds: Set<String> = emptySet(),
     isShuffleEnabled: Boolean = false,
     repeatMode: Int = Player.REPEAT_MODE_OFF,
     onSongClick: (Song) -> Unit,
@@ -128,8 +129,6 @@ fun QueueBottomSheet(
     val context = LocalContext.current
     val appSettings = remember(context) { AppSettings.getInstance(context) }
     val hidePlayedQueueSongs by appSettings.hidePlayedQueueSongs.collectAsState()
-    val smartAutoQueueEnabled by appSettings.smartAutoQueueEnabled.collectAsState()
-    val smartAutoQueueTargetSize by appSettings.smartAutoQueueTargetSize.collectAsState()
     val showAlreadyPlayedSongsInQueue = !hidePlayedQueueSongs
     // Animation states
     var showContent by remember { mutableStateOf(false) }
@@ -372,7 +371,7 @@ fun QueueBottomSheet(
                                                 }
                                             },
                                             showDragHandle = false, // Hide drag handle when shuffle is enabled
-                                            showSmartQueueBadge = smartAutoQueueEnabled && actualQueuePosition > currentQueueIndex && actualQueuePosition >= (displayQueue.size - smartAutoQueueTargetSize).coerceAtLeast(0)
+                                            showSmartQueueBadge = song.id in smartRecommendationSongIds
                                         )
                                     }
                                 }
@@ -421,7 +420,7 @@ fun QueueBottomSheet(
                                                 // Handle error silently
                                             }
                                         },
-                                        showSmartQueueBadge = smartAutoQueueEnabled && actualQueuePosition > currentQueueIndex && actualQueuePosition >= (displayQueue.size - smartAutoQueueTargetSize).coerceAtLeast(0)
+                                        showSmartQueueBadge = song.id in smartRecommendationSongIds
                                     )
                                 }
                             }

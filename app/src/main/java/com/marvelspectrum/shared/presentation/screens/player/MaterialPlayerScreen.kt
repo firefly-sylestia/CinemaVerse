@@ -255,6 +255,7 @@ fun MaterialPlayerScreen(
     onSaveLyrics: (String, String) -> Unit = { _, _ -> }, // (lyrics, saveLocation)
     playlists: List<Playlist> = emptyList(),
     queue: List<Song> = emptyList(),
+    smartRecommendationSongIds: Set<String> = emptySet(),
     onSongClick: (Song) -> Unit = {},
     onSongClickAtIndex: (Int) -> Unit = { _ -> }, // New parameter for index-based queue clicks
     onRemoveFromQueueAtIndex: (Int) -> Unit = { _ -> },
@@ -869,6 +870,7 @@ fun MaterialPlayerScreen(
             currentSong = song,
             queue = queue,
             currentQueueIndex = queuePosition - 1,
+            smartRecommendationSongIds = smartRecommendationSongIds,
             isShuffleEnabled = isShuffleEnabled,
             repeatMode = repeatMode,
             onSongClick = { selectedSong ->

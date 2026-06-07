@@ -321,6 +321,7 @@ fun LocalNavigation(
     val artists by viewModel.filteredArtists.collectAsState() // Use filtered artists to exclude artists with all songs blacklisted
     val playlists by viewModel.playlists.collectAsState()
     val currentSong by viewModel.currentSong.collectAsState()
+    val smartRecommendationSongIds by viewModel.smartRecommendationSongIds.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     val progress by viewModel.progress.collectAsState()
     val isShuffleEnabled by viewModel.isShuffleEnabled.collectAsState()
@@ -447,8 +448,7 @@ fun LocalNavigation(
 
     // Provide dynamic mini-player padding with comprehensive navigation handling
     val showMiniPlayer =
-        localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING &&
-            currentSong != null &&
+        currentSong != null &&
             !isMiniPlayerDismissed &&
             currentRoute != Screen.Player.route &&
             currentRoute != Screen.Search.route
@@ -2162,6 +2162,7 @@ private fun LocalNavigationContent(
                         },
                         playlists = playlists,
                         queue = viewModel.currentQueue.collectAsState().value.songs,
+                        smartRecommendationSongIds = smartRecommendationSongIds,
                         onSongClick = { song ->
                             // Play the selected song from the queue (fallback for non-indexed clicks)
                             viewModel.playSong(song)
