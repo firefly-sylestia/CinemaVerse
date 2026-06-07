@@ -390,7 +390,11 @@ class AppSettings private constructor(context: Context) {
         
         // App Mode Settings (Local vs Streaming)
         private const val KEY_APP_MODE = "app_mode" // "LOCAL" or "STREAMING"
-        private const val KEY_LOCAL_EXPERIENCE_MODE = "local_experience_mode" // "RHYTHM" or "VIEWING"
+        private const val KEY_LOCAL_EXPERIENCE_MODE = "local_experience_mode" // legacy/default landing preference: "RHYTHM" or "VIEWING"
+        private const val KEY_MUSIC_LIBRARY_ENABLED = "music_library_enabled"
+        private const val KEY_VIEWING_CATALOG_ENABLED = "viewing_catalog_enabled"
+        private const val KEY_MINI_PLAYER_ENABLED = "mini_player_enabled"
+        private const val KEY_QUEUE_FEATURES_ENABLED = "queue_features_enabled"
         const val LOCAL_EXPERIENCE_MODE_RHYTHM = "RHYTHM"
         const val LOCAL_EXPERIENCE_MODE_VIEWING = "VIEWING"
         private const val KEY_STREAMING_SERVICE = "streaming_service" // "SPOTIFY", "APPLE_MUSIC", etc.
@@ -849,6 +853,21 @@ class AppSettings private constructor(context: Context) {
         prefs.getString(KEY_LOCAL_EXPERIENCE_MODE, LOCAL_EXPERIENCE_MODE_VIEWING) ?: LOCAL_EXPERIENCE_MODE_VIEWING
     )
     val localExperienceMode: StateFlow<String> = _localExperienceMode.asStateFlow()
+
+    // These feature toggles intentionally decouple Cinemaverse browsing from Rhythm music.
+    // Older versions used localExperienceMode as a hard kill switch for scans/playback; keep
+    // that value only as a landing/content preference so viewing users still get music.
+    private val _musicLibraryEnabled = MutableStateFlow(prefs.getBoolean(KEY_MUSIC_LIBRARY_ENABLED, true))
+    val musicLibraryEnabled: StateFlow<Boolean> = _musicLibraryEnabled.asStateFlow()
+
+    private val _viewingCatalogEnabled = MutableStateFlow(prefs.getBoolean(KEY_VIEWING_CATALOG_ENABLED, true))
+    val viewingCatalogEnabled: StateFlow<Boolean> = _viewingCatalogEnabled.asStateFlow()
+
+    private val _miniPlayerEnabled = MutableStateFlow(prefs.getBoolean(KEY_MINI_PLAYER_ENABLED, true))
+    val miniPlayerEnabled: StateFlow<Boolean> = _miniPlayerEnabled.asStateFlow()
+
+    private val _queueFeaturesEnabled = MutableStateFlow(prefs.getBoolean(KEY_QUEUE_FEATURES_ENABLED, true))
+    val queueFeaturesEnabled: StateFlow<Boolean> = _queueFeaturesEnabled.asStateFlow()
     
     private val _streamingService = MutableStateFlow(prefs.getString(KEY_STREAMING_SERVICE, "SUBSONIC") ?: "SUBSONIC")
     val streamingService: StateFlow<String> = _streamingService.asStateFlow()
@@ -2250,6 +2269,26 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         }
         prefs.edit().putString(KEY_LOCAL_EXPERIENCE_MODE, sanitizedMode).apply()
         _localExperienceMode.value = sanitizedMode
+    }
+
+    fun setMusicLibraryEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_MUSIC_LIBRARY_ENABLED, enabled).apply()
+        _musicLibraryEnabled.value = enabled
+    }
+
+    fun setViewingCatalogEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_VIEWING_CATALOG_ENABLED, enabled).apply()
+        _viewingCatalogEnabled.value = enabled
+    }
+
+    fun setMiniPlayerEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_MINI_PLAYER_ENABLED, enabled).apply()
+        _miniPlayerEnabled.value = enabled
+    }
+
+    fun setQueueFeaturesEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_QUEUE_FEATURES_ENABLED, enabled).apply()
+        _queueFeaturesEnabled.value = enabled
     }
     
     fun setStreamingService(service: String) {
@@ -4547,6 +4586,10 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
         _rhythmPulseNotificationIntervalHours.value = prefs.getInt(KEY_RHYTHM_PULSE_NOTIFICATION_INTERVAL_HOURS, 24).coerceIn(6, 72)
         _forcePlayerCompactMode.value = prefs.getBoolean(KEY_FORCE_PLAYER_COMPACT_MODE, false)
         _useExperimentalPlayerUi.value = prefs.getBoolean(KEY_USE_EXPERIMENTAL_PLAYER_UI, false)
+        _musicLibraryEnabled.value = prefs.getBoolean(KEY_MUSIC_LIBRARY_ENABLED, true)
+        _viewingCatalogEnabled.value = prefs.getBoolean(KEY_VIEWING_CATALOG_ENABLED, true)
+        _miniPlayerEnabled.value = prefs.getBoolean(KEY_MINI_PLAYER_ENABLED, true)
+        _queueFeaturesEnabled.value = prefs.getBoolean(KEY_QUEUE_FEATURES_ENABLED, true)
         _onboardingCompleted.value = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
         _initialMediaScanCompleted.value = prefs.getBoolean(KEY_INITIAL_MEDIA_SCAN_COMPLETED, false)
         _genreDetectionCompleted.value = prefs.getBoolean(KEY_GENRE_DETECTION_COMPLETED, false)

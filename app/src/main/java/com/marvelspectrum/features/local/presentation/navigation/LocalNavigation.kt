@@ -211,6 +211,10 @@ sealed class Screen(val route: String) {
         fun createRoute(tab: LibraryTab = LibraryTab.SONGS): String = "library?tab=${tab.name.lowercase()}"
     }
     object Player : Screen("player")
+    object ViewingHome : Screen("viewing_home")
+    object ViewingLibrary : Screen("viewing_library")
+    object ViewingSearch : Screen("viewing_search")
+    object ViewingDetail : Screen("viewing_detail")
     object Settings : Screen("settings")
     object AddToPlaylist : Screen("add_to_playlist")
     object PlaylistDetail : Screen("playlist/{playlistId}") {
@@ -335,6 +339,9 @@ fun LocalNavigation(
     val recentlyPlayed by viewModel.recentlyPlayed.collectAsState()
     val currentDevice by viewModel.currentDevice.collectAsState()
     val isMediaScanning by viewModel.isMediaScanning.collectAsState() // Add media scanning state
+    val musicLibraryEnabled by appSettings.musicLibraryEnabled.collectAsState()
+    val viewingCatalogEnabled by appSettings.viewingCatalogEnabled.collectAsState()
+    val miniPlayerEnabled by appSettings.miniPlayerEnabled.collectAsState()
 
     // Theme state
     val useSystemTheme by themeViewModel.useSystemTheme.collectAsState()
@@ -359,8 +366,9 @@ fun LocalNavigation(
     
     // Default landing screen
     val defaultScreen by appSettings.defaultScreen.collectAsState()
-    val startDestination = when (defaultScreen) {
-        "library" -> Screen.Library.createRoute(firstVisibleLibraryTab)
+    val startDestination = when {
+        localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING && viewingCatalogEnabled -> Screen.ViewingHome.route
+        defaultScreen == "library" -> Screen.Library.createRoute(firstVisibleLibraryTab)
         else -> Screen.Home.route
     }
 
@@ -419,6 +427,10 @@ fun LocalNavigation(
             val isValidLocalRoute = pendingRoute == Screen.Home.route ||
                 pendingRoute == Screen.Search.route ||
                 pendingRoute == Screen.Player.route ||
+                pendingRoute == Screen.ViewingHome.route ||
+                pendingRoute == Screen.ViewingLibrary.route ||
+                pendingRoute == Screen.ViewingSearch.route ||
+                pendingRoute == Screen.ViewingDetail.route ||
                 pendingRoute == Screen.Settings.route ||
                 pendingRoute == Screen.RhythmStats.route ||
                 pendingRoute.startsWith(Screen.Library.route.substringBefore("?")) ||
@@ -447,28 +459,27 @@ fun LocalNavigation(
 
     // Provide dynamic mini-player padding with comprehensive navigation handling
     val showMiniPlayer =
-        localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING &&
+        musicLibraryEnabled &&
+            miniPlayerEnabled &&
             currentSong != null &&
             !isMiniPlayerDismissed &&
             currentRoute != Screen.Player.route &&
             currentRoute != Screen.Search.route
-    val showNavBar = remember(currentRoute, localExperienceMode) {
-        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            currentRoute == Screen.Home.route || isLibraryRoute || currentRoute == Screen.Search.route || currentRoute == Screen.Settings.route
-        } else {
-            currentRoute == Screen.Home.route ||
-                isLibraryRoute ||
-                currentRoute == Screen.Search.route ||
-                currentRoute == Screen.Settings.route ||
-                currentRoute == Screen.RhythmStats.route
-        }
+    val showNavBar = remember(currentRoute) {
+        currentRoute == Screen.Home.route ||
+            isLibraryRoute ||
+            currentRoute == Screen.Search.route ||
+            currentRoute == Screen.Settings.route ||
+            currentRoute == Screen.RhythmStats.route ||
+            currentRoute == Screen.ViewingHome.route ||
+            currentRoute == Screen.ViewingLibrary.route ||
+            currentRoute == Screen.ViewingSearch.route
     }
-    val showBottomNav = remember(currentRoute, localExperienceMode) {
-        if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-            currentRoute == Screen.Home.route || isLibraryRoute || currentRoute == Screen.Search.route
-        } else {
-            currentRoute == Screen.Home.route || isLibraryRoute
-        }
+    val showBottomNav = remember(currentRoute) {
+        currentRoute == Screen.Home.route ||
+            isLibraryRoute ||
+            currentRoute == Screen.ViewingHome.route ||
+            currentRoute == Screen.ViewingLibrary.route
     }
     
     // Calculate content bottom padding based on visible UI elements
@@ -538,7 +549,8 @@ fun LocalNavigation(
                         firstVisibleLibraryTab = firstVisibleLibraryTab,
                         context = context,
                         haptic = haptic,
-                        localExperienceMode = localExperienceMode
+                        localExperienceMode = localExperienceMode,
+                        viewingCatalogEnabled = viewingCatalogEnabled
                     )
                 }
                 
@@ -739,14 +751,14 @@ private fun LocalNavigationContent(
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
+    val viewingCatalogEnabled by appSettings.viewingCatalogEnabled.collectAsState()
     val navigateToTopLevel: (String) -> Unit = { route ->
-        val preserveState = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
         navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = preserveState
+                saveState = true
             }
             launchSingleTop = true
-            restoreState = preserveState
+            restoreState = true
         }
     }
     val navigateBackOrToLanding: () -> Unit = {
@@ -994,21 +1006,28 @@ private fun LocalNavigationContent(
                                     // Use first visible library tab based on user's tab order
                                     val libraryRoute =
                                         Screen.Library.createRoute(firstVisibleLibraryTab)
-                                    val items = listOf(
-                                        Triple(
+                                    val items = buildList {
+                                        add(Triple(
                                             Screen.Home.route, "Home",
                                             Pair(RhythmIcons.HomeFilled, RhythmIcons.Home)
-                                        ),
-                                        Triple(
+                                        ))
+                                        add(Triple(
                                             libraryRoute, "Library",
                                             Pair(RhythmIcons.Navigation.Library, RhythmIcons.Navigation.LibraryOutlined)
-                                        )
-                                    )
+                                        ))
+                                        if (viewingCatalogEnabled) {
+                                            add(Triple(
+                                                Screen.ViewingHome.route, "Cinema",
+                                                Pair(MaterialSymbolIcon("movie_filter", filled = true), MaterialSymbolIcon("movie_filter"))
+                                            ))
+                                        }
+                                    }
 
                                     items.forEachIndexed { index, (route, title, icons) ->
                                         val isSelected = when (title) {
                                             "Home" -> currentRoute == Screen.Home.route
                                             "Library" -> currentRoute.startsWith("library")
+                                            "Cinema" -> currentRoute == Screen.ViewingHome.route || currentRoute == Screen.ViewingLibrary.route || currentRoute == Screen.ViewingSearch.route || currentRoute == Screen.ViewingDetail.route
                                             else -> false
                                         }
 
@@ -1065,7 +1084,7 @@ private fun LocalNavigationContent(
                                                         haptic,
                                                         HapticFeedbackType.LongPress
                                                     )
-                                                    if (title == "Home" && currentRoute == Screen.Home.route && localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
+                                                    if (title == "Cinema" && currentRoute == Screen.ViewingHome.route) {
                                                         ViewingHomeReselectionBus.trigger()
                                                     }
                                                     navigateToTopLevel(route)
@@ -1266,17 +1285,7 @@ private fun LocalNavigationContent(
                         fadeOut(animationSpec = tween(200))
                     }
                 ) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingHomeScreen(
-                            onOpenLibrary = { navigateToTopLevel(Screen.Library.createRoute(firstVisibleLibraryTab)) },
-                            onOpenSearch = { navigateToTopLevel(Screen.Search.route) },
-                            onOpenDetail = {},
-                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) },
-                            openSearchInternally = false,
-                            homeReselectionKey = ViewingHomeReselectionBus.key
-                        )
-                    } else {
-                        HomeScreen(
+                    HomeScreen(
                             musicViewModel = viewModel,
                         songs = songs,
                         albums = albums,
@@ -1360,6 +1369,34 @@ private fun LocalNavigationContent(
                             navController.navigate(Screen.ArtistDetail.createRoute(artist.name))
                         }
                     )
+                }
+
+                if (viewingCatalogEnabled) {
+                    composable(Screen.ViewingHome.route) {
+                        ViewingHomeScreen(
+                            onOpenLibrary = { navigateToTopLevel(Screen.ViewingLibrary.route) },
+                            onOpenSearch = { navigateToTopLevel(Screen.ViewingSearch.route) },
+                            onOpenDetail = {},
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) },
+                            openSearchInternally = false,
+                            homeReselectionKey = ViewingHomeReselectionBus.key
+                        )
+                    }
+                    composable(Screen.ViewingLibrary.route) {
+                        ViewingLibraryScreen(
+                            onOpenDetail = {},
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
+                        )
+                    }
+                    composable(Screen.ViewingSearch.route) {
+                        ViewingSearchScreen(
+                            onBack = { navigateBackOrToLanding() },
+                            onOpenDetail = {},
+                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
+                        )
+                    }
+                    composable(Screen.ViewingDetail.route) {
+                        ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
                     }
                 }
 
@@ -1383,14 +1420,7 @@ private fun LocalNavigationContent(
                                 )
                     }
                 ) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingSearchScreen(
-                            onBack = { navigateBackOrToLanding() },
-                            onOpenDetail = {},
-                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
-                        )
-                    } else {
-                        val streamingViewModel: com.marvelspectrum.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+                    val streamingViewModel: com.marvelspectrum.features.streaming.presentation.viewmodel.StreamingMusicViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
                     var showAlbumBottomSheet by remember { mutableStateOf(false) }
                     var selectedAlbumForSheet by remember { mutableStateOf<com.marvelspectrum.shared.data.model.Album?>(null) }
@@ -1548,7 +1578,6 @@ private fun LocalNavigationContent(
                             }
                         )
                     }
-                    }
                 }
 
 
@@ -1599,27 +1628,11 @@ private fun LocalNavigationContent(
                 }
 
                 composable(Screen.TunerUpdates.route) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        DisabledViewingSettingsPanel(
-                            title = "Updates disabled",
-                            message = "Marvel Spectrum keeps offline MCU metadata bundled with the app. Automatic update checks are disabled in viewing mode.",
-                            onBackClick = navigateBackOrToSettings
-                        )
-                    } else {
-                        UpdatesSettingsScreen(onBackClick = navigateBackOrToSettings)
-                    }
+                    UpdatesSettingsScreen(onBackClick = navigateBackOrToSettings)
                 }
 
                 composable(Screen.TunerMediaScan.route) {
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        DisabledViewingSettingsPanel(
-                            title = "Audio scans disabled",
-                            message = "Viewing mode uses bundled MCU JSON and poster assets, so device music scans are hidden.",
-                            onBackClick = navigateBackOrToSettings
-                        )
-                    } else {
-                        MediaScanSettingsScreen(onBackClick = navigateBackOrToSettings)
-                    }
+                    MediaScanSettingsScreen(onBackClick = navigateBackOrToSettings)
                 }
 
                 composable(Screen.TunerPlaylists.route) {
@@ -1842,13 +1855,7 @@ private fun LocalNavigationContent(
                         else -> LibraryTab.SONGS
                     }
 
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingLibraryScreen(
-                            onOpenDetail = {},
-                            onOpenSettings = { navigateToTopLevel(Screen.Settings.route) }
-                        )
-                    } else {
-                        LibraryScreen(
+                    LibraryScreen(
                             songs = songs,
                         albums = albums,
                         playlists = playlists,
@@ -1965,7 +1972,6 @@ private fun LocalNavigationContent(
                             navController.navigate(Screen.ArtistDetail.createRoute(artist.name))
                         }
                     )
-                    }
                 }
 
                 composable(
@@ -2081,10 +2087,7 @@ private fun LocalNavigationContent(
                         }
                     }
 
-                    if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) {
-                        ViewingDetailScreen(onBack = { navigateBackOrToLanding() })
-                    } else {
-                        PlayerScreen(
+                    PlayerScreen(
                             song = currentSong,
                         isPlaying = isPlaying,
                         progress = progress,
@@ -2235,7 +2238,6 @@ private fun LocalNavigationContent(
                         musicViewModel = viewModel,
                         navController = navController
                     )
-                    }
                 }
 
                 // Add playlist detail screen
@@ -2804,7 +2806,7 @@ private fun LocalNavigationContent(
 
     // Media scan loader overlay for refresh operations
     AnimatedVisibility(
-        visible = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING && isMediaScanning,
+        visible = musicLibraryEnabled && isMediaScanning,
         enter = fadeIn(
             animationSpec = tween(
                 800,
@@ -2879,16 +2881,16 @@ private fun LocalNavigationRail(
     firstVisibleLibraryTab: LibraryTab,
     context: android.content.Context,
     haptic: androidx.compose.ui.hapticfeedback.HapticFeedback,
-    localExperienceMode: String
+    localExperienceMode: String,
+    viewingCatalogEnabled: Boolean
 ) {
     val navigateToTopLevel: (String) -> Unit = { route ->
-        val preserveState = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
         navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = preserveState
+                saveState = true
             }
             launchSingleTop = true
-            restoreState = preserveState
+            restoreState = true
         }
     }
 
@@ -2936,7 +2938,17 @@ private fun LocalNavigationRail(
                         navigateToTopLevel(libraryRoute)
                     }
                 ),
-                if (localExperienceMode == AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING) null else LocalNavRailItem(
+                if (viewingCatalogEnabled) LocalNavRailItem(
+                    route = Screen.ViewingHome.route,
+                    title = "Cinema",
+                    selectedIcon = MaterialSymbolIcon("movie_filter", filled = true),
+                    unselectedIcon = MaterialSymbolIcon("movie_filter"),
+                    onClick = {
+                        if (currentRoute == Screen.ViewingHome.route) ViewingHomeReselectionBus.trigger()
+                        navigateToTopLevel(Screen.ViewingHome.route)
+                    }
+                ) else null,
+                LocalNavRailItem(
                     route = Screen.RhythmStats.route,
                     title = stringResource(R.string.localnavigation_stats),
                     selectedIcon = MaterialSymbolIcon("auto_graph", filled = true),
