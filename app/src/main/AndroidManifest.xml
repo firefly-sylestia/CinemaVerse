@@ -48,7 +48,7 @@
         android:localeConfig="@xml/locale_config"
         android:theme="@style/Theme.Rhythm"
         android:enableOnBackInvokedCallback="true"
-        tools:targetApi="37">
+        tools:targetApi="36">
         
         <!-- Media3 notification icon -->
         <meta-data

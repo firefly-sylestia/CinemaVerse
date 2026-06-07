@@ -10,16 +10,12 @@ plugins {
 
 android {
     namespace = "com.marvelspectrum"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.marvelspectrum"
         minSdk = 26
-        targetSdk {
-            version = release(37)
-        }
+        targetSdk = 36
         versionCode = 503941039
         versionName = "5.0.394.1039 Beta"
 

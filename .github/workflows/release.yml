@@ -26,9 +26,9 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Verify dependencies support compile SDK 37
+      - name: Verify dependencies support compile SDK 36
         run: bash ./gradlew checkGithubDebugAarMetadata --stacktrace
 
       - name: Create private.properties for build

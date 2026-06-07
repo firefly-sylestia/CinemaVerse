@@ -903,10 +903,11 @@ object MediaUtils {
     }
 
     /**
+     * Creates a write request for Android 11+ to get permission to embed lyrics in a file
+     */
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.R)
+    /**
      * Returns true if jaudiotagger can read and write the given file extension.
-     *
-     * This helper is pure string matching and safe on every supported Android version;
-     * callers use it before deciding whether to perform scoped-storage write flows.
      * OGG Opus, WebM, MKA, and other non-Vorbis OGG variants are not supported.
      */
     fun isSupportedByJaudiotagger(extension: String): Boolean {
@@ -919,22 +920,11 @@ object MediaUtils {
         }
     }
 
-    /**
-     * Creates a scoped-storage write request for embedding lyrics on Android 11+.
-     *
-     * Returns null on older Android versions where MediaStore.createWriteRequest is
-     * unavailable; legacy writes should use direct file access instead.
-     */
     fun createWriteRequestForLyrics(
         context: Context,
         song: Song,
         lyrics: String
     ): PendingLyricsWriteRequest? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            Log.w(TAG, "Lyrics write requests require Android 11+")
-            return null
-        }
-
         return try {
             val contentResolver = context.contentResolver
             Log.d(TAG, "Creating lyrics write request for song: ${song.title}")
