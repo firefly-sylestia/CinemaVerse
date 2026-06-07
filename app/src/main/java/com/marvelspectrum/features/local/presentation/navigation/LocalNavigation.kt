@@ -601,7 +601,8 @@ fun LocalNavigation(
                     onToggleRepeat = onToggleRepeat,
                     onToggleFavorite = onToggleFavorite,
                     onSeek = onSeek,
-                    onLyricsSeek = onLyricsSeek
+                    onLyricsSeek = onLyricsSeek,
+                    smartRecommendationSongIds = smartRecommendationSongIds
                 )
             }
         } else {
@@ -661,7 +662,8 @@ fun LocalNavigation(
                 onToggleRepeat = onToggleRepeat,
                 onToggleFavorite = onToggleFavorite,
                 onSeek = onSeek,
-                onLyricsSeek = onLyricsSeek
+                onLyricsSeek = onLyricsSeek,
+                smartRecommendationSongIds = smartRecommendationSongIds
             )
         }
     }
@@ -735,7 +737,8 @@ private fun LocalNavigationContent(
     onToggleRepeat: () -> Unit,
     onToggleFavorite: () -> Unit,
     onSeek: (Float) -> Unit,
-    onLyricsSeek: (Long) -> Unit
+    onLyricsSeek: (Long) -> Unit,
+    smartRecommendationSongIds: Set<String> = emptySet()
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
