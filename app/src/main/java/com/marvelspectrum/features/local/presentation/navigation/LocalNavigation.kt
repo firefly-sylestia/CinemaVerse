@@ -750,13 +750,12 @@ private fun LocalNavigationContent(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val navigateToTopLevel: (String) -> Unit = { route ->
-        val preserveState = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
         navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = preserveState
+                saveState = true
             }
             launchSingleTop = true
-            restoreState = preserveState
+            restoreState = true
         }
     }
     val navigateBackOrToLanding: () -> Unit = {
@@ -2898,13 +2897,12 @@ private fun LocalNavigationRail(
     localExperienceMode: String
 ) {
     val navigateToTopLevel: (String) -> Unit = { route ->
-        val preserveState = localExperienceMode != AppSettings.LOCAL_EXPERIENCE_MODE_VIEWING
         navController.navigate(route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = preserveState
+                saveState = true
             }
             launchSingleTop = true
-            restoreState = preserveState
+            restoreState = true
         }
     }
 
