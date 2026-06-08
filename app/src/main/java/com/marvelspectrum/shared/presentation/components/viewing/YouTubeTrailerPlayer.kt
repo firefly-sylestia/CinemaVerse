@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
+import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
 
 private val YouTubeIdPattern = Regex("^[A-Za-z0-9_-]{11}$")
 
@@ -163,7 +163,7 @@ private fun TrailerFallback(
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(
-                    MaterialSymbolIcon("play_circle", filled = true),
+                    RhythmIcons.PlayCircle,
                     contentDescription = null,
                     modifier = Modifier.size(56.dp),
                     tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
