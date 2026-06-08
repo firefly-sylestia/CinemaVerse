@@ -885,7 +885,9 @@ fun LibraryScreen(
                             expanded = showSortMenu,
                             onDismissRequest = { showSortMenu = false },
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.padding(4.dp)
+                            modifier = Modifier
+                                .widthIn(min = 260.dp)
+                                .padding(4.dp)
                         ) {
                             MusicViewModel.SortOrder.values().forEach { order ->
                                 val isSelected = (pendingSortOrder ?: sortOrder) == order
@@ -896,7 +898,6 @@ fun LibraryScreen(
                                         Color.Transparent,
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier
-                                        .fillMaxWidth()
                                         .padding(horizontal = 8.dp, vertical = 2.dp)
                                 ) {
                                     DropdownMenuItem(
@@ -1040,7 +1041,9 @@ fun LibraryScreen(
                                 expanded = showPlaylistSortMenu,
                                 onDismissRequest = { showPlaylistSortMenu = false },
                                 shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier.padding(4.dp)
+                                modifier = Modifier
+                                    .widthIn(min = 260.dp)
+                                    .padding(4.dp)
                             ) {
                                 LibraryPlaylistSortOrder.values().forEach { order ->
                                     val isSelected = playlistSortOrder == order
@@ -1051,7 +1054,6 @@ fun LibraryScreen(
                                             Color.Transparent,
                                         shape = RoundedCornerShape(12.dp),
                                         modifier = Modifier
-                                            .fillMaxWidth()
                                             .padding(horizontal = 8.dp, vertical = 2.dp)
                                     ) {
                                         DropdownMenuItem(
@@ -3202,7 +3204,7 @@ fun LibrarySongItem(
                     showDropdown = false
                 },
                 modifier = Modifier
-                    .widthIn(min = 220.dp)
+                    .widthIn(min = 220.dp, max = 300.dp)
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(5.dp),
                 shape = RoundedCornerShape(18.dp)
@@ -3217,7 +3219,6 @@ fun LibrarySongItem(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     DropdownMenuItem(
@@ -3256,7 +3257,6 @@ fun LibrarySongItem(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     DropdownMenuItem(
@@ -3295,7 +3295,6 @@ fun LibrarySongItem(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     DropdownMenuItem(
@@ -3335,7 +3334,6 @@ fun LibrarySongItem(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     DropdownMenuItem(
@@ -3377,12 +3375,10 @@ fun LibrarySongItem(
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 12.dp)
                         ) {
                             Row(

@@ -8,6 +8,8 @@ import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyListScope
@@ -55,6 +58,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -62,6 +68,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -291,6 +298,7 @@ fun ViewingHomeScreen(
         else -> ViewingHomeContent(
             data = data,
             onOpenLibrary = onOpenLibrary,
+            onOpenCollection = { list -> selectedListId = list.id },
             onOpenSearch = {
                 if (openSearchInternally) {
                     showSearch = true
@@ -310,6 +318,7 @@ fun ViewingHomeScreen(
 private fun ViewingHomeContent(
     data: McuAssetDataSource.ViewingAssetData,
     onOpenLibrary: () -> Unit,
+    onOpenCollection: (ViewingList) -> Unit = { onOpenLibrary() },
     onOpenSearch: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenItem: (ViewingItem) -> Unit,
@@ -341,15 +350,14 @@ private fun ViewingHomeContent(
         contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
         verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.sectionGap)
     ) {
-        item { CinemaverseHeader(title = "Marvel Spectrum", subtitle = "Your cinematic universe, beautifully organized", onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
+        item { CinemaverseHeader(title = "Marvel Spectrum", subtitle = "Your cinematic universe, beautifully organized", onOpenSettings = onOpenSettings) }
         item { LibraryTabs("Continue", onTab = { onOpenLibrary() }) }
-        item { SectionIdentityBlock(RhythmIcons.Play, "Continue your spectrum", "${continueItems.size} ready", "Recent activity, saved titles, and the stories waiting for you") }
         item {
             FeaturedTitleCarousel(
                 items = remember(data) { data.homeFeaturedTitles() },
                 featuredList = data.featuredList,
                 onOpenItem = onOpenItem,
-                onOpenLibrary = onOpenLibrary
+                onOpenCollection = onOpenCollection
             )
         }
         if (recent.isNotEmpty()) item { CinemaActivityMiniSurface(recent.first(), onClick = { onOpenItem(recent.first()) }) }
@@ -413,14 +421,16 @@ fun ViewingLibraryScreen(
                     .filter { item -> genreFilter == null || genreFilter in item.genres }
                     .sortedFor(sortMode)
             }
+            val libraryListState = rememberLazyListState()
+            val isLibraryScrolled by remember { derivedStateOf { libraryListState.firstVisibleItemIndex > 0 || libraryListState.firstVisibleItemScrollOffset > 60 } }
             LazyColumn(
+                state = libraryListState,
                 modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 item { CinemaverseHeader(title = "Library", subtitle = "Every universe, timeline, and collection in one place", onOpenSettings = onOpenSettings) }
-                item { LibraryTabs(tab, onTab = { tab = it }) }
-                item { SectionIdentityBlock(tabIdentityIcon(tab), tab, if (tab == "Collections") "${data.allLists.visibleManagedLists().size} collections" else "${filtered.size} titles", tabIdentitySubtitle(tab)) }
+                stickyHeader(key = "library-tabs") { LibraryTabs(tab, isScrolled = isLibraryScrolled, onTab = { tab = it }) }
                 item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, genreFilter, { genreFilter = it }, genres, data.allItems) }
                 if (tab == "Collections") {
                     item { CollectionCardGrid(data.allLists.visibleManagedLists(), onOpenList = { selectedListId = it.id }) }
@@ -683,6 +693,13 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // Poster thumbnail for visual context in the dialog header
+                    PosterBackdrop(
+                        displayItem,
+                        Modifier.size(50.dp, 72.dp).clip(RoundedCornerShape(14.dp)),
+                        ContentScale.Crop,
+                        intent = ArtworkDisplayIntent.CARD_POSTER
+                    )
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text("Trailer", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold)
                         Text(listOfNotNull(selectedTrailer?.label, displayItem.year, displayItem.runtime).joinToString(" • "), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -731,7 +748,10 @@ private fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, on
                         modifier = Modifier.fillMaxSize()
                     )
                     if (!trailerAvailable) {
-                        Text("Trailer unavailable", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Icon(MaterialSymbolIcon("play_circle", filled = true), contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                            Text("No trailer available", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -876,7 +896,7 @@ private fun ViewingList.orderingBasisText(): String = when {
 }
 
 @Composable
-private fun CinemaverseHeader(title: String = "Marvel Spectrum", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSearch: (() -> Unit)? = null, onOpenSettings: () -> Unit) {
+private fun CinemaverseHeader(title: String = "Marvel Spectrum", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSettings: () -> Unit) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(title, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
@@ -891,7 +911,6 @@ private fun CinemaverseHeader(title: String = "Marvel Spectrum", subtitle: Strin
                     Text("Explore your spectrum", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     Text("Search, filter, and tune your view", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                if (onOpenSearch != null) SpectrumIconButton(onClick = onOpenSearch) { Icon(RhythmIcons.Search, contentDescription = "Search Marvel Spectrum") }
                 SettingsIconAction(onOpenSettings)
             }
         }
@@ -1013,21 +1032,39 @@ private fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Uni
 }
 
 @Composable
-private fun HeroViewingCard(item: ViewingItem, list: ViewingList, onOpenDetail: () -> Unit, onOpenLibrary: () -> Unit) {
+private fun HeroViewingCard(item: ViewingItem, list: ViewingList, onOpenDetail: () -> Unit, onOpenCollection: (ViewingList) -> Unit) {
     val displayItem = rememberEnrichedItem(item)
-    PressableCard(onClick = onOpenDetail, modifier = Modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth().height(ViewingUi.heroHeight).clip(RoundedCornerShape(28.dp))) {
-            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
-            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)))))
-            Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Featured order", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text("${list.title} • ${list.items.size} titles", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(onClick = onOpenDetail) { Text("Details") }
-                    OutlinedButton(onClick = onOpenLibrary) { Text("Library") }
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) SpectrumMotion.pressedScale else 1f, SpectrumMotion.pressSpec(), label = "heroCardScale")
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .semantics { contentDescription = "Hero title: ${displayItem.title}. Tap to open details." },
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Card(
+            onClick = onOpenDetail,
+            interactionSource = interaction,
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(Modifier.fillMaxWidth().height(ViewingUi.heroHeight).clip(RoundedCornerShape(28.dp))) {
+                PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
+                // Minimal scrim only at bottom for text contrast
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(alpha = 0.22f), Color.Black.copy(alpha = 0.52f)))))
+                Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    SpectrumArtworkPill(list.title)
+                    Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.universe).joinToString(" • "), color = Color.White.copy(alpha = 0.84f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            SpectrumPillTab(selected = false, onClick = onOpenDetail) { Icon(RhythmIcons.Info, contentDescription = null, modifier = Modifier.size(16.dp)); Text("Details") }
+            SpectrumPillTab(selected = true, onClick = { onOpenCollection(list) }) { Icon(RhythmIcons.AppsGrid, contentDescription = null, modifier = Modifier.size(16.dp)); Text(list.title, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
     }
 }
@@ -1038,7 +1075,7 @@ private fun FeaturedTitleCarousel(
     items: List<ViewingItem>,
     featuredList: ViewingList,
     onOpenItem: (ViewingItem) -> Unit,
-    onOpenLibrary: () -> Unit
+    onOpenCollection: (ViewingList) -> Unit
 ) {
     val carouselItems = if (items.isEmpty()) featuredList.items.take(6) else items
     val listState = rememberLazyListState()
@@ -1072,7 +1109,7 @@ private fun FeaturedTitleCarousel(
                         selectedIndex = index
                         onOpenItem(item)
                     },
-                    onLibrary = onOpenLibrary,
+                    onOpenCollection = if (featuredList.items.isNotEmpty()) { { onOpenCollection(featuredList) } } else null,
                     modifier = Modifier.fillParentMaxWidth(0.90f)
                 )
             }
@@ -1084,9 +1121,7 @@ private fun FeaturedTitleCarousel(
                     selectedIndex = (selectedIndex - 1).floorMod(carouselItems.size)
                 }) { Icon(RhythmIcons.SkipPrevious, contentDescription = "Previous featured title") }
                 FilledIconButton(
-                    onClick = {
-                        autoAdvance = !autoAdvance
-                    },
+                    onClick = { autoAdvance = !autoAdvance },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                 ) { Text(if (autoAdvance) "Auto" else "Manual", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) }
                 SpectrumIconButton(onClick = {
@@ -1113,19 +1148,64 @@ private fun FeaturedTitleCarousel(
 }
 
 @Composable
-private fun FeaturedTitleCarouselCard(item: ViewingItem, list: ViewingList, selected: Boolean, onClick: () -> Unit, onLibrary: () -> Unit, modifier: Modifier = Modifier) {
+private fun FeaturedTitleCarouselCard(
+    item: ViewingItem,
+    list: ViewingList,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onOpenCollection: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
     val displayItem = rememberEnrichedItem(item)
     val accent = spectrumUniverseAccent(displayItem.universe)
-    Card(onClick = onClick, shape = RoundedCornerShape(34.dp), border = if (selected) BorderStroke(2.dp, accent.primary) else null, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier) {
-        Box(Modifier.fillMaxWidth().height(330.dp).clip(RoundedCornerShape(34.dp))) {
-            PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
-            UniverseGlow(displayItem.universe, Modifier.matchParentSize())
-            Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .12f), Color.Black.copy(alpha = .68f)))))
-            Column(Modifier.align(Alignment.BottomStart).padding(20.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                SpectrumArtworkPill(displayItem.universe ?: "Spectrum premiere")
-                Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga, list.title).joinToString(" • "), color = Color.White.copy(alpha = .84f), maxLines = 2)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { Button(onClick = onClick, shape = RoundedCornerShape(50)) { Text("Details") }; OutlinedButton(onClick = onLibrary, shape = RoundedCornerShape(50)) { Text("Library", color = Color.White) } }
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) SpectrumMotion.pressedScale else if (selected) 1f else 0.96f,
+        animationSpec = SpectrumMotion.pressSpec(),
+        label = "carouselCardScale"
+    )
+    Column(
+        modifier = modifier
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .semantics { contentDescription = "Featured title ${displayItem.title}${if (selected) ". Selected." else ""}. Tap to open details." },
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Card(
+            onClick = onClick,
+            interactionSource = interaction,
+            shape = RoundedCornerShape(34.dp),
+            border = if (selected) BorderStroke(2.dp, accent.primary) else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            elevation = CardDefaults.cardElevation(defaultElevation = if (selected) 6.dp else 1.dp)
+        ) {
+            Box(Modifier.fillMaxWidth().height(230.dp).clip(RoundedCornerShape(34.dp))) {
+                PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
+                // Minimal bottom scrim for text contrast only
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent, Color.Black.copy(alpha = 0.22f), Color.Black.copy(alpha = 0.52f)))))
+                SpectrumArtworkPill(
+                    displayItem.universe ?: "Spectrum premiere",
+                    modifier = Modifier.align(Alignment.TopStart).padding(14.dp)
+                )
+            }
+        }
+        // Title and metadata outside the card — clean poster-forward layout
+        Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(displayItem.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga).joinToString(" • "),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (onOpenCollection != null) {
+                AssistChip(
+                    onClick = onOpenCollection,
+                    label = { Text(list.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    leadingIcon = { Icon(RhythmIcons.AppsGrid, contentDescription = null, modifier = Modifier.size(16.dp)) },
+                    modifier = Modifier.semantics { contentDescription = "Open collection ${list.title}" }
+                )
             }
         }
     }
@@ -1158,8 +1238,57 @@ private fun TrailerRail(title: String, subtitle: String, items: List<ViewingItem
         SpectrumSectionHeader(title = title, subtitle = subtitle)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)) {
             items(items, key = { "trailer-${it.id}" }) { item ->
-                PosterCard(item) { onOpenTrailer(item) }
+                TrailerCard(item = item, onClick = { onOpenTrailer(item) })
             }
+        }
+    }
+}
+
+@Composable
+private fun TrailerCard(item: ViewingItem, onClick: () -> Unit) {
+    val displayItem = rememberCachedItem(item)
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) SpectrumMotion.pressedScale else 1f, SpectrumMotion.pressSpec(), label = "trailerCardScale")
+    Column(
+        modifier = Modifier
+            .width(280.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .semantics { contentDescription = "Trailer for ${displayItem.title}. Tap to play." },
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Card(
+            onClick = onClick,
+            interactionSource = interaction,
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(22.dp))) {
+                PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
+                // Small play icon overlay — bottom-right corner
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                    tonalElevation = 3.dp
+                ) {
+                    Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                        Icon(
+                            RhythmIcons.Play,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
+        }
+        Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(displayItem.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(listOfNotNull(displayItem.universe, displayItem.year).joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -1395,7 +1524,11 @@ private fun <T> CompactDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier) {
-        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
                 Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 Text(selected, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -1403,15 +1536,61 @@ private fun <T> CompactDropdown(
             Icon(RhythmIcons.ExpandMore, contentDescription = null)
         }
         SpectrumPopupMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option -> SpectrumPopupMenuItem(optionLabel(option), selected = optionLabel(option) == selected) { expanded = false; onSelect(option) } }
+            options.forEach { option ->
+                SpectrumPopupMenuItem(
+                    optionLabel(option),
+                    selected = optionLabel(option) == selected
+                ) { expanded = false; onSelect(option) }
+            }
         }
     }
 }
 
 @Composable
-private fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
-        items(listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved")) { tab -> SpectrumPillTab(selected = selected == tab, onClick = { onTab(tab) }) { Text(tab) } }
+private fun LibraryTabs(selected: String, isScrolled: Boolean = false, onTab: (String) -> Unit) {
+    val tabs = listOf("Continue", "Essential", "MCU", "DC", "Timeline", "Collections", "Saved")
+    // When scrolled, animate to compact label-only mode; otherwise show full icon+label
+    val compactHeight by animateFloatAsState(if (isScrolled) 36f else 48f, label = "tabHeight")
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .padding(vertical = if (isScrolled) 4.dp else 8.dp)
+    ) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(compactHeight.dp)
+        ) {
+            tabs.forEachIndexed { index, tab ->
+                val tabIcon = when (tab) {
+                    "Continue" -> RhythmIcons.Play
+                    "MCU", "DC" -> MaterialSymbolIcon("movie", filled = true)
+                    "Timeline" -> RhythmIcons.AccessTime
+                    "Collections" -> RhythmIcons.AppsGrid
+                    "Saved" -> RhythmIcons.Favorite
+                    else -> MaterialSymbolIcon("star", filled = true)
+                }
+                SegmentedButton(
+                    selected = selected == tab,
+                    onClick = { onTab(tab) },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
+                    icon = {
+                        SegmentedButtonDefaults.Icon(active = selected == tab) {
+                            Icon(tabIcon, contentDescription = null, modifier = Modifier.size(16.dp))
+                        }
+                    },
+                    modifier = Modifier.semantics { contentDescription = "$tab tab${if (selected == tab) ", selected" else ""}" }
+                ) {
+                    AnimatedContent(targetState = isScrolled, label = "tabLabel-$tab") { compact ->
+                        if (!compact) {
+                            Text(tab, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1651,11 +1830,24 @@ private fun UniverseGlow(universe: String?, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SpectrumArtworkPill(label: String) { Surface(shape = RoundedCornerShape(50), color = Color.Black.copy(alpha = .34f), contentColor = Color.White) { Text(label, Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) } }
+private fun SpectrumArtworkPill(label: String, modifier: Modifier = Modifier) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(50), color = Color.Black.copy(alpha = .34f), contentColor = Color.White) {
+        Text(label, Modifier.padding(horizontal = 12.dp, vertical = 7.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+    }
+}
 
 @Composable
-private fun SpectrumPopupMenu(expanded: Boolean, onDismissRequest: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest, shape = RoundedCornerShape(30.dp), containerColor = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 8.dp, shadowElevation = 10.dp, content = content)
+private fun SpectrumPopupMenu(expanded: Boolean, onDismissRequest: () -> Unit, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(30.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 8.dp,
+        shadowElevation = 10.dp,
+        modifier = modifier.widthIn(min = 200.dp, max = 320.dp),
+        content = content
+    )
 }
 
 @Composable

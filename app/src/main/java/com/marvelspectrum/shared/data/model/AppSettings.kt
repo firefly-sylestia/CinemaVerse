@@ -407,6 +407,7 @@ class AppSettings private constructor(context: Context) {
         private const val KEY_CONTEXT_QUEUE_PERSISTENCE = "context_queue_persistence" // EPHEMERAL | PERSISTENT
         private const val KEY_CONTEXT_QUEUE_SIZE = "context_queue_size" // default number of contextual tracks to build
         private const val KEY_SMART_AUTO_QUEUE_ENABLED = "smart_auto_queue_enabled"
+        private const val KEY_SMART_AUTO_QUEUE_DISABLE_SHUFFLE = "smart_auto_queue_disable_shuffle"
         private const val KEY_SMART_AUTO_QUEUE_OFFLINE_ONLY = "smart_auto_queue_offline_only"
         private const val KEY_SMART_AUTO_QUEUE_ONLINE_METADATA = "smart_auto_queue_online_metadata"
         private const val KEY_SMART_AUTO_QUEUE_TARGET_SIZE = "smart_auto_queue_target_size"
@@ -1010,6 +1011,9 @@ class AppSettings private constructor(context: Context) {
 
     private val _smartAutoQueueEnabled = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_ENABLED, false))
     val smartAutoQueueEnabled: StateFlow<Boolean> = _smartAutoQueueEnabled.asStateFlow()
+
+    private val _smartAutoQueueDisableShuffle = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_DISABLE_SHUFFLE, true))
+    val smartAutoQueueDisableShuffle: StateFlow<Boolean> = _smartAutoQueueDisableShuffle.asStateFlow()
 
     private val _smartAutoQueueOfflineOnly = MutableStateFlow(prefs.getBoolean(KEY_SMART_AUTO_QUEUE_OFFLINE_ONLY, true))
     val smartAutoQueueOfflineOnly: StateFlow<Boolean> = _smartAutoQueueOfflineOnly.asStateFlow()
@@ -2593,6 +2597,11 @@ private val _autoCheckForUpdates = MutableStateFlow(prefs.getBoolean(KEY_AUTO_CH
     fun setSmartAutoQueueEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_ENABLED, enabled).apply()
         _smartAutoQueueEnabled.value = enabled
+    }
+
+    fun setSmartAutoQueueDisableShuffle(disable: Boolean) {
+        prefs.edit().putBoolean(KEY_SMART_AUTO_QUEUE_DISABLE_SHUFFLE, disable).apply()
+        _smartAutoQueueDisableShuffle.value = disable
     }
 
     fun setSmartAutoQueueOfflineOnly(enabled: Boolean) {

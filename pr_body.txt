@@ -1,0 +1,64 @@
+## Overview
+
+A comprehensive visual and architectural overhaul of the Cinemaverse viewing experience screens.
+
+---
+
+## ViewingExperienceScreens.kt
+
+### Carousel redesign (poster/backdrop-forward layout)
+- FeaturedTitleCarouselCard: 230 dp card with clean backdrop art, minimal bottom scrim (0 → 0.22 → 0.52 alpha) for text contrast only — no dark overlay, no action buttons on the card face
+- Title, year/runtime/phase metadata, and AssistChip collection affordance rendered below the card
+- Selected card scale animates 0.96 → 1.0 via animateFloatAsState; tonal border highlights selection
+- SpectrumArtworkPill universe label overlaid top-left inside the artwork
+
+### Collection-oriented callback
+- onOpenLibrary inside carousel and hero replaced with onOpenCollection: (ViewingList) -> Unit
+- Tapping the collection AssistChip calls onOpenCollection(featuredList), which sets selectedListId in ViewingHomeScreen
+- Fallback: chip is hidden when featuredList.items is empty
+
+### HeroViewingCard cleanup
+- Overlay Button/OutlinedButton stack removed from inside the card
+- Replaced with a SpectrumPillTab row (Details + collection) rendered below the artwork
+
+### SectionIdentityBlock removal
+- Removed from ViewingHomeContent (spectrum bar above the carousel)
+- Removed from ViewingLibraryScreen (tab identity card)
+- Composable itself is preserved for any other screen that may still use it
+
+### CinemaverseHeader — duplicate search icon removed
+- onOpenSearch parameter removed; the top search IconButton is gone
+- Bottom navigation search remains the single entry point
+
+### LibraryTabs — Material expressive segmented control
+- LazyRow of pills replaced by SingleChoiceSegmentedButtonRow
+- Placed as a stickyHeader in the library LazyColumn
+- isScrolled (from derivedStateOf on lazyListState) drives AnimatedContent that hides tab labels on scroll (icon-only compact mode) and shrinks height 48 dp → 36 dp via animateFloatAsState
+
+### TrailerRail — cinematic card
+- New TrailerCard composable: 16:9 aspectRatio backdrop, 52 dp semi-translucent play glyph centered over the art, title and universe metadata below
+- Press scale via collectIsPressedAsState
+
+### TrailerPlayerDialog improvements
+- Poster thumbnail (PosterBackdrop, 50×72 dp) added to the dialog header for visual context
+- Bare Text("Trailer unavailable") replaced with an expressive play-circle icon + body text fallback
+
+### Dropdown crash fix (SubcomposeLayout intrinsics)
+- SpectrumPopupMenu: new modifier parameter; always applies widthIn(min = 200.dp, max = 320.dp)
+- CompactDropdown: RoundedCornerShape(16.dp) on anchor button; popup width bound by SpectrumPopupMenu
+
+---
+
+## YouTubeTrailerPlayer.kt
+
+- TrailerFallback: play_circle MaterialSymbolIcon (56 dp, primary @ 50% alpha) added above the title text for an expressive empty state
+
+---
+
+## LibraryScreen.kt
+
+Fixes IllegalStateException: Asking for intrinsic measurements of SubcomposeLayout layouts is not supported crash on dropdown open:
+
+- Sort DropdownMenu (line 884): Added widthIn(min = 260.dp); removed fillMaxWidth() from Surface item wrappers
+- Playlist sort DropdownMenu (line 1039): Same fix
+- Song context DropdownMenu (line 3198): widthIn(min = 220.dp, max = 300.dp); removed fillMaxWidth() from all five Surface item wrappers and the inner Column of the rating block

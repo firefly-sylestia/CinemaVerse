@@ -4886,6 +4886,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleShuffle() {
         commandSerializer.executeCommand {
+            // Block shuffle toggle if smart auto queue is enabled and shuffle is disabled
+            if (appSettings.smartAutoQueueEnabled.value && appSettings.smartAutoQueueDisableShuffle.value) {
+                Log.w(TAG, "Shuffle is disabled when smart auto queue is enabled")
+                return@executeCommand
+            }
+
             mediaController?.let { controller ->
             // Don't allow shuffle toggle if queue is empty
             if (_currentQueue.value.songs.isEmpty()) {
