@@ -113,7 +113,7 @@ import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
 import com.marvelspectrum.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.marvelspectrum.shared.presentation.viewmodel.ViewingViewModel
 import com.marvelspectrum.shared.util.ViewingArtworkUtils
-import kotlinx.coroutines.delay
+import com.marvelspectrum.util.HapticUtils
 
 @Composable
 fun ViewingSearchScreen(
@@ -138,7 +138,8 @@ fun ViewingSearchScreen(
     var selectedUniverse by rememberSaveable { mutableStateOf("All") }
     var selectedType by rememberSaveable { mutableStateOf("All") }
     var selectedGenre by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedCategory by rememberSaveable { mutableStateOf(ViewingSearchCategory.ESSENTIAL) }
+    var selectedCategory by rememberSaveable { mutableStateOf("All") }
+    var showFilters by rememberSaveable { mutableStateOf(false) }
     var sortMode by rememberSaveable { mutableStateOf(ViewingSearchSortMode.RELEVANCE) }
     var selectedItemId by rememberSaveable { mutableStateOf<String?>(null) }
     val selectedItem = data.findItem(selectedItemId)
@@ -157,11 +158,11 @@ fun ViewingSearchScreen(
             .filter { selectedGenre == null || selectedGenre in it.genres }
             .filter { item ->
                 when (selectedCategory) {
-                    ViewingSearchCategory.ESSENTIAL -> data.allLists.any { it.importance == ViewingListImportance.PRIMARY && item.id in it.itemIds }
-                    ViewingSearchCategory.SERIES -> item.type == ViewingType.SERIES || item.category?.contains("Series", true) == true
-                    ViewingSearchCategory.SPECIALS -> item.type in setOf(ViewingType.SPECIAL, ViewingType.SHORT, ViewingType.ONE_SHOT)
-                    ViewingSearchCategory.UPCOMING -> item.status != ViewingStatus.RELEASED
-                    ViewingSearchCategory.SAVED -> ViewingMetadataStore.statusesFor(item).isNotEmpty()
+                    "Movies" -> item.type == ViewingType.MOVIE
+                    "Series" -> item.type == ViewingType.SERIES || item.category?.contains("Series", true) == true
+                    "Collections" -> true
+                    "Saved" -> ViewingMetadataStore.statusesFor(item).isNotEmpty()
+                    "Upcoming" -> item.status != ViewingStatus.RELEASED
                     else -> true
                 }
             }
@@ -170,15 +171,7 @@ fun ViewingSearchScreen(
     }
     val matchingLists = remember(rawLists, selectedCategory) {
         rawLists.filter { list ->
-            when (selectedCategory) {
-                ViewingSearchCategory.ESSENTIAL -> list.importance == ViewingListImportance.PRIMARY
-                ViewingSearchCategory.COLLECTIONS -> list.importance in setOf(ViewingListImportance.PRIMARY, ViewingListImportance.SECONDARY)
-                ViewingSearchCategory.PHASES -> list.category?.contains("Phase", true) == true || !list.phase.isNullOrBlank()
-                ViewingSearchCategory.SAGAS -> !list.saga.isNullOrBlank()
-                ViewingSearchCategory.RELEASE_ORDER -> list.category?.contains("Release", true) == true
-                ViewingSearchCategory.TIMELINE -> list.category?.contains("Chronological", true) == true
-                else -> list.importance != ViewingListImportance.HIDDEN
-            }
+            selectedCategory in setOf("All", "Collections") && list.importance != ViewingListImportance.HIDDEN
         }.distinctBy { it.id }.take(8)
     }
 
@@ -186,7 +179,7 @@ fun ViewingSearchScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Cinemaverse Search") },
+                title = { Text("Search") },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(RhythmIcons.Back, contentDescription = "Back") } },
                 actions = { SettingsIconAction(onOpenSettings) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -199,22 +192,43 @@ fun ViewingSearchScreen(
             verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap)
         ) {
             item { ExpressiveSearchField(query, { query = it }) }
-            item { SearchChipRail("Universe", listOf("All", "Marvel", "DC", "MCU", "DCEU", "DCU", "Elseworlds"), selectedUniverse) { selectedUniverse = it } }
-            item { SearchChipRail("Type", listOf("All", "Movie", "Series", "Special", "Short", "One_Shot"), selectedType) { selectedType = it } }
-            item { CategoryChipRail(selectedCategory) { selectedCategory = it } }
-            item { SearchCompactFilters(genres, selectedGenre, { selectedGenre = it }, sortMode, { sortMode = it }) }
-            val recent = ViewingMetadataStore.recentItems(data).filter { it in filteredItems }.take(5)
-            if (recent.isNotEmpty()) item { ResultSection("Recently viewed", "Last opened in Cinemaverse", recent, onOpen = { selectedItemId = it.id; ViewingMetadataStore.markViewed(it); onOpenDetail(it) }) }
-            if (matchingLists.isNotEmpty()) item { ListRail("Matching collections", "Essential and generated orders", matchingLists, onOpenList = {}) }
-            val topMatches = filteredItems.filterNot { it in recent }.take(8)
-            if (topMatches.isNotEmpty()) item { ResultSection("Top matches", "Best title matches for your filters", topMatches, onOpen = { selectedItemId = it.id; ViewingMetadataStore.markViewed(it); onOpenDetail(it) }) }
-            val remaining = filteredItems.drop(topMatches.size).filterNot { it in recent }
-            if (remaining.isNotEmpty()) {
-                item { SectionHeader("All results", "${remaining.size} more titles grouped by phase/chapter") }
-                groupedViewingItems(remaining, ViewingSortMode.PHASE) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail(item) }
+            item {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Box(Modifier.weight(1f)) { CategoryChipRail(selectedCategory) { selectedCategory = it } }
+                    OutlinedButton(onClick = { showFilters = true }, shape = RoundedCornerShape(22.dp)) { Icon(RhythmIcons.FilterList, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Filters") }
+                }
             }
-            if (filteredItems.isEmpty() && matchingLists.isEmpty()) item { EmptyState("No viewing results", "Try Marvel, DC, Timeline, Trailers, Specials, or clear a filter.") }
+            val recent = ViewingMetadataStore.recentItems(data).take(5)
+            if (query.isBlank()) {
+                if (recent.isNotEmpty()) item { ResultSection("Recently viewed", "Recent titles opened in Cinemaverse", recent, onOpen = { selectedItemId = it.id; ViewingMetadataStore.markViewed(it); onOpenDetail(it) }) }
+                if (matchingLists.isNotEmpty()) item { ListRail("Featured collections", "Timelines, phases, sagas, and character arcs", matchingLists, onOpenList = {}) }
+            } else {
+                val topMatches = filteredItems.take(8)
+                if (topMatches.isNotEmpty()) item { ResultSection("Top matches", "Best matches for your search", topMatches, onOpen = { selectedItemId = it.id; ViewingMetadataStore.markViewed(it); onOpenDetail(it) }) }
+                if (matchingLists.isNotEmpty()) item { ListRail("Collections", "Related timelines and grouped stories", matchingLists, onOpenList = {}) }
+                val remaining = filteredItems.drop(topMatches.size)
+                if (remaining.isNotEmpty()) {
+                    item { SectionHeader("All results", "${remaining.size} titles") }
+                    groupedViewingItems(remaining, ViewingSortMode.PHASE) { item -> selectedItemId = item.id; ViewingMetadataStore.markViewed(item); onOpenDetail(item) }
+                }
+                if (filteredItems.isEmpty() && matchingLists.isEmpty()) item { EmptyState("No results found", "Try a title, phase, genre, actor, or collection.") }
+            }
         }
+    }
+    if (showFilters) {
+        SearchFiltersDialog(
+            genres = genres,
+            selectedUniverse = selectedUniverse,
+            onUniverse = { selectedUniverse = it },
+            selectedType = selectedType,
+            onType = { selectedType = it },
+            selectedGenre = selectedGenre,
+            onGenre = { selectedGenre = it },
+            sortMode = sortMode,
+            onSort = { sortMode = it },
+            onDismiss = { showFilters = false },
+            onReset = { selectedUniverse = "All"; selectedType = "All"; selectedGenre = null; sortMode = ViewingSearchSortMode.RELEVANCE }
+        )
     }
 }
 
@@ -253,7 +267,7 @@ internal fun ExpressiveSearchField(query: String, onQuery: (String) -> Unit) {
     OutlinedTextField(
         value = query,
         onValueChange = onQuery,
-        placeholder = { Text("Search movies, series, phases, genres, cast…") },
+        placeholder = { Text("Search movies, shows, phases, genres, or cast") },
         leadingIcon = { Icon(RhythmIcons.Search, contentDescription = null) },
         trailingIcon = { if (query.isNotBlank()) IconButton(onClick = { onQuery("") }) { Icon(RhythmIcons.Close, contentDescription = "Clear search") } },
         singleLine = true,
@@ -297,16 +311,51 @@ internal fun GenreChipRail(genres: List<String>, selected: String?, onSelect: (S
 }
 
 @Composable
-internal fun CategoryChipRail(selected: ViewingSearchCategory, onSelect: (ViewingSearchCategory) -> Unit) {
+internal fun CategoryChipRail(selected: String, onSelect: (String) -> Unit) {
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
-        items(ViewingSearchCategory.entries) { category ->
-            SpectrumPillTab(selected = selected == category, onClick = { onSelect(category) }, modifier = Modifier.semantics { contentDescription = "Search category ${category.label}${if (selected == category) ", selected" else ""}" }) {
+        items(listOf("All", "Movies", "Series", "Collections", "Saved", "Upcoming")) { category ->
+            SpectrumPillTab(selected = selected == category, onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onSelect(category) }, modifier = Modifier.semantics { contentDescription = "Search category $category${if (selected == category) ", selected" else ""}" }) {
                 if (selected == category) Icon(RhythmIcons.Check, contentDescription = null)
-                Text(category.label)
+                Text(category)
             }
         }
     }
 }
+
+@Composable
+internal fun SearchFiltersDialog(
+    genres: List<String>,
+    selectedUniverse: String,
+    onUniverse: (String) -> Unit,
+    selectedType: String,
+    onType: (String) -> Unit,
+    selectedGenre: String?,
+    onGenre: (String?) -> Unit,
+    sortMode: ViewingSearchSortMode,
+    onSort: (ViewingSearchSortMode) -> Unit,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
+) {
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(30.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 8.dp) {
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text("Filters", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+                SearchChipRail("Universe", listOf("All", "Marvel", "DC", "MCU", "DCEU", "DCU", "Elseworlds"), selectedUniverse) { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onUniverse(it) }
+                SearchChipRail("Type", listOf("All", "Movie", "Series", "Special", "Short", "One_Shot"), selectedType) { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onType(it) }
+                SearchCompactFilters(genres, selectedGenre, { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onGenre(it) }, sortMode, { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onSort(it) })
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onReset() }) { Text("Reset") }
+                    Button(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onDismiss() }) { Text("Apply") }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 internal fun SearchSortRail(sortMode: ViewingSearchSortMode, onSort: (ViewingSearchSortMode) -> Unit) {

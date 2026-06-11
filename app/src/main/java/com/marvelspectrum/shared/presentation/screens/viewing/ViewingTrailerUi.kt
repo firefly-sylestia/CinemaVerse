@@ -113,92 +113,98 @@ import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
 import com.marvelspectrum.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.marvelspectrum.shared.presentation.viewmodel.ViewingViewModel
 import com.marvelspectrum.shared.util.ViewingArtworkUtils
-import kotlinx.coroutines.delay
+import com.marvelspectrum.util.HapticUtils
 
 @Composable
 internal fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, onDismiss: () -> Unit) {
     val displayItem = rememberEnrichedItem(item)
     val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     var expanded by rememberSaveable(displayItem.id) { mutableStateOf(false) }
+    var playing by rememberSaveable(displayItem.id) { mutableStateOf(false) }
+    var moreExpanded by remember { mutableStateOf(false) }
     val trailerOptions = remember(displayItem) { displayItem.availableTrailers() }
     var selectedTrailerIndex by rememberSaveable(displayItem.id, trailerOptions.size) { mutableStateOf(0) }
     val selectedTrailer = trailerOptions.getOrNull(selectedTrailerIndex)
-    val trailerAvailable = selectedTrailer != null
     val userStatuses = ViewingMetadataStore.statusesFor(displayItem)
     val openYouTube = selectedTrailer?.externalUrl()?.let { url -> { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } } }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
+    Dialog(onDismissRequest = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onDismiss() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = RoundedCornerShape(if (expanded) 0.dp else 34.dp),
             color = if (expanded) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceContainerHigh,
             tonalElevation = if (expanded) 0.dp else 8.dp,
-            modifier = (if (expanded) Modifier.fillMaxSize().padding(12.dp) else Modifier.fillMaxWidth().padding(horizontal = 20.dp))
+            modifier = (if (expanded) Modifier.fillMaxSize().padding(10.dp) else Modifier.fillMaxWidth().padding(horizontal = 18.dp))
         ) {
             Column(Modifier.padding(if (expanded) 12.dp else 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text("Trailer", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold)
-                        Text(listOfNotNull(selectedTrailer?.label, displayItem.year, displayItem.runtime).joinToString(" • "), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("${displayItem.title} trailer", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.universe, displayItem.phase ?: displayItem.saga).joinToString(" • "), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    FilledIconButton(
-                        onClick = { expanded = !expanded },
-                        modifier = Modifier.semantics { contentDescription = if (expanded) "Collapse trailer preview" else "Expand trailer preview" },
-                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
-                    ) { Icon(if (expanded) RhythmIcons.ExpandLess else RhythmIcons.ExpandMore, contentDescription = null) }
-                    FilledIconButton(
-                        enabled = openYouTube != null,
-                        onClick = { openYouTube?.invoke() },
-                        modifier = Modifier.semantics { contentDescription = "Open trailer on YouTube" },
-                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-                    ) { Icon(RhythmIcons.OpenInNew, contentDescription = null) }
-                    FilledIconButton(
-                        onClick = onDismiss,
-                        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor = MaterialTheme.colorScheme.onSurface)
-                    ) { Icon(RhythmIcons.Close, contentDescription = "Close trailer preview") }
+                    FilledIconButton(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); expanded = !expanded }, modifier = Modifier.semantics { contentDescription = if (expanded) "Collapse trailer" else "Expand trailer" }, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)) { Icon(if (expanded) RhythmIcons.ExpandLess else RhythmIcons.ExpandMore, contentDescription = null) }
+                    FilledIconButton(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onDismiss() }, colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor = MaterialTheme.colorScheme.onSurface)) { Icon(RhythmIcons.Close, contentDescription = "Close trailer") }
+                }
+                Box(
+                    Modifier.fillMaxWidth().then(if (expanded) Modifier.weight(1f) else Modifier.aspectRatio(16f / 9f)).clip(RoundedCornerShape(if (expanded) 22.dp else 26.dp)).background(Color.Black).semantics { contentDescription = if (playing) "Playing trailer for ${displayItem.title}" else "Trailer poster for ${displayItem.title}" },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (playing && selectedTrailer != null) {
+                        YouTubeTrailerWebPlayer(
+                            youtubeVideoId = selectedTrailer.youtubeVideoId,
+                            trailerUrl = selectedTrailer.url,
+                            title = displayItem.title,
+                            autoplay = true,
+                            muted = false,
+                            showControls = true,
+                            shape = RoundedCornerShape(if (expanded) 22.dp else 26.dp),
+                            onShowPoster = { playing = false },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
+                        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .08f), Color.Black.copy(alpha = .70f)))))
+                        FilledIconButton(
+                            enabled = selectedTrailer != null,
+                            onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); playing = true },
+                            modifier = Modifier.size(72.dp).semantics { contentDescription = "Play trailer for ${displayItem.title}" },
+                            colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
+                        ) { Icon(RhythmIcons.Play, contentDescription = null, modifier = Modifier.size(34.dp)) }
+                        if (selectedTrailer == null) Text("Trailer unavailable", Modifier.align(Alignment.BottomCenter).padding(18.dp), color = Color.White, fontWeight = FontWeight.SemiBold)
+                    }
                 }
                 if (trailerOptions.size > 1) {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) {
                         itemsIndexed(trailerOptions, key = { index, trailer -> "${trailer.label}-$index" }) { index, trailer ->
                             FilterChip(
                                 selected = index == selectedTrailerIndex,
-                                onClick = { selectedTrailerIndex = index },
+                                onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); selectedTrailerIndex = index; playing = false },
                                 label = { Text(trailer.label) },
                                 leadingIcon = if (index == selectedTrailerIndex) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
                             )
                         }
                     }
                 }
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .then(if (expanded) Modifier.weight(1f) else Modifier.aspectRatio(16f / 9f))
-                        .clip(RoundedCornerShape(if (expanded) 22.dp else 26.dp))
-                        .background(Color.Black)
-                        .semantics { contentDescription = "Video player region for ${displayItem.title} trailer" },
-                    contentAlignment = Alignment.Center
-                ) {
-                    YouTubeTrailerWebPlayer(
-                        youtubeVideoId = selectedTrailer?.youtubeVideoId,
-                        trailerUrl = selectedTrailer?.url,
-                        shape = RoundedCornerShape(if (expanded) 22.dp else 26.dp),
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    if (!trailerAvailable) {
-                        Text("Trailer unavailable", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onOpenDetails, shape = RoundedCornerShape(22.dp)) { Text("Details") }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onOpenDetails() }, shape = RoundedCornerShape(20.dp)) { Icon(RhythmIcons.Info, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Details") }
+                    TrailerStatusButton(displayItem, ViewingUserStatus.WATCHING, userStatuses)
                     TrailerStatusButton(displayItem, ViewingUserStatus.WATCH_LATER, userStatuses)
                     TrailerStatusButton(displayItem, ViewingUserStatus.FAVORITE, userStatuses)
                     TrailerStatusButton(displayItem, ViewingUserStatus.WATCHED, userStatuses)
+                    Box {
+                        OutlinedButton(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); moreExpanded = true }, shape = RoundedCornerShape(20.dp)) { Text("More") }
+                        DropdownMenu(expanded = moreExpanded, onDismissRequest = { moreExpanded = false }) {
+                            listOf(ViewingUserStatus.BOOKMARKED, ViewingUserStatus.WATCHLIST, ViewingUserStatus.ON_HOLD, ViewingUserStatus.HIDDEN).forEach { status ->
+                                DropdownMenuItem(
+                                    text = { Text(if (status in userStatuses) status.activeLabel else status.inactiveLabel) },
+                                    onClick = { moreExpanded = false; HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress); ViewingMetadataStore.toggleStatus(displayItem, status) },
+                                    leadingIcon = { Icon(status.icon(), contentDescription = null) },
+                                    trailingIcon = if (status in userStatuses) ({ Icon(RhythmIcons.Check, null) }) else null
+                                )
+                            }
+                        }
+                    }
+                    OutlinedButton(enabled = openYouTube != null, onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); openYouTube?.invoke() }, shape = RoundedCornerShape(20.dp)) { Icon(RhythmIcons.OpenInNew, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Open YouTube") }
                 }
             }
         }
@@ -213,7 +219,12 @@ internal fun TrailerStatusButton(
 ) {
     val selected = status in activeStatuses
     val shape = RoundedCornerShape(22.dp)
-    val onClick = { ViewingMetadataStore.toggleStatus(item, status) }
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    val onClick = {
+        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.LongPress)
+        ViewingMetadataStore.toggleStatus(item, status)
+    }
 
     if (selected) {
         FilledTonalButton(
@@ -270,9 +281,11 @@ internal fun TrailerPreviewCard(item: ViewingItem, onClick: () -> Unit) {
             Box(Modifier.matchParentSize().background(readabilityGradient(strong = true)))
             Column(Modifier.align(Alignment.BottomStart).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap), verticalAlignment = Alignment.CenterVertically) {
-                    SpectrumPulseIndicator(active = trailer != null, universe = displayItem.universe)
-                    Surface(shape = SpectrumShapes.pillTab, color = accent.primary.copy(alpha = 0.88f), contentColor = MaterialTheme.colorScheme.onPrimary) {
-                        Text(trailer?.label ?: "Trailer ready", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Surface(shape = SpectrumShapes.pillTab, color = Color.Black.copy(alpha = 0.48f), contentColor = Color.White) {
+                        Row(Modifier.padding(horizontal = 10.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Icon(RhythmIcons.Play, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Text(trailer?.label ?: "Preview", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
                     }
                 }
                 Text(displayItem.title, style = MaterialTheme.typography.titleMedium, color = Color.White, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -280,7 +293,7 @@ internal fun TrailerPreviewCard(item: ViewingItem, onClick: () -> Unit) {
             }
         }
         Spacer(Modifier.height(10.dp))
-        Text("Tap for trailer options", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(trailer?.label ?: "Official preview", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
