@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,9 +39,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import androidx.compose.ui.viewinterop.AndroidView
 
 private val YouTubeIdPattern = Regex("^[A-Za-z0-9_-]{11}$")
+enum class YouTubeTrailerPlayerState { Poster, Loading, Playing, Failed }
 
 fun parseYouTubeVideoId(value: String?): String? {
     if (value.isNullOrBlank()) return null
@@ -60,9 +64,10 @@ fun YouTubeTrailerWebPlayer(
     title: String = "Trailer",
     shape: Shape = RoundedCornerShape(28.dp),
     autoplay: Boolean = true,
-    muted: Boolean = true,
-    showControls: Boolean = false,
-    loop: Boolean = false
+    muted: Boolean = false,
+    showControls: Boolean = true,
+    loop: Boolean = false,
+    onShowPoster: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val safeVideoId = remember(youtubeVideoId, trailerUrl) { parseYouTubeVideoId(youtubeVideoId) ?: parseYouTubeVideoId(trailerUrl) }
@@ -79,15 +84,15 @@ fun YouTubeTrailerWebPlayer(
         return
     }
 
-    var playerFailed by remember(safeVideoId) { mutableStateOf(false) }
+    var playerState by remember(safeVideoId) { mutableStateOf(YouTubeTrailerPlayerState.Loading) }
     val openYouTube = remember(safeVideoId) { { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=$safeVideoId"))) } }
-    if (playerFailed) {
+    if (playerState == YouTubeTrailerPlayerState.Failed) {
         TrailerFallback(
-            title = "Trailer unavailable",
-            body = "This YouTube trailer may be unavailable, region-blocked, or not embeddable. You can open it in YouTube or return to the poster.",
+            title = "Open trailer on YouTube",
+            body = "This trailer cannot be played in-app.",
             openAction = openYouTube,
-            refreshAction = { playerFailed = false },
-            posterAction = null,
+            refreshAction = null,
+            posterAction = onShowPoster,
             modifier = modifier,
             shape = shape
         )
@@ -103,7 +108,12 @@ fun YouTubeTrailerWebPlayer(
             loop = loop
         )
     }
-    val playerDescription = if (autoplay && muted) "Muted autoplay trailer for $title" else "Trailer for $title"
+    val playerDescription = if (playerState == YouTubeTrailerPlayerState.Loading) "Loading trailer for $title" else "Playing trailer for $title"
+    LaunchedEffect(safeVideoId) {
+        playerState = YouTubeTrailerPlayerState.Loading
+        delay(900)
+        if (playerState == YouTubeTrailerPlayerState.Loading) playerState = YouTubeTrailerPlayerState.Playing
+    }
 
     Surface(
         modifier = modifier.semantics { contentDescription = playerDescription },
@@ -111,7 +121,8 @@ fun YouTubeTrailerWebPlayer(
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         tonalElevation = 2.dp
     ) {
-        AndroidView(
+        Box(Modifier.fillMaxSize()) {
+            AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { viewContext ->
                 WebView(viewContext).apply {
@@ -120,8 +131,9 @@ fun YouTubeTrailerWebPlayer(
                     setBackgroundColor(android.graphics.Color.BLACK)
                     webChromeClient = WebChromeClient()
                     webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) { playerState = YouTubeTrailerPlayerState.Playing }
                         override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                            if (request?.isForMainFrame != false) playerFailed = true
+                            if (request?.isForMainFrame != false) playerState = YouTubeTrailerPlayerState.Failed
                         }
                     }
                     settings.javaScriptEnabled = true
@@ -149,7 +161,11 @@ fun YouTubeTrailerWebPlayer(
                 view.removeAllViews()
                 view.destroy()
             }
-        )
+            )
+            if (playerState == YouTubeTrailerPlayerState.Loading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            }
+        }
     }
 }
 
@@ -192,6 +208,7 @@ private fun buildYouTubePlayerHtml(
                             playsinline: 1,
                             rel: 0,
                             enablejsapi: 1,
+                            origin: 'https://www.youtube.com',
                             modestbranding: 1,
                             loop: $loopFlag$playlist
                         },
@@ -233,8 +250,8 @@ private fun TrailerFallback(
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (openAction != null) Button(onClick = openAction) { Text("Open in YouTube") }
-                    if (refreshAction != null) OutlinedButton(onClick = refreshAction) { Text("Refresh trailer") }
+                    if (openAction != null) Button(onClick = openAction) { Text("Open YouTube") }
+                    if (refreshAction != null) OutlinedButton(onClick = refreshAction) { Text("Try again") }
                     if (posterAction != null) TextButton(onClick = posterAction) { Text("Show poster") }
                 }
             }

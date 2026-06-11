@@ -149,10 +149,10 @@ enum class ViewingUserStatus(val activeLabel: String, val inactiveLabel: String,
     WATCHLIST("In watchlist", "Add to watchlist", "Watchlist"),
     WATCH_LATER("Saved for later", "Watch later", "Watch later"),
     ON_HOLD("On hold", "Put on hold", "On hold"),
-    WATCHING("Continue watching", "Start watching", "Continue"),
+    WATCHING("Watching", "Start watching", "Watching"),
     WATCHED("Watched", "Mark watched", "Watched"),
     FAVORITE("Favorite", "Favorite", "Favorites"),
-    HIDDEN("Not interested", "Hide", "Hidden")
+    HIDDEN("Hidden", "Hide", "Hidden")
 }
 enum class ViewingSortMode(val label: String) {
     RELEASE("Release order"),

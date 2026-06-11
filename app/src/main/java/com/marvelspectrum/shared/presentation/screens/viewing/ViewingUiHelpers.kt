@@ -106,6 +106,7 @@ import com.marvelspectrum.shared.data.viewing.ViewingSortMode
 import com.marvelspectrum.shared.data.viewing.ViewingStatus
 import com.marvelspectrum.shared.data.viewing.ViewingType
 import com.marvelspectrum.shared.data.viewing.ViewingUserStatus
+import com.marvelspectrum.util.HapticUtils
 import com.marvelspectrum.shared.data.viewing.ViewingTrailer
 import com.marvelspectrum.shared.presentation.components.icons.Icon
 import com.marvelspectrum.shared.presentation.components.icons.MaterialSymbolIcon
@@ -246,8 +247,8 @@ internal fun ViewingCatalogLoadingState(
 
 internal fun ViewingUserStatus.icon() = when (this) {
     ViewingUserStatus.WATCHLIST -> RhythmIcons.Add
-    ViewingUserStatus.WATCH_LATER -> RhythmIcons.Playlist
-    ViewingUserStatus.WATCHING -> RhythmIcons.Play
+    ViewingUserStatus.WATCH_LATER -> RhythmIcons.AccessTime
+    ViewingUserStatus.WATCHING -> MaterialSymbolIcon("play_circle", filled = true)
     ViewingUserStatus.WATCHED -> RhythmIcons.Check
     ViewingUserStatus.FAVORITE -> RhythmIcons.Favorite
     ViewingUserStatus.BOOKMARKED -> MaterialSymbolIcon("bookmark", filled = true)
@@ -269,7 +270,7 @@ internal fun SectionIdentityBlock(icon: MaterialSymbolIcon, title: String, statu
 }
 
 internal fun tabIdentityIcon(tab: String) = when (tab) { "Continue" -> RhythmIcons.Play; "MCU", "DC" -> MaterialSymbolIcon("movie", filled = true); "Timeline" -> RhythmIcons.AccessTime; "Collections" -> RhythmIcons.AppsGrid; "Saved" -> RhythmIcons.Favorite; else -> MaterialSymbolIcon("star", filled = true) }
-internal fun tabIdentitySubtitle(tab: String) = when (tab) { "Continue" -> "Pick up exactly where your journey paused"; "Essential" -> "The defining stories across the spectrum"; "MCU" -> "Marvel Studios, sagas, phases, and heroes"; "DC" -> "DCU, DCEU, Elseworlds, and connected television"; "Timeline" -> "Every story arranged in chronological order"; "Collections" -> "Curated journeys with album-like artwork"; else -> "Your watchlists, favorites, and watched titles" }
+internal fun tabIdentitySubtitle(tab: String) = when (tab) { "Continue" -> "Resume titles in progress or saved for later"; "Essential" -> "Key stories and starting points"; "MCU" -> "Films, shows, specials, and timelines"; "DC" -> "Films, series, Elseworlds, and connected stories"; "Timeline" -> "Stories arranged chronologically"; "Collections" -> "Timelines, phases, sagas, and character arcs"; else -> "Saved titles and viewing progress" }
 
 
 @Composable
@@ -298,9 +299,13 @@ internal fun SpectrumPopupMenu(expanded: Boolean, onDismissRequest: () -> Unit, 
 
 @Composable
 internal fun SpectrumPopupMenuItem(label: String, selected: Boolean = false, leading: (@Composable () -> Unit)? = null, onClick: () -> Unit) {
-    Surface(shape = RoundedCornerShape(22.dp), color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent, contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)) {
-        DropdownMenuItem(text = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) }, onClick = onClick, leadingIcon = leading, trailingIcon = if (selected) ({ Icon(RhythmIcons.Check, null) }) else null, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp))
-    }
+    DropdownMenuItem(
+        text = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) },
+        onClick = onClick,
+        leadingIcon = leading,
+        trailingIcon = if (selected) ({ Icon(RhythmIcons.Check, null) }) else null,
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    )
 }
 
 
@@ -323,7 +328,9 @@ internal fun PressableCard(modifier: Modifier = Modifier, onClick: () -> Unit, c
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed) SpectrumMotion.pressedScale else 1f, SpectrumMotion.pressSpec(), label = "viewingPress")
-    Card(onClick = onClick, interactionSource = interaction, shape = SpectrumShapes.largeSoftCard, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }) {
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    Card(onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onClick() }, interactionSource = interaction, shape = SpectrumShapes.largeSoftCard, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer), modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }) {
         Column(Modifier.padding(SpectrumSpacing.cardContentPadding), content = content)
     }
 }

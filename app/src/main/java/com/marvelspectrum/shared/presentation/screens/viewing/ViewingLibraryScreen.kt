@@ -113,6 +113,7 @@ import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
 import com.marvelspectrum.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.marvelspectrum.shared.presentation.viewmodel.ViewingViewModel
 import com.marvelspectrum.shared.util.ViewingArtworkUtils
+import com.marvelspectrum.util.HapticUtils
 import kotlinx.coroutines.delay
 
 @Composable
@@ -169,9 +170,9 @@ fun ViewingLibraryScreen(
                 contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                item { CinemaverseHeader(title = "Library", subtitle = "Every universe, timeline, and collection in one place", onOpenSettings = onOpenSettings) }
+                item { CinemaverseHeader(title = "Library", subtitle = "Every universe, timeline, and collection in one place", onOpenSettings = onOpenSettings, showBrandMark = false) }
                 item { LibraryTabs(tab, onTab = { tab = it }) }
-                item { SectionIdentityBlock(tabIdentityIcon(tab), tab, if (tab == "Collections") "${data.allLists.visibleManagedLists().size} collections" else "${filtered.size} titles", tabIdentitySubtitle(tab)) }
+                item { LibraryContextHeader(tab, if (tab == "Collections") data.allLists.visibleManagedLists().size else filtered.size, if (tab == "Collections") "collections" else "titles", sortMode.label, listOfNotNull(statusFilter?.libraryTitle, genreFilter).joinToString(" • ").takeIf { it.isNotBlank() }) }
                 item { LibrarySecondaryControls(sortMode, { sortMode = it }, statusFilter, { statusFilter = it }, genreFilter, { genreFilter = it }, genres, data.allItems) }
                 if (tab == "Collections") {
                     item { CollectionCardGrid(data.allLists.visibleManagedLists(), onOpenList = { selectedListId = it.id }) }
@@ -322,26 +323,56 @@ internal fun ViewingOrderRow(item: ViewingItem, order: Int, onClick: () -> Unit)
 
 
 @Composable
-internal fun LibrarySecondaryControls(sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Unit, statusFilter: ViewingUserStatus?, onStatus: (ViewingUserStatus?) -> Unit, genreFilter: String?, onGenre: (String?) -> Unit, genres: List<String>, catalogItems: List<ViewingItem>) {
-    var sortOpen by remember { mutableStateOf(false) }
-    SpectrumGlassSurface(shape = RoundedCornerShape(32.dp)) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Column(Modifier.weight(1f)) { Text("Sort & filter", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold); Text(listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("Showing everything") }.joinToString(" • "), color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                Box {
-                    Button(onClick = { sortOpen = true }, shape = RoundedCornerShape(50), contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp)) { Icon(RhythmIcons.Sort, null); Spacer(Modifier.width(8.dp)); Text(sortMode.label); Spacer(Modifier.width(4.dp)); Icon(RhythmIcons.ExpandMore, null) }
-                    SpectrumPopupMenu(sortOpen, { sortOpen = false }) {
-                        ViewingSortMode.entries.forEach { mode -> SpectrumPopupMenuItem(mode.label, selected = mode == sortMode, leading = { Icon(RhythmIcons.Sort, null) }) { sortOpen = false; onSort(mode) } }
-                    }
-                }
+@Composable
+internal fun LibraryContextHeader(tab: String, count: Int, unit: String, sortLabel: String, filterSummary: String?) {
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 1.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+    ) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Icon(tabIdentityIcon(tab), contentDescription = null, modifier = Modifier.size(24.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(tab, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                Text(listOf("$count $unit", sortLabel, filterSummary).filterNotNull().joinToString(" • "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
-            Text("Genres", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) { item { SpectrumPillTab(genreFilter == null, { onGenre(null) }) { Icon(RhythmIcons.AppsGrid, null); Text("All genres") } }; items(genres.take(24)) { genre -> SpectrumPillTab(genreFilter == genre, { onGenre(if (genreFilter == genre) null else genre) }) { Text(genre) } } }
-            Text("Status", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap)) { item { SpectrumPillTab(statusFilter == null, { onStatus(null) }) { Icon(RhythmIcons.AppsGrid, null); Text("All") } }; items(ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }) { status -> val count = catalogItems.count { status in ViewingMetadataStore.statusesFor(it) }; SpectrumPillTab(statusFilter == status, { onStatus(if (statusFilter == status) null else status) }) { Icon(status.icon(), null); Text("${status.libraryTitle} $count") } } }
         }
     }
 }
+
+@Composable
+internal fun LibrarySecondaryControls(sortMode: ViewingSortMode, onSort: (ViewingSortMode) -> Unit, statusFilter: ViewingUserStatus?, onStatus: (ViewingUserStatus?) -> Unit, genreFilter: String?, onGenre: (String?) -> Unit, genres: List<String>, catalogItems: List<ViewingItem>) {
+    var sheetOpen by remember { mutableStateOf(false) }
+    val summary = listOfNotNull(statusFilter?.libraryTitle, genreFilter).ifEmpty { listOf("All titles") }.joinToString(" • ")
+    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 1.dp) {
+        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.weight(1f)) {
+                Text("Sort & filter", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text("${sortMode.label} • $summary", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            Button(onClick = { sheetOpen = true }, shape = RoundedCornerShape(20.dp)) { Icon(RhythmIcons.FilterList, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Sort & filter") }
+        }
+    }
+    if (sheetOpen) {
+        Dialog(onDismissRequest = { sheetOpen = false }) {
+            Surface(shape = RoundedCornerShape(30.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh, tonalElevation = 8.dp) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text("Sort & filter", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+                    CompactDropdown("Sort", sortMode.label, ViewingSortMode.entries, optionLabel = { it.label }, onSelect = onSort, modifier = Modifier.fillMaxWidth())
+                    CompactDropdown("Genre", genreFilter ?: "All genres", listOf<String?>(null) + genres.take(32), optionLabel = { it ?: "All genres" }, onSelect = onGenre, modifier = Modifier.fillMaxWidth())
+                    val statusOptions = listOf<ViewingUserStatus?>(null) + ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }
+                    CompactDropdown("Status", statusFilter?.libraryTitle ?: "Any saved status", statusOptions, optionLabel = { it?.libraryTitle ?: "Any saved status" }, onSelect = onStatus, modifier = Modifier.fillMaxWidth())
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        TextButton(onClick = { onStatus(null); onGenre(null) }) { Text("Reset") }
+                        Button(onClick = { sheetOpen = false }) { Text("Apply") }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 
@@ -446,19 +477,29 @@ internal fun <T> CompactDropdown(
     onSelect: (T) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
     Box(modifier) {
-        SpectrumPillTab(selected = false, onClick = { expanded = true }, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "$label filter, selected $selected" }) {
+        SpectrumPillTab(selected = false, onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); expanded = true }, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "$label filter, selected $selected" }) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
                 Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 Text(selected, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Icon(RhythmIcons.ExpandMore, contentDescription = null)
         }
-        SpectrumPopupMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option -> SpectrumPopupMenuItem(optionLabel(option), selected = optionLabel(option) == selected) { expanded = false; onSelect(option) } }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, shape = RoundedCornerShape(22.dp), containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
+            options.forEach { option ->
+                val optionText = optionLabel(option)
+                DropdownMenuItem(
+                    text = { Text(optionText, fontWeight = if (optionText == selected) FontWeight.Bold else FontWeight.Medium) },
+                    onClick = { expanded = false; HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onSelect(option) },
+                    leadingIcon = if (optionText == selected) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
+                )
+            }
         }
     }
 }
+
 
 @Composable
 internal fun LibraryTabs(selected: String, onTab: (String) -> Unit) {
@@ -532,7 +573,7 @@ internal fun PhaseDivider(title: String, items: List<ViewingItem>) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                Text("${items.size} tracks", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("${items.size} titles", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             SpectrumRhythmDivider(universe = title, bars = 14)
         }
@@ -577,7 +618,7 @@ internal fun CollectionCardGrid(lists: List<ViewingList>, onOpenList: (ViewingLi
                         Spacer(Modifier.height(10.dp))
                         Text(list.title, fontWeight = FontWeight.ExtraBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                         SpectrumRhythmDivider(universe = list.universe ?: list.category, bars = 8)
-                        Text("${list.items.size} tracks", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
+                        Text("${list.items.size} titles", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelMedium)
                     }
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))

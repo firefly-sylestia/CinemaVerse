@@ -10,7 +10,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -115,7 +116,7 @@ import com.marvelspectrum.shared.presentation.components.icons.RhythmIcons
 import com.marvelspectrum.shared.presentation.components.viewing.YouTubeTrailerWebPlayer
 import com.marvelspectrum.shared.presentation.viewmodel.ViewingViewModel
 import com.marvelspectrum.shared.util.ViewingArtworkUtils
-import kotlinx.coroutines.delay
+import com.marvelspectrum.util.HapticUtils
 
 @Composable
 fun ViewingHomeScreen(
@@ -214,48 +215,78 @@ internal fun ViewingHomeContent(
         contentPadding = PaddingValues(SpectrumSpacing.screenPadding, ViewingUi.topPad, SpectrumSpacing.screenPadding, SpectrumSpacing.bottomSafePadding),
         verticalArrangement = Arrangement.spacedBy(SpectrumSpacing.sectionGap)
     ) {
-        item { CinemaverseHeader(title = "Marvel Spectrum", subtitle = "Your cinematic universe, beautifully organized", onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
-        item { LibraryTabs("Continue", onTab = { onOpenLibrary() }) }
-        item { SectionIdentityBlock(RhythmIcons.Play, "Continue your spectrum", "${continueItems.size} ready", "Recent activity, saved titles, and the stories waiting for you") }
+        item { CinemaverseHeader(onOpenSearch = onOpenSearch, onOpenSettings = onOpenSettings) }
+        if (continueItems.isNotEmpty()) item { ContinueQueueRail("Continue watching", "In progress and saved for later", continueItems, onOpenItem) }
         item {
-            FeaturedTitleCarousel(
+            CinemaverseFeaturedRail(
                 items = remember(data) { data.homeFeaturedTitles() },
                 featuredList = data.featuredList,
-                onOpenItem = onOpenItem
+                onOpenItem = onOpenItem,
+                onOpenTrailer = { trailerPreview = it }
             )
         }
-        if (recent.isNotEmpty()) item { CinemaActivityMiniSurface(recent.first(), onClick = { onOpenItem(recent.first()) }) }
-        if (continueItems.isNotEmpty()) item { ContinueQueueRail("Continue watching", "A mini-player queue for recent, watching, and watch-later titles", continueItems, onOpenItem) }
-        if (trailerItems.isNotEmpty()) item { TrailerRail("Trailers", "Wide cinematic previews with primary trailer metadata", trailerItems, onOpenTrailer = { trailerPreview = it }) }
-        if (upcomingItems.isNotEmpty()) item { SpectrumLaneRail("Upcoming", "Announced and upcoming Cinemaverse releases", upcomingItems, onOpenItem, universe = null) }
-        if (becauseYouWatched.isNotEmpty()) item { SpectrumLaneRail("Because you watched ${recent.first().title}", recent.first().universe ?: recent.first().franchise ?: "Personal picks", becauseYouWatched, onOpenItem, universe = recent.first().universe) }
-        item { SpectrumLaneRail("MCU spectrum lane", "Marvel Studios films, shows, specials, One-Shots, and Defenders", marvel, onOpenItem, universe = "MCU") }
-        item { SpectrumLaneRail("DC spectrum lane", "DCU, DCEU, Elseworlds, and connected TV", dc, onOpenItem, universe = "DC") }
-        item { CollectionAlbumRail("Managed collections", "Essentials, timelines, chapters, and character journeys", lists, onOpenList) }
+        if (trailerItems.isNotEmpty()) item { TrailerRail("Trailers", "Official previews and clips", trailerItems, onOpenTrailer = { trailerPreview = it }) }
+        if (upcomingItems.isNotEmpty()) item { SpectrumLaneRail("Upcoming", "Announced and upcoming releases", upcomingItems, onOpenItem, universe = null) }
+        item { CollectionAlbumRail("Collections", "Timelines, phases, sagas, and character arcs", lists, onOpenList) }
+        item { SpectrumLaneRail("Marvel", "Films, shows, specials, and timelines", marvel, onOpenItem, universe = "MCU") }
+        item { SpectrumLaneRail("DC", "Films, series, Elseworlds, and connected stories", dc, onOpenItem, universe = "DC") }
+        if (becauseYouWatched.isNotEmpty() && recent.isNotEmpty()) item { SpectrumLaneRail("More like ${recent.first().title}", "Based on universe, saga, franchise, and genre", becauseYouWatched, onOpenItem, universe = recent.first().universe) }
     }
     trailerPreview?.let { item -> TrailerPlayerDialog(item = item, onOpenDetails = { trailerPreview = null; onOpenItem(item) }, onDismiss = { trailerPreview = null }) }
 }
 
 @Composable
-
-internal fun CinemaverseHeader(title: String = "Marvel Spectrum", subtitle: String = "Marvel • DC • Release orders • Trailers", onOpenSearch: (() -> Unit)? = null, onOpenSettings: () -> Unit) {
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(title, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.ExtraBold)
-            Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        SpectrumGlassSurface(shape = RoundedCornerShape(30.dp)) {
-            Row(Modifier.fillMaxWidth().padding(8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                    Image(painter = painterResource(R.drawable.ic_cinemaverse), contentDescription = "Marvel Spectrum", modifier = Modifier.size(52.dp).padding(11.dp))
+internal fun CinemaverseHeader(
+    title: String = "Cinemaverse",
+    subtitle: String = "Movies, shows, timelines, and watch progress",
+    onOpenSearch: (() -> Unit)? = null,
+    onOpenSettings: () -> Unit,
+    showBrandMark: Boolean = true
+) {
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    Surface(
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 1.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                if (showBrandMark) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_cinemaverse),
+                        contentDescription = "Cinemaverse",
+                        modifier = Modifier.size(44.dp).padding(10.dp)
+                    )
+                } else {
+                    Icon(RhythmIcons.AppsGrid, contentDescription = null, modifier = Modifier.size(44.dp).padding(10.dp))
                 }
-                Column(Modifier.weight(1f)) {
-                    Text("Explore your spectrum", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Text("Search, filter, and tune your view", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                if (onOpenSearch != null) SpectrumIconButton(onClick = onOpenSearch) { Icon(RhythmIcons.Search, contentDescription = "Search Marvel Spectrum") }
-                SettingsIconAction(onOpenSettings)
             }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+            if (onOpenSearch != null) {
+                FilledIconButton(
+                    onClick = {
+                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                        onOpenSearch()
+                    },
+                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
+                ) { Icon(RhythmIcons.Search, contentDescription = "Search") }
+            }
+            FilledIconButton(
+                onClick = {
+                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                    onOpenSettings()
+                },
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor = MaterialTheme.colorScheme.onSurface)
+            ) { Icon(RhythmIcons.Settings, contentDescription = "Settings") }
         }
     }
 }
@@ -375,61 +406,56 @@ internal fun CollectionTitleRow(item: ViewingItem, order: Int, onClick: () -> Un
 }
 
 @Composable
-internal fun FeaturedTitleCarousel(
+internal fun CinemaverseFeaturedRail(
     items: List<ViewingItem>,
     featuredList: ViewingList,
-    onOpenItem: (ViewingItem) -> Unit
+    onOpenItem: (ViewingItem) -> Unit,
+    onOpenTrailer: (ViewingItem) -> Unit
 ) {
     val carouselItems = if (items.isEmpty()) featuredList.items.take(6) else items
-    val listState = rememberLazyListState()
-    val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-    var selectedIndex by rememberSaveable(carouselItems.map { it.id }.joinToString()) { mutableStateOf(0) }
-    var interactionPaused by rememberSaveable { mutableStateOf(false) }
-    val visibleItem = carouselItems.getOrNull(selectedIndex) ?: return
+    if (carouselItems.isEmpty()) return
+    val pagerState = rememberPagerState(pageCount = { carouselItems.size })
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    var userInteracted by rememberSaveable { mutableStateOf(false) }
+    var lastSettledPage by rememberSaveable { mutableStateOf(pagerState.currentPage) }
+    val visibleItem = carouselItems[pagerState.currentPage.coerceIn(0, carouselItems.lastIndex)]
 
-    LaunchedEffect(listState.firstVisibleItemIndex, listState.isScrollInProgress) {
-        if (listState.isScrollInProgress) {
-            interactionPaused = true
-        } else if (interactionPaused) {
-            selectedIndex = listState.firstVisibleItemIndex.coerceIn(0, carouselItems.lastIndex)
-            delay(2_400)
-            interactionPaused = false
-        }
+    LaunchedEffect(pagerState.isScrollInProgress) {
+        if (pagerState.isScrollInProgress) userInteracted = true
     }
-    LaunchedEffect(carouselItems, selectedIndex, interactionPaused) {
-        if (carouselItems.size <= 1 || interactionPaused) return@LaunchedEffect
-        delay(6_000)
-        selectedIndex = (selectedIndex + 1) % carouselItems.size
-    }
-    LaunchedEffect(selectedIndex) {
-        if (carouselItems.isNotEmpty() && !listState.isScrollInProgress && listState.firstVisibleItemIndex != selectedIndex) {
-            listState.animateScrollToItem(selectedIndex)
+    LaunchedEffect(pagerState.settledPage, userInteracted) {
+        if (userInteracted && pagerState.settledPage != lastSettledPage) {
+            lastSettledPage = pagerState.settledPage
+            HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
         }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        SpectrumSectionHeader("Featured titles", subtitle = "Swipe the cinematic spectrum • tap a scene for details")
-        LazyRow(
-            state = listState,
-            horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.cardGap),
-            flingBehavior = snapFlingBehavior,
-            modifier = Modifier.semantics { contentDescription = "Gesture-first featured title carousel" }
-        ) {
-            itemsIndexed(carouselItems, key = { index, item -> "featured-${item.id}-$index" }) { index, item ->
-                FeaturedTitleCarouselCard(
-                    item = item,
-                    list = featuredList,
-                    selected = index == selectedIndex,
-                    position = index + 1,
-                    total = carouselItems.size,
-                    onClick = {
-                        interactionPaused = true
-                        selectedIndex = index
-                        onOpenItem(item)
-                    },
-                    modifier = Modifier.fillParentMaxWidth(0.90f)
-                )
-            }
+        SpectrumSectionHeader("Featured picks", subtitle = "Selected movies, series, and timelines")
+        HorizontalPager(
+            state = pagerState,
+            contentPadding = PaddingValues(end = 28.dp),
+            pageSpacing = SpectrumSpacing.cardGap,
+            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Featured picks" }
+        ) { page ->
+            val item = carouselItems[page]
+            CinemaverseFeaturedCard(
+                item = item,
+                list = featuredList,
+                selected = page == pagerState.currentPage,
+                position = page + 1,
+                total = carouselItems.size,
+                onOpenItem = {
+                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                    onOpenItem(item)
+                },
+                onOpenTrailer = {
+                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                    onOpenTrailer(item)
+                },
+                modifier = Modifier.fillMaxWidth(0.92f)
+            )
         }
         Row(
             Modifier.fillMaxWidth(),
@@ -438,18 +464,18 @@ internal fun FeaturedTitleCarousel(
         ) {
             carouselItems.forEachIndexed { index, _ ->
                 val width by animateDpAsState(
-                    if (index == selectedIndex) SpectrumSpacing.carouselIndicatorActiveWidth else SpectrumSpacing.carouselIndicatorInactiveWidth,
+                    if (index == pagerState.currentPage) SpectrumSpacing.carouselIndicatorActiveWidth else SpectrumSpacing.carouselIndicatorInactiveWidth,
                     label = "featuredIndicatorWidth"
                 )
                 Surface(
                     modifier = Modifier.size(width = width, height = SpectrumSpacing.carouselIndicatorHeight),
                     shape = RoundedCornerShape(50),
-                    color = if (index == selectedIndex) spectrumUniverseAccent(visibleItem.universe).primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
+                    color = if (index == pagerState.currentPage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
                 ) {}
             }
         }
         Text(
-            "Featured ${selectedIndex + 1} of ${carouselItems.size}: ${visibleItem.title}",
+            "Featured ${pagerState.currentPage + 1} of ${carouselItems.size}: ${visibleItem.title}",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -457,38 +483,49 @@ internal fun FeaturedTitleCarousel(
 }
 
 @Composable
-internal fun FeaturedTitleCarouselCard(
+internal fun CinemaverseFeaturedCard(
     item: ViewingItem,
     list: ViewingList,
     selected: Boolean,
     position: Int,
     total: Int,
-    onClick: () -> Unit,
+    onOpenItem: () -> Unit,
+    onOpenTrailer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val displayItem = rememberEnrichedItem(item)
-    val accent = spectrumUniverseAccent(displayItem.universe)
+    val hasTrailer = displayItem.hasAnyTrailer()
     Card(
-        onClick = onClick,
         shape = SpectrumShapes.mediaFrame,
-        border = BorderStroke(if (selected) 2.dp else 1.dp, if (selected) accent.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.50f)),
+        border = BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.50f)),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         modifier = modifier.semantics {
-            contentDescription = "Featured title $position of $total: ${displayItem.title}. Open details for ${displayItem.title}"
+            contentDescription = "Featured title $position of $total: ${displayItem.title}"
         }
     ) {
-        Box(Modifier.fillMaxWidth().height(350.dp).clip(SpectrumShapes.mediaFrame)) {
+        Box(Modifier.fillMaxWidth().height(334.dp).clip(SpectrumShapes.mediaFrame)) {
             PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
-            UniverseGlow(displayItem.universe, Modifier.matchParentSize())
-            Box(Modifier.matchParentSize().background(readabilityGradient(strong = true)))
-            Column(Modifier.align(Alignment.BottomStart).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    SpectrumPulseIndicator(active = selected, universe = displayItem.universe)
-                    SpectrumArtworkPill(displayItem.universe ?: "Spectrum premiere")
+            Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.18f), Color.Black.copy(alpha = 0.78f)))))
+            Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOfNotNull(displayItem.universe, displayItem.year, displayItem.phase ?: displayItem.saga).take(3).forEach { SpectrumArtworkPill(it) }
                 }
                 Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga, list.title).joinToString(" • "), color = Color.White.copy(alpha = .84f), maxLines = 2)
-                SpectrumRhythmDivider(universe = displayItem.universe, bars = 16)
+                Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga, list.title).joinToString(" • "), color = Color.White.copy(alpha = .86f), maxLines = 2)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Button(onClick = onOpenItem, shape = RoundedCornerShape(18.dp)) {
+                        Icon(RhythmIcons.Info, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Details")
+                    }
+                    if (hasTrailer) {
+                        FilledTonalButton(onClick = onOpenTrailer, shape = RoundedCornerShape(18.dp)) {
+                            Icon(RhythmIcons.Play, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Trailer")
+                        }
+                    }
+                }
             }
         }
     }
@@ -621,7 +658,7 @@ internal fun CollectionAlbumCard(list: ViewingList, onClick: () -> Unit) {
         SpectrumRhythmDivider(universe = list.universe ?: list.category, bars = 12)
         Row(horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.chipGap), verticalAlignment = Alignment.CenterVertically) {
             Surface(shape = SpectrumShapes.pillTab, color = accent.container, contentColor = accent.onContainer) {
-                Text("${list.items.size} tracks", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                Text("${list.items.size} titles", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             }
             Text(list.category ?: list.universe ?: "Collection", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
