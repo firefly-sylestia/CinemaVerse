@@ -121,7 +121,7 @@ internal fun TrailerPlayerDialog(item: ViewingItem, onOpenDetails: () -> Unit, o
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     var expanded by rememberSaveable(displayItem.id) { mutableStateOf(false) }
-    var playing by rememberSaveable(displayItem.id) { mutableStateOf(false) }
+    var playing by rememberSaveable(displayItem.id) { mutableStateOf(displayItem.hasAnyTrailer()) }
     var moreExpanded by remember { mutableStateOf(false) }
     val trailerOptions = remember(displayItem) { displayItem.availableTrailers() }
     var selectedTrailerIndex by rememberSaveable(displayItem.id, trailerOptions.size) { mutableStateOf(0) }

@@ -327,11 +327,15 @@ internal fun CinematicDetailHero(item: ViewingItem, statuses: Set<ViewingUserSta
         }
         SpectrumGlassSurface(Modifier.fillMaxWidth(), RoundedCornerShape(28.dp), accent) {
             Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SpectrumRhythmDivider(universe = item.universe, bars = 20)
+                Text("Status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.ExtraBold)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    DetailActionPill("Watch later", RhythmIcons.AccessTime, ViewingUserStatus.WATCH_LATER in statuses) { onStatusToggle(ViewingUserStatus.WATCH_LATER) }
-                    DetailActionPill("Favorite", RhythmIcons.Favorite, ViewingUserStatus.FAVORITE in statuses) { onStatusToggle(ViewingUserStatus.FAVORITE) }
-                    DetailActionPill("Watched", RhythmIcons.Check, ViewingUserStatus.WATCHED in statuses) { onStatusToggle(ViewingUserStatus.WATCHED) }
+                    ViewingUserStatus.entries.filter { it != ViewingUserStatus.HIDDEN }.forEach { status ->
+                        DetailActionPill(
+                            label = if (status in statuses) status.activeLabel else status.inactiveLabel,
+                            icon = status.icon(),
+                            selected = status in statuses
+                        ) { onStatusToggle(status) }
+                    }
                 }
             }
         }

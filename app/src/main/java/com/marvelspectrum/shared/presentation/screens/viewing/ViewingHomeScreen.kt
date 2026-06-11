@@ -237,7 +237,7 @@ internal fun ViewingHomeContent(
 
 @Composable
 internal fun CinemaverseHeader(
-    title: String = "Cinemaverse",
+    title: String = "Home",
     subtitle: String = "Movies, shows, timelines, and watch progress",
     onOpenSearch: (() -> Unit)? = null,
     onOpenSettings: () -> Unit,
@@ -245,51 +245,36 @@ internal fun CinemaverseHeader(
 ) {
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
-    Surface(
-        shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 1.dp,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            Modifier.fillMaxWidth().padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
-                if (showBrandMark) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_cinemaverse),
-                        contentDescription = "Cinemaverse",
-                        modifier = Modifier.size(44.dp).padding(10.dp)
-                    )
-                } else {
-                    Icon(RhythmIcons.AppsGrid, contentDescription = null, modifier = Modifier.size(44.dp).padding(10.dp))
-                }
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
-                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            }
-            if (onOpenSearch != null) {
-                FilledIconButton(
-                    onClick = {
-                        HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                        onOpenSearch()
-                    },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-                ) { Icon(RhythmIcons.Search, contentDescription = "Search") }
-            }
-            FilledIconButton(
-                onClick = {
-                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
-                    onOpenSettings()
-                },
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor = MaterialTheme.colorScheme.onSurface)
-            ) { Icon(RhythmIcons.Settings, contentDescription = "Settings") }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
+        FilledIconButton(
+            onClick = {
+                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                onOpenSettings()
+            },
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            )
+        ) { Icon(RhythmIcons.Settings, contentDescription = "Settings") }
     }
 }
+
 
 @Composable
 internal fun CollectionAlbumHero(list: ViewingList, onPlayFirst: () -> Unit, onShuffle: () -> Unit) {
@@ -503,28 +488,61 @@ internal fun CinemaverseFeaturedCard(
             contentDescription = "Featured title $position of $total: ${displayItem.title}"
         }
     ) {
-        Box(Modifier.fillMaxWidth().height(334.dp).clip(SpectrumShapes.mediaFrame)) {
+        Box(Modifier.fillMaxWidth().height(354.dp).clip(SpectrumShapes.mediaFrame)) {
             PosterBackdrop(displayItem, Modifier.fillMaxSize(), ContentScale.Crop, intent = ArtworkDisplayIntent.HERO_BACKDROP)
-            Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.18f), Color.Black.copy(alpha = 0.78f)))))
-            Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.10f), Color.Black.copy(alpha = 0.44f), Color.Black.copy(alpha = 0.88f)))))
+            PosterBackdrop(
+                displayItem,
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(14.dp)
+                    .width(82.dp)
+                    .aspectRatio(2f / 3f),
+                ContentScale.Crop,
+                SpectrumShapes.posterMask
+            )
+            if (hasTrailer) {
+                val trailer = displayItem.primaryTrailer()
+                Box(
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 18.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.Black)
+                ) {
+                    YouTubeTrailerWebPlayer(
+                        youtubeVideoId = trailer?.youtubeVideoId,
+                        trailerUrl = trailer?.url,
+                        title = displayItem.title,
+                        autoplay = selected,
+                        muted = true,
+                        showControls = false,
+                        loop = true,
+                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.34f)))))
+                    SpectrumPillTab(
+                        selected = false,
+                        onClick = onOpenTrailer,
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
+                    ) {
+                        Icon(RhythmIcons.Play, contentDescription = null)
+                        Text("Trailer")
+                    }
+                }
+            }
+            Column(Modifier.align(Alignment.BottomStart).padding(18.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOfNotNull(displayItem.universe, displayItem.year, displayItem.phase ?: displayItem.saga).take(3).forEach { SpectrumArtworkPill(it) }
                 }
                 Text(displayItem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(listOfNotNull(displayItem.year, displayItem.runtime, displayItem.phase ?: displayItem.saga, list.title).joinToString(" • "), color = Color.White.copy(alpha = .86f), maxLines = 2)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Button(onClick = onOpenItem, shape = RoundedCornerShape(18.dp)) {
-                        Icon(RhythmIcons.Info, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Details")
-                    }
-                    if (hasTrailer) {
-                        FilledTonalButton(onClick = onOpenTrailer, shape = RoundedCornerShape(18.dp)) {
-                            Icon(RhythmIcons.Play, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Trailer")
-                        }
-                    }
+                SpectrumPillTab(selected = true, onClick = onOpenItem) {
+                    Icon(RhythmIcons.Info, contentDescription = null)
+                    Text("Details")
                 }
             }
         }

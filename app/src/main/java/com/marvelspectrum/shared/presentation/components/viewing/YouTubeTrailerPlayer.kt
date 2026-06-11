@@ -1,9 +1,14 @@
 package com.marvelspectrum.shared.presentation.components.viewing
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -129,7 +134,7 @@ fun YouTubeTrailerWebPlayer(
                     layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                     alpha = 0.99f
                     setBackgroundColor(android.graphics.Color.BLACK)
-                    webChromeClient = WebChromeClient()
+                    webChromeClient = FullscreenTrailerChromeClient(viewContext)
                     webViewClient = object : WebViewClient() {
                         override fun onPageFinished(view: WebView?, url: String?) { playerState = YouTubeTrailerPlayerState.Playing }
                         override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -141,6 +146,8 @@ fun YouTubeTrailerWebPlayer(
                     settings.mediaPlaybackRequiresUserGesture = false
                     settings.javaScriptCanOpenWindowsAutomatically = true
                     settings.loadsImagesAutomatically = true
+                    settings.useWideViewPort = true
+                    settings.loadWithOverviewMode = true
                     settings.cacheMode = WebSettings.LOAD_DEFAULT
                     CookieManager.getInstance().setAcceptCookie(true)
                     CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
@@ -189,7 +196,8 @@ private fun buildYouTubePlayerHtml(
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
             <style>
                 html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
-                #player { position: absolute; inset: 0; width: 100%; height: 100%; }
+                #player { position: absolute; inset: 0; width: 100%; height: 100%; min-width: 100%; min-height: 100%; }
+                iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0; }
             </style>
         </head>
         <body>
@@ -205,7 +213,8 @@ private fun buildYouTubePlayerHtml(
                         playerVars: {
                             autoplay: $autoplayFlag,
                             controls: $controlsFlag,
-                            playsinline: 1,
+                            playsinline: 0,
+                            fs: 1,
                             rel: 0,
                             enablejsapi: 1,
                             origin: 'https://www.youtube.com',
@@ -227,6 +236,45 @@ private fun buildYouTubePlayerHtml(
         </body>
         </html>
     """.trimIndent()
+}
+
+private class FullscreenTrailerChromeClient(context: Context) : WebChromeClient() {
+    private val activity = context.findActivity()
+    private var customView: View? = null
+    private var customViewCallback: CustomViewCallback? = null
+
+    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+        val host = activity ?: return super.onShowCustomView(view, callback)
+        if (customView != null) {
+            callback?.onCustomViewHidden()
+            return
+        }
+        val fullscreenView = view ?: return
+        customView = fullscreenView
+        customViewCallback = callback
+        host.window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        (host.window.decorView as? ViewGroup)?.addView(
+            fullscreenView,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        )
+    }
+
+    override fun onHideCustomView() {
+        val host = activity ?: return
+        customView?.let { view ->
+            (host.window.decorView as? ViewGroup)?.removeView(view)
+        }
+        host.window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        customView = null
+        customViewCallback?.onCustomViewHidden()
+        customViewCallback = null
+    }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
 
 @Composable

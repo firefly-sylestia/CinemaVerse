@@ -2,7 +2,11 @@ package com.marvelspectrum.shared.presentation.screens.viewing
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -159,13 +163,23 @@ fun SpectrumRhythmDivider(
     bars: Int = 18
 ) {
     val accent = spectrumUniverseAccent(universe)
+    val transition = rememberInfiniteTransition(label = "spectrumDividerMotion")
+    val shimmer by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(SpectrumMotion.pulseMillis * 2, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "spectrumDividerShimmer"
+    )
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(SpectrumSpacing.waveformBarGap),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        repeat(bars) { index ->
-            val heightFactor = when (index % 6) {
+        repeat(bars.coerceAtMost(18)) { index ->
+            val baseHeight = when (index % 6) {
                 0 -> 0.28f
                 1 -> 0.62f
                 2 -> 1f
@@ -173,12 +187,13 @@ fun SpectrumRhythmDivider(
                 4 -> 0.78f
                 else -> 0.36f
             }
+            val wave = 0.82f + (((index % 3) * 0.06f) + shimmer * 0.08f)
             Box(
                 Modifier
                     .width(SpectrumSpacing.waveformBarWidth)
-                    .height(SpectrumSpacing.waveformHeight * heightFactor)
+                    .height(SpectrumSpacing.waveformHeight * baseHeight * wave)
                     .clip(SpectrumShapes.pillTab)
-                    .background(lerp(MaterialTheme.colorScheme.outlineVariant, accent.primary, 0.45f).copy(alpha = 0.52f))
+                    .background(lerp(MaterialTheme.colorScheme.outlineVariant, accent.primary, 0.45f).copy(alpha = 0.42f + shimmer * 0.18f))
             )
         }
         Spacer(Modifier.weight(1f))

@@ -13,6 +13,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -476,21 +478,62 @@ internal fun <T> CompactDropdown(
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     Box(modifier) {
-        SpectrumPillTab(selected = false, onClick = { HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); expanded = true }, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "$label filter, selected $selected" }) {
+        SpectrumPillTab(
+            selected = false,
+            onClick = {
+                HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                expanded = true
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { contentDescription = "$label filter, selected $selected" }
+        ) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
                 Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 Text(selected, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             Icon(RhythmIcons.ExpandMore, contentDescription = null)
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, shape = RoundedCornerShape(22.dp), containerColor = MaterialTheme.colorScheme.surfaceContainerHigh) {
-            options.forEach { option ->
-                val optionText = optionLabel(option)
-                DropdownMenuItem(
-                    text = { Text(optionText, fontWeight = if (optionText == selected) FontWeight.Bold else FontWeight.Medium) },
-                    onClick = { expanded = false; HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove); onSelect(option) },
-                    leadingIcon = if (optionText == selected) ({ Icon(RhythmIcons.Check, contentDescription = null) }) else null
-                )
+    }
+    if (expanded) {
+        Dialog(onDismissRequest = { expanded = false }) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                tonalElevation = 8.dp
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(320.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        options.forEach { option ->
+                            val optionText = optionLabel(option)
+                            SpectrumPillTab(
+                                selected = optionText == selected,
+                                onClick = {
+                                    expanded = false
+                                    HapticUtils.performHapticFeedback(context, haptics, HapticFeedbackType.TextHandleMove)
+                                    onSelect(option)
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                if (optionText == selected) Icon(RhythmIcons.Check, contentDescription = null)
+                                Text(optionText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

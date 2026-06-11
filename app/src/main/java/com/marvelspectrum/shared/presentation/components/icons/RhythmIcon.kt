@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -179,22 +178,18 @@ fun Icon(
         opticalSize = size.value * MaterialSymbolGlyphScale
     )
 
-    BoxWithConstraints(
-        modifier = modifier.semantics(mergeDescendants = true) {
-            if (contentDescription != null) {
-                this.contentDescription = contentDescription
-            }
-            this.role = Role.Image
-        },
+    Box(
+        modifier = modifier
+            .size(size)
+            .semantics(mergeDescendants = true) {
+                if (contentDescription != null) {
+                    this.contentDescription = contentDescription
+                }
+                this.role = Role.Image
+            },
         contentAlignment = Alignment.Center
     ) {
-        val slotSize = if (maxWidth != Dp.Infinity && maxHeight != Dp.Infinity) {
-            minOf(maxWidth, maxHeight)
-        } else {
-            size
-        }
-        val glyphSize = slotSize * MaterialSymbolGlyphScale
-
+        val glyphSize = size * MaterialSymbolGlyphScale
         androidx.compose.material3.Text(
             text = icon.name,
             fontFamily = fontFamily,
